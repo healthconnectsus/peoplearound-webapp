@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-06-05 — Make commit-version robust for CLI deploys; wire Vercel deploy into ship
+
+- `.gitignore`
+- `.vercelignore`
+- `next.config.ts`
+- `scripts/ship.mjs`
+
+
 ### 2026-06-05 — Fix ship changed-files parsing (clean paths)
 
 - `progress.md`

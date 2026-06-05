@@ -3,9 +3,10 @@ import { execSync } from "node:child_process";
 
 /** Resolve the short commit SHA at build time (Vercel env or local git). */
 function commitSha(): string {
-  if (process.env.VERCEL_GIT_COMMIT_SHA) {
-    return process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7);
-  }
+  // VERCEL_GIT_COMMIT_SHA on Git-integration deploys; SHIP_COMMIT_SHA is
+  // passed by scripts/ship.mjs for CLI deploys (where .git isn't uploaded).
+  const sha = process.env.VERCEL_GIT_COMMIT_SHA || process.env.SHIP_COMMIT_SHA;
+  if (sha) return sha.slice(0, 7);
   try {
     return execSync("git rev-parse --short HEAD").toString().trim();
   } catch {

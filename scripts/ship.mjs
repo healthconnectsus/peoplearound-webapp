@@ -82,9 +82,15 @@ console.log("🚀 pushed to origin/main.");
 
 // 4. Deploy.
 const token = process.env.VERCEL_TOKEN || envLocal("VERCEL_TOKEN");
+const scope = "healthconnectsus-projects";
 if (token) {
   console.log("▲ Deploying to Vercel (CLI)…");
-  run(`npx --yes vercel@latest deploy --prod --yes --token ${token}`);
+  const fullSha = capture("git rev-parse HEAD");
+  run(
+    `npx --yes vercel@latest deploy --prod --yes` +
+      ` --scope ${scope} --token ${token}` +
+      ` --build-env SHIP_COMMIT_SHA=${fullSha}`,
+  );
   console.log("▲ Vercel production deploy triggered.");
 } else {
   console.log(
