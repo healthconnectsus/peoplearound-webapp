@@ -7,6 +7,18 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-06-05 — Add Goals feature: profiles+goals schema with RLS, create/feed/detail, state transitions
+
+- `src/app/goals/[id]/page.tsx`
+- `src/app/goals/actions.ts`
+- `src/app/goals/new/page.tsx`
+- `src/app/page.tsx`
+- `src/components/ConfirmSubmit.tsx`
+- `src/components/SiteHeader.tsx`
+- `src/lib/goals.ts`
+- `supabase/migrations/0001_profiles_and_goals.sql`
+
+
 ### 2026-06-05 — Harden auth: forward root ?code= to /auth/confirm
 
 - `src/lib/supabase/proxy.ts`
