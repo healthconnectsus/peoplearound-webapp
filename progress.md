@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-06-05 — Use peoplearound logo on login and home pages
+
+- `public/logo.png`
+- `src/app/login/page.tsx`
+- `src/app/page.tsx`
+
+
 ### 2026-06-05 — Make commit-version robust for CLI deploys; wire Vercel deploy into ship
 
 - `.gitignore`
