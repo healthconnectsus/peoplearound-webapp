@@ -37,6 +37,16 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
+  // If an auth confirmation lands on the root (e.g. Supabase fell back to the
+  // Site URL because emailRedirectTo wasn't allowlisted), forward the code to
+  // the confirm handler instead of letting the route guard drop it.
+  if (path === "/" && request.nextUrl.searchParams.has("code")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/confirm";
+    return NextResponse.redirect(url);
+  }
+
   const isPublicRoute = path.startsWith("/login") || path.startsWith("/auth");
 
   if (!user && !isPublicRoute) {

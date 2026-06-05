@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-06-05 — Harden auth: forward root ?code= to /auth/confirm
+
+- `src/lib/supabase/proxy.ts`
+
+
 ### 2026-06-05 — Use peoplearound logo on login and home pages
 
 - `public/logo.png`
