@@ -46,17 +46,19 @@ if (!msg) {
   process.exit(1);
 }
 
-const status = capture("git status --porcelain");
-if (!status) {
+if (!capture("git status --porcelain")) {
   console.log("Nothing to ship — working tree is clean.");
   process.exit(0);
 }
 
-// 1. Document in progress.md (date + message + changed files).
-const files = status
+// 1. Stage everything, then read the exact committed paths (dirs expanded,
+//    no status prefixes — clean for the changelog).
+run("git add -A");
+const files = capture("git diff --cached --name-only")
   .split("\n")
-  .filter(Boolean)
-  .map((l) => l.slice(3).trim());
+  .filter(Boolean);
+
+// 2. Document in progress.md (date + message + changed files).
 const date = new Date().toISOString().slice(0, 10);
 const entry =
   `### ${date} — ${msg}\n\n` + files.map((f) => `- \`${f}\``).join("\n") + "\n";
@@ -67,10 +69,10 @@ if (!progress.includes(MARKER)) {
   process.exit(1);
 }
 writeFileSync(PROGRESS, progress.replace(MARKER, `${MARKER}\n\n${entry}`));
+run("git add progress.md");
 console.log(`📝 progress.md updated (${files.length} file(s) changed).`);
 
-// 2. Stage, commit, push.
-run("git add -A");
+// 3. Commit, push.
 const msgPath = resolve(root, ".git", "SHIP_EDITMSG");
 writeFileSync(msgPath, `${msg}\n`);
 run(`git commit -F "${msgPath}"`);
@@ -78,7 +80,7 @@ console.log(`✅ committed ${capture("git rev-parse --short HEAD")}`);
 run("git push");
 console.log("🚀 pushed to origin/main.");
 
-// 3. Deploy.
+// 4. Deploy.
 const token = process.env.VERCEL_TOKEN || envLocal("VERCEL_TOKEN");
 if (token) {
   console.log("▲ Deploying to Vercel (CLI)…");

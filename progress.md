@@ -7,11 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-06-05 — Fix ship changed-files parsing (clean paths)
+
+- `progress.md`
+- `scripts/ship.mjs`
+
+
 ### 2026-06-05 — Add ship automation: progress + commit + push + deploy
 
-- `ackage.json`
+- `package.json`
 - `progress.md`
-- `scripts/`
+- `scripts/ship.mjs`
 
 
 ### 2026-06-05 — Initial webapp scaffold + Supabase auth
