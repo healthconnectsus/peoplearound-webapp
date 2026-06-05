@@ -2,11 +2,19 @@
 
 A running log of every commit. Newest first.
 
-Each entry: `### <short-sha> — <date>` followed by what changed and why.
+Each entry: `### <date> — <message>` followed by what changed. New entries are
+added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
-### (pending first commit) — 2026-06-05
+### 2026-06-05 — Add ship automation: progress + commit + push + deploy
+
+- `ackage.json`
+- `progress.md`
+- `scripts/`
+
+
+### 2026-06-05 — Initial webapp scaffold + Supabase auth
 
 **Initial webapp scaffold + Supabase auth.**
 
