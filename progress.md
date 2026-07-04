@@ -7,6 +7,27 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-04 — Pivot to joinable projects: rename goals to projects, add stars + request/approve memberships, friendlier UX
+
+- `.claude/launch.json`
+- `scripts/db-apply.mjs`
+- `src/app/goals/[id]/page.tsx`
+- `src/app/goals/actions.ts`
+- `src/app/goals/new/page.tsx`
+- `src/app/layout.tsx`
+- `src/app/login/page.tsx`
+- `src/app/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/app/projects/new/page.tsx`
+- `src/components/SiteHeader.tsx`
+- `src/lib/goals.ts`
+- `src/lib/projects.ts`
+- `supabase/migrations/0002_rename_goals_to_projects.sql`
+- `supabase/migrations/0003_stars.sql`
+- `supabase/migrations/0004_memberships.sql`
+
+
 ### 2026-06-05 — Add Goals feature: profiles+goals schema with RLS, create/feed/detail, state transitions
 
 - `src/app/goals/[id]/page.tsx`

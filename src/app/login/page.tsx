@@ -22,7 +22,7 @@ export default async function LoginPage({
             className="h-auto w-56 rounded-xl"
           />
           <p className="mt-2 text-sm text-black/60 dark:text-white/60">
-            Achieve goals together.
+            Share an idea. Build it together.
           </p>
         </div>
 
