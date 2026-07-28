@@ -96,12 +96,12 @@ The trust core of the product. **Logic must live server-side, never client-side.
 - Reputation is contextual ("trusted on community projects in this neighborhood") and surfaced only where relevant.
 - Ranking by acknowledged impact, not volume. No public leaderboard. Each user sees their own history privately.
 
-### 3.6 Events — `P0` *(planned)*
+### 3.6 Events — `P0` ✅ *shipped (web)*
 
-- Founders create events on a project: title, time, place. Anyone joins / not (lightweight RSVP).
-- RSVP is a coordination signal only — never a performance metric. Absence is never penalized.
-- Presence rewardable: post-event, the founder (with co-attestation) can acknowledge who contributed there.
-- Events serve as the gentlest on-ramp for newcomers and a defibrillator for stalling projects.
+- Founders create events on a project: title, time, place. Anyone joins / not (lightweight RSVP). ✅
+- RSVP is a coordination signal only — never a performance metric. Absence is never penalized: the `rsvp_status` enum has the single value `joining`, so no-show data cannot even be stored. ✅
+- Presence rewardable: past events prompt attendees to log a contribution and the founder to accept it, feeding the trust layer. ✅
+- Events serve as the gentlest on-ramp for newcomers and a defibrillator for stalling projects — upcoming events surface in a "Happening soon" strip at the top of the feed. ✅
 
 ### 3.7 "What's happening?" feed — `P0` *(basic version shipped)*
 

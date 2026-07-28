@@ -14,7 +14,7 @@ The architecture exists to protect one thing: a **trustworthy record of what peo
 |---|---|---|
 | Web client | Next.js 16 (App Router) + React 19 + Tailwind v4 | Feed, project pages, create flow, join/approve UI |
 | Hosting | Vercel | Auto-deploy from `main` + CLI deploys via `npm run ship` |
-| Backend / DB | Supabase Postgres + RLS | `profiles` · `projects` · `stars` · `memberships` · `contributions` · `attestations`; membership + trust rules enforced in RLS, confirmation in a security-definer function |
+| Backend / DB | Supabase Postgres + RLS | `profiles` · `projects` · `stars` · `memberships` · `contributions` · `attestations` · `events` · `rsvps`; membership + trust rules enforced in RLS, confirmation in a security-definer function |
 | Auth | Supabase Auth via `@supabase/ssr` | Email/password + magic link; session refresh + route guard in `src/proxy.ts` (Next 16's renamed middleware) |
 | AI idea shaping | Next.js route handler → Claude API | `/api/shape-idea`: free-form (typed or dictated) idea → structured `{title, description, category, state, tip}` via `claude-opus-4-8` structured outputs; browser Web Speech API for voice input |
 | Migrations | `supabase/migrations/` + `scripts/db-apply.mjs` | Idempotent SQL applied via the Supabase Management API |

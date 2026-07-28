@@ -318,6 +318,110 @@ export async function acceptContribution(formData: FormData) {
   redirect(`/projects/${projectId}`);
 }
 
+// ------------------------------------------------------------------
+// Events — physical coordination. The founder creates; anyone RSVPs
+// with a single lightweight "joining" signal. Absence is never recorded.
+// ------------------------------------------------------------------
+export async function createEvent(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const title = String(formData.get("title") ?? "")
+    .trim()
+    .slice(0, 140);
+  const startsAtRaw = String(formData.get("startsAt") ?? "").trim();
+  const place = String(formData.get("place") ?? "")
+    .trim()
+    .slice(0, 200);
+  if (!projectId) redirect("/");
+
+  // datetime-local gives naive "YYYY-MM-DDTHH:mm"; store it verbatim as the
+  // neighborhood-local time (see formatEventTime in lib/projects.ts).
+  const startsAt = `${startsAtRaw.slice(0, 16)}:00Z`;
+  if (!title || Number.isNaN(Date.parse(startsAt))) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // Founder-only. RLS also enforces this; check here for correct behavior.
+  const { data: project } = await supabase
+    .from("projects")
+    .select("owner_id")
+    .eq("id", projectId)
+    .single();
+  if (!project || project.owner_id !== user.id) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  await supabase.from("events").insert({
+    project_id: projectId,
+    title,
+    starts_at: startsAt,
+    place,
+  });
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath("/");
+  redirect(`/projects/${projectId}`);
+}
+
+export async function deleteEvent(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const eventId = String(formData.get("eventId") ?? "");
+  if (!projectId || !eventId) redirect(`/projects/${projectId}`);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // RLS guarantees only the founder can delete.
+  await supabase.from("events").delete().eq("id", eventId);
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath("/");
+  redirect(`/projects/${projectId}`);
+}
+
+export async function toggleRsvp(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const eventId = String(formData.get("eventId") ?? "");
+  if (!projectId || !eventId) redirect(`/projects/${projectId}`);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: existing } = await supabase
+    .from("rsvps")
+    .select("user_id")
+    .eq("event_id", eventId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (existing) {
+    // Withdrawing a signal, never a penalty — the row simply goes away.
+    await supabase
+      .from("rsvps")
+      .delete()
+      .eq("event_id", eventId)
+      .eq("user_id", user.id);
+  } else {
+    await supabase
+      .from("rsvps")
+      .insert({ event_id: eventId, user_id: user.id });
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+  redirect(`/projects/${projectId}`);
+}
+
 export async function attestContribution(formData: FormData) {
   const projectId = String(formData.get("projectId") ?? "");
   const contributionId = String(formData.get("contributionId") ?? "");

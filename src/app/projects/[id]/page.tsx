@@ -9,21 +9,27 @@ import {
   STATE_META,
   TRANSITIONS,
   categoryMeta,
+  formatEventTime,
+  isUpcomingEvent,
   isWithinDays,
   timeAgo,
   type Contribution,
   type Membership,
   type Project,
+  type ProjectEvent,
 } from "@/lib/projects";
 import {
   acceptContribution,
   attestContribution,
+  createEvent,
+  deleteEvent,
   deleteProject,
   leaveProject,
   logContribution,
   requestJoin,
   respondToMembership,
   setProjectState,
+  toggleRsvp,
   toggleStar,
   withdrawContribution,
 } from "../actions";
@@ -94,6 +100,18 @@ export default async function ProjectDetail({
     .eq("project_id", id)
     .order("created_at", { ascending: false });
   const contributions = (contributionRows ?? []) as unknown as Contribution[];
+
+  // Events — physical coordination, with each event's joining signals.
+  const { data: eventRows } = await supabase
+    .from("events")
+    .select("id,project_id,title,starts_at,place,created_at,rsvps(user_id)")
+    .eq("project_id", id)
+    .order("starts_at", { ascending: true });
+  const events = (eventRows ?? []) as unknown as ProjectEvent[];
+  const upcomingEvents = events.filter((e) => isUpcomingEvent(e.starts_at));
+  const pastEvents = events
+    .filter((e) => !isUpcomingEvent(e.starts_at))
+    .reverse();
 
   // The acknowledgment moment: the current user's own recently confirmed work.
   const myFreshlyConfirmed = contributions.filter(
@@ -341,6 +359,147 @@ export default async function ProjectDetail({
             <p className="mt-2 text-xs text-black/40 dark:text-white/40">
               No collaborators yet — you could be the first.
             </p>
+          ) : null}
+        </div>
+
+        {/* Events — where it becomes physical */}
+        <div className="mt-7">
+          <h2 className="mb-2 text-sm font-semibold">Events</h2>
+
+          {events.length === 0 ? (
+            <p className="text-sm text-black/40 dark:text-white/40">
+              {isOwner
+                ? "No events yet — a concrete time and place is the easiest way to get neighbors involved."
+                : "No events planned yet."}
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {[...upcomingEvents, ...pastEvents].map((e) => {
+                const upcoming = isUpcomingEvent(e.starts_at);
+                const iAmIn = e.rsvps.some((r) => r.user_id === user.id);
+                const count = e.rsvps.length;
+                return (
+                  <li
+                    key={e.id}
+                    className={`rounded-xl border px-4 py-3 ${
+                      upcoming
+                        ? "border-black/10 dark:border-white/10"
+                        : "border-black/5 opacity-60 dark:border-white/5"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium">
+                          <span className="mr-1" aria-hidden>
+                            📅
+                          </span>
+                          {e.title}
+                        </p>
+                        <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
+                          {formatEventTime(e.starts_at)}
+                          {e.place ? ` · ${e.place}` : ""}
+                          {!upcoming ? " · happened" : ""}
+                        </p>
+                        <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
+                          🙋 {count} {count === 1 ? "neighbor" : "neighbors"}{" "}
+                          joining
+                        </p>
+                      </div>
+                      {isOwner ? (
+                        <form action={deleteEvent}>
+                          <input
+                            type="hidden"
+                            name="projectId"
+                            value={project.id}
+                          />
+                          <input type="hidden" name="eventId" value={e.id} />
+                          <ConfirmSubmit
+                            message="Remove this event?"
+                            className="shrink-0 text-xs text-black/40 hover:underline dark:text-white/40"
+                          >
+                            Remove
+                          </ConfirmSubmit>
+                        </form>
+                      ) : null}
+                    </div>
+
+                    {upcoming ? (
+                      <form action={toggleRsvp} className="mt-2.5">
+                        <input
+                          type="hidden"
+                          name="projectId"
+                          value={project.id}
+                        />
+                        <input type="hidden" name="eventId" value={e.id} />
+                        <button
+                          type="submit"
+                          className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
+                            iAmIn
+                              ? "border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
+                              : "border-black/15 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                          }`}
+                        >
+                          {iAmIn ? "✓ You're in — tap to change plans" : "🙋 I'm in"}
+                        </button>
+                      </form>
+                    ) : isOwner ? (
+                      <p className="mt-2 text-xs text-black/40 dark:text-white/40">
+                        Did neighbors help make this happen? When they log it
+                        below, accept it so it counts.
+                      </p>
+                    ) : iAmIn && isTeammate ? (
+                      <p className="mt-2 text-xs text-black/40 dark:text-white/40">
+                        Were you there and pitched in? Log it below so it
+                        becomes part of the record.
+                      </p>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {isOwner ? (
+            <form
+              action={createEvent}
+              className="mt-4 rounded-2xl border border-black/10 p-4 dark:border-white/10"
+            >
+              <input type="hidden" name="projectId" value={project.id} />
+              <h3 className="text-sm font-semibold">Plan an event</h3>
+              <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+                A concrete time and place — the gentlest way for a neighbor to
+                get involved. Joining is a signal, not a promise.
+              </p>
+              <input
+                type="text"
+                name="title"
+                required
+                maxLength={140}
+                placeholder='e.g. "Planting day — bring gloves!"'
+                className="mt-3 w-full rounded-xl border border-black/15 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                <input
+                  type="datetime-local"
+                  name="startsAt"
+                  required
+                  className="rounded-xl border border-black/15 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-white/20 dark:[color-scheme:dark]"
+                />
+                <input
+                  type="text"
+                  name="place"
+                  maxLength={200}
+                  placeholder="Where? e.g. the Oak Street lot"
+                  className="min-w-0 flex-1 rounded-xl border border-black/15 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+                />
+              </div>
+              <button
+                type="submit"
+                className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              >
+                Create event
+              </button>
+            </form>
           ) : null}
         </div>
 

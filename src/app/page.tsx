@@ -2,7 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/SiteHeader";
-import { STATE_META, categoryMeta, timeAgo, type Project } from "@/lib/projects";
+import {
+  STATE_META,
+  categoryMeta,
+  formatEventTime,
+  isUpcomingEvent,
+  timeAgo,
+  type Project,
+  type ProjectEvent,
+} from "@/lib/projects";
 import { versionLabel } from "@/lib/version";
 
 type ProjectCardData = Project & {
@@ -74,11 +82,25 @@ export default async function Home() {
 
   const projects = (data ?? []) as unknown as Project[];
 
-  // Tally star + accepted-collaborator counts per project in two flat queries.
-  const [{ data: starRows }, { data: memberRows }] = await Promise.all([
-    supabase.from("stars").select("project_id"),
-    supabase.from("memberships").select("project_id").eq("status", "accepted"),
-  ]);
+  // Tally star + accepted-collaborator counts per project in two flat
+  // queries, and pick up upcoming events for the "Happening soon" strip.
+  const [{ data: starRows }, { data: memberRows }, { data: eventRows }] =
+    await Promise.all([
+      supabase.from("stars").select("project_id"),
+      supabase
+        .from("memberships")
+        .select("project_id")
+        .eq("status", "accepted"),
+      supabase
+        .from("events")
+        .select("id,project_id,title,starts_at,place,created_at,rsvps(user_id),project:projects(title)")
+        .order("starts_at", { ascending: true })
+        .limit(20),
+    ]);
+
+  const upcomingEvents = (
+    (eventRows ?? []) as unknown as ProjectEvent[]
+  ).filter((e) => isUpcomingEvent(e.starts_at));
 
   const starCounts = new Map<string, number>();
   for (const s of starRows ?? []) {
@@ -108,6 +130,36 @@ export default async function Home() {
             Ideas your neighbors are building — join one, or share your own.
           </p>
         </div>
+
+        {upcomingEvents.length > 0 ? (
+          <div className="mb-6">
+            <h2 className="mb-2 text-sm font-semibold">Happening soon</h2>
+            <ul className="flex flex-col gap-2">
+              {upcomingEvents.map((e) => (
+                <li key={e.id}>
+                  <Link
+                    href={`/projects/${e.project_id}`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-emerald-600/25 bg-emerald-50/50 px-4 py-3 transition-colors hover:bg-emerald-50 dark:border-emerald-500/25 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40"
+                  >
+                    <span className="min-w-0 text-sm">
+                      <span className="mr-1" aria-hidden>
+                        📅
+                      </span>
+                      <span className="font-medium">{e.title}</span>{" "}
+                      <span className="text-black/50 dark:text-white/50">
+                        · {formatEventTime(e.starts_at)}
+                        {e.place ? ` · ${e.place}` : ""}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-xs text-black/45 dark:text-white/45">
+                      🙋 {e.rsvps.length}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         {cards.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-black/15 p-10 text-center dark:border-white/15">

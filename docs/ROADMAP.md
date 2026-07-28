@@ -19,10 +19,10 @@ The goal of this phase is to prove the join-and-build loop works in a single nei
 - ✅ Basic feed — projects with team size + star counts
 - ✅ Auth (email/password + magic link), ship pipeline, idempotent migrations
 - ✅ [Contributions + acknowledgment](PRD.md#34-contributions-and-acknowledgment--p0-shipped-web) — the trust core: `logged → accepted → confirmed` with co-attestation, no self-crediting, and a 7-day community bypass around unresponsive founders
+- ✅ [Events](PRD.md#36-events--p0-shipped-web) — founder plans a time and place, neighbors signal "I'm in"; no no-show data exists anywhere; past events prompt contribution logging
 
 **Still to ship in Phase 0:**
 
-- [Events](PRD.md#36-events--p0-planned) — physical coordination, gentlest on-ramp
 - Project history timeline — the accumulating true story on each project page
 - Neighborhood scoping (PostGIS) and realtime feed
 

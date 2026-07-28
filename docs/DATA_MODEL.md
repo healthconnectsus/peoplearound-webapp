@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, and `attestations` are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `neighborhoods`, `events`, `rsvps`, `offers`, and `reputation` are still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, and `rsvps` are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `neighborhoods`, `offers`, and `reputation` are still planned.
 
 ## Entity relationships
 
@@ -13,7 +13,7 @@ neighborhoods ──< profiles ──< projects ──< stars
                                  │
                                  ├──< memberships          ← the join flow (live)
                                  ├──< contributions ──< attestations   ← the trust core (live)
-                                 ├──< events ──< rsvps
+                                 ├──< events ──< rsvps                 ← physical coordination (live)
                                  └──< offers (optional link)
 reputation (derived from contributions + attestations)
 ```
@@ -109,6 +109,35 @@ Third-party confirmation that a contribution really happened.
 > **Constraint:** `UNIQUE (contribution_id, attester_id)` — one attestation per witness.
 > **RLS:** insert only as yourself; never for your own contribution; never as the founder (their acceptance is a separate signal); only if you are an accepted teammate or stargazer of the project. No update or delete — an attestation, once given, stands.
 
+### events
+
+Physical coordination attached to a project.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| project_id | uuid (FK → projects) | |
+| title | text | 1–140 chars (DB check) |
+| starts_at | timestamptz | Stored as the naive neighborhood-local time the founder typed; real timezone handling arrives with neighborhoods |
+| place | text | ≤ 200 chars; becomes geography with PostGIS |
+| created_at | timestamptz | |
+
+> **RLS:** readable by any signed-in user; insert/update/delete by the project founder only.
+
+### rsvps
+
+Lightweight coordination signal — **never** a performance metric. No "no-show" count is ever stored or derived.
+
+| Column | Type | Notes |
+|---|---|---|
+| event_id | uuid (FK → events) | |
+| user_id | uuid (FK → profiles) | |
+| status | enum `rsvp_status` | `joining` is the *only* value — absence is simply the absence of a row, so no-show data cannot exist |
+| created_at | timestamptz | |
+
+> **Constraint:** `PRIMARY KEY (event_id, user_id)` — one signal per neighbor per event.
+> **RLS:** insert and delete own rows only; withdrawing an RSVP deletes the row, leaving no trace.
+
 ## Tables — planned (trust layer)
 
 ### neighborhoods
@@ -120,30 +149,6 @@ The hard boundary for all reads and writes.
 | id | uuid (PK) | |
 | name | text | |
 | boundary | geography (PostGIS) | Polygon for radius/containment queries |
-| created_at | timestamptz | |
-
-### events
-
-Physical coordination attached to a project.
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid (PK) | |
-| project_id | uuid (FK → projects) | |
-| title | text | |
-| starts_at | timestamptz | |
-| place | text / geography | |
-| created_at | timestamptz | |
-
-### rsvps
-
-Lightweight coordination signal — **never** a performance metric. No "no-show" count is ever stored or derived.
-
-| Column | Type | Notes |
-|---|---|---|
-| event_id | uuid (FK → events) | |
-| user_id | uuid (FK → profiles) | |
-| status | enum | `joining` (absence is simply the absence of a row — never penalized) |
 | created_at | timestamptz | |
 
 ### offers
@@ -182,6 +187,8 @@ Give / lend / offer — the non-monetary replacement for a marketplace.
 | Contribution status transitions server-only | RLS allows only `logged → accepted` by founder; `confirmed` only via `reconcile_contributions()` (security definer) | ✅ Live |
 | One attestation per witness | `UNIQUE (contribution_id, attester_id)` | ✅ Live |
 | Accepted/confirmed history is permanent | RLS delete policy covers `logged` rows only | ✅ Live |
+| Events founder-managed; RSVPs self-only | RLS on `events` (owner writes) and `rsvps` (own rows) | ✅ Live |
+| No no-show data can exist | `rsvp_status` enum has the single value `joining`; withdrawal deletes the row | ✅ Live |
 | Neighborhood scoping | RLS on every table keyed to `neighborhood_id` | Planned |
 | Reputation read-only | Derived/computed; no client write path | Planned |
 

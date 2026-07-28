@@ -78,6 +78,45 @@ export function timeAgo(iso: string): string {
   return years === 1 ? "1 year ago" : `${years} years ago`;
 }
 
+export type ProjectEvent = {
+  id: string;
+  project_id: string;
+  title: string;
+  starts_at: string;
+  place: string;
+  created_at: string;
+  project?: { title: string } | null;
+  rsvps: { user_id: string }[];
+};
+
+/**
+ * Event times are stored as the naive neighborhood-local time the founder
+ * typed (Postgres interprets it as UTC), so we format in UTC to round-trip
+ * exactly what they entered. Real timezone handling arrives with
+ * neighborhoods (a neighborhood implies a timezone).
+ */
+export function formatEventTime(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "UTC",
+  }).format(new Date(iso));
+}
+
+/**
+ * True if the event hasn't happened yet. Because stored times are naive
+ * neighborhood-local (see formatEventTime), comparison against real UTC now
+ * is off by the neighborhood's UTC offset — so events keep counting as
+ * upcoming for a 14-hour grace period. Erring this way only ever shows a
+ * just-finished event as current, never hides a future one.
+ */
+export function isUpcomingEvent(iso: string): boolean {
+  return new Date(iso).getTime() > Date.now() - 14 * 60 * 60 * 1000;
+}
+
 /** True if the timestamp is within the last `days` days. */
 export function isWithinDays(iso: string | null, days: number): boolean {
   if (!iso) return false;

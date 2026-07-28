@@ -7,6 +7,19 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-28 — Add events + RSVPs: founder plans time/place, neighbors signal I'm-in; no no-show data by design; Happening-soon strip on feed
+
+- `docs/ARCHITECTURE.md`
+- `docs/DATA_MODEL.md`
+- `docs/PRD.md`
+- `docs/ROADMAP.md`
+- `src/app/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/lib/projects.ts`
+- `supabase/migrations/0006_events.sql`
+
+
 ### 2026-07-28 — Revoke reconcile_contributions execute from anon (Supabase default-privilege hygiene)
 
 - `supabase/migrations/0005_contributions.sql`
