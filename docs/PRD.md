@@ -103,10 +103,10 @@ The trust core of the product. **Logic must live server-side, never client-side.
 - Presence rewardable: past events prompt attendees to log a contribution and the founder to accept it, feeding the trust layer. ✅
 - Events serve as the gentlest on-ramp for newcomers and a defibrillator for stalling projects — upcoming events surface in a "Happening soon" strip at the top of the feed. ✅
 
-### 3.7 "What's happening?" feed — `P0` *(basic version shipped)*
+### 3.7 "What's happening?" feed — `P0` ✅ *shipped (web)*
 
-- A location-scoped ambient feed showing active projects, new events, recent joins, and offers nearby.
-- Today: a calm project feed with team size + star counts. Later: realtime via Supabase Realtime.
+- A neighborhood-scoped ambient feed showing active projects, upcoming events ("Happening soon"), team sizes, and star counts. ✅
+- Live-updates via Supabase Realtime (RLS-filtered) — a neighbor sharing an idea or starring a project appears without a reload. ✅
 - Surfaces opportunities to join and contribute, not vanity content. No infinite-scroll engagement bait.
 
 ### 3.8 Offer / give / lend — `P1`

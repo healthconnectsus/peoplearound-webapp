@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/SiteHeader";
+import { LiveRefresh } from "@/components/LiveRefresh";
 import {
   STATE_META,
   categoryMeta,
@@ -71,6 +72,19 @@ export default async function Home() {
   // The proxy already guards this route, but guard here too as defense in depth.
   if (!user) redirect("/login");
 
+  // Everything is neighborhood-scoped; picking one is the required first step.
+  const { data: profileRow } = await supabase
+    .from("profiles")
+    .select("neighborhood_id,neighborhood:neighborhoods(name)")
+    .eq("id", user.id)
+    .maybeSingle();
+  const profile = profileRow as unknown as {
+    neighborhood_id: string | null;
+    neighborhood?: { name: string } | null;
+  } | null;
+  if (!profile?.neighborhood_id) redirect("/neighborhood");
+  const neighborhoodName = profile.neighborhood?.name ?? "your neighborhood";
+
   const { data } = await supabase
     .from("projects")
     .select(
@@ -123,11 +137,20 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
+      <LiveRefresh tables="projects,stars,memberships,events" />
       <main className="mx-auto w-full max-w-2xl flex-1 p-4">
         <div className="mb-5">
-          <h1 className="text-lg font-semibold">Projects around you</h1>
+          <h1 className="text-lg font-semibold">
+            Projects around you in {neighborhoodName}
+          </h1>
           <p className="text-sm text-black/50 dark:text-white/50">
-            Ideas your neighbors are building — join one, or share your own.
+            Ideas your neighbors are building — join one, or share your own.{" "}
+            <Link
+              href="/neighborhood"
+              className="underline decoration-black/20 underline-offset-2 hover:decoration-current dark:decoration-white/20"
+            >
+              Change neighborhood
+            </Link>
           </p>
         </div>
 

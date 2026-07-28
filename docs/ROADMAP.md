@@ -21,10 +21,10 @@ The goal of this phase is to prove the join-and-build loop works in a single nei
 - ✅ [Contributions + acknowledgment](PRD.md#34-contributions-and-acknowledgment--p0-shipped-web) — the trust core: `logged → accepted → confirmed` with co-attestation, no self-crediting, and a 7-day community bypass around unresponsive founders
 - ✅ [Events](PRD.md#36-events--p0-shipped-web) — founder plans a time and place, neighbors signal "I'm in"; no no-show data exists anywhere; past events prompt contribution logging
 - ✅ Project history timeline — "The story so far" on each project page: idea → stars → joins → confirmed contributions → events → completion
+- ✅ Neighborhood scoping (PostGIS) — the hard boundary: everything a user sees, stars, joins, or builds is scoped to their picked neighborhood via RLS; location → neighborhood detection when a boundary polygon is drawn
+- ✅ Realtime feed — the feed and project pages refresh live via Supabase Realtime (RLS-filtered)
 
-**Still to ship in Phase 0:**
-
-- Neighborhood scoping (PostGIS) and realtime feed
+**All Phase 0 software is live.** What remains is the human part: run the pilot in one real neighborhood and meet the exit criteria below. (Neighborhood *verification* — phone + address — is deliberately later; today neighborhoods are self-selected.)
 
 **Scope decisions:**
 

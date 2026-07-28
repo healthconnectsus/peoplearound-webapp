@@ -7,6 +7,22 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-28 — Add neighborhood scoping (PostGIS) + realtime: hard RLS boundary, /neighborhood picker with geolocation, live-updating feed
+
+- `docs/ARCHITECTURE.md`
+- `docs/DATA_MODEL.md`
+- `docs/PRD.md`
+- `docs/ROADMAP.md`
+- `src/app/neighborhood/LocateButton.tsx`
+- `src/app/neighborhood/actions.ts`
+- `src/app/neighborhood/page.tsx`
+- `src/app/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/components/LiveRefresh.tsx`
+- `supabase/migrations/0007_neighborhoods.sql`
+
+
 ### 2026-07-28 — Add project history timeline: The story so far - idea, day-clustered stars, joins, confirmed contributions, events, completion
 
 - `docs/PRD.md`

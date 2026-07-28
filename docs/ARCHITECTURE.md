@@ -16,6 +16,8 @@ The architecture exists to protect one thing: a **trustworthy record of what peo
 | Hosting | Vercel | Auto-deploy from `main` + CLI deploys via `npm run ship` |
 | Backend / DB | Supabase Postgres + RLS | `profiles` · `projects` · `stars` · `memberships` · `contributions` · `attestations` · `events` · `rsvps`; membership + trust rules enforced in RLS, confirmation in a security-definer function |
 | Auth | Supabase Auth via `@supabase/ssr` | Email/password + magic link; session refresh + route guard in `src/proxy.ts` (Next 16's renamed middleware) |
+| Geo | PostGIS + `neighborhoods` table | Hard neighborhood boundary in RLS; `find_neighborhood(lat,lng)` matches browser geolocation to a boundary polygon |
+| Realtime | Supabase Realtime | `LiveRefresh` client component subscribes (RLS-filtered) and refreshes the feed + project pages on change |
 | AI idea shaping | Next.js route handler → Claude API | `/api/shape-idea`: free-form (typed or dictated) idea → structured `{title, description, category, state, tip}` via `claude-opus-4-8` structured outputs; browser Web Speech API for voice input |
 | Migrations | `supabase/migrations/` + `scripts/db-apply.mjs` | Idempotent SQL applied via the Supabase Management API |
 
@@ -75,9 +77,9 @@ Membership approval, acknowledgment, attestation, and reputation **never** run i
 
 Live today: a join request can only be created by the requester, always as `pending`, and only the project's founder can flip it to `accepted` — RLS makes self-approval impossible. Also live: a contribution can only be inserted by its contributor, always as `logged`; only the founder can accept, never their own work; an attester must differ from both the contributor and the founder; and `confirmed` is reachable only through a server-side security-definer function — clients cannot write it.
 
-### 3. Neighborhood is a hard boundary *(when neighborhoods ship)*
+### 3. Neighborhood is a hard boundary *(live)*
 
-RLS scopes reads and writes to a user's verified neighborhood(s). There is no global social graph. A user cannot see, star, or join projects outside their verified neighborhood.
+RLS scopes reads and writes to a user's neighborhood. There is no global social graph. A user cannot see, star, or join projects outside their neighborhood: the `projects` select policy checks the viewer's `profiles.neighborhood_id`, and every child table (stars, memberships, contributions, attestations, events, rsvps) inherits the boundary because its policies require a visible project. Projects are stamped with the founder's neighborhood by a database trigger — the client cannot place a project elsewhere. Today the neighborhood is self-selected (list or geolocation match); *verification* (phone + address) is a later phase.
 
 ### 4. Failure is invisible
 

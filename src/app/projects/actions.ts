@@ -31,6 +31,15 @@ export async function createProject(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // A project lives in its founder's neighborhood (stamped by DB trigger),
+  // so having one is a prerequisite. RLS enforces this too.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("neighborhood_id")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!profile?.neighborhood_id) redirect("/neighborhood");
+
   const { data, error } = await supabase
     .from("projects")
     .insert({ owner_id: user.id, title, description, category, state })

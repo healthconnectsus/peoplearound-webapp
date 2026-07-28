@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, and `rsvps` are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `neighborhoods`, `offers`, and `reputation` are still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, and `neighborhoods` are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `offers` and `reputation` are still planned.
 
 ## Entity relationships
 
@@ -30,7 +30,7 @@ One row per auth user, auto-created by a trigger on `auth.users`. (The PRD's `us
 | display_name | text | Defaults from email / sign-up metadata |
 | created_at | timestamptz | |
 
-> `neighborhood_id` joins this table when neighborhoods ship.
+> `neighborhood_id` (FK → neighborhoods, nullable) is **live** — picked on `/neighborhood` (list or geolocation); everything the user sees is scoped by it.
 
 ### projects
 
@@ -46,7 +46,7 @@ The central object — a living, joinable page with state, team, and history.
 | state | enum `project_state` | `idea` · `active` · `completed` · `archived` — **never `failed`** |
 | created_at / updated_at | timestamptz | `updated_at` maintained by trigger |
 
-> Planned columns: `neighborhood_id`, `location` (PostGIS) once neighborhoods ship.
+> `neighborhood_id` (FK → neighborhoods) is **live**, stamped from the founder's profile by a before-insert trigger. Planned: `location` (a point within the neighborhood).
 
 ### stars
 
@@ -138,8 +138,6 @@ Lightweight coordination signal — **never** a performance metric. No "no-show"
 > **Constraint:** `PRIMARY KEY (event_id, user_id)` — one signal per neighbor per event.
 > **RLS:** insert and delete own rows only; withdrawing an RSVP deletes the row, leaving no trace.
 
-## Tables — planned (trust layer)
-
 ### neighborhoods
 
 The hard boundary for all reads and writes.
@@ -147,9 +145,13 @@ The hard boundary for all reads and writes.
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid (PK) | |
-| name | text | |
-| boundary | geography (PostGIS) | Polygon for radius/containment queries |
+| name | text | Unique, 1–80 chars |
+| boundary | geography(polygon, 4326), nullable | Drawn by operators; enables 📍 location detection via `find_neighborhood(lat,lng)` |
 | created_at | timestamptz | |
+
+> **RLS:** readable by any signed-in user; **no client write path at all** — neighborhoods are created by operators (manual ops, per the roadmap). `profiles.neighborhood_id` and `projects.neighborhood_id` point here; a trigger stamps new projects with the founder's neighborhood.
+
+## Tables — planned
 
 ### offers
 
@@ -189,7 +191,7 @@ Give / lend / offer — the non-monetary replacement for a marketplace.
 | Accepted/confirmed history is permanent | RLS delete policy covers `logged` rows only | ✅ Live |
 | Events founder-managed; RSVPs self-only | RLS on `events` (owner writes) and `rsvps` (own rows) | ✅ Live |
 | No no-show data can exist | `rsvp_status` enum has the single value `joining`; withdrawal deletes the row | ✅ Live |
-| Neighborhood scoping | RLS on every table keyed to `neighborhood_id` | Planned |
+| Neighborhood scoping | `projects` select policy checks viewer's `neighborhood_id`; child tables require a visible project; trigger stamps projects | ✅ Live |
 | Reputation read-only | Derived/computed; no client write path | Planned |
 
 > This schema iterates as the human loop is proven. The live tables are deliberately minimal; the trust layer lands on top of them.

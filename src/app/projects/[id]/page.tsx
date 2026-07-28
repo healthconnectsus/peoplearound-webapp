@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/SiteHeader";
+import { LiveRefresh } from "@/components/LiveRefresh";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import {
   CONTRIBUTION_TYPES,
@@ -198,6 +199,7 @@ export default async function ProjectDetail({
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
+      <LiveRefresh tables="projects,stars,memberships,events,rsvps,contributions,attestations" />
       <main className="mx-auto w-full max-w-2xl flex-1 p-4">
         <Link
           href="/"
