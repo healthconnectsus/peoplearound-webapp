@@ -214,3 +214,22 @@ export type Membership = {
   created_at: string;
   profile?: { display_name: string | null } | null;
 };
+
+export type Star = {
+  user_id: string;
+  created_at: string;
+  profile?: { display_name: string | null } | null;
+};
+
+/** One entry in a project's history timeline — the accumulating true story. */
+export type TimelineEntry = {
+  at: string;
+  icon: string;
+  text: string;
+};
+
+/** Truncate long text for one-line timeline entries. */
+export function excerpt(text: string, max = 120): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length <= max ? clean : `${clean.slice(0, max - 1)}…`;
+}

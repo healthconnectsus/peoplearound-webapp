@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-28 — Add project history timeline: The story so far - idea, day-clustered stars, joins, confirmed contributions, events, completion
+
+- `docs/PRD.md`
+- `docs/ROADMAP.md`
+- `docs/UX_SPEC.md`
+- `src/app/projects/[id]/page.tsx`
+- `src/lib/projects.ts`
+
+
 ### 2026-07-28 — Add events + RSVPs: founder plans time/place, neighbors signal I'm-in; no no-show data by design; Happening-soon strip on feed
 
 - `docs/ARCHITECTURE.md`

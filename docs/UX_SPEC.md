@@ -70,7 +70,7 @@ The heart of the product. Persistent, stateful, story-like. *(Live: header, stat
 - **Header:** title, founder, current state (idea / building / completed), star + team counts.
 - **Primary actions:** ⭐ Star · 🤝 Ask to join — with context-aware microcopy that always tells you where you stand ("Your request is with Maria", "You're on the team").
 - **The team:** founder badged as Founder, plus accepted collaborators. Founders see pending join requests inline with Accept / Decline.
-- **History timeline** *(planned)*: the accumulating true story — stars, joins, accepted contributions (with who), events, milestones. This is the screen's emotional core.
+- **History timeline** ✅ *(live: "The story so far")*: the accumulating true story — the idea, stars (day-clustered), joins, confirmed contributions (with who), events held, completion. This is the screen's emotional core.
 - **Founder-only controls:** review join requests, update state, create events — visually quiet, not dominating the page.
 
 > The history timeline, not a photo or a like count, is the hero of the project page. The making is the product.

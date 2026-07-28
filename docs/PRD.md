@@ -59,7 +59,7 @@ The central object. A project is a persistent, joinable page, not a disposable p
 
 - Founder creates a project: title, description, category; later location + photos.
 - Project has an explicit lifecycle state: **idea → active (building) → completed**, or quietly archived. Never displayed as "failed."
-- History feed on the project records every star, join, accepted contribution, and event, in order. *(History timeline still to come.)*
+- History feed on the project records every star, join, confirmed contribution, and event, in order. ✅ *shipped ("The story so far")*
 - AI assists at creation to shape vague ideas into joinable projects (see [3.8](#38-ai-agent-the-gardener--p1)). ✅ *shipped*
 
 ### 3.2 Stars — `P0` ✅ *shipped (web)*

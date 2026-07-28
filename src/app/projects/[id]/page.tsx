@@ -13,10 +13,13 @@ import {
   isUpcomingEvent,
   isWithinDays,
   timeAgo,
+  excerpt,
   type Contribution,
   type Membership,
   type Project,
   type ProjectEvent,
+  type Star,
+  type TimelineEntry,
 } from "@/lib/projects";
 import {
   acceptContribution,
@@ -65,12 +68,14 @@ export default async function ProjectDetail({
   const nextStates = TRANSITIONS[project.state];
   const founderName = project.owner?.display_name ?? "Someone";
 
-  // Stars — count + whether the current user has starred.
+  // Stars — count, whether the current user has starred, and who/when for
+  // the history timeline.
   const { data: starRows } = await supabase
     .from("stars")
-    .select("user_id")
-    .eq("project_id", id);
-  const stars = starRows ?? [];
+    .select("user_id,created_at,profile:profiles(display_name)")
+    .eq("project_id", id)
+    .order("created_at", { ascending: true });
+  const stars = (starRows ?? []) as unknown as Star[];
   const starCount = stars.length;
   const hasStarred = stars.some((s) => s.user_id === user.id);
 
@@ -120,6 +125,75 @@ export default async function ProjectDetail({
       c.status === "confirmed" &&
       isWithinDays(c.confirmed_at, 7),
   );
+
+  // ----------------------------------------------------------------
+  // The history timeline — the accumulating true story of the project,
+  // assembled from what actually happened: the idea, stars, joins,
+  // confirmed contributions, and events. The making is the product.
+  // ----------------------------------------------------------------
+  const timeline: TimelineEntry[] = [];
+
+  timeline.push({
+    at: project.created_at,
+    icon: cat.emoji,
+    text: `${founderName} shared the idea`,
+  });
+
+  // Stars, clustered by day so a good day reads as one warm beat.
+  const starsByDay = new Map<string, Star[]>();
+  for (const s of stars) {
+    const day = s.created_at.slice(0, 10);
+    starsByDay.set(day, [...(starsByDay.get(day) ?? []), s]);
+  }
+  for (const dayStars of starsByDay.values()) {
+    const first = dayStars[0].profile?.display_name ?? "A neighbor";
+    const others = dayStars.length - 1;
+    timeline.push({
+      at: dayStars[dayStars.length - 1].created_at,
+      icon: "⭐",
+      text:
+        others === 0
+          ? `${first} would be glad this existed`
+          : `${first} and ${others} other ${others === 1 ? "neighbor" : "neighbors"} starred this`,
+    });
+  }
+
+  for (const m of accepted) {
+    timeline.push({
+      at: m.created_at,
+      icon: "🤝",
+      text: `${m.profile?.display_name ?? "A neighbor"} joined the team`,
+    });
+  }
+
+  // Only confirmed contributions enter the story — the trust layer's output.
+  for (const c of contributions) {
+    if (c.status !== "confirmed") continue;
+    timeline.push({
+      at: c.created_at,
+      icon: CONTRIBUTION_TYPE_META[c.type].emoji,
+      text: `${c.contributor?.display_name ?? "A neighbor"} — ${excerpt(c.description)} (confirmed)`,
+    });
+  }
+
+  for (const e of pastEvents) {
+    const count = e.rsvps.length;
+    timeline.push({
+      at: e.starts_at,
+      icon: "📅",
+      text: `${e.title}${count > 0 ? ` — ${count} ${count === 1 ? "neighbor" : "neighbors"} joined in` : ""}`,
+    });
+  }
+
+  if (project.state === "completed") {
+    timeline.push({
+      at: project.updated_at,
+      icon: "🎉",
+      text: "The project reached completion",
+    });
+  }
+
+  timeline.sort((a, b) => a.at.localeCompare(b.at));
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -358,6 +432,33 @@ export default async function ProjectDetail({
           {accepted.length === 0 && !isOwner ? (
             <p className="mt-2 text-xs text-black/40 dark:text-white/40">
               No collaborators yet — you could be the first.
+            </p>
+          ) : null}
+        </div>
+
+        {/* The story so far — the history timeline is the hero of the page */}
+        <div className="mt-7">
+          <h2 className="mb-3 text-sm font-semibold">The story so far</h2>
+          <ol className="relative ml-2 flex flex-col gap-4 border-l border-black/10 pl-5 dark:border-white/10">
+            {timeline.map((entry, i) => (
+              <li key={`${entry.at}-${i}`} className="relative">
+                <span
+                  aria-hidden
+                  className="absolute -left-[27px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[11px] leading-none dark:bg-zinc-950"
+                >
+                  {entry.icon}
+                </span>
+                <p className="text-sm leading-snug">{entry.text}</p>
+                <p className="mt-0.5 text-xs text-black/40 dark:text-white/40">
+                  {timeAgo(entry.at)}
+                </p>
+              </li>
+            ))}
+          </ol>
+          {timeline.length === 1 ? (
+            <p className="mt-3 text-xs text-black/40 dark:text-white/40">
+              Every story starts somewhere. Stars, teammates, and confirmed
+              contributions will all be recorded here.
             </p>
           ) : null}
         </div>
