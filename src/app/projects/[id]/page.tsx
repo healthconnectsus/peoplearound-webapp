@@ -4,20 +4,28 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import {
+  CONTRIBUTION_TYPES,
+  CONTRIBUTION_TYPE_META,
   STATE_META,
   TRANSITIONS,
   categoryMeta,
+  isWithinDays,
   timeAgo,
+  type Contribution,
   type Membership,
   type Project,
 } from "@/lib/projects";
 import {
+  acceptContribution,
+  attestContribution,
   deleteProject,
   leaveProject,
+  logContribution,
   requestJoin,
   respondToMembership,
   setProjectState,
   toggleStar,
+  withdrawContribution,
 } from "../actions";
 
 export default async function ProjectDetail({
@@ -72,6 +80,28 @@ export default async function ProjectDetail({
   const pending = members.filter((m) => m.status === "pending");
   const accepted = members.filter((m) => m.status === "accepted");
   const teamSize = accepted.length + 1; // founder + accepted collaborators
+  const isTeammate = myMembership?.status === "accepted";
+
+  // Contributions — apply any pending confirmations (server-side, idempotent;
+  // this is also what makes the 7-day founder-bypass window take effect),
+  // then read the record.
+  await supabase.rpc("reconcile_contributions", { p_project_id: id });
+  const { data: contributionRows } = await supabase
+    .from("contributions")
+    .select(
+      "id,contributor_id,type,description,status,created_at,confirmed_at,contributor:profiles(display_name),attestations(attester_id,created_at,attester:profiles(display_name))",
+    )
+    .eq("project_id", id)
+    .order("created_at", { ascending: false });
+  const contributions = (contributionRows ?? []) as unknown as Contribution[];
+
+  // The acknowledgment moment: the current user's own recently confirmed work.
+  const myFreshlyConfirmed = contributions.filter(
+    (c) =>
+      c.contributor_id === user.id &&
+      c.status === "confirmed" &&
+      isWithinDays(c.confirmed_at, 7),
+  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -196,6 +226,29 @@ export default async function ProjectDetail({
           </div>
         </div>
 
+        {/* The acknowledgment moment — your work was confirmed by real people. */}
+        {myFreshlyConfirmed.length > 0 ? (
+          <div className="mt-7 rounded-2xl border border-emerald-300 bg-emerald-50 p-5 dark:border-emerald-700/60 dark:bg-emerald-950/40">
+            <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">
+              🎉 {founderName} confirmed your help on this project.
+            </p>
+            <p className="mt-1 text-sm text-emerald-800 dark:text-emerald-300">
+              You were needed — and you showed up.{" "}
+              {myFreshlyConfirmed[0].attestations.length > 0 ? (
+                <>
+                  {myFreshlyConfirmed[0].attestations
+                    .map((a) => a.attester?.display_name ?? "A neighbor")
+                    .join(", ")}{" "}
+                  saw it happen. It&apos;s part of this project&apos;s story
+                  now.
+                </>
+              ) : (
+                "It's part of this project's story now."
+              )}
+            </p>
+          </div>
+        ) : null}
+
         {/* Owner: pending join requests */}
         {isOwner && pending.length > 0 ? (
           <div className="mt-7">
@@ -288,6 +341,221 @@ export default async function ProjectDetail({
             <p className="mt-2 text-xs text-black/40 dark:text-white/40">
               No collaborators yet — you could be the first.
             </p>
+          ) : null}
+        </div>
+
+        {/* Contributions — the trust layer */}
+        <div className="mt-7">
+          <h2 className="mb-2 text-sm font-semibold">Contributions</h2>
+
+          {contributions.length === 0 ? (
+            <p className="text-sm text-black/40 dark:text-white/40">
+              {isTeammate
+                ? "Nothing logged yet — when you help move this project forward, record it below."
+                : "Nothing logged yet. When the team gets to work, what they build shows up here."}
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {contributions.map((c) => {
+                const typeMeta = CONTRIBUTION_TYPE_META[c.type];
+                const isMine = c.contributor_id === user.id;
+                const iAttested = c.attestations.some(
+                  (a) => a.attester_id === user.id,
+                );
+                const canAttest =
+                  !isOwner && !isMine && (isTeammate || hasStarred);
+                const witnessNames = c.attestations
+                  .map((a) => a.attester?.display_name ?? "a neighbor")
+                  .join(", ");
+                return (
+                  <li
+                    key={c.id}
+                    className="rounded-xl border border-black/10 px-4 py-3 dark:border-white/10"
+                  >
+                    <p className="text-sm">
+                      <span className="mr-1" aria-hidden>
+                        {typeMeta.emoji}
+                      </span>
+                      <span className="font-medium">
+                        {c.contributor?.display_name ?? "Someone"}
+                      </span>{" "}
+                      <span className="text-black/40 dark:text-white/40">
+                        · {typeMeta.label.toLowerCase()} ·{" "}
+                        {timeAgo(c.created_at)}
+                      </span>
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">
+                      {c.description}
+                    </p>
+
+                    <p className="mt-2 text-xs text-black/50 dark:text-white/50">
+                      {c.status === "confirmed" ? (
+                        <span className="font-medium text-emerald-700 dark:text-emerald-400">
+                          ✅ Confirmed
+                          {witnessNames ? ` — seen by ${witnessNames}` : ""}
+                        </span>
+                      ) : c.status === "accepted" ? (
+                        <>
+                          ☑️ Accepted by {founderName} — becomes confirmed once
+                          a teammate or stargazer attests
+                        </>
+                      ) : (
+                        <>
+                          ⏳ With {founderName} to accept
+                          {c.attestations.length > 0
+                            ? ` · already seen by ${witnessNames}`
+                            : ""}
+                        </>
+                      )}
+                    </p>
+
+                    {(isOwner && !isMine && c.status === "logged") ||
+                    (canAttest && !iAttested) ||
+                    (isMine && c.status === "logged") ? (
+                      <div className="mt-2.5 flex flex-wrap gap-2">
+                        {isOwner && !isMine && c.status === "logged" ? (
+                          <>
+                            <form action={acceptContribution}>
+                              <input
+                                type="hidden"
+                                name="projectId"
+                                value={project.id}
+                              />
+                              <input
+                                type="hidden"
+                                name="contributionId"
+                                value={c.id}
+                              />
+                              <button
+                                type="submit"
+                                className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                              >
+                                ✓ Yes, this helped
+                              </button>
+                            </form>
+                            <form action={withdrawContribution}>
+                              <input
+                                type="hidden"
+                                name="projectId"
+                                value={project.id}
+                              />
+                              <input
+                                type="hidden"
+                                name="contributionId"
+                                value={c.id}
+                              />
+                              <ConfirmSubmit
+                                message="Quietly remove this entry? Do this only if it doesn't reflect what happened."
+                                className="rounded-full border border-black/15 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                              >
+                                Not this one
+                              </ConfirmSubmit>
+                            </form>
+                          </>
+                        ) : null}
+
+                        {canAttest && !iAttested ? (
+                          <form action={attestContribution}>
+                            <input
+                              type="hidden"
+                              name="projectId"
+                              value={project.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="contributionId"
+                              value={c.id}
+                            />
+                            <button
+                              type="submit"
+                              title="Attest that this really happened"
+                              className="rounded-full border border-emerald-600/40 px-4 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+                            >
+                              🙌 I saw this happen
+                            </button>
+                          </form>
+                        ) : null}
+
+                        {isMine && c.status === "logged" ? (
+                          <form action={withdrawContribution}>
+                            <input
+                              type="hidden"
+                              name="projectId"
+                              value={project.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="contributionId"
+                              value={c.id}
+                            />
+                            <button
+                              type="submit"
+                              className="rounded-full border border-black/15 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                            >
+                              Withdraw
+                            </button>
+                          </form>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {/* Teammates log what they did; the founder + a witness confirm it. */}
+          {isTeammate ? (
+            <form
+              action={logContribution}
+              className="mt-4 rounded-2xl border border-black/10 p-4 dark:border-white/10"
+            >
+              <input type="hidden" name="projectId" value={project.id} />
+              <h3 className="text-sm font-semibold">Log a contribution</h3>
+              <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+                Count it if the project moved forward because of it.{" "}
+                {founderName} confirms it landed, and one teammate or stargazer
+                attests they saw it — then it&apos;s part of the record.
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {CONTRIBUTION_TYPES.map((t, i) => {
+                  const m = CONTRIBUTION_TYPE_META[t];
+                  return (
+                    <label
+                      key={t}
+                      title={m.hint}
+                      className="cursor-pointer rounded-full border border-black/15 px-3.5 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:text-emerald-800 dark:border-white/20 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40 dark:has-[:checked]:text-emerald-300"
+                    >
+                      <input
+                        type="radio"
+                        name="type"
+                        value={t}
+                        defaultChecked={i === 0}
+                        className="sr-only"
+                      />
+                      {m.emoji} {m.label}
+                    </label>
+                  );
+                })}
+              </div>
+
+              <textarea
+                name="description"
+                required
+                maxLength={1000}
+                rows={3}
+                placeholder="What did you do, and how did it move the project forward?"
+                className="mt-3 w-full rounded-xl border border-black/15 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+              />
+
+              <button
+                type="submit"
+                className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              >
+                Add to the record
+              </button>
+            </form>
           ) : null}
         </div>
 

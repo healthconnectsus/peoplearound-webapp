@@ -78,15 +78,16 @@ The bridge between starring and contributing — what makes a project a team.
 - The founder can remove a member.
 - Enforced server-side via RLS: requests always start `pending`; only the founder can accept; **you cannot approve your own request.**
 
-### 3.4 Contributions and acknowledgment — `P0` *(planned — trust layer)*
+### 3.4 Contributions and acknowledgment — `P0` ✅ *shipped (web)*
 
 The trust core of the product. **Logic must live server-side, never client-side.**
 
-- A teammate logs a contribution against a project (knowledge, resource, skill, time, presence).
-- A contribution must move the project to a new state to count — the **"merged commit" test**.
-- Founder accepts a contribution; it becomes fully credited only after **co-attestation from at least one other participant** (teammate or stargazer who witnessed it).
-- **No self-crediting. Ever.** Enforced server-side.
-- Credit routes around an unresponsive founder: community attestation can confirm a contribution if the founder fails to act within a window.
+- A teammate logs a contribution against a project (knowledge, resource, skill, time, presence). ✅
+- A contribution must move the project to a new state to count — the **"merged commit" test** (a product rule reinforced by the founder's acceptance step).
+- Founder accepts a contribution; it becomes fully credited only after **co-attestation from at least one other participant** (teammate or stargazer who witnessed it — never the founder, never the contributor). ✅
+- **No self-crediting. Ever.** Enforced in RLS: teammates insert only as themselves and only as `logged`; only the founder can accept, never their own; `confirmed` is reachable only via a server-side security-definer function. ✅
+- Credit routes around an unresponsive founder: community attestation confirms a contribution if the founder fails to act within 7 days. ✅
+- The acknowledgment moment: a warm banner greets the contributor on recently confirmed work — "You were needed, and you showed up." ✅
 
 ### 3.5 Reputation and skills — `P1`
 
@@ -200,8 +201,8 @@ See [DATA_MODEL.md](DATA_MODEL.md) for detail and implementation status.
 - **stars** — project_id, user_id (unique pair). *(live)*
 - **memberships** — project_id, user_id, status (`pending`/`accepted`); the join flow. *(live)*
 - **neighborhoods** — geo boundary (PostGIS), membership. *(planned)*
-- **contributions** — project_id, contributor_id, type, description, status, left_at nullable. *(planned)*
-- **attestations** — contribution_id, attester_id (must ≠ contributor_id), timestamp. *(planned)*
+- **contributions** — project_id, contributor_id, type, description, status (`logged`/`accepted`/`confirmed`), accepted_at, confirmed_at. *(live)*
+- **attestations** — contribution_id, attester_id (must ≠ contributor and ≠ founder), timestamp. *(live)*
 - **events / rsvps / offers** — physical coordination and non-monetary sharing. *(planned)*
 - **reputation (derived)** — computed from attested contributions; never directly writable. *(planned)*
 
@@ -211,7 +212,7 @@ See [DATA_MODEL.md](DATA_MODEL.md) for detail and implementation status.
 
 **Phase 0 — One neighborhood pilot (MVP)**
 
-- P0 features: Projects ✅, Stars ✅, Memberships ✅, AI idea shaping ✅, Contributions + acknowledgment, Events, What's happening (basic ✅).
+- P0 features: Projects ✅, Stars ✅, Memberships ✅, AI idea shaping ✅, Contributions + acknowledgment ✅, Events, What's happening (basic ✅).
 - Single neighborhood, single project category to start (the one where joining is most natural — likely community/practical projects).
 - Manual ops acceptable: prove the human loop by hand before automating.
 

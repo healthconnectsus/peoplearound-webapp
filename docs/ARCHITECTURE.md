@@ -14,7 +14,7 @@ The architecture exists to protect one thing: a **trustworthy record of what peo
 |---|---|---|
 | Web client | Next.js 16 (App Router) + React 19 + Tailwind v4 | Feed, project pages, create flow, join/approve UI |
 | Hosting | Vercel | Auto-deploy from `main` + CLI deploys via `npm run ship` |
-| Backend / DB | Supabase Postgres + RLS | `profiles` · `projects` · `stars` · `memberships`; membership rules enforced in RLS |
+| Backend / DB | Supabase Postgres + RLS | `profiles` · `projects` · `stars` · `memberships` · `contributions` · `attestations`; membership + trust rules enforced in RLS, confirmation in a security-definer function |
 | Auth | Supabase Auth via `@supabase/ssr` | Email/password + magic link; session refresh + route guard in `src/proxy.ts` (Next 16's renamed middleware) |
 | AI idea shaping | Next.js route handler → Claude API | `/api/shape-idea`: free-form (typed or dictated) idea → structured `{title, description, category, state, tip}` via `claude-opus-4-8` structured outputs; browser Web Speech API for voice input |
 | Migrations | `supabase/migrations/` + `scripts/db-apply.mjs` | Idempotent SQL applied via the Supabase Management API |
@@ -73,7 +73,7 @@ Membership approval, acknowledgment, attestation, and reputation **never** run i
 
 ### 2. No self-approval, no self-crediting — enforced in the database
 
-Live today: a join request can only be created by the requester, always as `pending`, and only the project's founder can flip it to `accepted` — RLS makes self-approval impossible. Planned: a user can never insert an `accepted`/`attested` record for their own contribution; an attester's identity must differ from the contributor's.
+Live today: a join request can only be created by the requester, always as `pending`, and only the project's founder can flip it to `accepted` — RLS makes self-approval impossible. Also live: a contribution can only be inserted by its contributor, always as `logged`; only the founder can accept, never their own work; an attester must differ from both the contributor and the founder; and `confirmed` is reachable only through a server-side security-definer function — clients cannot write it.
 
 ### 3. Neighborhood is a hard boundary *(when neighborhoods ship)*
 
@@ -95,21 +95,22 @@ There is no "failed" state exposed in any API response or UI. Projects move `ide
 - RLS: insert only as self + `pending`; update only by founder; delete by self (leave) or founder (remove).
 - The founder is the implicit first team member and has no membership row.
 
-## Contribution & attestation flow (planned)
+## Contribution & attestation flow (live)
 
 The trust core, expressed as a state machine:
 
 ```
 logged ──(founder accepts)──> accepted ──(≥1 co-attestation)──> confirmed
    │                                                              ▲
-   └──(founder unresponsive past window)──> community attestation ─┘
+   └──(founder unresponsive 7 days)──> community attestation ─────┘
 ```
 
-- **logged** — teammate records a contribution; founder is notified.
-- **accepted** — founder confirms it landed (cannot be the contributor).
-- **confirmed** — at least one co-participant or witnessing stargazer attests. Only confirmed contributions count toward reputation and trigger the acknowledgment moment.
-- **Founder bypass** — if the founder does not act within a defined window, community attestation alone can move a contribution to `confirmed`, so credit routes around a flaky founder.
-- **Leaving** — a teammate may leave at any time (`left_at` set); previously `confirmed` contributions are retained with no penalty.
+- **logged** — an accepted teammate records a contribution (RLS: own rows only, always `logged`; the founder has no membership row and therefore cannot log their own credit). While `logged`, the contributor may withdraw it and the founder may quietly decline it.
+- **accepted** — founder confirms it landed (RLS: founder only, never the contributor, only the `logged → accepted` step).
+- **confirmed** — at least one co-participant or witnessing stargazer attests (never the contributor, never the founder — acceptance and attestation must come from two different people). Only confirmed contributions count toward reputation and trigger the acknowledgment moment.
+- **Founder bypass** — if the founder does not act within 7 days, community attestation alone moves a contribution to `confirmed`, so credit routes around a flaky founder.
+- **Server-only confirmation** — the `confirmed` transition exists solely inside `reconcile_contributions()`, an idempotent security-definer function called after accept/attest actions and on project page load (which is what makes the 7-day window take effect lazily, with no cron needed). No client write path can produce `confirmed`.
+- **Leaving** — a teammate may leave at any time (their membership row is deleted); contribution rows are retained, so previously `confirmed` work survives with no penalty.
 
 The **"merged commit" test** is enforced semantically: a contribution should correspond to the project moving to a new state. This is a product rule reinforced by the acceptance step rather than something the system can fully verify automatically — see the *unit problem* in [PRD §7](PRD.md#7-risks-and-open-questions).
 

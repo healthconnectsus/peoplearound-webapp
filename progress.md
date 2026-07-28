@@ -7,6 +7,19 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-28 — Add contributions + attestations trust layer: logged -> accepted -> confirmed with co-attestation, RLS anti-self-crediting, 7-day founder bypass
+
+- `docs/ARCHITECTURE.md`
+- `docs/DATA_MODEL.md`
+- `docs/PRD.md`
+- `docs/ROADMAP.md`
+- `package-lock.json`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/lib/projects.ts`
+- `supabase/migrations/0005_contributions.sql`
+
+
 ### 2026-07-28 — Docs v2 for project pivot; add AI talk-it-out idea shaping (Claude + voice input)
 
 - `.env.example`

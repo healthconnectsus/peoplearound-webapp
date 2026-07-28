@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PROJECT_STATES, TRANSITIONS, type ProjectState } from "@/lib/projects";
+import {
+  CONTRIBUTION_TYPES,
+  PROJECT_STATES,
+  TRANSITIONS,
+  type ContributionType,
+  type ProjectState,
+} from "@/lib/projects";
 
 export async function createProject(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
@@ -221,5 +227,118 @@ export async function respondToMembership(formData: FormData) {
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/");
+  redirect(`/projects/${projectId}`);
+}
+
+// ------------------------------------------------------------------
+// Contributions — the trust core. A teammate logs, the founder accepts,
+// a second person attests → confirmed. RLS enforces every rule; the
+// checks here only produce friendlier behavior. The logged → confirmed
+// transition lives exclusively in the reconcile_contributions() database
+// function (security definer) — never in client-writable SQL.
+// ------------------------------------------------------------------
+export async function logContribution(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const type = String(formData.get("type") ?? "") as ContributionType;
+  const description = String(formData.get("description") ?? "")
+    .trim()
+    .slice(0, 1000);
+  if (!projectId) redirect("/");
+  if (!CONTRIBUTION_TYPES.includes(type) || !description) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // Accepted teammates only — the founder never logs their own credit.
+  const { data: membership } = await supabase
+    .from("memberships")
+    .select("status")
+    .eq("project_id", projectId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (membership?.status !== "accepted") {
+    redirect(`/projects/${projectId}`);
+  }
+
+  await supabase.from("contributions").insert({
+    project_id: projectId,
+    contributor_id: user.id,
+    type,
+    description,
+  });
+
+  revalidatePath(`/projects/${projectId}`);
+  redirect(`/projects/${projectId}`);
+}
+
+export async function withdrawContribution(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const contributionId = String(formData.get("contributionId") ?? "");
+  if (!projectId || !contributionId) redirect(`/projects/${projectId}`);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // RLS: only the contributor or founder, and only while still 'logged'.
+  await supabase.from("contributions").delete().eq("id", contributionId);
+
+  revalidatePath(`/projects/${projectId}`);
+  redirect(`/projects/${projectId}`);
+}
+
+export async function acceptContribution(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const contributionId = String(formData.get("contributionId") ?? "");
+  if (!projectId || !contributionId) redirect(`/projects/${projectId}`);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // RLS: founder only, never their own work, logged → accepted only.
+  await supabase
+    .from("contributions")
+    .update({ status: "accepted" })
+    .eq("id", contributionId);
+
+  // If a witness already attested, this promotes it straight to confirmed.
+  await supabase.rpc("reconcile_contributions", { p_project_id: projectId });
+
+  revalidatePath(`/projects/${projectId}`);
+  redirect(`/projects/${projectId}`);
+}
+
+export async function attestContribution(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const contributionId = String(formData.get("contributionId") ?? "");
+  if (!projectId || !contributionId) redirect(`/projects/${projectId}`);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // RLS: teammates/stargazers only, never your own work, never the founder.
+  await supabase
+    .from("attestations")
+    .upsert(
+      { contribution_id: contributionId, attester_id: user.id },
+      { onConflict: "contribution_id,attester_id", ignoreDuplicates: true },
+    );
+
+  await supabase.rpc("reconcile_contributions", { p_project_id: projectId });
+
+  revalidatePath(`/projects/${projectId}`);
   redirect(`/projects/${projectId}`);
 }

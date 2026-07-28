@@ -78,6 +78,12 @@ export function timeAgo(iso: string): string {
   return years === 1 ? "1 year ago" : `${years} years ago`;
 }
 
+/** True if the timestamp is within the last `days` days. */
+export function isWithinDays(iso: string | null, days: number): boolean {
+  if (!iso) return false;
+  return Date.now() - new Date(iso).getTime() < days * 24 * 60 * 60 * 1000;
+}
+
 /**
  * Allowed owner-driven state transitions. Notably there is no path to a
  * "failed" state — projects are archived gracefully, never marked failed.
@@ -90,6 +96,66 @@ export const TRANSITIONS: Record<ProjectState, ProjectState[]> = {
 };
 
 export type MembershipStatus = "pending" | "accepted";
+
+export type ContributionType =
+  | "knowledge"
+  | "resource"
+  | "skill"
+  | "time"
+  | "presence";
+
+export const CONTRIBUTION_TYPES: ContributionType[] = [
+  "knowledge",
+  "resource",
+  "skill",
+  "time",
+  "presence",
+];
+
+/** Friendly emoji + label + hint per contribution type, used in the log form. */
+export const CONTRIBUTION_TYPE_META: Record<
+  ContributionType,
+  { label: string; emoji: string; hint: string }
+> = {
+  knowledge: {
+    label: "Knowledge",
+    emoji: "🧠",
+    hint: "Shared know-how that moved things forward",
+  },
+  resource: {
+    label: "Resource",
+    emoji: "🧰",
+    hint: "Brought a thing the project needed",
+  },
+  skill: { label: "Skill", emoji: "🛠️", hint: "Did skilled work" },
+  time: { label: "Time", emoji: "⏰", hint: "Put in the hours" },
+  presence: { label: "Presence", emoji: "🙋", hint: "Showed up" },
+};
+
+/**
+ * The trust ladder: logged (teammate records it) → accepted (founder confirms
+ * it landed) → confirmed (a second person attests). Only confirmed
+ * contributions count toward reputation. No rejected/failed status by design.
+ */
+export type ContributionStatus = "logged" | "accepted" | "confirmed";
+
+export type Attestation = {
+  attester_id: string;
+  created_at: string;
+  attester?: { display_name: string | null } | null;
+};
+
+export type Contribution = {
+  id: string;
+  contributor_id: string;
+  type: ContributionType;
+  description: string;
+  status: ContributionStatus;
+  created_at: string;
+  confirmed_at: string | null;
+  contributor?: { display_name: string | null } | null;
+  attestations: Attestation[];
+};
 
 export type Project = {
   id: string;

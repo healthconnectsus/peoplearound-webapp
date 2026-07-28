@@ -18,10 +18,10 @@ The goal of this phase is to prove the join-and-build loop works in a single nei
 - ✅ [AI idea shaping](PRD.md#39-ai-agent-the-gardener--p1-shaping-shipped-nudgingoff-ramp-post-mvp) — talk your idea out (typed or voice), Claude structures the post
 - ✅ Basic feed — projects with team size + star counts
 - ✅ Auth (email/password + magic link), ship pipeline, idempotent migrations
+- ✅ [Contributions + acknowledgment](PRD.md#34-contributions-and-acknowledgment--p0-shipped-web) — the trust core: `logged → accepted → confirmed` with co-attestation, no self-crediting, and a 7-day community bypass around unresponsive founders
 
 **Still to ship in Phase 0:**
 
-- [Contributions + acknowledgment](PRD.md#34-contributions-and-acknowledgment--p0-planned--trust-layer) — the trust core, with co-attestation
 - [Events](PRD.md#36-events--p0-planned) — physical coordination, gentlest on-ramp
 - Project history timeline — the accumulating true story on each project page
 - Neighborhood scoping (PostGIS) and realtime feed

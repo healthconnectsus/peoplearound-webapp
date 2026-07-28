@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, and `memberships` are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `neighborhoods`, `contributions`, `attestations`, `events`, `rsvps`, `offers`, and `reputation` are the planned trust layer.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, and `attestations` are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `neighborhoods`, `events`, `rsvps`, `offers`, and `reputation` are still planned.
 
 ## Entity relationships
 
@@ -12,7 +12,7 @@ This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model
 neighborhoods ──< profiles ──< projects ──< stars
                                  │
                                  ├──< memberships          ← the join flow (live)
-                                 ├──< contributions ──< attestations
+                                 ├──< contributions ──< attestations   ← the trust core (live)
                                  ├──< events ──< rsvps
                                  └──< offers (optional link)
 reputation (derived from contributions + attestations)
@@ -75,19 +75,6 @@ The join flow: a neighbor requests, the founder approves. The founder is the imp
 > **Constraint:** `PRIMARY KEY (project_id, user_id)` — one membership per neighbor per project.
 > **RLS:** a user may only *insert* their own row, and only as `pending`; only the project owner may *update* (accept); *delete* is allowed to the member themself (leave / cancel request) or the owner (decline / remove). A user cannot approve their own request.
 
-## Tables — planned (trust layer)
-
-### neighborhoods
-
-The hard boundary for all reads and writes.
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid (PK) | |
-| name | text | |
-| boundary | geography (PostGIS) | Polygon for radius/containment queries |
-| created_at | timestamptz | |
-
 ### contributions
 
 The trust core. Status transitions are server-enforced (see [Architecture](ARCHITECTURE.md#contribution--attestation-flow)).
@@ -97,13 +84,16 @@ The trust core. Status transitions are server-enforced (see [Architecture](ARCHI
 | id | uuid (PK) | |
 | project_id | uuid (FK → projects) | |
 | contributor_id | uuid (FK → profiles) | |
-| type | enum | `knowledge` · `resource` · `skill` · `time` · `presence` |
-| description | text | |
-| status | enum | `logged` · `accepted` · `confirmed` |
-| left_at | timestamptz (nullable) | Set when contributor leaves; prior `confirmed` work retained |
+| type | enum `contribution_type` | `knowledge` · `resource` · `skill` · `time` · `presence` |
+| description | text | 1–1000 chars (DB check) |
+| status | enum `contribution_status` | `logged` · `accepted` · `confirmed` — no rejected/failed status |
 | created_at | timestamptz | |
+| accepted_at | timestamptz (nullable) | Stamped by trigger when the founder accepts |
+| confirmed_at | timestamptz (nullable) | Stamped by trigger on confirmation |
 
-> **Rule:** the founder who accepts cannot be the `contributor_id`. No self-crediting.
+> **RLS:** only an *accepted teammate* may insert, only as themself, only as `logged` (the founder has no membership row, so founders cannot self-credit). Only the founder may update, only `logged → accepted`, never for their own work. Delete (withdraw/decline) is allowed to the contributor or founder only while still `logged` — accepted and confirmed history is permanent.
+> **Confirmation** happens exclusively in the `reconcile_contributions()` security-definer function: `accepted` + ≥1 attestation → `confirmed`, or `logged` older than 7 days + ≥1 attestation → `confirmed` (credit routes around an unresponsive founder). Clients cannot write `confirmed`.
+> **Leaving:** the membership row is deleted, but contribution rows are retained — prior confirmed work survives with no penalty.
 
 ### attestations
 
@@ -116,7 +106,21 @@ Third-party confirmation that a contribution really happened.
 | attester_id | uuid (FK → profiles) | |
 | created_at | timestamptz | |
 
-> **Constraint:** `attester_id <> contributions.contributor_id` — you cannot attest your own work. At least one attestation is required to reach `confirmed`.
+> **Constraint:** `UNIQUE (contribution_id, attester_id)` — one attestation per witness.
+> **RLS:** insert only as yourself; never for your own contribution; never as the founder (their acceptance is a separate signal); only if you are an accepted teammate or stargazer of the project. No update or delete — an attestation, once given, stands.
+
+## Tables — planned (trust layer)
+
+### neighborhoods
+
+The hard boundary for all reads and writes.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| name | text | |
+| boundary | geography (PostGIS) | Polygon for radius/containment queries |
+| created_at | timestamptz | |
 
 ### events
 
@@ -174,9 +178,11 @@ Give / lend / offer — the non-monetary replacement for a marketplace.
 | Join requests start `pending`; only the founder accepts | RLS policies on `memberships` | ✅ Live |
 | Members can always leave, no penalty | RLS delete policy (own row) | ✅ Live |
 | No `failed` state | `project_state` enum excludes it entirely | ✅ Live |
-| No self-crediting | DB constraint (`attester_id <> contributor_id`) + RLS + server logic | Planned |
+| No self-crediting | RLS: insert own rows only, always `logged`; founder-only accept, never own; attester ≠ contributor ≠ founder | ✅ Live |
+| Contribution status transitions server-only | RLS allows only `logged → accepted` by founder; `confirmed` only via `reconcile_contributions()` (security definer) | ✅ Live |
+| One attestation per witness | `UNIQUE (contribution_id, attester_id)` | ✅ Live |
+| Accepted/confirmed history is permanent | RLS delete policy covers `logged` rows only | ✅ Live |
 | Neighborhood scoping | RLS on every table keyed to `neighborhood_id` | Planned |
-| Contribution status transitions server-only | Server-side logic (client cannot write `accepted`/`confirmed`) | Planned |
 | Reputation read-only | Derived/computed; no client write path | Planned |
 
 > This schema iterates as the human loop is proven. The live tables are deliberately minimal; the trust layer lands on top of them.
