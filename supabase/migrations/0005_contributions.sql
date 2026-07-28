@@ -203,5 +203,8 @@ begin
 end;
 $$;
 
+-- Supabase's default privileges grant execute to anon/authenticated directly,
+-- so revoke from both public and anon explicitly.
 revoke all on function public.reconcile_contributions(uuid) from public;
+revoke all on function public.reconcile_contributions(uuid) from anon;
 grant execute on function public.reconcile_contributions(uuid) to authenticated;

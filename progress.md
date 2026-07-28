@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-28 — Revoke reconcile_contributions execute from anon (Supabase default-privilege hygiene)
+
+- `supabase/migrations/0005_contributions.sql`
+
+
 ### 2026-07-28 — Add contributions + attestations trust layer: logged -> accepted -> confirmed with co-attestation, RLS anti-self-crediting, 7-day founder bypass
 
 - `docs/ARCHITECTURE.md`
