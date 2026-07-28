@@ -1,49 +1,60 @@
 # Peoplearound — Architecture
 
-*Derived from the PRD technical sections · Draft v1*
+*Derived from the PRD technical sections · Draft v2 (project pivot)*
 
-This document describes the system architecture for the Peoplearound MVP. It expands on [PRD §4](PRD.md#4-technical-architecture) and should be read alongside the [Data Model](DATA_MODEL.md).
+This document describes the system architecture for Peoplearound. It expands on [PRD §4](PRD.md#4-technical-architecture) and should be read alongside the [Data Model](DATA_MODEL.md).
 
 ## Design philosophy
 
-The architecture exists to protect one thing: a **trustworthy record of what people actually did for each other**. Every technical decision below serves the anti-gaming boundary — the rule that worth is acknowledged by others, never self-declared. If a choice would let a user manufacture their own credit, it is wrong by definition.
+The architecture exists to protect one thing: a **trustworthy record of what people actually built together**. Every technical decision below serves the anti-gaming boundary — the rule that worth is acknowledged by others, never self-declared. If a choice would let a user manufacture their own credit (or approve their own membership), it is wrong by definition.
 
-## Stack overview
+## Current implementation (web MVP — live)
+
+| Layer | Technology | Role |
+|---|---|---|
+| Web client | Next.js 16 (App Router) + React 19 + Tailwind v4 | Feed, project pages, create flow, join/approve UI |
+| Hosting | Vercel | Auto-deploy from `main` + CLI deploys via `npm run ship` |
+| Backend / DB | Supabase Postgres + RLS | `profiles` · `projects` · `stars` · `memberships`; membership rules enforced in RLS |
+| Auth | Supabase Auth via `@supabase/ssr` | Email/password + magic link; session refresh + route guard in `src/proxy.ts` (Next 16's renamed middleware) |
+| AI idea shaping | Next.js route handler → Claude API | `/api/shape-idea`: free-form (typed or dictated) idea → structured `{title, description, category, state, tip}` via `claude-opus-4-8` structured outputs; browser Web Speech API for voice input |
+| Migrations | `supabase/migrations/` + `scripts/db-apply.mjs` | Idempotent SQL applied via the Supabase Management API |
+
+## Target architecture (as the trust layer ships)
 
 | Layer | Technology | Role |
 |---|---|---|
 | Mobile client | React Native + Expo | iOS/Android app; managed builds, OTA updates, push, camera, location |
-| Backend / DB | Supabase Postgres | System of record; Row-Level Security enforces scoping and anti-tamper |
-| Geo | PostGIS | Location-radius queries for hyperlocal feed, goals, offers |
-| Realtime | Supabase Realtime | "What's happening?" feed and live goal updates |
-| Auth | Supabase Auth | Phone/email identity tied to a verified neighborhood |
-| Storage | Supabase Storage | Goal / event / offer photos |
+| Geo | PostGIS | Location-radius queries for hyperlocal feed, projects, offers |
+| Realtime | Supabase Realtime | "What's happening?" feed and live project updates |
+| Storage | Supabase Storage | Project / event / offer photos |
 | Trust logic | Supabase Edge Functions (Deno/TS) | Acknowledgment, attestation, reputation — server-side only |
-| AI agent | Edge Function → LLM API | Goal-shaping, nudges; learns from acknowledgment data |
-| Push | Expo Notifications | Stars received, contribution acknowledged, event reminders, nudges |
+| AI agent | Server-side → Claude API | Idea shaping (live), stall nudges, off-ramps; learns from acknowledgment data |
+| Push | Expo Notifications | Stars received, join requests, contribution acknowledged, event reminders |
 
-## Component view
+## Component view (target)
 
 ```
 ┌─────────────────────────────────────────────┐
-│           React Native + Expo client         │
-│  Around · Goals · Create · Offers · Me       │
+│      Web (Next.js) + Mobile (RN/Expo)        │
+│  Around · Projects · Create · Offers · Me    │
 └───────────────┬──────────────────┬───────────┘
                 │ realtime          │ RPC / writes
                 │ subscribe         │
         ┌───────▼───────┐   ┌───────▼─────────────────┐
-        │ Supabase       │   │ Edge Functions (Deno/TS) │
-        │ Realtime       │   │  • accept contribution   │
-        └───────┬───────┘   │  • attest contribution   │
+        │ Supabase       │   │ Server logic             │
+        │ Realtime       │   │  • approve membership    │
+        └───────┬───────┘   │  • accept contribution   │
+                │           │  • attest contribution   │
                 │           │  • compute reputation    │
-                │           │  • AI agent (LLM calls)  │
+                │           │  • AI agent (Claude API) │
                 │           └───────┬─────────────────┘
                 │                   │ privileged writes
         ┌───────▼───────────────────▼─────────────────┐
         │        Postgres + PostGIS (RLS on)           │
-        │  users · neighborhoods · goals · stars ·     │
-        │  contributions · attestations · events ·     │
-        │  offers · reputation (derived)               │
+        │  profiles · neighborhoods · projects ·       │
+        │  stars · memberships · contributions ·       │
+        │  attestations · events · offers ·            │
+        │  reputation (derived)                        │
         └───────────────────────┬─────────────────────┘
                                  │
                          ┌───────▼───────┐
@@ -58,55 +69,68 @@ These are non-negotiable invariants. They are restated here because they constra
 
 ### 1. Trust-sensitive logic is server-only
 
-Acknowledgment, attestation, and reputation **never** run in the client or in raw client-writable SQL. They live in Edge Functions, with RLS as a backstop. The client may *request* an accept or attest, but the state transition and all validation happen server-side.
+Membership approval, acknowledgment, attestation, and reputation **never** run in the client or in raw client-writable SQL. Today RLS enforces the membership rules; as the trust layer grows, Edge Functions hold the privileged write paths with RLS as backstop. The client may *request* to join, accept, or attest, but the state transition and all validation happen server-side.
 
-### 2. No self-crediting, enforced in the database
+### 2. No self-approval, no self-crediting — enforced in the database
 
-A user can never insert an `accepted`/`attested` record for their own contribution. This is enforced at the database level (constraints + RLS), not merely in application code. An attester's identity must differ from the contributor's.
+Live today: a join request can only be created by the requester, always as `pending`, and only the project's founder can flip it to `accepted` — RLS makes self-approval impossible. Planned: a user can never insert an `accepted`/`attested` record for their own contribution; an attester's identity must differ from the contributor's.
 
-### 3. Neighborhood is a hard boundary
+### 3. Neighborhood is a hard boundary *(when neighborhoods ship)*
 
-RLS scopes reads and writes to a user's verified neighborhood(s). There is no global social graph. A user cannot see, star, or contribute to goals outside their verified neighborhood.
+RLS scopes reads and writes to a user's verified neighborhood(s). There is no global social graph. A user cannot see, star, or join projects outside their verified neighborhood.
 
 ### 4. Failure is invisible
 
-There is no "failed" state exposed in any API response or UI. Goals move `idea → active → completed`, or are quietly `archived`. No endpoint returns a failure flag; the off-ramp is handled by the AI agent, gently.
+There is no "failed" state exposed in any API response or UI. Projects move `idea → active → completed`, or are quietly `archived`. No endpoint returns a failure flag; the off-ramp is handled by the AI agent, gently.
 
-## Contribution & attestation flow
+## Membership flow (live)
+
+```
+(neighbor) ──ask to join──> pending ──(founder accepts)──> accepted
+     │                        │                               │
+     │                        └──(founder declines)──> row deleted
+     └──(cancel request / leave at any time)──> row deleted, no penalty
+```
+
+- RLS: insert only as self + `pending`; update only by founder; delete by self (leave) or founder (remove).
+- The founder is the implicit first team member and has no membership row.
+
+## Contribution & attestation flow (planned)
 
 The trust core, expressed as a state machine:
 
 ```
-logged ──(owner accepts)──> accepted ──(≥1 co-attestation)──> confirmed
+logged ──(founder accepts)──> accepted ──(≥1 co-attestation)──> confirmed
    │                                                              ▲
-   └──(owner unresponsive past window)──> community attestation ──┘
+   └──(founder unresponsive past window)──> community attestation ─┘
 ```
 
-- **logged** — contributor records a contribution; owner is notified.
-- **accepted** — owner confirms it landed (cannot be the contributor).
+- **logged** — teammate records a contribution; founder is notified.
+- **accepted** — founder confirms it landed (cannot be the contributor).
 - **confirmed** — at least one co-participant or witnessing stargazer attests. Only confirmed contributions count toward reputation and trigger the acknowledgment moment.
-- **Owner bypass** — if the owner does not act within a defined window, community attestation alone can move a contribution to `confirmed`, so credit routes around a flaky owner.
-- **Leaving** — a contributor may leave at any time (`left_at` set); previously `confirmed` contributions are retained with no penalty.
+- **Founder bypass** — if the founder does not act within a defined window, community attestation alone can move a contribution to `confirmed`, so credit routes around a flaky founder.
+- **Leaving** — a teammate may leave at any time (`left_at` set); previously `confirmed` contributions are retained with no penalty.
 
-The **"merged commit" test** is enforced semantically: a contribution should correspond to the goal moving to a new state. This is a product rule reinforced by the acceptance step rather than something the system can fully verify automatically — see the *unit problem* in [PRD §7](PRD.md#7-risks-and-open-questions).
+The **"merged commit" test** is enforced semantically: a contribution should correspond to the project moving to a new state. This is a product rule reinforced by the acceptance step rather than something the system can fully verify automatically — see the *unit problem* in [PRD §7](PRD.md#7-risks-and-open-questions).
 
-## Reputation pipeline
+## Reputation pipeline (planned)
 
 Reputation is **derived, never directly writable**. It is computed (in Edge Functions / scheduled jobs) from `confirmed` contributions and their attestations:
 
-- Impact-weighted, not volume-counted — a contribution that unblocked a stalled goal outweighs many trivial ones.
+- Impact-weighted, not volume-counted — a contribution that unblocked a stalled project outweighs many trivial ones.
 - Contextual — surfaced as "trusted on X in this neighborhood," only where relevant.
 - Private by default — each user sees their own history; **no public individual leaderboard** exists at any layer.
 
 ## AI agent
 
-The agent runs as an Edge Function calling an LLM API. It has three jobs (goal-shaping at MVP; nudging and off-ramp later) and one hard constraint: its success metric is **human** contributions and acknowledgments, not agent interactions. The acknowledgment ledger doubles as the agent's training signal — one mechanism serves both the acknowledgment problem and the failure problem.
+The agent's first job — **idea shaping** — is live: [`/api/shape-idea`](../src/app/api/shape-idea/route.ts) takes a free-form description (typed, or dictated via the browser's Web Speech API) and returns a structured draft (`title`, `description`, `category`, `state`, plus one improvement `tip`) using Claude structured outputs. It requires a signed-in user, degrades gracefully when unconfigured, and never blocks the manual form.
 
-The agent is architecturally and visually secondary. If usage data shows agent interactions rising relative to human contributions (the anti-metric in [PRD §6](PRD.md#6-success-metrics)), that is treated as a regression.
+Later jobs (stall nudges, dignified off-ramps) follow the same constraint: the agent's success metric is **human** joins, contributions, and acknowledgments — not agent interactions. The acknowledgment ledger doubles as the agent's training signal. If usage data shows agent interactions rising relative to human activity (the anti-metric in [PRD §6](PRD.md#6-success-metrics)), that is treated as a regression.
 
 ## Security & privacy posture
 
-- Identity is tied to a verified neighborhood; auth via Supabase Auth (phone/email).
-- RLS is the primary enforcement layer for scoping and anti-tamper, with Edge Functions holding privileged write paths.
+- Auth via Supabase Auth (email/magic-link today; phone + verified neighborhood later).
+- RLS is the primary enforcement layer for scoping and anti-tamper; server-side logic holds privileged write paths.
+- The Claude API key lives server-side only (`ANTHROPIC_API_KEY`); the shape-idea endpoint requires an authenticated session.
 - No monetization data paths exist in MVP (no marketplace, no checkout, no advertiser pipelines).
-- Photos and user content live in Supabase Storage, access-scoped to neighborhood.
+- Photos and user content will live in Supabase Storage, access-scoped to neighborhood.

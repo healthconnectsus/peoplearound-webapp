@@ -7,6 +7,23 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-28 — Docs v2 for project pivot; add AI talk-it-out idea shaping (Claude + voice input)
+
+- `.env.example`
+- `README.md`
+- `docs/ARCHITECTURE.md`
+- `docs/CONCEPT.md`
+- `docs/DATA_MODEL.md`
+- `docs/PRD.md`
+- `docs/ROADMAP.md`
+- `docs/UX_SPEC.md`
+- `package-lock.json`
+- `package.json`
+- `src/app/api/shape-idea/route.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+
+
 ### 2026-07-04 — Pivot to joinable projects: rename goals to projects, add stars + request/approve memberships, friendlier UX
 
 - `.claude/launch.json`

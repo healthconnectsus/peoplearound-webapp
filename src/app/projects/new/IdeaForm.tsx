@@ -1,0 +1,310 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { CATEGORIES, CATEGORY_META } from "@/lib/projects";
+import { createProject } from "../actions";
+
+type Draft = {
+  title: string;
+  description: string;
+  category: string;
+  state: "idea" | "active";
+  tip: string;
+};
+
+/* Minimal typings for the Web Speech API (not in lib.dom for all targets). */
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+};
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }>;
+};
+
+function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as Record<string, unknown>;
+  return (w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null) as
+    | (new () => SpeechRecognitionLike)
+    | null;
+}
+
+const inputClass =
+  "rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-emerald-500 dark:border-white/20";
+
+export function IdeaForm({ error }: { error?: string }) {
+  // --- Talk-it-out panel state ---
+  const [rawIdea, setRawIdea] = useState("");
+  const [listening, setListening] = useState(false);
+  const [micSupported, setMicSupported] = useState(false);
+  const [shaping, setShaping] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [tip, setTip] = useState<string | null>(null);
+  const [shaped, setShaped] = useState(false);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+
+  // --- Form fields (controlled so AI can prefill them) ---
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<string>(CATEGORIES[0]);
+  const [state, setState] = useState<"idea" | "active">("idea");
+
+  useEffect(() => {
+    setMicSupported(getSpeechRecognition() !== null);
+  }, []);
+
+  function toggleMic() {
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    const SR = getSpeechRecognition();
+    if (!SR) return;
+    const rec = new SR();
+    rec.lang = navigator.language || "en-US";
+    rec.continuous = true;
+    rec.interimResults = false;
+    rec.onresult = (event) => {
+      let text = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const r = event.results[i];
+        if (r.isFinal) text += r[0].transcript;
+      }
+      if (text) {
+        setRawIdea((prev) => (prev ? `${prev.trim()} ${text.trim()}` : text.trim()));
+      }
+    };
+    rec.onend = () => setListening(false);
+    rec.onerror = () => setListening(false);
+    recognitionRef.current = rec;
+    rec.start();
+    setListening(true);
+  }
+
+  async function shapeIdea() {
+    setShaping(true);
+    setAiError(null);
+    setTip(null);
+    try {
+      const res = await fetch("/api/shape-idea", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea: rawIdea }),
+      });
+      const data = (await res.json()) as Partial<Draft> & { error?: string };
+      if (!res.ok) {
+        setAiError(data.error ?? "Something went wrong — please try again.");
+        return;
+      }
+      setTitle(data.title ?? "");
+      setDescription(data.description ?? "");
+      if (data.category && (CATEGORIES as readonly string[]).includes(data.category)) {
+        setCategory(data.category);
+      }
+      setState(data.state === "active" ? "active" : "idea");
+      if (data.tip) setTip(data.tip);
+      setShaped(true);
+    } catch {
+      setAiError("Couldn't reach the assistant — check your connection.");
+    } finally {
+      setShaping(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* ---- Talk it out ---- */}
+      <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
+        <p className="font-medium">💬 Just talk it out</p>
+        <p className="mt-0.5 text-sm text-black/60 dark:text-white/60">
+          Describe your idea in your own words — messy is fine. We&apos;ll shape
+          it into a clear post you can still edit.
+        </p>
+
+        <textarea
+          value={rawIdea}
+          onChange={(e) => setRawIdea(e.target.value)}
+          rows={3}
+          maxLength={4000}
+          placeholder={
+            micSupported
+              ? "e.g. “so there's this empty lot near the bakery and I keep thinking it could be a garden but I don't know anything about gardening…” — or tap the mic and say it out loud"
+              : "e.g. “so there's this empty lot near the bakery and I keep thinking it could be a garden but I don't know anything about gardening…”"
+          }
+          className={`${inputClass} mt-3 w-full resize-y bg-white dark:bg-black/20`}
+        />
+
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {micSupported ? (
+            <button
+              type="button"
+              onClick={toggleMic}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                listening
+                  ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-300"
+                  : "border-black/15 bg-white hover:bg-black/5 dark:border-white/20 dark:bg-black/20 dark:hover:bg-white/10"
+              }`}
+            >
+              {listening ? "⏹ Stop listening" : "🎤 Speak instead"}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={shapeIdea}
+            disabled={shaping || rawIdea.trim().length < 10}
+            className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {shaping ? "Shaping…" : "✨ Shape my idea"}
+          </button>
+          {listening ? (
+            <span className="text-sm text-red-600 dark:text-red-400">
+              Listening — speak freely…
+            </span>
+          ) : null}
+        </div>
+
+        {aiError ? (
+          <p className="mt-2 text-sm text-red-700 dark:text-red-300">{aiError}</p>
+        ) : null}
+        {shaped && !aiError ? (
+          <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-300">
+            ✓ Done — your draft is filled in below. Edit anything you like.
+          </p>
+        ) : null}
+        {tip ? (
+          <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+            💡 {tip}
+          </p>
+        ) : null}
+      </div>
+
+      {error ? (
+        <p className="rounded-xl border border-red-300 bg-red-50 px-3.5 py-2.5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+          {error}
+        </p>
+      ) : null}
+
+      {/* ---- The actual form ---- */}
+      <form action={createProject} className="flex flex-col gap-5">
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium">What&apos;s the idea?</span>
+          <input
+            type="text"
+            name="title"
+            required
+            maxLength={140}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Start a community garden on Oak Street"
+            className={inputClass}
+          />
+          <span className="text-xs text-black/40 dark:text-white/40">
+            One clear sentence works best.
+          </span>
+        </label>
+
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium">
+            Tell people more{" "}
+            <span className="font-normal text-black/40 dark:text-white/40">
+              (optional)
+            </span>
+          </span>
+          <textarea
+            name="description"
+            rows={5}
+            maxLength={4000}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="What's the plan? What kind of help or skills would be great to have?"
+            className={`${inputClass} resize-y`}
+          />
+        </label>
+
+        <fieldset className="flex flex-col gap-1.5 text-sm">
+          <legend className="mb-1.5 font-medium">
+            What kind of project is it?
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((c) => (
+              <label key={c} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="category"
+                  value={c}
+                  checked={category === c}
+                  onChange={() => setCategory(c)}
+                  className="peer sr-only"
+                />
+                <span className="inline-block rounded-full border border-black/15 px-3.5 py-1.5 transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-600 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/50 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10">
+                  {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-1.5 text-sm">
+          <legend className="mb-1.5 font-medium">Where are you at?</legend>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <label className="flex-1 cursor-pointer">
+              <input
+                type="radio"
+                name="state"
+                value="idea"
+                checked={state === "idea"}
+                onChange={() => setState("idea")}
+                className="peer sr-only"
+              />
+              <span className="flex h-full flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/50 hover:bg-black/5 dark:border-white/20 dark:peer-checked:bg-emerald-950/40 dark:hover:bg-white/10">
+                <span className="font-medium">💭 Just an idea</span>
+                <span className="text-xs text-black/50 dark:text-white/50">
+                  Looking for people to make it real
+                </span>
+              </span>
+            </label>
+            <label className="flex-1 cursor-pointer">
+              <input
+                type="radio"
+                name="state"
+                value="active"
+                checked={state === "active"}
+                onChange={() => setState("active")}
+                className="peer sr-only"
+              />
+              <span className="flex h-full flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/50 hover:bg-black/5 dark:border-white/20 dark:peer-checked:bg-emerald-950/40 dark:hover:bg-white/10">
+                <span className="font-medium">🚀 Already building</span>
+                <span className="text-xs text-black/50 dark:text-white/50">
+                  Under way — more hands welcome
+                </span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div className="mt-1 flex items-center gap-3">
+          <button
+            type="submit"
+            className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+          >
+            Share it 🎉
+          </button>
+          <Link
+            href="/"
+            className="text-sm text-black/50 hover:underline dark:text-white/50"
+          >
+            Cancel
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+}
