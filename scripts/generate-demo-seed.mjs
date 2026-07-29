@@ -208,7 +208,8 @@ const projRows = [];
 const projMeta = []; // for later stages
 PROJECTS.forEach(([title, desc, cat, state, help, reach], idx) => {
   const p = idx + 1;
-  const ownerIdx = ((p * 3 + 7) % 100) + 1;
+  // p*7 cycles mod 3, so owners rotate across all three neighborhoods.
+  const ownerIdx = ((p * 7) % 100) + 1;
   const owner = users[ownerIdx - 1];
   const daysAgo = 30 - Math.floor(idx * 0.9); // spread over the last month
   const done = state === "completed";

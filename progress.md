@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-29 — Fix demo seed owner rotation so projects spread across all three neighborhoods
+
+- `scripts/demo-seed-large.sql`
+- `scripts/generate-demo-seed.mjs`
+
+
 ### 2026-07-29 — Add large demo seed generator: 100 users across 3 neighborhoods and 2 cities, 30 projects using help/reach
 
 - `scripts/demo-seed-large.sql`
