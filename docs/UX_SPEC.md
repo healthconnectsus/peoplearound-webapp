@@ -75,14 +75,14 @@ The heart of the product. Persistent, stateful, story-like. *(Live: header, stat
 
 > The history timeline, not a photo or a like count, is the hero of the project page. The making is the product.
 
-### 4.3 Share-an-idea flow *(live)*
+### 4.3 Share-an-idea flow *(live — step-by-step wizard)*
 
-How an idea becomes a joinable project. Must feel like talking to a neighbor, not filling in a government form.
+How an idea becomes a joinable project. Must feel like talking to a neighbor, not filling in a government form. One question at a time, with a quiet progress bar:
 
-1. **Just talk it out** — a free-form box invites the person to describe the idea in their own words; a mic button lets them literally say it out loud (browser speech recognition).
-2. **✨ Shape my idea** — Claude turns the rough description into a clear title, warm first-person description, category, and stage, prefilling the form. One gentle tip suggests the most useful missing detail. Suggestive, never blocking — the manual form always works without it.
-3. **Review and edit** — every AI-filled field stays editable; category is a row of tappable emoji pills, stage is two friendly cards ("💭 Just an idea" / "🚀 Already building").
-4. **Share it 🎉** — the project goes live on the feed.
+1. **Your idea** — "Just talk it out": a free-form box (typed, or spoken via the mic button) and **✨ Shape my idea** — Claude turns the rough description into a clear title, warm description, category, and stage, then advances to the prefilled draft. A "skip — I'll write it myself" path always exists.
+2. **The basics** — title, description, category pills, stage cards ("💭 Just an idea" / "🚀 Already building"). Every AI-filled field stays editable.
+3. **Who can help** — two friendly card rows: what help is needed (🏠 hands nearby / 💻 online help / 🤝 both) and who can find it (🏘️ my neighborhood — recommended default / 🏙️ my city / 🌍 anywhere).
+4. **Share it 🎉** — a review card showing exactly what neighbors will see, then the project goes live on the feed.
 
 ### 4.4 Join flow *(live)*
 

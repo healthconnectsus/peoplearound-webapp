@@ -7,6 +7,8 @@ import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import {
   CONTRIBUTION_TYPES,
   CONTRIBUTION_TYPE_META,
+  HELP_META,
+  REACH_META,
   STATE_META,
   TRANSITIONS,
   categoryMeta,
@@ -56,7 +58,7 @@ export default async function ProjectDetail({
     .select(
       // profiles is reachable via several FKs now (owner, memberships, stars),
       // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
+      "id,owner_id,title,description,category,state,help,reach,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -230,6 +232,20 @@ export default async function ProjectDetail({
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
           🤝 {teamSize} {teamSize === 1 ? "person" : "people"} building · ⭐{" "}
           {starCount} {starCount === 1 ? "star" : "stars"}
+          {project.help ? (
+            <span title={HELP_META[project.help].hint}>
+              {" · "}
+              {HELP_META[project.help].emoji} Looking for:{" "}
+              {HELP_META[project.help].label.toLowerCase()}
+            </span>
+          ) : null}
+          {project.reach && project.reach !== "neighborhood" ? (
+            <span title={REACH_META[project.reach].hint}>
+              {" · "}
+              {REACH_META[project.reach].emoji} Open to:{" "}
+              {REACH_META[project.reach].label.toLowerCase()}
+            </span>
+          ) : null}
         </p>
 
         {project.description ? (

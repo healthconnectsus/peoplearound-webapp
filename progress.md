@@ -7,6 +7,19 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-29 — Add help kind + reach (neighborhood/city/global, RLS-enforced) and rebuild create flow as a 4-step wizard
+
+- `docs/DATA_MODEL.md`
+- `docs/PRD.md`
+- `docs/UX_SPEC.md`
+- `src/app/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/lib/projects.ts`
+- `supabase/migrations/0008_help_and_reach.sql`
+
+
 ### 2026-07-29 — Add demo seed script: six neighbors, three weeks of simulated activity across the full loop
 
 - `scripts/demo-seed.sql`

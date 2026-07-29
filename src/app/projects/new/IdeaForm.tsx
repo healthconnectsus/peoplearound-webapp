@@ -1,8 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { CATEGORIES, CATEGORY_META } from "@/lib/projects";
+import {
+  CATEGORIES,
+  CATEGORY_META,
+  HELP_KINDS,
+  HELP_META,
+  REACHES,
+  REACH_META,
+  type HelpKind,
+  type ProjectReach,
+} from "@/lib/projects";
 import { createProject } from "../actions";
 
 type Draft = {
@@ -37,29 +46,44 @@ function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
     | null;
 }
 
+/* Mic support never changes after load; useSyncExternalStore keeps SSR (no
+   mic) and the client in sync without setState-in-effect. */
+const noopSubscribe = () => () => {};
+function useMicSupported() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => getSpeechRecognition() !== null,
+    () => false,
+  );
+}
+
 const inputClass =
   "rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-emerald-500 dark:border-white/20";
 
+const cardLabelClass =
+  "flex h-full cursor-pointer flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-white/20 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40";
+
+const STEPS = ["Your idea", "The basics", "Who can help", "Share"] as const;
+
 export function IdeaForm({ error }: { error?: string }) {
-  // --- Talk-it-out panel state ---
+  const [step, setStep] = useState(0);
+
+  // --- Step 1: talk it out ---
   const [rawIdea, setRawIdea] = useState("");
   const [listening, setListening] = useState(false);
-  const [micSupported, setMicSupported] = useState(false);
+  const micSupported = useMicSupported();
   const [shaping, setShaping] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [tip, setTip] = useState<string | null>(null);
-  const [shaped, setShaped] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
-  // --- Form fields (controlled so AI can prefill them) ---
+  // --- Steps 2–3: the draft ---
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [state, setState] = useState<"idea" | "active">("idea");
-
-  useEffect(() => {
-    setMicSupported(getSpeechRecognition() !== null);
-  }, []);
+  const [help, setHelp] = useState<HelpKind>("local");
+  const [reach, setReach] = useState<ProjectReach>("neighborhood");
 
   function toggleMic() {
     if (listening) {
@@ -79,7 +103,9 @@ export function IdeaForm({ error }: { error?: string }) {
         if (r.isFinal) text += r[0].transcript;
       }
       if (text) {
-        setRawIdea((prev) => (prev ? `${prev.trim()} ${text.trim()}` : text.trim()));
+        setRawIdea((prev) =>
+          prev ? `${prev.trim()} ${text.trim()}` : text.trim(),
+        );
       }
     };
     rec.onend = () => setListening(false);
@@ -106,12 +132,15 @@ export function IdeaForm({ error }: { error?: string }) {
       }
       setTitle(data.title ?? "");
       setDescription(data.description ?? "");
-      if (data.category && (CATEGORIES as readonly string[]).includes(data.category)) {
+      if (
+        data.category &&
+        (CATEGORIES as readonly string[]).includes(data.category)
+      ) {
         setCategory(data.category);
       }
       setState(data.state === "active" ? "active" : "idea");
       if (data.tip) setTip(data.tip);
-      setShaped(true);
+      setStep(1); // straight to the prefilled draft
     } catch {
       setAiError("Couldn't reach the assistant — check your connection.");
     } finally {
@@ -119,72 +148,33 @@ export function IdeaForm({ error }: { error?: string }) {
     }
   }
 
+  const canContinueFromBasics = title.trim().length > 0;
+
   return (
     <div className="flex flex-col gap-6">
-      {/* ---- Talk it out ---- */}
-      <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
-        <p className="font-medium">💬 Just talk it out</p>
-        <p className="mt-0.5 text-sm text-black/60 dark:text-white/60">
-          Describe your idea in your own words — messy is fine. We&apos;ll shape
-          it into a clear post you can still edit.
-        </p>
-
-        <textarea
-          value={rawIdea}
-          onChange={(e) => setRawIdea(e.target.value)}
-          rows={3}
-          maxLength={4000}
-          placeholder={
-            micSupported
-              ? "e.g. “so there's this empty lot near the bakery and I keep thinking it could be a garden but I don't know anything about gardening…” — or tap the mic and say it out loud"
-              : "e.g. “so there's this empty lot near the bakery and I keep thinking it could be a garden but I don't know anything about gardening…”"
-          }
-          className={`${inputClass} mt-3 w-full resize-y bg-white dark:bg-black/20`}
-        />
-
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          {micSupported ? (
-            <button
-              type="button"
-              onClick={toggleMic}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                listening
-                  ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-300"
-                  : "border-black/15 bg-white hover:bg-black/5 dark:border-white/20 dark:bg-black/20 dark:hover:bg-white/10"
+      {/* Progress */}
+      <ol className="flex items-center gap-1.5" aria-label="Steps">
+        {STEPS.map((label, i) => (
+          <li key={label} className="flex flex-1 flex-col gap-1">
+            <span
+              className={`h-1.5 rounded-full transition-colors ${
+                i <= step
+                  ? "bg-emerald-600"
+                  : "bg-black/10 dark:bg-white/15"
+              }`}
+            />
+            <span
+              className={`text-[11px] ${
+                i === step
+                  ? "font-medium text-emerald-700 dark:text-emerald-400"
+                  : "text-black/40 dark:text-white/40"
               }`}
             >
-              {listening ? "⏹ Stop listening" : "🎤 Speak instead"}
-            </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={shapeIdea}
-            disabled={shaping || rawIdea.trim().length < 10}
-            className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {shaping ? "Shaping…" : "✨ Shape my idea"}
-          </button>
-          {listening ? (
-            <span className="text-sm text-red-600 dark:text-red-400">
-              Listening — speak freely…
+              {label}
             </span>
-          ) : null}
-        </div>
-
-        {aiError ? (
-          <p className="mt-2 text-sm text-red-700 dark:text-red-300">{aiError}</p>
-        ) : null}
-        {shaped && !aiError ? (
-          <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-300">
-            ✓ Done — your draft is filled in below. Edit anything you like.
-          </p>
-        ) : null}
-        {tip ? (
-          <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-            💡 {tip}
-          </p>
-        ) : null}
-      </div>
+          </li>
+        ))}
+      </ol>
 
       {error ? (
         <p className="rounded-xl border border-red-300 bg-red-50 px-3.5 py-2.5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
@@ -192,119 +182,320 @@ export function IdeaForm({ error }: { error?: string }) {
         </p>
       ) : null}
 
-      {/* ---- The actual form ---- */}
-      <form action={createProject} className="flex flex-col gap-5">
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium">What&apos;s the idea?</span>
-          <input
-            type="text"
-            name="title"
-            required
-            maxLength={140}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Start a community garden on Oak Street"
-            className={inputClass}
-          />
-          <span className="text-xs text-black/40 dark:text-white/40">
-            One clear sentence works best.
-          </span>
-        </label>
+      {/* ---- Step 1: your idea, in your own words ---- */}
+      {step === 0 ? (
+        <div className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
+            <p className="font-medium">💬 Just talk it out</p>
+            <p className="mt-0.5 text-sm text-black/60 dark:text-white/60">
+              Describe your idea in your own words — messy is fine. We&apos;ll
+              shape it into a clear post you can still edit.
+            </p>
 
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium">
-            Tell people more{" "}
-            <span className="font-normal text-black/40 dark:text-white/40">
-              (optional)
+            <textarea
+              value={rawIdea}
+              onChange={(e) => setRawIdea(e.target.value)}
+              rows={4}
+              maxLength={4000}
+              placeholder={
+                micSupported
+                  ? "e.g. “so there's this empty lot near the bakery and I keep thinking it could be a garden but I don't know anything about gardening…” — or tap the mic and say it out loud"
+                  : "e.g. “so there's this empty lot near the bakery and I keep thinking it could be a garden but I don't know anything about gardening…”"
+              }
+              className={`${inputClass} mt-3 w-full resize-y bg-white dark:bg-black/20`}
+            />
+
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {micSupported ? (
+                <button
+                  type="button"
+                  onClick={toggleMic}
+                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                    listening
+                      ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-300"
+                      : "border-black/15 bg-white hover:bg-black/5 dark:border-white/20 dark:bg-black/20 dark:hover:bg-white/10"
+                  }`}
+                >
+                  {listening ? "⏹ Stop listening" : "🎤 Speak instead"}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={shapeIdea}
+                disabled={shaping || rawIdea.trim().length < 10}
+                className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {shaping ? "Shaping…" : "✨ Shape my idea"}
+              </button>
+              {listening ? (
+                <span className="text-sm text-red-600 dark:text-red-400">
+                  Listening — speak freely…
+                </span>
+              ) : null}
+            </div>
+
+            {aiError ? (
+              <p className="mt-2 text-sm text-red-700 dark:text-red-300">
+                {aiError}
+              </p>
+            ) : null}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="self-start text-sm text-black/50 hover:underline dark:text-white/50"
+          >
+            Skip — I&apos;ll write it myself →
+          </button>
+        </div>
+      ) : null}
+
+      {/* ---- Step 2: the basics ---- */}
+      {step === 1 ? (
+        <div className="flex flex-col gap-5">
+          {tip ? (
+            <p className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+              💡 {tip}
+            </p>
+          ) : null}
+
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium">What&apos;s the idea?</span>
+            <input
+              type="text"
+              required
+              maxLength={140}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Start a community garden on Oak Street"
+              className={inputClass}
+            />
+            <span className="text-xs text-black/40 dark:text-white/40">
+              One clear sentence works best.
             </span>
-          </span>
-          <textarea
-            name="description"
-            rows={5}
-            maxLength={4000}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What's the plan? What kind of help or skills would be great to have?"
-            className={`${inputClass} resize-y`}
-          />
-        </label>
+          </label>
 
-        <fieldset className="flex flex-col gap-1.5 text-sm">
-          <legend className="mb-1.5 font-medium">
-            What kind of project is it?
-          </legend>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((c) => (
-              <label key={c} className="cursor-pointer">
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium">
+              Tell people more{" "}
+              <span className="font-normal text-black/40 dark:text-white/40">
+                (optional)
+              </span>
+            </span>
+            <textarea
+              rows={5}
+              maxLength={4000}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What's the plan? What kind of help or skills would be great to have?"
+              className={`${inputClass} resize-y`}
+            />
+          </label>
+
+          <fieldset className="flex flex-col gap-1.5 text-sm">
+            <legend className="mb-1.5 font-medium">
+              What kind of project is it?
+            </legend>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((c) => (
+                <label key={c} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    checked={category === c}
+                    onChange={() => setCategory(c)}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-block rounded-full border border-black/15 px-3.5 py-1.5 transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-600 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/50 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10">
+                    {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="flex flex-col gap-1.5 text-sm">
+            <legend className="mb-1.5 font-medium">Where are you at?</legend>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <label className={`flex-1 ${cardLabelClass}`}>
                 <input
                   type="radio"
-                  name="category"
-                  value={c}
-                  checked={category === c}
-                  onChange={() => setCategory(c)}
-                  className="peer sr-only"
+                  checked={state === "idea"}
+                  onChange={() => setState("idea")}
+                  className="sr-only"
                 />
-                <span className="inline-block rounded-full border border-black/15 px-3.5 py-1.5 transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-600 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/50 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10">
-                  {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset className="flex flex-col gap-1.5 text-sm">
-          <legend className="mb-1.5 font-medium">Where are you at?</legend>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <label className="flex-1 cursor-pointer">
-              <input
-                type="radio"
-                name="state"
-                value="idea"
-                checked={state === "idea"}
-                onChange={() => setState("idea")}
-                className="peer sr-only"
-              />
-              <span className="flex h-full flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/50 hover:bg-black/5 dark:border-white/20 dark:peer-checked:bg-emerald-950/40 dark:hover:bg-white/10">
                 <span className="font-medium">💭 Just an idea</span>
                 <span className="text-xs text-black/50 dark:text-white/50">
                   Looking for people to make it real
                 </span>
-              </span>
-            </label>
-            <label className="flex-1 cursor-pointer">
-              <input
-                type="radio"
-                name="state"
-                value="active"
-                checked={state === "active"}
-                onChange={() => setState("active")}
-                className="peer sr-only"
-              />
-              <span className="flex h-full flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/50 hover:bg-black/5 dark:border-white/20 dark:peer-checked:bg-emerald-950/40 dark:hover:bg-white/10">
+              </label>
+              <label className={`flex-1 ${cardLabelClass}`}>
+                <input
+                  type="radio"
+                  checked={state === "active"}
+                  onChange={() => setState("active")}
+                  className="sr-only"
+                />
                 <span className="font-medium">🚀 Already building</span>
                 <span className="text-xs text-black/50 dark:text-white/50">
                   Under way — more hands welcome
                 </span>
-              </span>
-            </label>
-          </div>
-        </fieldset>
+              </label>
+            </div>
+          </fieldset>
 
-        <div className="mt-1 flex items-center gap-3">
-          <button
-            type="submit"
-            className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-          >
-            Share it 🎉
-          </button>
-          <Link
-            href="/"
-            className="text-sm text-black/50 hover:underline dark:text-white/50"
-          >
-            Cancel
-          </Link>
+          <div className="mt-1 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setStep(2)}
+              disabled={!canContinueFromBasics}
+              className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Continue →
+            </button>
+            <button
+              type="button"
+              onClick={() => setStep(0)}
+              className="text-sm text-black/50 hover:underline dark:text-white/50"
+            >
+              ← Back
+            </button>
+          </div>
         </div>
-      </form>
+      ) : null}
+
+      {/* ---- Step 3: who can help ---- */}
+      {step === 2 ? (
+        <div className="flex flex-col gap-5">
+          <fieldset className="flex flex-col gap-1.5 text-sm">
+            <legend className="mb-1.5 font-medium">
+              What kind of help do you need?
+            </legend>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              {HELP_KINDS.map((h) => (
+                <label key={h} className={`flex-1 ${cardLabelClass}`}>
+                  <input
+                    type="radio"
+                    checked={help === h}
+                    onChange={() => setHelp(h)}
+                    className="sr-only"
+                  />
+                  <span className="font-medium">
+                    {HELP_META[h].emoji} {HELP_META[h].label}
+                  </span>
+                  <span className="text-xs text-black/50 dark:text-white/50">
+                    {HELP_META[h].hint}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="flex flex-col gap-1.5 text-sm">
+            <legend className="mb-1.5 font-medium">
+              Who should be able to find and join it?
+            </legend>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              {REACHES.map((r) => (
+                <label key={r} className={`flex-1 ${cardLabelClass}`}>
+                  <input
+                    type="radio"
+                    checked={reach === r}
+                    onChange={() => setReach(r)}
+                    className="sr-only"
+                  />
+                  <span className="font-medium">
+                    {REACH_META[r].emoji} {REACH_META[r].label}
+                  </span>
+                  <span className="text-xs text-black/50 dark:text-white/50">
+                    {REACH_META[r].hint}
+                  </span>
+                </label>
+              ))}
+            </div>
+            {reach !== "neighborhood" ? (
+              <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+                Your project will still show up for your neighbors first —
+                wider reach just means more people *can* find it.
+              </p>
+            ) : null}
+          </fieldset>
+
+          <div className="mt-1 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setStep(3)}
+              className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            >
+              Continue →
+            </button>
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="text-sm text-black/50 hover:underline dark:text-white/50"
+            >
+              ← Back
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ---- Step 4: review & share ---- */}
+      {step === 3 ? (
+        <div className="flex flex-col gap-5">
+          <div className="rounded-2xl border border-black/10 p-4 dark:border-white/10">
+            <p className="font-medium leading-snug">
+              <span className="mr-1.5" aria-hidden>
+                {CATEGORY_META[category as (typeof CATEGORIES)[number]]
+                  ?.emoji ?? "✨"}
+              </span>
+              {title}
+            </p>
+            {description ? (
+              <p className="mt-2 whitespace-pre-wrap text-sm text-black/60 dark:text-white/60">
+                {description}
+              </p>
+            ) : null}
+            <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-black/50 dark:text-white/50">
+              <span>{state === "active" ? "🚀 Already building" : "💭 Just an idea"}</span>
+              <span>
+                {HELP_META[help].emoji} {HELP_META[help].label}
+              </span>
+              <span>
+                {REACH_META[reach].emoji} {REACH_META[reach].label}
+              </span>
+            </p>
+          </div>
+
+          <form action={createProject} className="flex items-center gap-3">
+            <input type="hidden" name="title" value={title} />
+            <input type="hidden" name="description" value={description} />
+            <input type="hidden" name="category" value={category} />
+            <input type="hidden" name="state" value={state} />
+            <input type="hidden" name="help" value={help} />
+            <input type="hidden" name="reach" value={reach} />
+            <button
+              type="submit"
+              className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            >
+              Share it 🎉
+            </button>
+            <button
+              type="button"
+              onClick={() => setStep(2)}
+              className="text-sm text-black/50 hover:underline dark:text-white/50"
+            >
+              ← Back
+            </button>
+            <Link
+              href="/"
+              className="text-sm text-black/50 hover:underline dark:text-white/50"
+            >
+              Cancel
+            </Link>
+          </form>
+        </div>
+      ) : null}
     </div>
   );
 }

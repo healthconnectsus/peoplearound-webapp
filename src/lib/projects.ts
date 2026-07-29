@@ -55,6 +55,61 @@ export const CATEGORY_META: Record<
   other: { label: "Other", emoji: "✨" },
 };
 
+/** What kind of help the founder is looking for. */
+export type HelpKind = "local" | "remote" | "both";
+
+export const HELP_KINDS: HelpKind[] = ["local", "remote", "both"];
+
+export const HELP_META: Record<
+  HelpKind,
+  { label: string; emoji: string; hint: string }
+> = {
+  local: {
+    label: "Hands nearby",
+    emoji: "🏠",
+    hint: "People who can physically show up",
+  },
+  remote: {
+    label: "Online help",
+    emoji: "💻",
+    hint: "Skills that work from anywhere",
+  },
+  both: {
+    label: "Both",
+    emoji: "🤝",
+    hint: "Hands here and help from anywhere",
+  },
+};
+
+/**
+ * Who can see and join. Neighborhood is the default and the soul of the
+ * product — wider reach is a deliberate per-project choice, never the norm.
+ */
+export type ProjectReach = "neighborhood" | "city" | "global";
+
+export const REACHES: ProjectReach[] = ["neighborhood", "city", "global"];
+
+export const REACH_META: Record<
+  ProjectReach,
+  { label: string; emoji: string; hint: string }
+> = {
+  neighborhood: {
+    label: "My neighborhood",
+    emoji: "🏘️",
+    hint: "Just the people around you (recommended)",
+  },
+  city: {
+    label: "My city",
+    emoji: "🏙️",
+    hint: "Neighbors across the whole city",
+  },
+  global: {
+    label: "Anywhere",
+    emoji: "🌍",
+    hint: "Anyone on Peoplearound can find it",
+  },
+};
+
 export function categoryMeta(category: string) {
   return (
     CATEGORY_META[category as (typeof CATEGORIES)[number]] ??
@@ -203,6 +258,8 @@ export type Project = {
   description: string;
   category: string;
   state: ProjectState;
+  help: HelpKind;
+  reach: ProjectReach;
   created_at: string;
   updated_at: string;
   owner?: { display_name: string | null } | null;

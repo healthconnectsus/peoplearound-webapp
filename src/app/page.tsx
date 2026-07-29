@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import {
+  HELP_META,
+  REACH_META,
   STATE_META,
   categoryMeta,
   formatEventTime,
@@ -57,6 +59,16 @@ function ProjectCard({ project }: { project: ProjectCardData }) {
           <span title="People who'd love this to exist">
             ⭐ {project.starCount}
           </span>
+          {project.help && project.help !== "local" ? (
+            <span title={HELP_META[project.help].hint}>
+              {HELP_META[project.help].emoji} {HELP_META[project.help].label}
+            </span>
+          ) : null}
+          {project.reach && project.reach !== "neighborhood" ? (
+            <span title={REACH_META[project.reach].hint}>
+              {REACH_META[project.reach].emoji} {REACH_META[project.reach].label}
+            </span>
+          ) : null}
         </div>
       </Link>
     </li>
@@ -90,7 +102,7 @@ export default async function Home() {
     .select(
       // profiles is reachable via several FKs now (owner, memberships, stars),
       // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
+      "id,owner_id,title,description,category,state,help,reach,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
     )
     .order("created_at", { ascending: false });
 

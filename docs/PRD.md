@@ -37,7 +37,7 @@ Peoplearound is a hyperlocal network where people share ideas and projects, and 
 
 - **No cash marketplace.** Commerce is deferred; "for sale" is replaced by offer/give/lend that feeds contributions.
 - **No public leaderboards** or vanity metrics.
-- **No global / non-local social graph.** Everything is scoped to neighborhood.
+- **No global / non-local social graph.** Everything defaults to neighborhood scope. A founder may deliberately widen a *single project's* reach (city or global) when the help they need isn't local — but the feed stays neighborhood-first and there is no global browse/discovery surface.
 - **No sponsorship or advertiser monetization** at foundation level.
 
 > **Guiding constraint:** any feature that makes worth come from claiming, transacting, or competing is out of scope, however much it would drive engagement.
@@ -57,7 +57,9 @@ Peoplearound is a hyperlocal network where people share ideas and projects, and 
 
 The central object. A project is a persistent, joinable page, not a disposable post, with state, a team, and an accumulating history.
 
-- Founder creates a project: title, description, category; later location + photos.
+- Founder creates a project through a simple 4-step wizard: talk the idea out (AI shapes it) → basics (title, description, category, stage) → who can help → review & share. ✅
+- Founder declares what help they need — `help`: hands nearby (`local`), online help (`remote`), or `both` — and who can find it — `reach`: `neighborhood` (default), `city`, or `global`. Reach is RLS-enforced; wider reach is a badge-visible, per-project opt-in. ✅
+- Later: location + photos.
 - Project has an explicit lifecycle state: **idea → active (building) → completed**, or quietly archived. Never displayed as "failed."
 - History feed on the project records every star, join, confirmed contribution, and event, in order. ✅ *shipped ("The story so far")*
 - AI assists at creation to shape vague ideas into joinable projects (see [3.8](#38-ai-agent-the-gardener--p1)). ✅ *shipped*

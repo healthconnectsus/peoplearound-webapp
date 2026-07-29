@@ -5,9 +5,13 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   CONTRIBUTION_TYPES,
+  HELP_KINDS,
   PROJECT_STATES,
+  REACHES,
   TRANSITIONS,
   type ContributionType,
+  type HelpKind,
+  type ProjectReach,
   type ProjectState,
 } from "@/lib/projects";
 
@@ -16,6 +20,8 @@ export async function createProject(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const category = String(formData.get("category") ?? "community").trim();
   const requested = String(formData.get("state") ?? "idea") as ProjectState;
+  const helpRaw = String(formData.get("help") ?? "local") as HelpKind;
+  const reachRaw = String(formData.get("reach") ?? "neighborhood") as ProjectReach;
 
   if (!title) {
     redirect(
@@ -24,6 +30,10 @@ export async function createProject(formData: FormData) {
   }
   // Projects may only be created as idea or active.
   const state: ProjectState = requested === "active" ? "active" : "idea";
+  const help: HelpKind = HELP_KINDS.includes(helpRaw) ? helpRaw : "local";
+  const reach: ProjectReach = REACHES.includes(reachRaw)
+    ? reachRaw
+    : "neighborhood";
 
   const supabase = await createClient();
   const {
@@ -42,7 +52,7 @@ export async function createProject(formData: FormData) {
 
   const { data, error } = await supabase
     .from("projects")
-    .insert({ owner_id: user.id, title, description, category, state })
+    .insert({ owner_id: user.id, title, description, category, state, help, reach })
     .select("id")
     .single();
 
