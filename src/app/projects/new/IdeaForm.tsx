@@ -13,6 +13,7 @@ import {
   type ProjectReach,
 } from "@/lib/projects";
 import { createProject } from "../actions";
+import { MapPicker } from "@/components/MapPicker";
 
 type Draft = {
   title: string;
@@ -84,6 +85,7 @@ export function IdeaForm({ error }: { error?: string }) {
   const [state, setState] = useState<"idea" | "active">("idea");
   const [help, setHelp] = useState<HelpKind>("local");
   const [reach, setReach] = useState<ProjectReach>("neighborhood");
+  const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
 
   function toggleMic() {
     if (listening) {
@@ -421,6 +423,16 @@ export function IdeaForm({ error }: { error?: string }) {
             ) : null}
           </fieldset>
 
+          <fieldset className="flex flex-col gap-1.5 text-sm">
+            <legend className="mb-1.5 font-medium">
+              Where is it happening?{" "}
+              <span className="font-normal text-black/40 dark:text-white/40">
+                (optional)
+              </span>
+            </legend>
+            <MapPicker value={loc} onChange={setLoc} />
+          </fieldset>
+
           <div className="mt-1 flex items-center gap-3">
             <button
               type="button"
@@ -464,6 +476,7 @@ export function IdeaForm({ error }: { error?: string }) {
               <span>
                 {REACH_META[reach].emoji} {REACH_META[reach].label}
               </span>
+              {loc ? <span>📍 Pinned on the map</span> : null}
             </p>
           </div>
 
@@ -474,6 +487,8 @@ export function IdeaForm({ error }: { error?: string }) {
             <input type="hidden" name="state" value={state} />
             <input type="hidden" name="help" value={help} />
             <input type="hidden" name="reach" value={reach} />
+            <input type="hidden" name="lat" value={loc?.lat ?? ""} />
+            <input type="hidden" name="lng" value={loc?.lng ?? ""} />
             <button
               type="submit"
               className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"

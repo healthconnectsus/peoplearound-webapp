@@ -7,6 +7,24 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-29 — Redesign feed: neighborhood map (Leaflet/OSM), pulse header, reach zones, story-beat cards, avatars; location picker in wizard; seed pins
+
+- `docs/DATA_MODEL.md`
+- `docs/UX_SPEC.md`
+- `package-lock.json`
+- `package.json`
+- `scripts/demo-seed-large.sql`
+- `scripts/generate-demo-seed.mjs`
+- `src/app/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/MapPicker.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/lib/projects.ts`
+- `supabase/migrations/0009_project_location.sql`
+
+
 ### 2026-07-29 — Fix demo seed owner rotation so projects spread across all three neighborhoods
 
 - `scripts/demo-seed-large.sql`

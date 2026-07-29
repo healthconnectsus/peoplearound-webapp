@@ -54,14 +54,16 @@ Web today (header nav: feed · share an idea · sign out); the mobile app maps t
 
 ## 4. Key screens
 
-### 4.1 Around (What's happening?)
+### 4.1 Around (What's happening?) *(live — map + zoned story feed)*
 
-The home tab. A calm, location-scoped feed of life nearby. *(Basic version live: project cards with category emoji, founder, relative time, team size, star count.)*
+The home tab. A calm, location-scoped feed of life nearby, opening with the neighborhood as a *place*:
 
-- Card types: active project updates, upcoming events, new teammates joining, recently acknowledged contributions, new offers.
-- Each card has one clear lightweight action (star, ask to join, RSVP, view).
-- Recently-acknowledged cards quietly celebrate neighbors ("Maria's garden reached its first planting day — 6 neighbors built it together") — modeling the behavior we want.
-- No engagement-maximizing infinite scroll; feed is finite and refreshes, valuing calm over time-on-app.
+- **Pulse header** — the neighborhood's name plus proof of life: "34 neighbors · 6 projects building · 2 events this week · 5 contributions confirmed this month."
+- **The map** — an OpenStreetMap view with an emoji pin per located project (pins pulse when the project has an event this week); tap a pin → project page. Physical proximity made visceral.
+- **Happening soon** — upcoming events as the most prominent cards (the gentlest on-ramp).
+- **Three zones, local first** — "On your streets" (full cards), "Around {city}" (full cards), "🌍 From anywhere" (compact rows). Wider reach never crowds out local.
+- **Story-beat cards** — each card leads with its freshest human moment ("🙌 Amara's help was confirmed yesterday", "⭐ 4 neighbors starred this this week", "📅 Build day Saturday · 6 going") instead of dead metadata; team members appear as initial-avatars, categories as color accents.
+- No engagement-maximizing infinite scroll; feed is finite and refreshes live (Supabase Realtime), valuing calm over time-on-app.
 
 ### 4.2 Project page (living page)
 

@@ -35,6 +35,15 @@ export async function createProject(formData: FormData) {
     ? reachRaw
     : "neighborhood";
 
+  // Optional map pin from the wizard.
+  const latNum = Number.parseFloat(String(formData.get("lat") ?? ""));
+  const lngNum = Number.parseFloat(String(formData.get("lng") ?? ""));
+  const hasPin =
+    Number.isFinite(latNum) &&
+    Number.isFinite(lngNum) &&
+    Math.abs(latNum) <= 90 &&
+    Math.abs(lngNum) <= 180;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -52,7 +61,17 @@ export async function createProject(formData: FormData) {
 
   const { data, error } = await supabase
     .from("projects")
-    .insert({ owner_id: user.id, title, description, category, state, help, reach })
+    .insert({
+      owner_id: user.id,
+      title,
+      description,
+      category,
+      state,
+      help,
+      reach,
+      lat: hasPin ? latNum : null,
+      lng: hasPin ? lngNum : null,
+    })
     .select("id")
     .single();
 

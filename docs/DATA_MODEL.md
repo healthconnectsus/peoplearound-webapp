@@ -48,7 +48,7 @@ The central object — a living, joinable page with state, team, and history.
 | reach | enum `project_reach` | `neighborhood` (default) · `city` · `global` — RLS-enforced visibility opt-in |
 | created_at / updated_at | timestamptz | `updated_at` maintained by trigger |
 
-> `neighborhood_id` (FK → neighborhoods) is **live**, stamped from the founder's profile by a before-insert trigger. Planned: `location` (a point within the neighborhood).
+> `neighborhood_id` (FK → neighborhoods) is **live**, stamped from the founder's profile by a before-insert trigger. `lat`/`lng` (nullable doubles) are **live** — the optional map pin from the wizard's "where is it happening?" step.
 
 ### stars
 

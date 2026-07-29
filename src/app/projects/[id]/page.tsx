@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { LiveRefresh } from "@/components/LiveRefresh";
+import { NeighborhoodMap } from "@/components/NeighborhoodMap";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import {
   CONTRIBUTION_TYPES,
@@ -58,7 +59,7 @@ export default async function ProjectDetail({
     .select(
       // profiles is reachable via several FKs now (owner, memberships, stars),
       // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,help,reach,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
+      "id,owner_id,title,description,category,state,help,reach,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -257,6 +258,24 @@ export default async function ProjectDetail({
             No description yet.
           </p>
         )}
+
+        {project.lat != null && project.lng != null ? (
+          <div className="mt-5">
+            <NeighborhoodMap
+              pins={[
+                {
+                  id: project.id,
+                  title: project.title,
+                  emoji: cat.emoji,
+                  href: `/projects/${project.id}`,
+                  lat: project.lat,
+                  lng: project.lng,
+                  subtitle: `${meta.label} · ${founderName}`,
+                },
+              ]}
+            />
+          </div>
+        ) : null}
 
         {/* Actions: join + star */}
         <div className="mt-7 rounded-2xl border border-black/10 p-4 dark:border-white/10">

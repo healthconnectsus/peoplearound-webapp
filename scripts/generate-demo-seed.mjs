@@ -6,7 +6,9 @@
  * events — all respecting the product's trust rules (no self-crediting,
  * attester ≠ contributor ≠ founder, star/join eligibility follows reach).
  *
- * Run:  node scripts/generate-demo-seed.mjs
+ * Run:  node scripts/generate-demo-seed.mjs [--lat=48.8566 --lng=2.3522]
+ * (--lat/--lng center the demo map pins on your real city; the default is
+ * Central Park, NYC. Old Town — the second city — lands ~15 km away.)
  * Then paste scripts/demo-seed-large.sql into the Supabase SQL editor.
  * Deterministic (seeded PRNG): re-running produces the identical file.
  */
@@ -27,6 +29,19 @@ const rand = () => {
 const pick = (arr) => arr[Math.floor(rand() * arr.length)];
 const int = (min, max) => min + Math.floor(rand() * (max - min + 1));
 const q = (t) => t.replace(/'/g, "''");
+
+// Map-pin bases: pilot + Riverside share a city; Old Town is another city.
+const argVal = (name, dflt) => {
+  const a = process.argv.find((x) => x.startsWith(`--${name}=`));
+  return a ? parseFloat(a.split("=")[1]) : dflt;
+};
+const BASE_LAT = argVal("lat", 40.7812);
+const BASE_LNG = argVal("lng", -73.9665);
+const HOOD_BASE = [
+  [BASE_LAT, BASE_LNG], // pilot
+  [BASE_LAT + 0.018, BASE_LNG + 0.02], // Riverside (same city)
+  [BASE_LAT - 0.11, BASE_LNG + 0.09], // Old Town (other city, ~15 km away)
+];
 
 const uid = (n) => `e0000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const pid = (n) => `ea000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -213,12 +228,18 @@ PROJECTS.forEach(([title, desc, cat, state, help, reach], idx) => {
   const owner = users[ownerIdx - 1];
   const daysAgo = 30 - Math.floor(idx * 0.9); // spread over the last month
   const done = state === "completed";
+  // ~80% of hands-on projects get a map pin near their neighborhood center;
+  // remote-help projects less often (the work isn't at a place).
+  const pinned = rand() < (help === "remote" ? 0.35 : 0.8);
+  const [bLat, bLng] = HOOD_BASE[owner.hood];
+  const lat = pinned ? (bLat + (rand() - 0.5) * 0.016).toFixed(6) : "null";
+  const lng = pinned ? (bLng + (rand() - 0.5) * 0.022).toFixed(6) : "null";
   projRows.push(
-    `  ('${pid(p)}', '${owner.id}', '${q(title)}', '${q(desc)}', '${cat}', '${state}', '${help}', '${reach}', now() - interval '${daysAgo} days ${int(0, 20)} hours', now() - interval '${done ? int(1, 4) : daysAgo - 1} days')`,
+    `  ('${pid(p)}', '${owner.id}', '${q(title)}', '${q(desc)}', '${cat}', '${state}', '${help}', '${reach}', ${lat}, ${lng}, now() - interval '${daysAgo} days ${int(0, 20)} hours', now() - interval '${done ? int(1, 4) : daysAgo - 1} days')`,
   );
   projMeta.push({ p, owner, ownerIdx, reach, state, daysAgo, hood: owner.hood });
 });
-L.push(`insert into public.projects (id, owner_id, title, description, category, state, help, reach, created_at, updated_at) values
+L.push(`insert into public.projects (id, owner_id, title, description, category, state, help, reach, lat, lng, created_at, updated_at) values
 ${projRows.join(",\n")}
 on conflict (id) do nothing;
 

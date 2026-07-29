@@ -110,6 +110,39 @@ export const REACH_META: Record<
   },
 };
 
+/** Left-border tint per category, for feed cards. */
+export const CATEGORY_TINT: Record<(typeof CATEGORIES)[number], string> = {
+  community: "border-l-emerald-400",
+  fitness: "border-l-orange-400",
+  learning: "border-l-sky-400",
+  home: "border-l-amber-400",
+  venture: "border-l-violet-400",
+  other: "border-l-zinc-300 dark:border-l-zinc-600",
+};
+
+export function categoryTint(category: string): string {
+  return (
+    CATEGORY_TINT[category as (typeof CATEGORIES)[number]] ??
+    CATEGORY_TINT.other
+  );
+}
+
+/** "Maria Alvarez" → "MA", "sam" → "S" — for avatar bubbles. */
+export function initials(name: string | null | undefined): string {
+  if (!name) return "?";
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("");
+}
+
+/** ISO timestamp `days` days ago (component-body safe, like timeAgo). */
+export function isoDaysAgo(days: number): string {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+}
+
 export function categoryMeta(category: string) {
   return (
     CATEGORY_META[category as (typeof CATEGORIES)[number]] ??
@@ -260,9 +293,13 @@ export type Project = {
   state: ProjectState;
   help: HelpKind;
   reach: ProjectReach;
+  lat: number | null;
+  lng: number | null;
+  neighborhood_id: string | null;
   created_at: string;
   updated_at: string;
   owner?: { display_name: string | null } | null;
+  neighborhood?: { name: string; city: string | null } | null;
 };
 
 export type Membership = {
