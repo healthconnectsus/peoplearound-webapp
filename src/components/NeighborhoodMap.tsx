@@ -22,7 +22,13 @@ export type MapPin = {
  * per located project. Leaflet is imported dynamically so it only ever
  * runs in the browser.
  */
-export function NeighborhoodMap({ pins }: { pins: MapPin[] }) {
+export function NeighborhoodMap({
+  pins,
+  className = "h-72",
+}: {
+  pins: MapPin[];
+  className?: string;
+}) {
   const holderRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const routerRef = useRef(router);
@@ -83,11 +89,11 @@ export function NeighborhoodMap({ pins }: { pins: MapPin[] }) {
   if (pins.length === 0) return null;
 
   return (
-    <div className="relative">
+    <div className={`relative ${className}`}>
       <style>{`@keyframes pa-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }`}</style>
       <div
         ref={holderRef}
-        className="z-0 h-72 w-full overflow-hidden rounded-2xl border border-black/10 dark:border-white/10"
+        className="z-0 h-full w-full overflow-hidden rounded-2xl border border-black/10 shadow-sm dark:border-white/10"
         aria-label="Map of projects around you"
       />
       <p className="pointer-events-none absolute left-3 top-3 z-[500] rounded-full bg-white/90 px-3 py-1 text-xs font-medium shadow dark:bg-zinc-900/90">

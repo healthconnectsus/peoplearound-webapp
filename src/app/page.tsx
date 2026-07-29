@@ -35,13 +35,13 @@ function Avatars({ names }: { names: string[] }) {
         <span
           key={`${n}-${i}`}
           title={n}
-          className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-[9px] font-semibold text-emerald-800 dark:border-zinc-950 dark:bg-emerald-900 dark:text-emerald-200"
+          className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-[9px] font-semibold text-emerald-800 dark:border-zinc-900 dark:bg-emerald-900 dark:text-emerald-200"
         >
           {initials(n)}
         </span>
       ))}
       {names.length > 4 ? (
-        <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-black/10 text-[9px] font-semibold dark:border-zinc-950 dark:bg-white/15">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-black/10 text-[9px] font-semibold dark:border-zinc-900 dark:bg-white/15">
           +{names.length - 4}
         </span>
       ) : null}
@@ -56,7 +56,7 @@ function ProjectCard({ p }: { p: CardData }) {
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className={`block rounded-2xl border border-black/10 border-l-4 p-4 transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-500/10 dark:border-white/10 dark:hover:bg-white/[0.03] ${categoryTint(p.category)}`}
+        className={`block rounded-2xl border border-black/5 border-l-4 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-500/10 dark:border-white/5 dark:bg-zinc-900 ${categoryTint(p.category)}`}
       >
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-medium leading-snug">
@@ -99,11 +99,6 @@ function ProjectCard({ p }: { p: CardData }) {
               {REACH_META[p.reach].emoji} {REACH_META[p.reach].label}
             </span>
           ) : null}
-          {p.lat == null ? (
-            <span className="text-black/30 dark:text-white/30">
-              {timeAgo(p.created_at)}
-            </span>
-          ) : null}
         </div>
       </Link>
     </li>
@@ -116,7 +111,7 @@ function CompactRow({ p }: { p: CardData }) {
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-4 py-2.5 transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]"
+        className="flex items-center justify-between gap-3 rounded-xl border border-black/5 bg-white px-4 py-2.5 shadow-sm transition-colors hover:bg-stone-50 dark:border-white/5 dark:bg-zinc-900 dark:hover:bg-zinc-800"
       >
         <span className="min-w-0 truncate text-sm">
           <span className="mr-1" aria-hidden>
@@ -266,14 +261,18 @@ export default async function Home() {
     (e) => new Date(e.starts_at).getTime() < new Date(isoDaysAgo(-7)).getTime(),
   ).length;
   const confirmedThisMonth = confirmed.length;
-  const pulse = [
-    neighborCount ? `${neighborCount} neighbors` : null,
-    building ? `${building} ${building === 1 ? "project" : "projects"} building` : null,
-    eventsThisWeek ? `${eventsThisWeek} ${eventsThisWeek === 1 ? "event" : "events"} this week` : null,
-    confirmedThisMonth
-      ? `${confirmedThisMonth} ${confirmedThisMonth === 1 ? "contribution" : "contributions"} confirmed this month`
+  const pulse: { emoji: string; text: string }[] = [
+    neighborCount ? { emoji: "👥", text: `${neighborCount} neighbors` } : null,
+    building
+      ? { emoji: "🚀", text: `${building} building` }
       : null,
-  ].filter(Boolean);
+    eventsThisWeek
+      ? { emoji: "📅", text: `${eventsThisWeek} ${eventsThisWeek === 1 ? "event" : "events"} this week` }
+      : null,
+    confirmedThisMonth
+      ? { emoji: "🙌", text: `${confirmedThisMonth} confirmed this month` }
+      : null,
+  ].filter(Boolean) as { emoji: string; text: string }[];
 
   // Map pins for every visible, located project.
   const pins: MapPin[] = cards
@@ -293,129 +292,140 @@ export default async function Home() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <LiveRefresh tables="projects,stars,memberships,events" />
-      <main className="mx-auto w-full max-w-2xl flex-1 p-4">
-        <div className="mb-4">
-          <h1 className="text-xl font-semibold">{neighborhoodName}</h1>
-          <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
-            {pulse.length > 0 ? pulse.join(" · ") : "Quiet so far — be the spark."}{" "}
-            <Link
-              href="/neighborhood"
-              className="underline decoration-black/20 underline-offset-2 hover:decoration-current dark:decoration-white/20"
-            >
-              Change
-            </Link>
-          </p>
-        </div>
 
+      <div className={pins.length > 0 ? "lg:grid lg:grid-cols-[minmax(0,1fr)_44%] xl:grid-cols-[minmax(0,1fr)_46%]" : ""}>
+        {/* The map — the neighborhood as a place. Sticky on desktop. */}
         {pins.length > 0 ? (
-          <div className="mb-6">
-            <NeighborhoodMap pins={pins} />
-          </div>
+          <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-[57px] lg:h-[calc(100vh-57px)] lg:p-4">
+            <NeighborhoodMap pins={pins} className="h-64 lg:h-full" />
+          </aside>
         ) : null}
 
-        {events.length > 0 ? (
-          <div className="mb-6">
-            <h2 className="mb-2 text-sm font-semibold">Happening soon</h2>
-            <ul className="flex flex-col gap-2">
-              {events.slice(0, 4).map((e) => (
-                <li key={e.id}>
-                  <Link
-                    href={`/projects/${e.project_id}`}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-emerald-600/25 bg-emerald-50/50 px-4 py-3 transition-colors hover:bg-emerald-50 dark:border-emerald-500/25 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40"
+        <main className="min-w-0 lg:order-1">
+          <div className="mx-auto w-full max-w-2xl p-4 lg:px-8 lg:py-6">
+            <div className="mb-5">
+              <h1 className="text-2xl font-semibold tracking-tight">
+                {neighborhoodName}
+              </h1>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {pulse.map((s) => (
+                  <span
+                    key={s.text}
+                    className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60"
                   >
-                    <span className="min-w-0 text-sm">
-                      <span className="mr-1" aria-hidden>
-                        📅
-                      </span>
-                      <span className="font-medium">{e.title}</span>{" "}
-                      <span className="text-black/50 dark:text-white/50">
-                        · {formatEventTime(e.starts_at)}
-                        {e.place ? ` · ${e.place}` : ""}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-xs text-black/45 dark:text-white/45">
-                      🙋 {e.rsvps.length}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
+                    {s.emoji} {s.text}
+                  </span>
+                ))}
+                <Link
+                  href="/neighborhood"
+                  className="px-1 text-xs text-black/40 underline decoration-black/20 underline-offset-2 hover:decoration-current dark:text-white/40 dark:decoration-white/20"
+                >
+                  Change
+                </Link>
+              </div>
+            </div>
 
-        {cards.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-black/15 p-10 text-center dark:border-white/15">
-            <p className="text-3xl" aria-hidden>
-              🌱
-            </p>
-            <p className="mt-3 font-medium">Nothing here yet</p>
-            <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-              Got an idea for your neighborhood? Big or small, this is the
-              place to share it.
-            </p>
-            <Link
-              href="/projects/new"
-              className="mt-5 inline-block rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-            >
-              Share your idea
-            </Link>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-8">
-            {local.length > 0 ? (
-              <section>
-                <h2 className="mb-2 text-sm font-semibold">On your streets</h2>
-                <ul className="flex flex-col gap-3">
-                  {local.map((p) => (
-                    <ProjectCard key={p.id} p={p} />
+            {events.length > 0 ? (
+              <div className="mb-7">
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                  Happening soon
+                </h2>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {events.slice(0, 4).map((e) => (
+                    <li key={e.id}>
+                      <Link
+                        href={`/projects/${e.project_id}`}
+                        className="flex h-full flex-col gap-0.5 rounded-xl border border-emerald-600/20 bg-emerald-50/70 px-4 py-3 shadow-sm transition-colors hover:bg-emerald-50 dark:border-emerald-500/25 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40"
+                      >
+                        <span className="text-sm font-medium">
+                          📅 {e.title}
+                        </span>
+                        <span className="text-xs text-black/50 dark:text-white/50">
+                          {formatEventTime(e.starts_at)}
+                          {e.place ? ` · ${e.place}` : ""} · 🙋 {e.rsvps.length}{" "}
+                          going
+                        </span>
+                      </Link>
+                    </li>
                   ))}
                 </ul>
-              </section>
-            ) : (
-              <section>
-                <h2 className="mb-2 text-sm font-semibold">On your streets</h2>
-                <p className="rounded-2xl border border-dashed border-black/15 p-6 text-center text-sm text-black/60 dark:border-white/15 dark:text-white/60">
-                  Nothing on your streets yet —{" "}
-                  <Link href="/projects/new" className="underline">
-                    yours could be the first
-                  </Link>
-                  .
+              </div>
+            ) : null}
+
+            {cards.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-black/15 bg-white p-10 text-center dark:border-white/15 dark:bg-zinc-900">
+                <p className="text-3xl" aria-hidden>
+                  🌱
                 </p>
-              </section>
+                <p className="mt-3 font-medium">Nothing here yet</p>
+                <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+                  Got an idea for your neighborhood? Big or small, this is the
+                  place to share it.
+                </p>
+                <Link
+                  href="/projects/new"
+                  className="mt-5 inline-block rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                >
+                  Share your idea
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-8">
+                <section>
+                  <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                    On your streets
+                  </h2>
+                  {local.length > 0 ? (
+                    <ul className="flex flex-col gap-3">
+                      {local.map((p) => (
+                        <ProjectCard key={p.id} p={p} />
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                      Nothing on your streets yet —{" "}
+                      <Link href="/projects/new" className="underline">
+                        yours could be the first
+                      </Link>
+                      .
+                    </p>
+                  )}
+                </section>
+
+                {city.length > 0 ? (
+                  <section>
+                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                      Around {myCity ?? "your city"}
+                    </h2>
+                    <ul className="flex flex-col gap-3">
+                      {city.map((p) => (
+                        <ProjectCard key={p.id} p={p} />
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+
+                {anywhere.length > 0 ? (
+                  <section>
+                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                      🌍 From anywhere
+                    </h2>
+                    <ul className="flex flex-col gap-2">
+                      {anywhere.map((p) => (
+                        <CompactRow key={p.id} p={p} />
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+              </div>
             )}
 
-            {city.length > 0 ? (
-              <section>
-                <h2 className="mb-2 text-sm font-semibold">
-                  Around {myCity ?? "your city"}
-                </h2>
-                <ul className="flex flex-col gap-3">
-                  {city.map((p) => (
-                    <ProjectCard key={p.id} p={p} />
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {anywhere.length > 0 ? (
-              <section>
-                <h2 className="mb-2 text-sm font-semibold">
-                  🌍 From anywhere
-                </h2>
-                <ul className="flex flex-col gap-2">
-                  {anywhere.map((p) => (
-                    <CompactRow key={p.id} p={p} />
-                  ))}
-                </ul>
-              </section>
-            ) : null}
+            <footer className="py-8 text-center text-xs text-black/30 dark:text-white/30">
+              {versionLabel()}
+            </footer>
           </div>
-        )}
-      </main>
-
-      <footer className="p-4 text-center text-xs text-black/40 dark:text-white/40">
-        {versionLabel()}
-      </footer>
+        </main>
+      </div>
     </div>
   );
 }

@@ -35,8 +35,8 @@ const argVal = (name, dflt) => {
   const a = process.argv.find((x) => x.startsWith(`--${name}=`));
   return a ? parseFloat(a.split("=")[1]) : dflt;
 };
-const BASE_LAT = argVal("lat", 40.7812);
-const BASE_LNG = argVal("lng", -73.9665);
+const BASE_LAT = argVal("lat", 39.7294); // Aurora, CO
+const BASE_LNG = argVal("lng", -104.8319);
 const HOOD_BASE = [
   [BASE_LAT, BASE_LNG], // pilot
   [BASE_LAT + 0.018, BASE_LNG + 0.02], // Riverside (same city)

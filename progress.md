@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-29 — Split app shell: sticky full-height map beside feed, stat-chip pulse, elevated cards on warm background; seed centered on Aurora CO
+
+- `scripts/demo-seed-large.sql`
+- `scripts/generate-demo-seed.mjs`
+- `src/app/layout.tsx`
+- `src/app/page.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-07-29 — Redesign feed: neighborhood map (Leaflet/OSM), pulse header, reach zones, story-beat cards, avatars; location picker in wizard; seed pins
 
 - `docs/DATA_MODEL.md`

@@ -4,7 +4,7 @@ import { signOut } from "@/app/login/actions";
 
 export function SiteHeader() {
   return (
-    <header className="flex items-center justify-between border-b border-black/10 px-4 py-3 dark:border-white/10">
+    <header className="sticky top-0 z-[1000] flex items-center justify-between border-b border-black/10 bg-white/80 px-4 py-3 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/80">
       <Link href="/" className="flex items-center gap-2">
         <Image
           src="/logo.png"
