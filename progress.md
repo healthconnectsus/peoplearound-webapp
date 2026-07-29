@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-29 — Add demo seed script: six neighbors, three weeks of simulated activity across the full loop
+
+- `scripts/demo-seed.sql`
+
+
 ### 2026-07-28 — Add neighborhood scoping (PostGIS) + realtime: hard RLS boundary, /neighborhood picker with geolocation, live-updating feed
 
 - `docs/ARCHITECTURE.md`
