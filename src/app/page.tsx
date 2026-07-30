@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { NeighborhoodMap, type MapPin } from "@/components/NeighborhoodMap";
 import {
@@ -289,14 +289,13 @@ export default async function Home() {
     }));
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+    <AppShell>
       <LiveRefresh tables="projects,stars,memberships,events" />
 
       <div className={pins.length > 0 ? "lg:grid lg:grid-cols-[minmax(0,1fr)_44%] xl:grid-cols-[minmax(0,1fr)_46%]" : ""}>
         {/* The map — the neighborhood as a place. Sticky on desktop. */}
         {pins.length > 0 ? (
-          <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-[57px] lg:h-[calc(100vh-57px)] lg:p-4">
+          <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-0 lg:h-screen lg:p-4">
             <NeighborhoodMap pins={pins} className="h-64 lg:h-full" />
           </aside>
         ) : null}
@@ -426,6 +425,6 @@ export default async function Home() {
           </div>
         </main>
       </div>
-    </div>
+    </AppShell>
   );
 }

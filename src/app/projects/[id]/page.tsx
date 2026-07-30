@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { NeighborhoodMap } from "@/components/NeighborhoodMap";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
@@ -200,8 +200,7 @@ export default async function ProjectDetail({
   timeline.sort((a, b) => a.at.localeCompare(b.at));
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+    <AppShell>
       <LiveRefresh tables="projects,stars,memberships,events,rsvps,contributions,attestations" />
       <main className="mx-auto w-full max-w-2xl flex-1 p-4">
         <Link
@@ -889,6 +888,6 @@ export default async function ProjectDetail({
           </form>
         ) : null}
       </main>
-    </div>
+    </AppShell>
   );
 }

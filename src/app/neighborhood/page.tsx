@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AppShell } from "@/components/AppShell";
 import { setNeighborhood } from "./actions";
 import { LocateButton } from "./LocateButton";
 
@@ -28,8 +28,7 @@ export default async function NeighborhoodPage() {
   const neighborhoods = neighborhoodRows ?? [];
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+    <AppShell>
       <main className="mx-auto w-full max-w-2xl flex-1 p-4">
         <h1 className="text-lg font-semibold">
           {currentId ? "Your neighborhood" : "Welcome! Where are you?"}
@@ -87,6 +86,6 @@ export default async function NeighborhoodPage() {
           </p>
         )}
       </main>
-    </div>
+    </AppShell>
   );
 }

@@ -1,4 +1,4 @@
-import { SiteHeader } from "@/components/SiteHeader";
+import { AppShell } from "@/components/AppShell";
 import { IdeaForm } from "./IdeaForm";
 
 export default async function NewProjectPage({
@@ -9,8 +9,7 @@ export default async function NewProjectPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+    <AppShell>
       <main className="mx-auto w-full max-w-xl flex-1 p-4">
         <h1 className="mb-1 text-xl font-semibold">Share your idea 💡</h1>
         <p className="mb-6 text-sm text-black/60 dark:text-white/60">
@@ -19,6 +18,6 @@ export default async function NewProjectPage({
         </p>
         <IdeaForm error={error} />
       </main>
-    </div>
+    </AppShell>
   );
 }

@@ -7,6 +7,21 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-30 — Nextdoor-style sidebar on desktop + more saturated logo colors
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+- `src/app/neighborhood/page.tsx`
+- `src/app/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-07-30 — Logo v3: fattened letterforms via polygon offset to match reference weight
 
 - `public/logo-dark.svg`
