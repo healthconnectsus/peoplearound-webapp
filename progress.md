@@ -7,6 +7,24 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-30 — Nextdoor-style chrome: top bar with search + profile menu, expanded sidebar, new Events/People/Faves/Groups/Settings/Help/Invite pages
+
+- `src/app/events/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/groups/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/invite/CopyLinkButton.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/settings/actions.ts`
+- `src/app/settings/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/ProfileMenu.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/TopBar.tsx`
+
+
 ### 2026-07-30 — Nextdoor-style sidebar on desktop + more saturated logo colors
 
 - `public/logo-dark.svg`

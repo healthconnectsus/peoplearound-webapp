@@ -130,7 +130,12 @@ function CompactRow({ p }: { p: CardData }) {
   );
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -245,15 +250,25 @@ export default async function Home() {
     return { ...p, starCount: myStars.length, team, beat, hot };
   });
 
+  // Top-bar search: a simple contains-match over title and description.
+  const query = q?.trim().toLowerCase() ?? "";
+  const visible = query
+    ? cards.filter((p) =>
+        `${p.title} ${p.description ?? ""}`.toLowerCase().includes(query),
+      )
+    : cards;
+
   // Zones: your streets first, then your city, then the wide world.
-  const local = cards.filter((p) => p.neighborhood_id === myHood);
-  const city = cards.filter(
+  const local = visible.filter((p) => p.neighborhood_id === myHood);
+  const city = visible.filter(
     (p) =>
       p.neighborhood_id !== myHood &&
       myCity != null &&
       p.neighborhood?.city === myCity,
   );
-  const anywhere = cards.filter((p) => !local.includes(p) && !city.includes(p));
+  const anywhere = visible.filter(
+    (p) => !local.includes(p) && !city.includes(p),
+  );
 
   // The neighborhood pulse — proof of life above the fold.
   const building = local.filter((p) => p.state === "active").length;
@@ -275,7 +290,7 @@ export default async function Home() {
   ].filter(Boolean) as { emoji: string; text: string }[];
 
   // Map pins for every visible, located project.
-  const pins: MapPin[] = cards
+  const pins: MapPin[] = visible
     .filter((p) => p.lat != null && p.lng != null)
     .map((p) => ({
       id: p.id,
@@ -295,7 +310,7 @@ export default async function Home() {
       <div className={pins.length > 0 ? "lg:grid lg:grid-cols-[minmax(0,1fr)_44%] xl:grid-cols-[minmax(0,1fr)_46%]" : ""}>
         {/* The map — the neighborhood as a place. Sticky on desktop. */}
         {pins.length > 0 ? (
-          <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-0 lg:h-screen lg:p-4">
+          <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-[57px] lg:h-[calc(100vh-57px)] lg:p-4">
             <NeighborhoodMap pins={pins} className="h-64 lg:h-full" />
           </aside>
         ) : null}
@@ -324,7 +339,18 @@ export default async function Home() {
               </div>
             </div>
 
-            {events.length > 0 ? (
+            {query ? (
+              <p className="mb-5 rounded-xl border border-emerald-600/20 bg-emerald-50/70 px-4 py-2.5 text-sm dark:border-emerald-500/25 dark:bg-emerald-950/20">
+                {visible.length}{" "}
+                {visible.length === 1 ? "project matches" : "projects match"}{" "}
+                <span className="font-medium">“{q}”</span> ·{" "}
+                <Link href="/" className="underline">
+                  Clear search
+                </Link>
+              </p>
+            ) : null}
+
+            {events.length > 0 && !query ? (
               <div className="mb-7">
                 <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
                   Happening soon
