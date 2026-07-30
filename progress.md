@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-30 — New logo: colorful overlapping DINASTI wordmark, adaptive light/dark SVG + favicon
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+- `src/app/login/page.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-07-29 — Split app shell: sticky full-height map beside feed, stat-chip pulse, elevated cards on warm background; seed centered on Aurora CO
 
 - `scripts/demo-seed-large.sql`

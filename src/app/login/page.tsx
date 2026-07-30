@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { signIn, signUp, signInWithMagicLink } from "./actions";
 import { versionLabel, BUILD_TIME } from "@/lib/version";
 
@@ -13,14 +12,8 @@ export default async function LoginPage({
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <Image
-            src="/logo.png"
-            alt="Peoplearound"
-            width={1536}
-            height={1024}
-            priority
-            className="h-auto w-56 rounded-xl"
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
+          <img src="/logo.svg" alt="Peoplearound" className="h-auto w-64" />
           <p className="mt-2 text-sm text-black/60 dark:text-white/60">
             Share an idea. Build it together.
           </p>
