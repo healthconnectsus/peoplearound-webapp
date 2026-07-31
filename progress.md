@@ -7,6 +7,18 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Fix ambiguous profiles->neighborhoods embeds after 0011 (broke home redirect); photo collage hero with dark overlay
+
+- `public/hero-collage.jpg`
+- `src/app/login/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/TopBar.tsx`
+
+
 ### 2026-07-31 — Fix onboarding dead-end: joining a community falls back to setting primary before migration 0011
 
 - `src/app/neighborhood/communityActions.ts`

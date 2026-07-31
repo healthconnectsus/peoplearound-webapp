@@ -24,7 +24,7 @@ export async function TopBar() {
     // select("*") so this keeps working before migration 0010 adds avatar_url
     const { data: profileRow } = await supabase
       .from("profiles")
-      .select("*,neighborhood:neighborhoods(name)")
+      .select("*,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name)")
       .eq("id", user.id)
       .maybeSingle();
     const profile = profileRow as unknown as {

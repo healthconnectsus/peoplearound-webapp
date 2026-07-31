@@ -13,23 +13,6 @@ import { signIn, signUp, signInWithMagicLink } from "./actions";
 const INPUT =
   "rounded-lg border border-black/15 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-white/20 dark:bg-zinc-800";
 
-// Decorative hero collage: the kinds of projects people build here.
-const COLLAGE: {
-  emoji: string;
-  label: string;
-  tone: string;
-  pos: string;
-}[] = [
-  { emoji: "🍋", label: "Lemonade stand", tone: "bg-amber-100 text-amber-900 dark:bg-amber-900/70 dark:text-amber-100", pos: "left-[3%] top-[8%] -rotate-6" },
-  { emoji: "🥫", label: "Food drive for volunteers", tone: "bg-rose-100 text-rose-900 dark:bg-rose-900/70 dark:text-rose-100", pos: "left-[9%] top-[40%] rotate-3" },
-  { emoji: "🌱", label: "Community garden", tone: "bg-emerald-100 text-emerald-900 dark:bg-emerald-900/70 dark:text-emerald-100", pos: "left-[4%] bottom-[7%] rotate-6" },
-  { emoji: "🎨", label: "Mural on Main St", tone: "bg-violet-100 text-violet-900 dark:bg-violet-900/70 dark:text-violet-100", pos: "left-[19%] top-[6%] rotate-2 hidden xl:flex" },
-  { emoji: "🔧", label: "Repair café", tone: "bg-sky-100 text-sky-900 dark:bg-sky-900/70 dark:text-sky-100", pos: "right-[4%] top-[9%] rotate-6" },
-  { emoji: "⚽", label: "Pickup football", tone: "bg-emerald-100 text-emerald-900 dark:bg-emerald-900/70 dark:text-emerald-100", pos: "right-[10%] top-[42%] -rotate-3" },
-  { emoji: "📚", label: "Little free library", tone: "bg-amber-100 text-amber-900 dark:bg-amber-900/70 dark:text-amber-100", pos: "right-[4%] bottom-[8%] -rotate-6" },
-  { emoji: "🐕", label: "Dog-walking pool", tone: "bg-rose-100 text-rose-900 dark:bg-rose-900/70 dark:text-rose-100", pos: "right-[19%] bottom-[4%] rotate-2 hidden xl:flex" },
-];
-
 type PublicIdea = {
   id: string;
   title: string;
@@ -90,27 +73,12 @@ export default async function LoginPage({
       <main className="flex-1">
         {/* Hero with sign-up card */}
         <section className="mx-auto w-full max-w-6xl px-4">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-100 via-sky-100 to-violet-100 dark:from-emerald-950 dark:via-sky-950 dark:to-violet-950">
-            {/* Decorative overlapping circles, echoing the logo */}
-            <div aria-hidden className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-[#F7554A]/25" />
-            <div aria-hidden className="pointer-events-none absolute -right-10 top-10 h-52 w-52 rounded-full bg-[#F9A215]/25" />
-            <div aria-hidden className="pointer-events-none absolute bottom-[-4rem] left-1/4 h-72 w-72 rounded-full bg-[#14B487]/20" />
-            <div aria-hidden className="pointer-events-none absolute bottom-8 right-1/4 h-40 w-40 rounded-full bg-[#8A4BD8]/20" />
-
-            {/* Project collage: what people build here */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
-              {COLLAGE.map((tile) => (
-                <div
-                  key={tile.label}
-                  className={`absolute flex w-44 flex-col items-center gap-1.5 rounded-2xl p-4 text-center shadow-lg ${tile.tone} ${tile.pos}`}
-                >
-                  <span className="text-4xl leading-none">{tile.emoji}</span>
-                  <span className="text-sm font-semibold leading-snug">
-                    {tile.label}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <div
+            className="relative overflow-hidden rounded-3xl bg-cover bg-center"
+            style={{ backgroundImage: "url(/hero-collage.jpg)" }}
+          >
+            {/* Darker overlay so the sign-up card pops over the collage */}
+            <div aria-hidden className="absolute inset-0 bg-black/45" />
 
             <div className="relative mx-auto flex max-w-md flex-col px-4 py-10 lg:py-14">
               <div

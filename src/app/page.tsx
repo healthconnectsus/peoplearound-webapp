@@ -145,7 +145,9 @@ export default async function Home({
   // Everything is neighborhood-scoped; picking one is the required first step.
   const { data: profileRow } = await supabase
     .from("profiles")
-    .select("neighborhood_id,neighborhood:neighborhoods(name,city)")
+    .select(
+      "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+    )
     .eq("id", user.id)
     .maybeSingle();
   const profile = profileRow as unknown as {

@@ -50,7 +50,9 @@ export default async function SettingsPage({
   // new columns simply come back undefined.
   const { data: profileRow } = await supabase
     .from("profiles")
-    .select("*,neighborhood:neighborhoods(name,city)")
+    .select(
+      "*,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+    )
     .eq("id", user.id)
     .maybeSingle();
   const profile = (profileRow ?? null) as unknown as ProfileRow | null;

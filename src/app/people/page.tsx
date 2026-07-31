@@ -50,7 +50,9 @@ export default async function PeoplePage() {
 
   const { data: profileRow } = await supabase
     .from("profiles")
-    .select("neighborhood_id,neighborhood:neighborhoods(name)")
+    .select(
+      "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name)",
+    )
     .eq("id", user.id)
     .maybeSingle();
   const profile = profileRow as unknown as {

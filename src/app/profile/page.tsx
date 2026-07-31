@@ -55,7 +55,9 @@ export default async function ProfilePage() {
       // select("*") keeps this page working before migration 0010 is applied
       supabase
         .from("profiles")
-        .select("*,neighborhood:neighborhoods(name,city)")
+        .select(
+          "*,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+        )
         .eq("id", user.id)
         .maybeSingle(),
       supabase

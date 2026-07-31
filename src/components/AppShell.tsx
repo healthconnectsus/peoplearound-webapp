@@ -17,7 +17,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   if (user) {
     const { data: profileRow } = await supabase
       .from("profiles")
-      .select("neighborhood_id,neighborhood:neighborhoods(name,city)")
+      .select(
+        "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+      )
       .eq("id", user.id)
       .maybeSingle();
     const profile = profileRow as unknown as {
