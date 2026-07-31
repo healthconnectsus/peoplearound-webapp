@@ -38,19 +38,40 @@ export async function joinCommunity(formData: FormData) {
       { community_id: communityId, user_id: user.id },
       { onConflict: "community_id,user_id" },
     );
-  if (error) fail(migrationHint(error.message));
 
-  // First community you join becomes your primary automatically.
   const { data: profile } = await supabase
     .from("profiles")
     .select("neighborhood_id")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (error) {
+    // Pre-migration-0011 fallback: community_members doesn't exist yet, but
+    // setting the primary neighborhood must still work so onboarding never
+    // dead-ends. Only surface the migration error when we can't even do that.
+    const migrationMissing = /relation|does not exist|schema/i.test(
+      error.message,
+    );
+    if (!migrationMissing || profile?.neighborhood_id === communityId) {
+      fail(migrationHint(error.message));
+    }
+    const { error: profileErr } = await supabase
+      .from("profiles")
+      .update({ neighborhood_id: communityId })
+      .eq("id", user.id);
+    if (profileErr) fail(profileErr.message);
+    revalidatePath("/", "layout");
+    redirect("/");
+  }
+
+  // First community you join becomes your primary automatically.
   if (!profile?.neighborhood_id) {
     await supabase
       .from("profiles")
       .update({ neighborhood_id: communityId })
       .eq("id", user.id);
+    revalidatePath("/", "layout");
+    redirect("/");
   }
 
   revalidatePath("/", "layout");

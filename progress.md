@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Fix onboarding dead-end: joining a community falls back to setting primary before migration 0011
+
+- `src/app/neighborhood/communityActions.ts`
+
+
 ### 2026-07-31 — Hero collage of project tiles on the landing page
 
 - `src/app/login/page.tsx`
