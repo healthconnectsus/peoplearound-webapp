@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Nextdoor-style logged-out landing page with live public ideas list (migration 0012)
+
+- `src/app/login/page.tsx`
+- `supabase/migrations/0012_public_ideas.sql`
+
+
 ### 2026-07-31 — Messaging (chats) + multi-community membership with kinds; migration 0011
 
 - `README.md`
