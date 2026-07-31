@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Landing ideas: 3-column photo card grid with collage crops
+
+- `src/app/login/page.tsx`
+
+
 ### 2026-07-31 — Hero overlay: deepen mid and bottom stops (via 60, to 35)
 
 - `src/app/login/page.tsx`

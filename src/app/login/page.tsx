@@ -28,6 +28,16 @@ const SAMPLE_IDEAS: PublicIdea[] = [
   { id: "s2", title: "Weekly chess nights at the library", category: "social", state: "idea", created_at: "", star_count: 17 },
   { id: "s3", title: "Fix up the playground by the river", category: "community", state: "active", created_at: "", star_count: 28 },
   { id: "s4", title: "Neighborhood tool-sharing shelf", category: "community", state: "idea", created_at: "", star_count: 12 },
+  { id: "s5", title: "Food drive for weekend volunteers", category: "community", state: "active", created_at: "", star_count: 22 },
+  { id: "s6", title: "Lemonade stand fundraiser for the school trip", category: "social", state: "idea", created_at: "", star_count: 9 },
+];
+
+// Each idea card gets a photo by cropping a different tile out of the hero
+// collage — deterministic by list position, so no extra image assets needed.
+const PHOTO_CROPS = [
+  "6% 8%", "30% 14%", "56% 6%", "84% 12%",
+  "10% 42%", "38% 48%", "64% 40%", "90% 46%",
+  "8% 80%", "34% 86%", "62% 78%", "88% 84%",
 ];
 
 export default async function LoginPage({
@@ -42,7 +52,7 @@ export default async function LoginPage({
   const { data: ideaRows, error: ideasError } = await supabase
     .from("public_ideas")
     .select("*")
-    .limit(8);
+    .limit(9);
   const ideas: PublicIdea[] =
     ideasError || !ideaRows?.length
       ? SAMPLE_IDEAS
@@ -162,7 +172,7 @@ export default async function LoginPage({
 
       <main className="flex-1">
         {/* Live ideas teaser */}
-        <section className="mx-auto w-full max-w-3xl px-4 py-12">
+        <section className="mx-auto w-full max-w-5xl px-4 py-12">
           <h2 className="text-center text-2xl font-semibold tracking-tight">
             Ideas being built right now
           </h2>
@@ -170,35 +180,48 @@ export default async function LoginPage({
             Real projects from real communities. Join to star them, meet the
             team, or add your own.
           </p>
-          <ul className="mt-6 flex flex-col gap-2">
-            {ideas.map((idea) => {
+          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {ideas.map((idea, i) => {
               const meta = STATE_META[idea.state] ?? STATE_META.idea;
               return (
                 <li
                   key={idea.id}
-                  className="flex items-center gap-3 rounded-2xl border border-black/5 bg-white px-4 py-3 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                  className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/5 dark:bg-zinc-900"
                 >
-                  <span className="text-lg" aria-hidden>
-                    {categoryMeta(idea.category ?? "").emoji}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">
-                      {idea.title}
-                    </span>
-                    {idea.created_at ? (
-                      <span className="block text-xs text-black/45 dark:text-white/45">
-                        shared {timeAgo(idea.created_at)}
+                  <div
+                    aria-hidden
+                    className="h-36 bg-cover"
+                    style={{
+                      backgroundImage: "url(/hero-collage.jpg)",
+                      backgroundSize: "500%",
+                      backgroundPosition: PHOTO_CROPS[i % PHOTO_CROPS.length],
+                    }}
+                  />
+                  <div className="flex flex-col gap-2 p-4">
+                    <p className="line-clamp-2 font-medium leading-snug">
+                      <span className="mr-1.5" aria-hidden>
+                        {categoryMeta(idea.category ?? "").emoji}
                       </span>
-                    ) : null}
-                  </span>
-                  <span className="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
-                    ⭐ {idea.star_count}
-                  </span>
-                  <span
-                    className={`hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline ${meta.badge}`}
-                  >
-                    {meta.label}
-                  </span>
+                      {idea.title}
+                    </p>
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <span className="text-black/45 dark:text-white/45">
+                        {idea.created_at
+                          ? `shared ${timeAgo(idea.created_at)}`
+                          : ""}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+                          ⭐ {idea.star_count}
+                        </span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 font-medium ${meta.badge}`}
+                        >
+                          {meta.label}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
                 </li>
               );
             })}
