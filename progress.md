@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Profile page + Nextdoor-style dropdown header with View profile
+
+- `src/app/profile/page.tsx`
+- `src/components/ProfileMenu.tsx`
+
+
 ### 2026-07-31 — Top bar: notifications bell (join requests + stars) and messages icon
 
 - `src/components/TopBar.tsx`

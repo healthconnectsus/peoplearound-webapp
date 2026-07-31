@@ -39,13 +39,23 @@ export function ProfileMenu({
             role="menu"
             className="absolute right-0 top-11 z-[1100] w-64 rounded-2xl border border-black/10 bg-white p-2 shadow-xl dark:border-white/10 dark:bg-zinc-900"
           >
-            <div className="px-3 py-2">
-              <p className="font-medium">{name}</p>
+            <div className="flex flex-col items-center px-3 pb-3 pt-4 text-center">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-xl font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                {initials(name)}
+              </span>
+              <p className="mt-2 font-medium">{name}</p>
               {neighborhood ? (
                 <p className="text-sm text-black/50 dark:text-white/50">
                   {neighborhood}
                 </p>
               ) : null}
+              <Link
+                href="/profile"
+                onClick={() => setOpen(false)}
+                className="mt-3 rounded-full bg-black/5 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15"
+              >
+                View profile
+              </Link>
             </div>
             <div className="my-1 border-t border-black/5 dark:border-white/10" />
             <Link
