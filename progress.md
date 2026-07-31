@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Bigger sidebar logo (full-width in a wider rail)
+
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-07-30 — Nextdoor-style chrome: top bar with search + profile menu, expanded sidebar, new Events/People/Faves/Groups/Settings/Help/Invite pages
 
 - `src/app/events/page.tsx`

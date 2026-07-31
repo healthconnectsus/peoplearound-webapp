@@ -26,10 +26,10 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col px-3 py-4 lg:flex">
-      <Link href="/" className="px-2 py-1">
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col px-3 py-4 lg:flex">
+      <Link href="/" className="px-1 py-1">
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
-        <img src="/logo.svg" alt="Peoplearound" className="h-6 w-auto" />
+        <img src="/logo.svg" alt="Peoplearound" className="h-auto w-full" />
       </Link>
 
       <nav className="mt-5 flex flex-col gap-0.5">

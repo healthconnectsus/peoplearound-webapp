@@ -6,7 +6,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-[1000] flex items-center justify-between border-b border-black/10 bg-white/80 px-4 py-3 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/80 lg:hidden">
       <Link href="/" className="flex items-center gap-2">
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
-        <img src="/logo.svg" alt="Peoplearound" className="h-6 w-auto" />
+        <img src="/logo.svg" alt="Peoplearound" className="h-7 w-auto" />
       </Link>
       <nav className="flex items-center gap-2">
         <Link
