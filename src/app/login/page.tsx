@@ -50,37 +50,34 @@ export default async function LoginPage({
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Top nav */}
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
-        {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
-        <img src="/logo.svg" alt="Peoplearound" className="h-7 w-auto" />
-        <nav className="flex items-center gap-2">
-          <a
-            href="#join"
-            className="rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-          >
-            Log in
-          </a>
-          <a
-            href="#join"
-            className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-          >
-            Sign up
-          </a>
-        </nav>
-      </header>
+      {/* Full-bleed hero: the collage runs edge to edge and behind the nav */}
+      <section
+        className="relative bg-cover bg-center"
+        style={{ backgroundImage: "url(/hero-collage.jpg)" }}
+      >
+        {/* Darker overlay so the nav and sign-up card pop over the collage */}
+        <div aria-hidden className="absolute inset-0 bg-black/45" />
 
-      <main className="flex-1">
-        {/* Hero with sign-up card */}
-        <section className="mx-auto w-full max-w-6xl px-4">
-          <div
-            className="relative overflow-hidden rounded-3xl bg-cover bg-center"
-            style={{ backgroundImage: "url(/hero-collage.jpg)" }}
-          >
-            {/* Darker overlay so the sign-up card pops over the collage */}
-            <div aria-hidden className="absolute inset-0 bg-black/45" />
+        <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
+          <img src="/logo-dark.svg" alt="Peoplearound" className="h-7 w-auto" />
+          <nav className="flex items-center gap-2">
+            <a
+              href="#join"
+              className="rounded-full px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10"
+            >
+              Log in
+            </a>
+            <a
+              href="#join"
+              className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            >
+              Sign up
+            </a>
+          </nav>
+        </header>
 
-            <div className="relative mx-auto flex max-w-md flex-col px-4 py-10 lg:py-14">
+        <div className="relative mx-auto flex max-w-md flex-col px-4 pb-12 pt-4 lg:pb-16">
               <div
                 id="join"
                 className="rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900"
@@ -157,10 +154,10 @@ export default async function LoginPage({
                   </button>
                 </form>
               </div>
-            </div>
-          </div>
-        </section>
+        </div>
+      </section>
 
+      <main className="flex-1">
         {/* Live ideas teaser */}
         <section className="mx-auto w-full max-w-3xl px-4 py-12">
           <h2 className="text-center text-2xl font-semibold tracking-tight">
