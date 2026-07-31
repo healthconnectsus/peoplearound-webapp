@@ -130,7 +130,7 @@ export default async function ConnectionsPage() {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
                   {initials(c.name)}
                 </span>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{c.name}</p>
                   {c.sharedProjects.length > 0 ? (
                     <p className="truncate text-xs text-black/50 dark:text-white/50">
@@ -138,6 +138,12 @@ export default async function ConnectionsPage() {
                     </p>
                   ) : null}
                 </div>
+                <Link
+                  href={`/chats?to=${c.id}`}
+                  className="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                >
+                  Message
+                </Link>
               </li>
             ))}
           </ul>

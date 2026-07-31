@@ -26,25 +26,34 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
     } | null;
 
     if (profile?.neighborhood_id && profile.neighborhood) {
-      const [{ count: mine }, { count: total }] = await Promise.all([
-        supabase
-          .from("projects")
-          .select("id", { count: "exact", head: true })
-          .eq("owner_id", user.id)
-          .eq("neighborhood_id", profile.neighborhood_id)
-          .neq("state", "archived"),
-        supabase
-          .from("projects")
-          .select("id", { count: "exact", head: true })
-          .eq("neighborhood_id", profile.neighborhood_id)
-          .neq("state", "archived"),
-      ]);
+      const [{ count: mine }, { count: total }, membershipResult] =
+        await Promise.all([
+          supabase
+            .from("projects")
+            .select("id", { count: "exact", head: true })
+            .eq("owner_id", user.id)
+            .eq("neighborhood_id", profile.neighborhood_id)
+            .neq("state", "archived"),
+          supabase
+            .from("projects")
+            .select("id", { count: "exact", head: true })
+            .eq("neighborhood_id", profile.neighborhood_id)
+            .neq("state", "archived"),
+          supabase
+            .from("community_members")
+            .select("community_id", { count: "exact", head: true })
+            .eq("user_id", user.id),
+        ]);
       community = {
         label: profile.neighborhood.city
           ? `${profile.neighborhood.name} (${profile.neighborhood.city})`
           : profile.neighborhood.name,
         mine: mine ?? 0,
         total: total ?? 0,
+        // null before migration 0011 (community_members doesn't exist yet)
+        communities: membershipResult.error
+          ? null
+          : (membershipResult.count ?? 0),
       };
     }
   }

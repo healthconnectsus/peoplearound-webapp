@@ -23,12 +23,20 @@ function PersonCard({
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
         {initials(name)}
       </span>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{name}</p>
         {badge ? (
           <p className="text-xs text-black/50 dark:text-white/50">{badge}</p>
         ) : null}
       </div>
+      {badge !== "You" ? (
+        <Link
+          href={`/chats?to=${person.id}`}
+          className="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+        >
+          Message
+        </Link>
+      ) : null}
     </li>
   );
 }

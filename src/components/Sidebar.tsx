@@ -17,6 +17,7 @@ export type CommunityInfo = {
   label: string; // e.g. "Manhattan (NYC)"
   mine: number; // your ideas in this neighborhood
   total: number; // all ideas in this neighborhood
+  communities?: number | null; // how many communities you belong to
 };
 
 const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
@@ -80,6 +81,9 @@ export function Sidebar({ community }: { community: CommunityInfo | null }) {
                   </p>
                   <p>Your ideas · {community.mine}</p>
                   <p>All ideas · {community.total}</p>
+                  {community.communities != null && community.communities > 1 ? (
+                    <p>Communities · {community.communities}</p>
+                  ) : null}
                 </div>
               ) : null}
             </div>

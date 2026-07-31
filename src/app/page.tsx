@@ -166,6 +166,7 @@ export default async function Home({
     { data: eventRows },
     { data: confirmedRows },
     { count: neighborCount },
+    membershipResult,
   ] = await Promise.all([
     supabase
       .from("projects")
@@ -195,7 +196,19 @@ export default async function Home({
       .from("profiles")
       .select("id", { count: "exact", head: true })
       .eq("neighborhood_id", myHood),
+    supabase
+      .from("community_members")
+      .select("community_id")
+      .eq("user_id", user.id),
   ]);
+
+  // Communities I belong to; falls back to just the primary neighborhood
+  // before migration 0011 (community_members doesn't exist yet).
+  const myCommunityIds = new Set<string>(
+    membershipResult.error || !membershipResult.data?.length
+      ? [myHood]
+      : membershipResult.data.map((m) => m.community_id),
+  );
 
   const projects = (projectRows ?? []) as unknown as Project[];
   const events = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
@@ -263,11 +276,13 @@ export default async function Home({
       )
     : cards;
 
-  // Zones: your streets first, then your city, then the wide world.
-  const local = visible.filter((p) => p.neighborhood_id === myHood);
+  // Zones: your communities first, then your city, then the wide world.
+  const local = visible.filter(
+    (p) => p.neighborhood_id != null && myCommunityIds.has(p.neighborhood_id),
+  );
   const city = visible.filter(
     (p) =>
-      p.neighborhood_id !== myHood &&
+      (p.neighborhood_id == null || !myCommunityIds.has(p.neighborhood_id)) &&
       myCity != null &&
       p.neighborhood?.city === myCity,
   );
@@ -406,7 +421,7 @@ export default async function Home({
               <div className="flex flex-col gap-8">
                 <section>
                   <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
-                    On your streets
+                    In your communities
                   </h2>
                   {local.length > 0 ? (
                     <ul className="flex flex-col gap-3">
@@ -416,7 +431,7 @@ export default async function Home({
                     </ul>
                   ) : (
                     <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
-                      Nothing on your streets yet —{" "}
+                      Nothing in your communities yet —{" "}
                       <Link href="/projects/new" className="underline">
                         yours could be the first
                       </Link>

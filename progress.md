@@ -7,6 +7,25 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Messaging (chats) + multi-community membership with kinds; migration 0011
+
+- `README.md`
+- `src/app/chats/Composer.tsx`
+- `src/app/chats/MarkRead.tsx`
+- `src/app/chats/actions.ts`
+- `src/app/chats/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/neighborhood/communityActions.ts`
+- `src/app/neighborhood/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/TopBarIcons.tsx`
+- `src/lib/communities.ts`
+- `supabase/migrations/0011_communities_and_chats.sql`
+
+
 ### 2026-07-31 — Nextdoor-style Edit Profile (bio/pronouns/hometown/photos), lucide outline icons, tagline in docs
 
 - `README.md`

@@ -83,7 +83,7 @@ export function TopBarIcons({
   notifications: Notification[];
   badge: number;
 }) {
-  const [open, setOpen] = useState<"bell" | "chat" | null>(null);
+  const [open, setOpen] = useState<"bell" | null>(null);
 
   return (
     <div className="relative flex items-center gap-1">
@@ -94,12 +94,13 @@ export function TopBarIcons({
         expanded={open === "bell"}
         onClick={() => setOpen(open === "bell" ? null : "bell")}
       />
-      <IconButton
-        label="Messages"
-        icon={MessageCircle}
-        expanded={open === "chat"}
-        onClick={() => setOpen(open === "chat" ? null : "chat")}
-      />
+      <Link
+        href="/chats"
+        aria-label="Chats"
+        className="flex h-9 w-9 items-center justify-center rounded-full text-black/65 transition-colors hover:bg-black/5 dark:text-white/65 dark:hover:bg-white/10"
+      >
+        <MessageCircle className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+      </Link>
 
       {open === "bell" ? (
         <Panel onClose={() => setOpen(null)}>
@@ -135,15 +136,6 @@ export function TopBarIcons({
         </Panel>
       ) : null}
 
-      {open === "chat" ? (
-        <Panel onClose={() => setOpen(null)}>
-          <p className="px-3 py-2 text-sm font-semibold">Messages</p>
-          <p className="px-3 pb-3 pt-1 text-sm text-black/50 dark:text-white/50">
-            Direct messages are coming soon. For now, coordinate with your team
-            right on the project page — every project has its own space.
-          </p>
-        </Panel>
-      ) : null}
     </div>
   );
 }
