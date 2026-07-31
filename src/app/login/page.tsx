@@ -55,8 +55,11 @@ export default async function LoginPage({
         className="relative bg-cover bg-center"
         style={{ backgroundImage: "url(/hero-collage.jpg)" }}
       >
-        {/* Darker overlay so the nav and sign-up card pop over the collage */}
-        <div aria-hidden className="absolute inset-0 bg-black/45" />
+        {/* Overlay: darkest behind the nav, easing off toward the bottom */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/15"
+        />
 
         <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}

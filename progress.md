@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Hero overlay: vertical gradient, dark at top easing lighter at bottom
+
+- `src/app/login/page.tsx`
+
+
 ### 2026-07-31 — Full-bleed hero collage to page top; white nav + dark-variant logo over photo
 
 - `src/app/login/page.tsx`
