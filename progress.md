@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Top bar: notifications bell (join requests + stars) and messages icon
+
+- `src/components/TopBar.tsx`
+- `src/components/TopBarIcons.tsx`
+
+
 ### 2026-07-31 — Home title: Communities (city/your ideas/total ideas)
 
 - `src/app/page.tsx`
