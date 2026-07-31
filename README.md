@@ -1,6 +1,6 @@
 # Peoplearound — Webapp
 
-**Share an idea. Build it together.**
+**Build ideas with your communities.**
 
 > Where Facebook makes you say who you are, Peoplearound shows what you have built with the people around you — and who was on the team.
 
@@ -17,6 +17,9 @@ This repository is the **web application** (Next.js + Supabase, deployed on Verc
 - **Stars** — one per neighbor per project; the low-commitment "I'd be glad this existed" signal.
 - **Memberships (join flow)** — neighbors *request to join* a project; the founder accepts or declines. Accepted members appear in "The team"; members can leave at any time; the founder can remove members. Enforced by RLS (a user cannot accept their own request).
 - **Auth** — email/password + magic link via Supabase Auth, with session refresh and route protection in `src/proxy.ts`.
+- **Navigation shell** — Nextdoor-style desktop chrome: left sidebar ([`Sidebar`](src/components/Sidebar.tsx)) with Local Faves / Groups / Events / People around / My ideas / My community (+ neighborhood idea counters), and a top bar ([`TopBar`](src/components/TopBar.tsx)) with project search, a live notifications bell (join requests + fresh stars), a messages placeholder, and the profile menu. Mobile keeps the compact top header. Icons are [lucide](https://lucide.dev) outline icons.
+- **Profile** — [`/profile`](src/app/profile/page.tsx) with cover + avatar photos, bio, pronouns, hometown, website, a private dashboard (ideas / stars / teams / confirmed help), faves, and your ideas. Edited at [`/settings`](src/app/settings/page.tsx) (Nextdoor-style per-section saves; photos upload to the public `profiles` storage bucket — requires migration `0010`).
+- **Community pages** — [`/faves`](src/app/faves/page.tsx) (most-starred projects), [`/events`](src/app/events/page.tsx), [`/people`](src/app/people/page.tsx) (neighbors + remote helpers), [`/ideas`](src/app/ideas/page.tsx), [`/connections`](src/app/connections/page.tsx) (teammates), plus Help Center and Invite pages.
 
 ## Tech stack
 

@@ -2,6 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Home,
+  Star,
+  Users,
+  CalendarDays,
+  HeartHandshake,
+  Lightbulb,
+  MapPin,
+  type LucideIcon,
+} from "lucide-react";
 
 export type CommunityInfo = {
   label: string; // e.g. "Manhattan (NYC)"
@@ -9,14 +19,14 @@ export type CommunityInfo = {
   total: number; // all ideas in this neighborhood
 };
 
-const NAV_ITEMS = [
-  { href: "/", label: "Home", emoji: "🏠" },
-  { href: "/faves", label: "Local Faves", emoji: "⭐" },
-  { href: "/groups", label: "Groups", emoji: "👥" },
-  { href: "/events", label: "Events", emoji: "📅" },
-  { href: "/people", label: "People around", emoji: "🧑‍🤝‍🧑" },
-  { href: "/ideas", label: "My ideas", emoji: "💡" },
-  { href: "/neighborhood", label: "My community", emoji: "🏘️" },
+const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/faves", label: "Local Faves", icon: Star },
+  { href: "/groups", label: "Groups", icon: Users },
+  { href: "/events", label: "Events", icon: CalendarDays },
+  { href: "/people", label: "People around", icon: HeartHandshake },
+  { href: "/ideas", label: "My ideas", icon: Lightbulb },
+  { href: "/neighborhood", label: "My community", icon: MapPin },
 ];
 
 const UTILITY_ITEMS = [
@@ -45,6 +55,7 @@ export function Sidebar({ community }: { community: CommunityInfo | null }) {
             item.href === "/"
               ? pathname === "/"
               : pathname.startsWith(item.href);
+          const Icon = item.icon;
           return (
             <div key={item.href}>
               <Link
@@ -55,22 +66,20 @@ export function Sidebar({ community }: { community: CommunityInfo | null }) {
                     : "text-black/70 hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
                 }`}
               >
-                <span className="w-6 text-center text-lg" aria-hidden>
-                  {item.emoji}
-                </span>
+                <Icon
+                  className={`h-5 w-5 shrink-0 ${active ? "" : "text-black/55 dark:text-white/55"}`}
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
                 {item.label}
               </Link>
               {item.href === "/neighborhood" && community ? (
-                <div className="ml-12 mt-0.5 flex flex-col gap-0.5 pb-1 text-xs text-black/50 dark:text-white/50">
+                <div className="ml-11 mt-0.5 flex flex-col gap-0.5 pb-1 text-xs text-black/50 dark:text-white/50">
                   <p className="font-medium text-black/70 dark:text-white/70">
                     {community.label}
                   </p>
-                  <p>
-                    Your ideas · {community.mine}
-                  </p>
-                  <p>
-                    All ideas · {community.total}
-                  </p>
+                  <p>Your ideas · {community.mine}</p>
+                  <p>All ideas · {community.total}</p>
                 </div>
               ) : null}
             </div>

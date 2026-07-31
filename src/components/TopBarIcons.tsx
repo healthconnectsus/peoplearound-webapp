@@ -2,23 +2,35 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {
+  Bell,
+  MessageCircle,
+  Star,
+  UserPlus,
+  type LucideIcon,
+} from "lucide-react";
 
 export type Notification = {
   key: string;
-  emoji: string;
+  kind: "join" | "stars";
   text: string;
   href: string;
 };
 
+const KIND_ICON: Record<Notification["kind"], LucideIcon> = {
+  join: UserPlus,
+  stars: Star,
+};
+
 function IconButton({
   label,
-  emoji,
+  icon: Icon,
   badge,
   onClick,
   expanded,
 }: {
   label: string;
-  emoji: string;
+  icon: LucideIcon;
   badge?: number;
   onClick: () => void;
   expanded: boolean;
@@ -29,9 +41,9 @@ function IconButton({
       onClick={onClick}
       aria-label={label}
       aria-expanded={expanded}
-      className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+      className="relative flex h-9 w-9 items-center justify-center rounded-full text-black/65 transition-colors hover:bg-black/5 dark:text-white/65 dark:hover:bg-white/10"
     >
-      <span aria-hidden>{emoji}</span>
+      <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
       {badge ? (
         <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
           {badge > 9 ? "9+" : badge}
@@ -77,14 +89,14 @@ export function TopBarIcons({
     <div className="relative flex items-center gap-1">
       <IconButton
         label="Notifications"
-        emoji="🔔"
+        icon={Bell}
         badge={badge}
         expanded={open === "bell"}
         onClick={() => setOpen(open === "bell" ? null : "bell")}
       />
       <IconButton
         label="Messages"
-        emoji="💬"
+        icon={MessageCircle}
         expanded={open === "chat"}
         onClick={() => setOpen(open === "chat" ? null : "chat")}
       />
@@ -99,20 +111,25 @@ export function TopBarIcons({
             </p>
           ) : (
             <ul className="flex max-h-96 flex-col gap-0.5 overflow-y-auto">
-              {notifications.map((n) => (
-                <li key={n.key}>
-                  <Link
-                    href={n.href}
-                    onClick={() => setOpen(null)}
-                    className="flex items-start gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-                  >
-                    <span className="text-base" aria-hidden>
-                      {n.emoji}
-                    </span>
-                    <span className="min-w-0 leading-snug">{n.text}</span>
-                  </Link>
-                </li>
-              ))}
+              {notifications.map((n) => {
+                const Icon = KIND_ICON[n.kind];
+                return (
+                  <li key={n.key}>
+                    <Link
+                      href={n.href}
+                      onClick={() => setOpen(null)}
+                      className="flex items-start gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+                    >
+                      <Icon
+                        className="mt-0.5 h-4 w-4 shrink-0 text-black/50 dark:text-white/50"
+                        strokeWidth={1.75}
+                        aria-hidden
+                      />
+                      <span className="min-w-0 leading-snug">{n.text}</span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </Panel>

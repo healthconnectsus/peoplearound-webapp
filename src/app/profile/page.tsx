@@ -52,9 +52,10 @@ export default async function ProfilePage() {
 
   const [{ data: profileRow }, { data: ownRows }, { data: starRows }] =
     await Promise.all([
+      // select("*") keeps this page working before migration 0010 is applied
       supabase
         .from("profiles")
-        .select("display_name,created_at,neighborhood:neighborhoods(name,city)")
+        .select("*,neighborhood:neighborhoods(name,city)")
         .eq("id", user.id)
         .maybeSingle(),
       supabase
@@ -71,6 +72,13 @@ export default async function ProfilePage() {
   const profile = profileRow as unknown as {
     display_name: string | null;
     created_at: string;
+    bio?: string | null;
+    pronouns?: string | null;
+    show_pronouns?: boolean | null;
+    website?: string | null;
+    hometown?: string | null;
+    avatar_url?: string | null;
+    cover_url?: string | null;
     neighborhood?: { name: string; city: string | null } | null;
   } | null;
   const name = profile?.display_name ?? user.email?.split("@")[0] ?? "Neighbor";
@@ -132,17 +140,57 @@ export default async function ProfilePage() {
       <main className="mx-auto w-full max-w-2xl flex-1 p-4 lg:py-6">
         {/* Profile header */}
         <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900">
-          <div className="h-24 bg-gradient-to-r from-emerald-100 via-sky-100 to-violet-100 dark:from-emerald-950 dark:via-sky-950 dark:to-violet-950" />
+          <div
+            className="h-28 bg-gradient-to-r from-emerald-100 via-sky-100 to-violet-100 bg-cover bg-center dark:from-emerald-950 dark:via-sky-950 dark:to-violet-950"
+            style={
+              profile?.cover_url
+                ? { backgroundImage: `url(${profile.cover_url})` }
+                : undefined
+            }
+          />
           <div className="px-6 pb-6">
-            <div className="-mt-8 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-emerald-100 text-2xl font-semibold text-emerald-800 dark:border-zinc-900 dark:bg-emerald-900 dark:text-emerald-200">
-              {initials(name)}
-            </div>
+            {profile?.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URL, unoptimized is fine
+              <img
+                src={profile.avatar_url}
+                alt=""
+                className="-mt-8 h-20 w-20 rounded-full border-4 border-white object-cover dark:border-zinc-900"
+              />
+            ) : (
+              <div className="-mt-8 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-emerald-100 text-2xl font-semibold text-emerald-800 dark:border-zinc-900 dark:bg-emerald-900 dark:text-emerald-200">
+                {initials(name)}
+              </div>
+            )}
             <h1 className="mt-3 text-2xl font-semibold tracking-tight">
               {name}
+              {profile?.show_pronouns && profile?.pronouns ? (
+                <span className="ml-2 text-sm font-normal text-black/50 dark:text-white/50">
+                  ({profile.pronouns})
+                </span>
+              ) : null}
             </h1>
+            {profile?.bio ? (
+              <p className="mt-1.5 text-sm leading-relaxed text-black/70 dark:text-white/70">
+                {profile.bio}
+              </p>
+            ) : null}
             <div className="mt-1.5 flex flex-col gap-1 text-sm text-black/60 dark:text-white/60">
+              {profile?.hometown ? <p>🏡 Hometown: {profile.hometown}</p> : null}
               {hood ? <p>📍 {hood}</p> : null}
               {memberSince ? <p>🌱 Member since {memberSince}</p> : null}
+              {profile?.website ? (
+                <p>
+                  🔗{" "}
+                  <a
+                    href={profile.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-black/80 dark:hover:text-white/80"
+                  >
+                    {profile.website.replace(/^https?:\/\//, "")}
+                  </a>
+                </p>
+              ) : null}
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link

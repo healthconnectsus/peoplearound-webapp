@@ -7,6 +7,23 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Nextdoor-style Edit Profile (bio/pronouns/hometown/photos), lucide outline icons, tagline in docs
+
+- `README.md`
+- `docs/CONCEPT.md`
+- `package-lock.json`
+- `package.json`
+- `src/app/profile/page.tsx`
+- `src/app/settings/PhotoUploads.tsx`
+- `src/app/settings/actions.ts`
+- `src/app/settings/page.tsx`
+- `src/components/ProfileMenu.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/TopBar.tsx`
+- `src/components/TopBarIcons.tsx`
+- `supabase/migrations/0010_profile_fields.sql`
+
+
 ### 2026-07-31 — New tagline: Build ideas with your communities
 
 - `src/app/help/page.tsx`

@@ -1,3 +1,4 @@
+import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { isoDaysAgo, timeAgo } from "@/lib/projects";
 import { ProfileMenu } from "./ProfileMenu";
@@ -15,21 +16,25 @@ export async function TopBar() {
 
   let name = "Neighbor";
   let neighborhood: string | null = null;
+  let avatarUrl: string | null = null;
   const notifications: Notification[] = [];
   let pendingCount = 0;
 
   if (user) {
+    // select("*") so this keeps working before migration 0010 adds avatar_url
     const { data: profileRow } = await supabase
       .from("profiles")
-      .select("display_name,neighborhood:neighborhoods(name)")
+      .select("*,neighborhood:neighborhoods(name)")
       .eq("id", user.id)
       .maybeSingle();
     const profile = profileRow as unknown as {
       display_name: string | null;
+      avatar_url?: string | null;
       neighborhood?: { name: string } | null;
     } | null;
     name = profile?.display_name ?? user.email?.split("@")[0] ?? "Neighbor";
     neighborhood = profile?.neighborhood?.name ?? null;
+    avatarUrl = profile?.avatar_url ?? null;
 
     // Notifications from things happening to YOUR projects: join requests
     // (actionable, badged) and fresh stars.
@@ -64,7 +69,7 @@ export async function TopBar() {
       }[]) {
         notifications.push({
           key: `join-${row.project_id}-${row.user_id}`,
-          emoji: "🤝",
+          kind: "join",
           text: `${row.profile?.display_name ?? "A neighbor"} asked to join “${titleOf.get(row.project_id) ?? "your project"}” · ${timeAgo(row.created_at)}`,
           href: `/projects/${row.project_id}`,
         });
@@ -81,7 +86,7 @@ export async function TopBar() {
       for (const [projectId, count] of starsByProject) {
         notifications.push({
           key: `stars-${projectId}`,
-          emoji: "⭐",
+          kind: "stars",
           text: `${count} ${count === 1 ? "neighbor" : "neighbors"} starred “${titleOf.get(projectId) ?? "your project"}” recently`,
           href: `/projects/${projectId}`,
         });
@@ -96,12 +101,11 @@ export async function TopBar() {
       <div className="mx-auto w-full max-w-2xl px-4 lg:px-8">
         <form action="/">
           <label className="relative block max-w-xl">
-            <span
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40 dark:text-white/40"
+              strokeWidth={1.75}
               aria-hidden
-            >
-              🔍
-            </span>
+            />
             <input
               type="search"
               name="q"
@@ -113,7 +117,11 @@ export async function TopBar() {
       </div>
       <div className="flex items-center justify-end gap-2 px-6">
         <TopBarIcons notifications={notifications} badge={pendingCount} />
-        <ProfileMenu name={name} neighborhood={neighborhood} />
+        <ProfileMenu
+          name={name}
+          neighborhood={neighborhood}
+          avatarUrl={avatarUrl}
+        />
       </div>
     </div>
   );

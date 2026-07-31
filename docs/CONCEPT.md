@@ -1,6 +1,6 @@
 # Peoplearound — Concept
 
-**Share an idea. Build it together.** · *Concept document · Draft v2 (project pivot)*
+**Build ideas with your communities.** · *Concept document · Draft v2 (project pivot)*
 
 > Where Facebook makes you say who you are, Peoplearound shows what you have built with the people around you — and who was on the team.
 

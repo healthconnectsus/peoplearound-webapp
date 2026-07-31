@@ -2,15 +2,50 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Lightbulb, LogOut, MapPin, Settings, UsersRound } from "lucide-react";
 import { signOut } from "@/app/login/actions";
 import { initials } from "@/lib/projects";
+
+const ITEM_CLASS =
+  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10";
+const ICON_CLASS = "h-4 w-4 text-black/55 dark:text-white/55";
+
+function Avatar({
+  name,
+  avatarUrl,
+  className,
+}: {
+  name: string;
+  avatarUrl: string | null;
+  className: string;
+}) {
+  if (avatarUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URL, unoptimized is fine
+      <img
+        src={avatarUrl}
+        alt=""
+        className={`${className} object-cover`}
+      />
+    );
+  }
+  return (
+    <span
+      className={`${className} flex items-center justify-center bg-emerald-100 font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200`}
+    >
+      {initials(name)}
+    </span>
+  );
+}
 
 export function ProfileMenu({
   name,
   neighborhood,
+  avatarUrl,
 }: {
   name: string;
   neighborhood: string | null;
+  avatarUrl: string | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -21,9 +56,13 @@ export function ProfileMenu({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-800 ring-emerald-600/40 transition hover:ring-2 dark:bg-emerald-900 dark:text-emerald-200"
+        className="overflow-hidden rounded-full ring-emerald-600/40 transition hover:ring-2"
       >
-        {initials(name)}
+        <Avatar
+          name={name}
+          avatarUrl={avatarUrl}
+          className="h-9 w-9 rounded-full text-xs"
+        />
       </button>
 
       {open ? (
@@ -40,9 +79,11 @@ export function ProfileMenu({
             className="absolute right-0 top-11 z-[1100] w-64 rounded-2xl border border-black/10 bg-white p-2 shadow-xl dark:border-white/10 dark:bg-zinc-900"
           >
             <div className="flex flex-col items-center px-3 pb-3 pt-4 text-center">
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-xl font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
-                {initials(name)}
-              </span>
+              <Avatar
+                name={name}
+                avatarUrl={avatarUrl}
+                className="h-16 w-16 rounded-full text-xl"
+              />
               <p className="mt-2 font-medium">{name}</p>
               {neighborhood ? (
                 <p className="text-sm text-black/50 dark:text-white/50">
@@ -61,38 +102,40 @@ export function ProfileMenu({
             <Link
               href="/ideas"
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+              className={ITEM_CLASS}
             >
-              💡 My ideas
+              <Lightbulb className={ICON_CLASS} strokeWidth={1.75} aria-hidden />
+              My ideas
             </Link>
             <Link
               href="/connections"
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+              className={ITEM_CLASS}
             >
-              🤝 My connections
+              <UsersRound className={ICON_CLASS} strokeWidth={1.75} aria-hidden />
+              My connections
             </Link>
             <Link
               href="/settings"
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+              className={ITEM_CLASS}
             >
-              ⚙️ Settings
+              <Settings className={ICON_CLASS} strokeWidth={1.75} aria-hidden />
+              Settings
             </Link>
             <Link
               href="/neighborhood"
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+              className={ITEM_CLASS}
             >
-              📍 Change neighborhood
+              <MapPin className={ICON_CLASS} strokeWidth={1.75} aria-hidden />
+              Change neighborhood
             </Link>
             <div className="my-1 border-t border-black/5 dark:border-white/10" />
             <form action={signOut}>
-              <button
-                type="submit"
-                className="w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-              >
-                👋 Sign out
+              <button type="submit" className={`${ITEM_CLASS} w-full text-left`}>
+                <LogOut className={ICON_CLASS} strokeWidth={1.75} aria-hidden />
+                Sign out
               </button>
             </form>
           </div>
