@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — Home title: Communities (city/your ideas/total ideas)
+
+- `src/app/page.tsx`
+
+
 ### 2026-07-31 — Top bar alignment + transparency, My ideas + My connections pages, My community block with neighborhood stats
 
 - `src/app/connections/page.tsx`

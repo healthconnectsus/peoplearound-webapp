@@ -250,6 +250,11 @@ export default async function Home({
     return { ...p, starCount: myStars.length, team, beat, hot };
   });
 
+  // Community counters for the page title: (city/yours/all) in your hood.
+  const hoodAll = cards.filter((p) => p.neighborhood_id === myHood);
+  const hoodTotal = hoodAll.length;
+  const hoodMine = hoodAll.filter((p) => p.owner_id === user.id).length;
+
   // Top-bar search: a simple contains-match over title and description.
   const query = q?.trim().toLowerCase() ?? "";
   const visible = query
@@ -319,7 +324,10 @@ export default async function Home({
           <div className="mx-auto w-full max-w-2xl p-4 lg:px-8 lg:py-6">
             <div className="mb-5">
               <h1 className="text-2xl font-semibold tracking-tight">
-                {neighborhoodName}
+                Communities{" "}
+                <span className="font-normal text-black/50 dark:text-white/50">
+                  ({myCity ?? neighborhoodName}/{hoodMine}/{hoodTotal})
+                </span>
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 {pulse.map((s) => (
