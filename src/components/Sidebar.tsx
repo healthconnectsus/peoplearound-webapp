@@ -3,13 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+export type CommunityInfo = {
+  label: string; // e.g. "Manhattan (NYC)"
+  mine: number; // your ideas in this neighborhood
+  total: number; // all ideas in this neighborhood
+};
+
 const NAV_ITEMS = [
   { href: "/", label: "Home", emoji: "🏠" },
   { href: "/faves", label: "Local Faves", emoji: "⭐" },
   { href: "/groups", label: "Groups", emoji: "👥" },
   { href: "/events", label: "Events", emoji: "📅" },
   { href: "/people", label: "People around", emoji: "🧑‍🤝‍🧑" },
-  { href: "/neighborhood", label: "My neighborhood", emoji: "📍" },
+  { href: "/ideas", label: "My ideas", emoji: "💡" },
+  { href: "/neighborhood", label: "My community", emoji: "🏘️" },
 ];
 
 const UTILITY_ITEMS = [
@@ -22,7 +29,7 @@ const UTILITY_ITEMS = [
  * Desktop-only left navigation rail (Nextdoor-style). Mobile keeps the
  * top SiteHeader; the two are swapped at the lg breakpoint by AppShell.
  */
-export function Sidebar() {
+export function Sidebar({ community }: { community: CommunityInfo | null }) {
   const pathname = usePathname();
 
   return (
@@ -39,20 +46,34 @@ export function Sidebar() {
               ? pathname === "/"
               : pathname.startsWith(item.href);
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors ${
-                active
-                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
-                  : "text-black/70 hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
-              }`}
-            >
-              <span className="w-6 text-center text-lg" aria-hidden>
-                {item.emoji}
-              </span>
-              {item.label}
-            </Link>
+            <div key={item.href}>
+              <Link
+                href={item.href}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors ${
+                  active
+                    ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
+                    : "text-black/70 hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
+                }`}
+              >
+                <span className="w-6 text-center text-lg" aria-hidden>
+                  {item.emoji}
+                </span>
+                {item.label}
+              </Link>
+              {item.href === "/neighborhood" && community ? (
+                <div className="ml-12 mt-0.5 flex flex-col gap-0.5 pb-1 text-xs text-black/50 dark:text-white/50">
+                  <p className="font-medium text-black/70 dark:text-white/70">
+                    {community.label}
+                  </p>
+                  <p>
+                    Your ideas · {community.mine}
+                  </p>
+                  <p>
+                    All ideas · {community.total}
+                  </p>
+                </div>
+              ) : null}
+            </div>
           );
         })}
       </nav>

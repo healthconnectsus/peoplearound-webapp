@@ -28,24 +28,30 @@ export async function TopBar() {
   }
 
   return (
-    <div className="sticky top-0 z-[1000] hidden items-center gap-4 border-b border-black/5 bg-stone-50/85 px-6 py-2.5 backdrop-blur-md dark:border-white/5 dark:bg-zinc-950/85 lg:flex">
-      <form action="/" className="mx-auto w-full max-w-xl">
-        <label className="relative block">
-          <span
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"
-            aria-hidden
-          >
-            🔍
-          </span>
-          <input
-            type="search"
-            name="q"
-            placeholder="Search projects around you"
-            className="w-full rounded-full border border-black/10 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-white/15 dark:bg-zinc-900 dark:placeholder:text-white/40"
-          />
-        </label>
-      </form>
-      <ProfileMenu name={name} neighborhood={neighborhood} />
+    <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_44%] xl:grid-cols-[minmax(0,1fr)_46%]">
+      {/* The search column mirrors the home feed column so the input's left
+          edge lines up with the page title beneath it. */}
+      <div className="mx-auto w-full max-w-2xl px-4 lg:px-8">
+        <form action="/">
+          <label className="relative block max-w-xl">
+            <span
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"
+              aria-hidden
+            >
+              🔍
+            </span>
+            <input
+              type="search"
+              name="q"
+              placeholder="Search projects around you"
+              className="w-full rounded-full border border-black/10 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-white/15 dark:bg-zinc-900 dark:placeholder:text-white/40"
+            />
+          </label>
+        </form>
+      </div>
+      <div className="flex justify-end px-6">
+        <ProfileMenu name={name} neighborhood={neighborhood} />
+      </div>
     </div>
   );
 }

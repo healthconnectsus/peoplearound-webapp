@@ -49,6 +49,20 @@ export function ProfileMenu({
             </div>
             <div className="my-1 border-t border-black/5 dark:border-white/10" />
             <Link
+              href="/ideas"
+              onClick={() => setOpen(false)}
+              className="block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+            >
+              💡 My ideas
+            </Link>
+            <Link
+              href="/connections"
+              onClick={() => setOpen(false)}
+              className="block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+            >
+              🤝 My connections
+            </Link>
+            <Link
               href="/settings"
               onClick={() => setOpen(false)}
               className="block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
