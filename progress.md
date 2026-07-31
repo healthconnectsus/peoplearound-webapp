@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-07-31 — New tagline: Build ideas with your communities
+
+- `src/app/help/page.tsx`
+- `src/app/layout.tsx`
+- `src/app/login/page.tsx`
+
+
 ### 2026-07-31 — Profile page + Nextdoor-style dropdown header with View profile
 
 - `src/app/profile/page.tsx`

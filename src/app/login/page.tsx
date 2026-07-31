@@ -15,7 +15,7 @@ export default async function LoginPage({
           {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
           <img src="/logo.svg" alt="Peoplearound" className="h-auto w-64" />
           <p className="mt-2 text-sm text-black/60 dark:text-white/60">
-            Share an idea. Build it together.
+            Build ideas with your communities
           </p>
         </div>
 

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Peoplearound",
-  description: "Share an idea, build it together — a hyperlocal network where neighbors join each other's projects.",
+  description: "Build ideas with your communities — a hyperlocal network where neighbors join each other's projects.",
 };
 
 export default function RootLayout({
