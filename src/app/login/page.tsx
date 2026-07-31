@@ -58,7 +58,7 @@ export default async function LoginPage({
         {/* Overlay: darkest behind the nav, easing off toward the bottom */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/15"
+          className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/35"
         />
 
         <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
