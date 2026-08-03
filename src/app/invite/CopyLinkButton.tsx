@@ -2,11 +2,17 @@
 
 import { useState } from "react";
 
-export function CopyLinkButton() {
+/**
+ * Copies the user's PERSONAL invite link (?via=<id>) — sign-ups through it
+ * are attributed to them ("brought N neighbors here").
+ */
+export function CopyLinkButton({ userId }: { userId?: string }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
-    const url = window.location.origin;
+    const url = userId
+      ? `${window.location.origin}/login?via=${userId}`
+      : window.location.origin;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);

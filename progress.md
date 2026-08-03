@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-03 — Founding Neighbors incentive: permanent first-10 status, personal invite links with attribution (invited_by), founding-era growth banner
+
+- `src/app/invite/CopyLinkButton.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/page.tsx`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0016_invite_attribution.sql`
+
+
 ### 2026-08-03 — Require sign-up before frontier registration: anonymous visitors get name preview only; place is created on first signed-in visit
 
 - `src/app/api/register-location/route.ts`

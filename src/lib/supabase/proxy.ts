@@ -60,6 +60,20 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Personal invite links: /login?via=<user id>. Remember who invited this
+  // visitor so sign-up can attribute them (profiles.invited_by).
+  const via = request.nextUrl.searchParams.get("via");
+  if (
+    via &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(via)
+  ) {
+    supabaseResponse.cookies.set("pa-via", via, {
+      path: "/",
+      maxAge: 1209600, // two weeks
+      sameSite: "lax",
+    });
+  }
+
   // IMPORTANT: return supabaseResponse as-is to keep cookies in sync.
   return supabaseResponse;
 }

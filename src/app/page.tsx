@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ipHash, registerFrontierLocation } from "@/lib/frontier";
+import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -148,14 +149,39 @@ export default async function Home({
   const { data: profileRow } = await supabase
     .from("profiles")
     .select(
-      "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+      "neighborhood_id,invited_by,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
     )
     .eq("id", user.id)
     .maybeSingle();
   const profile = profileRow as unknown as {
     neighborhood_id: string | null;
+    invited_by: string | null;
     neighborhood?: { name: string; city: string | null } | null;
   } | null;
+
+  // Invite attribution: if this account arrived through someone's personal
+  // link (pa-via cookie), record who brought them — once, never overwritten.
+  if (profile && profile.invited_by == null) {
+    const store = await cookies();
+    const via = store.get("pa-via")?.value ?? "";
+    if (
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(via) &&
+      via !== user.id
+    ) {
+      const { data: inviter } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", via)
+        .maybeSingle();
+      if (inviter) {
+        await supabase
+          .from("profiles")
+          .update({ invited_by: via })
+          .eq("id", user.id);
+      }
+    }
+  }
+
   if (!profile?.neighborhood_id) {
     // First visit after sign-up: if the logged-out landing page already
     // matched their location to a neighborhood (pa-hood cookie, set by
@@ -277,6 +303,26 @@ export default async function Home({
       ? [myHood]
       : membershipResult.data.map((m) => m.community_id),
   );
+
+  // Founding neighbors: the first 10 members of a location, by join order —
+  // a permanent, derived fact (no points, no gaming surface).
+  const [{ data: hoodMemberRows }, { count: broughtCount }] = await Promise.all([
+    supabase
+      .from("community_members")
+      .select("user_id,created_at")
+      .eq("community_id", myHood)
+      .order("created_at", { ascending: true })
+      .limit(10),
+    supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("invited_by", user.id),
+  ]);
+  const foundingMembers = hoodMemberRows ?? [];
+  const myFoundingRank =
+    foundingMembers.findIndex((m) => m.user_id === user.id) + 1; // 0 = not founding
+  const hoodSize = neighborCount ?? foundingMembers.length;
+  const isFoundingEra = hoodSize < 10;
 
   const projects = (projectRows ?? []) as unknown as Project[];
   const events = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
@@ -429,6 +475,46 @@ export default async function Home({
                 </Link>
               </div>
             </div>
+
+            {/* Founding era: the first 10 neighbors of a location are its
+                founding neighbors, permanently — real scarcity, no points. */}
+            {isFoundingEra ? (
+              <div className="mb-6 rounded-2xl border border-emerald-600/25 bg-gradient-to-br from-emerald-50 to-amber-50/60 p-5 shadow-sm dark:border-emerald-500/25 dark:from-emerald-950/40 dark:to-amber-950/20">
+                <p className="font-medium">
+                  🌱 {neighborhoodName} is just getting started
+                </p>
+                <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+                  {myFoundingRank > 0 ? (
+                    <>
+                      You&apos;re <strong>Founding Neighbor #{myFoundingRank}</strong> —
+                      that&apos;s permanent, and only the first 10 ever get it.{" "}
+                    </>
+                  ) : null}
+                  {hoodSize} of 10 founding spots taken.
+                  {broughtCount && broughtCount > 0 ? (
+                    <>
+                      {" "}
+                      You&apos;ve brought{" "}
+                      <strong>
+                        {broughtCount} {broughtCount === 1 ? "neighbor" : "neighbors"}
+                      </strong>{" "}
+                      here already.
+                    </>
+                  ) : (
+                    " Every neighbor you bring is credited to you, permanently."
+                  )}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <CopyLinkButton userId={user.id} />
+                  <Link
+                    href="/invite"
+                    className="text-sm text-black/50 underline underline-offset-2 hover:text-black dark:text-white/50 dark:hover:text-white"
+                  >
+                    More ways to invite
+                  </Link>
+                </div>
+              </div>
+            ) : null}
 
             {query ? (
               <p className="mb-5 rounded-xl border border-emerald-600/20 bg-emerald-50/70 px-4 py-2.5 text-sm dark:border-emerald-500/25 dark:bg-emerald-950/20">

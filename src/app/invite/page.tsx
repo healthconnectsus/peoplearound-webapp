@@ -36,7 +36,7 @@ export default async function InvitePage() {
               : ""}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <CopyLinkButton />
+            <CopyLinkButton userId={user.id} />
             <a
               href={`mailto:?subject=${encodeURIComponent("Join me on Peoplearound")}&body=${encodeURIComponent("I'm on Peoplearound — a place where neighbors share ideas and build them together. Join me!")}`}
               className="rounded-full border border-black/15 px-6 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
