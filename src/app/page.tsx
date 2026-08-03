@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { ipHash, registerFrontierLocation } from "@/lib/frontier";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -161,25 +162,62 @@ export default async function Home({
     // AutoLocate), claim it silently instead of asking again.
     const store = await cookies();
     const guess = store.get("pa-hood")?.value ?? "";
+    let claimId: string | null = null;
     if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(guess)) {
       const { data: hood } = await supabase
         .from("neighborhoods")
         .select("id")
         .eq("id", guess)
         .maybeSingle();
-      if (hood) {
-        await supabase
-          .from("profiles")
-          .update({ neighborhood_id: hood.id })
-          .eq("id", user.id);
-        await supabase
-          .from("community_members")
-          .upsert(
-            { community_id: hood.id, user_id: user.id },
-            { onConflict: "community_id,user_id", ignoreDuplicates: true },
+      if (hood) claimId = hood.id;
+    }
+
+    // Or: the landing page previewed a place we don't cover yet
+    // (pa-frontier cookie). Now that a real account exists, register it —
+    // this is the moment a new location earns its directory entry and the
+    // ops alert fires.
+    if (!claimId) {
+      const frontier = store.get("pa-frontier")?.value ?? "";
+      const parts = frontier.split(",").map(Number);
+      if (
+        parts.length === 2 &&
+        parts.every(Number.isFinite) &&
+        Math.abs(parts[0]) <= 90 &&
+        Math.abs(parts[1]) <= 180
+      ) {
+        const [lat, lng] = parts;
+        // Someone may have covered it since the preview — match first.
+        const { data: match } = await supabase.rpc("locate_teaser", { lat, lng });
+        const found = (match as { id: string }[] | null)?.[0];
+        if (found) {
+          claimId = found.id;
+        } else {
+          const hdrs = await headers();
+          const ip =
+            hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+          const result = await registerFrontierLocation(
+            lat,
+            lng,
+            ipHash(ip),
+            user.email ?? null,
           );
-        redirect("/"); // re-render with the neighborhood in place
+          if (result.ok) claimId = result.id;
+        }
       }
+    }
+
+    if (claimId) {
+      await supabase
+        .from("profiles")
+        .update({ neighborhood_id: claimId })
+        .eq("id", user.id);
+      await supabase
+        .from("community_members")
+        .upsert(
+          { community_id: claimId, user_id: user.id },
+          { onConflict: "community_id,user_id", ignoreDuplicates: true },
+        );
+      redirect("/"); // re-render with the neighborhood in place
     }
     redirect("/neighborhood");
   }

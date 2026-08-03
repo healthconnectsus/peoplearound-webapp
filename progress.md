@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-03 — Require sign-up before frontier registration: anonymous visitors get name preview only; place is created on first signed-in visit
+
+- `src/app/api/register-location/route.ts`
+- `src/app/login/AutoLocate.tsx`
+- `src/app/page.tsx`
+- `src/lib/frontier.ts`
+
+
 ### 2026-08-03 — Harden frontier endpoint: service-role-only register RPC, DB-enforced per-IP and global daily caps, origin check, in-memory throttle, salted IP hashing
 
 - `package-lock.json`

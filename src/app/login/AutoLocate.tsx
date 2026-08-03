@@ -4,11 +4,17 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type Teaser = { id: string; name: string; neighbors: number; ideas: number };
-type Registered = { id: string; name: string };
+type Preview = { name: string };
 
 function rememberHood(id: string) {
   // Remembered for two weeks so sign-up lands in the right place.
   document.cookie = `pa-hood=${id}; path=/; max-age=1209600; samesite=lax`;
+}
+
+function rememberFrontier(lat: number, lng: number) {
+  // Somewhere new: the place is only created once they actually sign up —
+  // the home page claims these coordinates on the first signed-in visit.
+  document.cookie = `pa-frontier=${lat.toFixed(5)},${lng.toFixed(5)}; path=/; max-age=1209600; samesite=lax`;
 }
 
 /**
@@ -21,7 +27,7 @@ function rememberHood(id: string) {
  */
 export function AutoLocate() {
   const [teaser, setTeaser] = useState<Teaser | null>(null);
-  const [registered, setRegistered] = useState<Registered | null>(null);
+  const [frontier, setFrontier] = useState<Preview | null>(null);
   const [noMatch, setNoMatch] = useState(false);
 
   useEffect(() => {
@@ -40,8 +46,8 @@ export function AutoLocate() {
           rememberHood(row.id);
           return;
         }
-        // Somewhere new: put this place on the Peoplearound map (the server
-        // reverse-geocodes a real name, dedupes, and alerts ops).
+        // Somewhere new: preview the place's name only. Nothing is created
+        // until they sign up — that's the anti-spam wall.
         try {
           const res = await fetch("/api/register-location", {
             method: "POST",
@@ -49,12 +55,21 @@ export function AutoLocate() {
             body: JSON.stringify({
               lat: pos.coords.latitude,
               lng: pos.coords.longitude,
+              preview: true,
             }),
           });
           if (res.ok) {
-            const reg = (await res.json()) as Registered;
-            setRegistered(reg);
-            rememberHood(reg.id);
+            const data = (await res.json()) as
+              | (Teaser & { created: boolean })
+              | { name: string; preview: true };
+            if ("preview" in data) {
+              setFrontier({ name: data.name });
+              rememberFrontier(pos.coords.latitude, pos.coords.longitude);
+            } else {
+              // The server matched after all (e.g. fresher data than the RPC).
+              setTeaser({ ...data, neighbors: 0, ideas: 0 });
+              rememberHood(data.id);
+            }
             return;
           }
         } catch {
@@ -69,7 +84,7 @@ export function AutoLocate() {
     );
   }, []);
 
-  if (!teaser && !registered && !noMatch) return null;
+  if (!teaser && !frontier && !noMatch) return null;
 
   return (
     <div className="mt-4 rounded-xl border border-emerald-600/25 bg-emerald-50/90 px-4 py-3 text-sm shadow-sm dark:border-emerald-500/30 dark:bg-emerald-950/60">
@@ -89,10 +104,10 @@ export function AutoLocate() {
           )}{" "}
           Join them — your account will start right in your neighborhood.
         </p>
-      ) : registered ? (
+      ) : frontier ? (
         <p className="text-emerald-900 dark:text-emerald-200">
-          🎉 You&apos;re in <strong>{registered.name}</strong> — brand new to
-          Peoplearound! We just put it on the map. Sign up and be its first
+          🎉 You&apos;re in <strong>{frontier.name}</strong> — brand new to
+          Peoplearound! Sign up to put it on the map and be its first
           neighbor.
         </p>
       ) : (
