@@ -47,7 +47,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const isPublicRoute = path.startsWith("/login") || path.startsWith("/auth");
+  const isPublicRoute =
+    path.startsWith("/login") ||
+    path.startsWith("/auth") ||
+    // Logged-out landing page calls this to register uncovered locations;
+    // it validates its own input and only ever touches anon-safe RPCs.
+    path === "/api/register-location";
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();

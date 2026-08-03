@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type Teaser = { id: string; name: string; neighbors: number; ideas: number };
+type Registered = { id: string; name: string };
+
+function rememberHood(id: string) {
+  // Remembered for two weeks so sign-up lands in the right place.
+  document.cookie = `pa-hood=${id}; path=/; max-age=1209600; samesite=lax`;
+}
 
 /**
  * Logged-out location hook: on mount, asks the browser for the visitor's
@@ -15,6 +21,7 @@ type Teaser = { id: string; name: string; neighbors: number; ideas: number };
  */
 export function AutoLocate() {
   const [teaser, setTeaser] = useState<Teaser | null>(null);
+  const [registered, setRegistered] = useState<Registered | null>(null);
   const [noMatch, setNoMatch] = useState(false);
 
   useEffect(() => {
@@ -30,11 +37,30 @@ export function AutoLocate() {
         const row = (data as Teaser[] | null)?.[0];
         if (row) {
           setTeaser(row);
-          // Remembered for two weeks so sign-up lands in the right place.
-          document.cookie = `pa-hood=${row.id}; path=/; max-age=1209600; samesite=lax`;
-        } else {
-          setNoMatch(true);
+          rememberHood(row.id);
+          return;
         }
+        // Somewhere new: put this place on the Peoplearound map (the server
+        // reverse-geocodes a real name, dedupes, and alerts ops).
+        try {
+          const res = await fetch("/api/register-location", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+            }),
+          });
+          if (res.ok) {
+            const reg = (await res.json()) as Registered;
+            setRegistered(reg);
+            rememberHood(reg.id);
+            return;
+          }
+        } catch {
+          /* fall through to the quiet no-match note */
+        }
+        setNoMatch(true);
       },
       () => {
         /* Declined or unavailable — stay quiet, never nag. */
@@ -43,7 +69,7 @@ export function AutoLocate() {
     );
   }, []);
 
-  if (!teaser && !noMatch) return null;
+  if (!teaser && !registered && !noMatch) return null;
 
   return (
     <div className="mt-4 rounded-xl border border-emerald-600/25 bg-emerald-50/90 px-4 py-3 text-sm shadow-sm dark:border-emerald-500/30 dark:bg-emerald-950/60">
@@ -62,6 +88,12 @@ export function AutoLocate() {
             "."
           )}{" "}
           Join them — your account will start right in your neighborhood.
+        </p>
+      ) : registered ? (
+        <p className="text-emerald-900 dark:text-emerald-200">
+          🎉 You&apos;re in <strong>{registered.name}</strong> — brand new to
+          Peoplearound! We just put it on the map. Sign up and be its first
+          neighbor.
         </p>
       ) : (
         <p className="text-emerald-900 dark:text-emerald-200">

@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-03 — Frontier locations: auto-register uncovered places (Nominatim + dedupe) and email ops alert; neighborhood centers for matching
+
+- `src/app/api/register-location/route.ts`
+- `src/app/login/AutoLocate.tsx`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0014_frontier_locations.sql`
+
+
 ### 2026-08-03 — Auto location popup for logged-out visitors: anon locate_teaser RPC, landing teaser banner, neighborhood auto-claim after sign-up
 
 - `src/app/login/AutoLocate.tsx`
