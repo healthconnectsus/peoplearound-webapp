@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
@@ -154,7 +155,34 @@ export default async function Home({
     neighborhood_id: string | null;
     neighborhood?: { name: string; city: string | null } | null;
   } | null;
-  if (!profile?.neighborhood_id) redirect("/neighborhood");
+  if (!profile?.neighborhood_id) {
+    // First visit after sign-up: if the logged-out landing page already
+    // matched their location to a neighborhood (pa-hood cookie, set by
+    // AutoLocate), claim it silently instead of asking again.
+    const store = await cookies();
+    const guess = store.get("pa-hood")?.value ?? "";
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(guess)) {
+      const { data: hood } = await supabase
+        .from("neighborhoods")
+        .select("id")
+        .eq("id", guess)
+        .maybeSingle();
+      if (hood) {
+        await supabase
+          .from("profiles")
+          .update({ neighborhood_id: hood.id })
+          .eq("id", user.id);
+        await supabase
+          .from("community_members")
+          .upsert(
+            { community_id: hood.id, user_id: user.id },
+            { onConflict: "community_id,user_id", ignoreDuplicates: true },
+          );
+        redirect("/"); // re-render with the neighborhood in place
+      }
+    }
+    redirect("/neighborhood");
+  }
   const myHood = profile.neighborhood_id;
   const myCity = profile.neighborhood?.city ?? null;
   const neighborhoodName = profile.neighborhood?.name ?? "your neighborhood";

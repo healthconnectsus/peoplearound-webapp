@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 import { categoryMeta, STATE_META, timeAgo } from "@/lib/projects";
 import { versionLabel, BUILD_TIME } from "@/lib/version";
 import { signIn, signUp, signInWithMagicLink } from "./actions";
+import { AutoLocate } from "./AutoLocate";
 
 const INPUT =
   "rounded-lg border border-black/15 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-white/20 dark:bg-zinc-800";
@@ -166,6 +167,8 @@ export default async function LoginPage({
                     Email me a sign-in link
                   </button>
                 </form>
+
+                <AutoLocate />
               </div>
         </div>
       </section>

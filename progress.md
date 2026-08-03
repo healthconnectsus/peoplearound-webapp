@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-03 — Auto location popup for logged-out visitors: anon locate_teaser RPC, landing teaser banner, neighborhood auto-claim after sign-up
+
+- `src/app/login/AutoLocate.tsx`
+- `src/app/login/page.tsx`
+- `src/app/page.tsx`
+- `supabase/migrations/0013_public_locate.sql`
+
+
 ### 2026-07-31 — Landing ideas: 3-column photo card grid with collage crops
 
 - `src/app/login/page.tsx`
