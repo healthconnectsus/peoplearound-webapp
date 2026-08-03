@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-03 — Harden frontier endpoint: service-role-only register RPC, DB-enforced per-IP and global daily caps, origin check, in-memory throttle, salted IP hashing
+
+- `package-lock.json`
+- `package.json`
+- `src/app/api/register-location/route.ts`
+- `src/lib/supabase/admin.ts`
+- `supabase/migrations/0015_frontier_hardening.sql`
+
+
 ### 2026-08-03 — Frontier locations: auto-register uncovered places (Nominatim + dedupe) and email ops alert; neighborhood centers for matching
 
 - `src/app/api/register-location/route.ts`

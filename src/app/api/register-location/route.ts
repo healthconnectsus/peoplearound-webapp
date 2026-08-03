@@ -1,20 +1,71 @@
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * POST /api/register-location  { lat, lng }
  *
  * Called by the logged-out landing page when a visitor's location matches no
  * neighborhood in the directory. Reverse-geocodes the coordinates (OSM
- * Nominatim), registers the place as a new neighborhood (deduped in the
- * database — register_frontier_location), and emails ops about the brand-new
- * location. Coordinates are used for the lookup and the neighborhood's
- * center; nothing visitor-specific is stored.
+ * Nominatim), registers the place as a new neighborhood, and emails ops.
+ *
+ * Abuse posture (this endpoint is anonymous and has side effects):
+ *   1. Same-origin check — browsers send Origin on cross-site POSTs.
+ *   2. In-memory per-IP + global throttle — cheap first wall per instance.
+ *   3. Hard caps in the database (3 new places per IP hash per day, 25
+ *      globally) — enforced inside register_frontier_location, which only
+ *      the service role may execute, so bots cannot call it directly.
+ * Coordinates are used for the lookup and the neighborhood's center; the IP
+ * is stored only as a salted hash, never raw.
  */
 
 const ALERT_TO = process.env.ALERT_EMAIL ?? "peoplearound.alexandre@gmail.com";
 const ALERT_FROM =
   process.env.ALERT_FROM ?? "Peoplearound <onboarding@resend.dev>";
+
+// --- wall 2: in-memory throttle (per serverless instance; DB caps are the
+// real limit — this just sheds hot loops cheaply). ---
+const WINDOW_MS = 60_000;
+const PER_IP_PER_MIN = 5;
+const GLOBAL_PER_MIN = 30;
+const hits = new Map<string, number[]>();
+
+function throttled(ip: string): boolean {
+  const now = Date.now();
+  for (const [k, arr] of hits) {
+    const fresh = arr.filter((t) => now - t < WINDOW_MS);
+    if (fresh.length === 0) hits.delete(k);
+    else hits.set(k, fresh);
+  }
+  const mine = hits.get(ip) ?? [];
+  const all = [...hits.values()].reduce((n, a) => n + a.length, 0);
+  if (mine.length >= PER_IP_PER_MIN || all >= GLOBAL_PER_MIN) return true;
+  mine.push(now);
+  hits.set(ip, mine);
+  return false;
+}
+
+function clientIp(request: Request): string {
+  const fwd = request.headers.get("x-forwarded-for");
+  return fwd?.split(",")[0]?.trim() || "unknown";
+}
+
+function ipHash(ip: string): string {
+  const salt = process.env.IP_HASH_SALT ?? "peoplearound-frontier";
+  return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 32);
+}
+
+function sameOrigin(request: Request): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) return true; // non-browser callers hit the other walls
+  const host = request.headers.get("host");
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
 
 type NominatimAddress = {
   neighbourhood?: string;
@@ -102,6 +153,14 @@ async function sendOpsAlert(details: {
 }
 
 export async function POST(request: Request) {
+  if (!sameOrigin(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  const ip = clientIp(request);
+  if (throttled(ip)) {
+    return NextResponse.json({ error: "Slow down" }, { status: 429 });
+  }
+
   let lat: number, lng: number;
   try {
     const body = (await request.json()) as { lat?: unknown; lng?: unknown };
@@ -121,7 +180,7 @@ export async function POST(request: Request) {
 
   const supabase = await createClient();
 
-  // Server-side re-check: only register genuinely uncovered places.
+  // Existing coverage? Cheap, unlimited, and the common case.
   const { data: match } = await supabase.rpc("locate_teaser", { lat, lng });
   const existing = (match as { id: string; name: string }[] | null)?.[0];
   if (existing) {
@@ -130,6 +189,12 @@ export async function POST(request: Request) {
       name: existing.name,
       created: false,
     });
+  }
+
+  const admin = createAdminClient();
+  if (!admin) {
+    console.warn("[register-location] SUPABASE_SERVICE_ROLE_KEY not set");
+    return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
 
   // If reverse geocoding is unavailable, register anyway under a
@@ -149,20 +214,31 @@ export async function POST(request: Request) {
     };
   }
 
-  const { data: regRows, error: regError } = await supabase.rpc(
+  const { data: regRows, error: regError } = await admin.rpc(
     "register_frontier_location",
-    { p_lat: lat, p_lng: lng, p_name: geo.name, p_city: geo.city },
+    {
+      p_lat: lat,
+      p_lng: lng,
+      p_name: geo.name,
+      p_city: geo.city,
+      p_ip_hash: ipHash(ip),
+    },
   );
   const reg = (
-    regRows as { id: string; name: string; created: boolean }[] | null
+    regRows as
+      | { id: string | null; name: string | null; created: boolean; rate_limited: boolean }[]
+      | null
   )?.[0];
   if (regError || !reg) {
     return NextResponse.json({ error: "Could not register" }, { status: 500 });
   }
+  if (reg.rate_limited || !reg.id) {
+    return NextResponse.json({ error: "Slow down" }, { status: 429 });
+  }
 
   if (reg.created) {
     // Fire the ops alert exactly once per brand-new place.
-    await sendOpsAlert({ name: reg.name, city: geo.city, region: geo.region, lat, lng });
+    await sendOpsAlert({ name: reg.name!, city: geo.city, region: geo.region, lat, lng });
   }
 
   return NextResponse.json({ id: reg.id, name: reg.name, created: reg.created });
