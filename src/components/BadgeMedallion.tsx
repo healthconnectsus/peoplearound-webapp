@@ -39,8 +39,8 @@ export function BadgeMedallion({
   return (
     <svg
       width={size}
-      height={(size * 150) / 128}
-      viewBox="0 0 128 150"
+      height={(size * 170) / 128}
+      viewBox="0 0 128 170"
       role="img"
       aria-label={badge.label}
     >
@@ -60,8 +60,10 @@ export function BadgeMedallion({
 
       <g filter={`url(#soft-${uid})`}>
         {/* The chunky "P" — pale outline pass, then body. fill-rule carves the bowl. */}
+        {/* Stem runs well past the ribbon (y=96–130) so the P's foot stays
+            visible below the banner, as in the brand mockups. */}
         <path
-          d="M24,116 L24,22 Q24,14 32,14 L68,14 A42,42 0 1 1 68,98 L56,98 L56,116 Q56,124 48,124 L32,124 Q24,124 24,116 Z M68,38 A16,16 0 1 0 68,74 A16,16 0 1 0 68,38 Z"
+          d="M24,150 L24,22 Q24,14 32,14 L68,14 A42,42 0 1 1 68,98 L56,98 L56,150 Q56,158 48,158 L32,158 Q24,158 24,150 Z M68,38 A16,16 0 1 0 68,74 A16,16 0 1 0 68,38 Z"
           fillRule="evenodd"
           fill="none"
           stroke="#dbeafe"
@@ -69,7 +71,7 @@ export function BadgeMedallion({
           strokeLinejoin="round"
         />
         <path
-          d="M24,116 L24,22 Q24,14 32,14 L68,14 A42,42 0 1 1 68,98 L56,98 L56,116 Q56,124 48,124 L32,124 Q24,124 24,116 Z M68,38 A16,16 0 1 0 68,74 A16,16 0 1 0 68,38 Z"
+          d="M24,150 L24,22 Q24,14 32,14 L68,14 A42,42 0 1 1 68,98 L56,98 L56,150 Q56,158 48,158 L32,158 Q24,158 24,150 Z M68,38 A16,16 0 1 0 68,74 A16,16 0 1 0 68,38 Z"
           fillRule="evenodd"
           fill={`url(#body-${uid})`}
         />

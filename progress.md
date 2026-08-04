@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Badge patch: extend the P's stem below the ribbon (foot was hidden); celebrate new badges on the home feed so founding fires at first login
+
+- `src/app/page.tsx`
+- `src/components/BadgeMedallion.tsx`
+
+
 ### 2026-08-04 — Badge patches (P-silhouette + gradient ribbon, per brand mockups) and one-time unlock celebration with confetti; dev badge gallery
 
 - `docs/INCENTIVES.md`

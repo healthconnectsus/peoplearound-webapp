@@ -3,6 +3,8 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ipHash, registerFrontierLocation } from "@/lib/frontier";
 import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
+import { BadgeCelebration } from "@/components/BadgeCelebration";
+import { computeBadges } from "@/lib/badges";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -324,6 +326,13 @@ export default async function Home({
   const hoodSize = neighborCount ?? foundingMembers.length;
   const isFoundingEra = hoodSize < 10;
 
+  // Badges here too, so a fresh badge (e.g. 🌱 on first login after
+  // founding a place) celebrates immediately — not only on the profile page.
+  const badges = await computeBadges(supabase, user.id, {
+    id: myHood,
+    name: neighborhoodName,
+  });
+
   const projects = (projectRows ?? []) as unknown as Project[];
   const events = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
     isUpcomingEvent(e.starts_at),
@@ -439,6 +448,7 @@ export default async function Home({
 
   return (
     <AppShell>
+      <BadgeCelebration badges={badges} userId={user.id} />
       <LiveRefresh tables="projects,stars,memberships,events" />
 
       <div className={pins.length > 0 ? "lg:grid lg:grid-cols-[minmax(0,1fr)_44%] xl:grid-cols-[minmax(0,1fr)_46%]" : ""}>
