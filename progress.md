@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Badge patches (P-silhouette + gradient ribbon, per brand mockups) and one-time unlock celebration with confetti; dev badge gallery
+
+- `docs/INCENTIVES.md`
+- `src/app/dev/badges/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/components/BadgeCelebration.tsx`
+- `src/components/BadgeMedallion.tsx`
+- `src/lib/supabase/proxy.ts`
+
+
 ### 2026-08-04 — Badges v1 (derived medallions, earned-only), delete-account with confirm lightbox, branded auth emails via Resend SMTP; INCENTIVES.md updated
 
 - `docs/INCENTIVES.md`

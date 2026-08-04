@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { BadgeMedallion } from "@/components/BadgeMedallion";
+import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import {
   categoryMeta,
@@ -156,6 +157,7 @@ export default async function ProfilePage({
 
   return (
     <AppShell>
+      <BadgeCelebration badges={badges} userId={user.id} />
       <main className="mx-auto w-full max-w-2xl flex-1 p-4 lg:py-6">
         {/* Profile header */}
         <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900">

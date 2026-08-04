@@ -89,11 +89,20 @@ to farm):
 | 💡 Made It Real | Founded a project a team carried to completion |
 | 🌟 Brought the Neighbors | 3 sign-ups through their invite link |
 
-**Design language:** gradient medallions (SVG — disc, metallic ring, glossy
-top-light, soft color shadow), sized for real product UI, each badge with
-its own color identity. **Earned badges only** — no locked/greyed teasers,
-because dangling unearned badges is bait (§1.1). Rendered on the profile
-page with the fact each badge certifies written underneath.
+**Design language:** brand-letter patches (SVG — the chunky "P" silhouette
+in deep navy with a pale outline, the achievement icon seated in the bowl,
+a folded gradient ribbon carrying the label, celebratory specks), scout-patch
+style, sized for real product UI, each badge with its own color identity.
+**Earned badges only** — no locked/greyed teasers, because dangling
+unearned badges is bait (§1.1). Rendered on the profile page with the fact
+each badge certifies written underneath.
+
+**The unlock moment:** a new badge gets exactly one celebration — a
+full-screen moment with confetti, a soft glow, the patch presented on a
+card, and the fact it certifies ("A neighbor confirmed your first
+contribution"). Celebrated-state is remembered per user (localStorage), so
+the party never repeats; the UX spec's one-warm-flourish allowance applies
+here because the trigger is always acknowledged help, never activity.
 
 **Decision recorded:** a **visible point system was rejected** (see §4) —
 points invite optimizing the number instead of the neighbor. The PRD's

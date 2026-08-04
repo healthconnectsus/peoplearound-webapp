@@ -1,79 +1,118 @@
 import type { Badge } from "@/lib/badges";
 
 /**
- * A badge as a sleek medallion: gradient disc, fine metallic ring, glossy
- * top-light, soft drop shadow — sized for real product UI, not a game HUD.
- * Pure SVG, no client JS.
+ * A badge as a patch: the Peoplearound "P" silhouette in deep navy with a
+ * pale outline, the achievement icon filling the bowl, a folded gradient
+ * ribbon carrying the label, and a few celebratory specks — scout-patch
+ * style (à la the Boulder patch / brand-letter badge references), sized for
+ * real product UI. Pure SVG, no client JS.
  */
+
+/** Split a label onto up to two ribbon lines at the most central space. */
+function splitLabel(label: string): string[] {
+  if (label.length <= 12) return [label];
+  const words = label.split(" ");
+  if (words.length === 1) return [label];
+  let best = 1;
+  let bestDiff = Infinity;
+  for (let i = 1; i < words.length; i++) {
+    const left = words.slice(0, i).join(" ").length;
+    const right = words.slice(i).join(" ").length;
+    const diff = Math.abs(left - right);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = i;
+    }
+  }
+  return [words.slice(0, best).join(" "), words.slice(best).join(" ")];
+}
+
 export function BadgeMedallion({
   badge,
-  size = 72,
+  size = 96,
 }: {
   badge: Badge;
   size?: number;
 }) {
-  const uid = badge.key; // gradient ids must be unique per badge on the page
+  const uid = badge.key;
+  const lines = splitLabel(badge.label.toUpperCase());
   return (
     <svg
       width={size}
-      height={size}
-      viewBox="0 0 72 72"
+      height={(size * 150) / 128}
+      viewBox="0 0 128 150"
       role="img"
       aria-label={badge.label}
     >
       <defs>
-        <radialGradient id={`disc-${uid}`} cx="35%" cy="28%" r="85%">
+        <linearGradient id={`ribbon-${uid}`} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor={badge.from} />
           <stop offset="100%" stopColor={badge.to} />
-        </radialGradient>
-        <linearGradient id={`ring-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-          <stop offset="45%" stopColor="#ffffff" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#000000" stopOpacity="0.18" />
         </linearGradient>
-        <linearGradient id={`gloss-${uid}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        <linearGradient id={`body-${uid}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2b4a75" />
+          <stop offset="100%" stopColor="#1d3557" />
         </linearGradient>
-        <filter id={`shadow-${uid}`} x="-30%" y="-20%" width="160%" height="160%">
-          <feDropShadow
-            dx="0"
-            dy="2.5"
-            stdDeviation="3"
-            floodColor={badge.to}
-            floodOpacity="0.45"
-          />
+        <filter id={`soft-${uid}`} x="-20%" y="-15%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2.5" stdDeviation="3" floodColor="#1d3557" floodOpacity="0.30" />
         </filter>
       </defs>
 
-      <g filter={`url(#shadow-${uid})`}>
-        {/* metallic ring */}
-        <circle cx="36" cy="36" r="33" fill={`url(#ring-${uid})`} />
-        {/* gradient disc */}
-        <circle cx="36" cy="36" r="30" fill={`url(#disc-${uid})`} />
-        {/* inner hairline */}
-        <circle
-          cx="36"
-          cy="36"
-          r="30"
+      <g filter={`url(#soft-${uid})`}>
+        {/* The chunky "P" — pale outline pass, then body. fill-rule carves the bowl. */}
+        <path
+          d="M24,116 L24,22 Q24,14 32,14 L68,14 A42,42 0 1 1 68,98 L56,98 L56,116 Q56,124 48,124 L32,124 Q24,124 24,116 Z M68,38 A16,16 0 1 0 68,74 A16,16 0 1 0 68,38 Z"
+          fillRule="evenodd"
           fill="none"
-          stroke="#ffffff"
-          strokeOpacity="0.35"
-          strokeWidth="1"
+          stroke="#dbeafe"
+          strokeWidth="9"
+          strokeLinejoin="round"
         />
-        {/* glossy top light */}
-        <ellipse cx="36" cy="21" rx="22" ry="12" fill={`url(#gloss-${uid})`} />
-      </g>
+        <path
+          d="M24,116 L24,22 Q24,14 32,14 L68,14 A42,42 0 1 1 68,98 L56,98 L56,116 Q56,124 48,124 L32,124 Q24,124 24,116 Z M68,38 A16,16 0 1 0 68,74 A16,16 0 1 0 68,38 Z"
+          fillRule="evenodd"
+          fill={`url(#body-${uid})`}
+        />
 
-      <text
-        x="36"
-        y="44"
-        textAnchor="middle"
-        fontSize="26"
-        style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,.25))" }}
-      >
-        {badge.emoji}
-      </text>
+        {/* Decorative specks in the badge's colors */}
+        <circle cx="106" cy="30" r="3" fill={badge.from} opacity="0.9" />
+        <circle cx="112" cy="72" r="2.2" fill={badge.to} opacity="0.8" />
+        <circle cx="14" cy="46" r="2.4" fill={badge.from} opacity="0.7" />
+
+        {/* The achievement icon, seated in the P's bowl */}
+        <text
+          x="68"
+          y="67"
+          textAnchor="middle"
+          fontSize="30"
+          style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,.35))" }}
+        >
+          {badge.emoji}
+        </text>
+
+        {/* Folded ribbon: back flags first, then the band */}
+        <polygon points="6,100 26,100 26,130 6,130 14,115" fill={badge.to} />
+        <polygon points="6,100 26,100 26,130 6,130 14,115" fill="#000" opacity="0.28" />
+        <polygon points="122,100 102,100 102,130 122,130 114,115" fill={badge.to} />
+        <polygon points="122,100 102,100 102,130 122,130 114,115" fill="#000" opacity="0.28" />
+        <rect x="18" y="96" width="92" height={lines.length === 2 ? 34 : 26} rx="4" fill={`url(#ribbon-${uid})`} />
+        <rect x="18" y="96" width="92" height="4" rx="2" fill="#fff" opacity="0.22" />
+
+        {lines.map((line, i) => (
+          <text
+            key={line}
+            x="64"
+            y={lines.length === 2 ? 110 + i * 12 : 113}
+            textAnchor="middle"
+            fontSize={lines.length === 2 ? 9.5 : 11}
+            fontWeight="700"
+            fill="#ffffff"
+            style={{ letterSpacing: "0.04em" }}
+          >
+            {line}
+          </text>
+        ))}
+      </g>
     </svg>
   );
 }
