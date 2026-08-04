@@ -124,7 +124,7 @@ export function MapPicker({
           </button>
         ) : (
           <span className="text-xs text-black/40 dark:text-white/40">
-            Tap the map to drop a pin — or skip this entirely.
+            Tap to drop a pin — optional.
           </span>
         )}
       </div>

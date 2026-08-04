@@ -190,8 +190,7 @@ export function IdeaForm({ error }: { error?: string }) {
           <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
             <p className="font-medium">💬 Just talk it out</p>
             <p className="mt-0.5 text-sm text-black/60 dark:text-white/60">
-              Describe your idea in your own words — messy is fine. We&apos;ll
-              shape it into a clear post you can still edit.
+              Your words, messy is fine — we&apos;ll shape the post.
             </p>
 
             <textarea
@@ -201,8 +200,8 @@ export function IdeaForm({ error }: { error?: string }) {
               maxLength={4000}
               placeholder={
                 micSupported
-                  ? "e.g. “so there's this empty lot near the bakery and I keep thinking it could be a garden but I don't know anything about gardening…” — or tap the mic and say it out loud"
-                  : "e.g. “so there's this empty lot near the bakery and I keep thinking it could be a garden but I don't know anything about gardening…”"
+                  ? "e.g. “the empty lot near the bakery could be a garden…”"
+                  : "e.g. “the empty lot near the bakery could be a garden…”"
               }
               className={`${inputClass} mt-3 w-full resize-y bg-white dark:bg-black/20`}
             />
@@ -218,7 +217,7 @@ export function IdeaForm({ error }: { error?: string }) {
                       : "border-black/15 bg-white hover:bg-black/5 dark:border-white/20 dark:bg-black/20 dark:hover:bg-white/10"
                   }`}
                 >
-                  {listening ? "⏹ Stop listening" : "🎤 Speak instead"}
+                  {listening ? "⏹ Stop" : "🎤 Speak"}
                 </button>
               ) : null}
               <button
@@ -248,7 +247,7 @@ export function IdeaForm({ error }: { error?: string }) {
             onClick={() => setStep(1)}
             className="self-start text-sm text-black/50 hover:underline dark:text-white/50"
           >
-            Skip — I&apos;ll write it myself →
+            Skip — write it myself →
           </button>
         </div>
       ) : null}
@@ -273,9 +272,6 @@ export function IdeaForm({ error }: { error?: string }) {
               placeholder="Start a community garden on Oak Street"
               className={inputClass}
             />
-            <span className="text-xs text-black/40 dark:text-white/40">
-              One clear sentence works best.
-            </span>
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
@@ -290,7 +286,7 @@ export function IdeaForm({ error }: { error?: string }) {
               maxLength={4000}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What's the plan? What kind of help or skills would be great to have?"
+              placeholder="What's the plan? What help do you need?"
               className={`${inputClass} resize-y`}
             />
           </label>
@@ -417,8 +413,7 @@ export function IdeaForm({ error }: { error?: string }) {
             </div>
             {reach !== "neighborhood" ? (
               <p className="mt-1 text-xs text-black/50 dark:text-white/50">
-                Your project will still show up for your neighbors first —
-                wider reach just means more people *can* find it.
+                Neighbors still see it first.
               </p>
             ) : null}
           </fieldset>

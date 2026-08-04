@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Tighten share-an-idea wizard copy: half the words, same warmth
+
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/components/MapPicker.tsx`
+
+
 ### 2026-08-04 — Widen the neighborhood map column (50% lg / 53% xl, top bar mirrored)
 
 - `src/app/page.tsx`
