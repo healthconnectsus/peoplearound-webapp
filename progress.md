@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Widen the neighborhood map column (50% lg / 53% xl, top bar mirrored)
+
+- `src/app/page.tsx`
+- `src/components/TopBar.tsx`
+
+
 ### 2026-08-04 — Nudge search bar and content column right on desktop (shared lg:pl-16)
 
 - `src/app/connections/page.tsx`

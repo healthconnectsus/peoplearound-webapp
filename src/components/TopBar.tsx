@@ -95,7 +95,7 @@ export async function TopBar() {
   }
 
   return (
-    <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_44%] xl:grid-cols-[minmax(0,1fr)_46%]">
+    <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]">
       {/* The search column mirrors the home feed column (both left-aligned)
           so the input's left edge lines up with the content beneath it. */}
       <div className="w-full max-w-2xl px-4 lg:pl-16 lg:pr-8">
