@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Start an idea: renamed title, wider title-to-wizard spacing, bigger bolder step headings
+
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+
+
 ### 2026-08-04 — Bigger, bolder page titles (text-3xl extrabold) and darker section headers for readability
 
 - `src/app/chats/page.tsx`

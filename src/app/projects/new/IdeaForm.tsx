@@ -188,7 +188,7 @@ export function IdeaForm({ error }: { error?: string }) {
       {step === 0 ? (
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
-            <p className="font-medium">💬 Just talk it out</p>
+            <p className="text-xl font-bold">💬 Just talk it out</p>
             <p className="mt-0.5 text-sm text-black/60 dark:text-white/60">
               Your words, messy is fine — we&apos;ll shape the post.
             </p>
@@ -262,7 +262,7 @@ export function IdeaForm({ error }: { error?: string }) {
           ) : null}
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium">What&apos;s the idea?</span>
+            <span className="text-lg font-bold">What&apos;s the idea?</span>
             <input
               type="text"
               required
@@ -275,9 +275,9 @@ export function IdeaForm({ error }: { error?: string }) {
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium">
+            <span className="text-lg font-bold">
               Tell people more{" "}
-              <span className="font-normal text-black/40 dark:text-white/40">
+              <span className="text-sm font-normal text-black/40 dark:text-white/40">
                 (optional)
               </span>
             </span>
@@ -292,7 +292,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </label>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 font-medium">
+            <legend className="mb-1.5 text-lg font-bold">
               What kind of project is it?
             </legend>
             <div className="flex flex-wrap gap-2">
@@ -313,7 +313,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 font-medium">Where are you at?</legend>
+            <legend className="mb-1.5 text-lg font-bold">Where are you at?</legend>
             <div className="flex flex-col gap-2 sm:flex-row">
               <label className={`flex-1 ${cardLabelClass}`}>
                 <input
@@ -366,7 +366,7 @@ export function IdeaForm({ error }: { error?: string }) {
       {step === 2 ? (
         <div className="flex flex-col gap-5">
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 font-medium">
+            <legend className="mb-1.5 text-lg font-bold">
               What kind of help do you need?
             </legend>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -390,7 +390,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 font-medium">
+            <legend className="mb-1.5 text-lg font-bold">
               Who should be able to find and join it?
             </legend>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -419,7 +419,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 font-medium">
+            <legend className="mb-1.5 text-lg font-bold">
               Where is it happening?{" "}
               <span className="font-normal text-black/40 dark:text-white/40">
                 (optional)
