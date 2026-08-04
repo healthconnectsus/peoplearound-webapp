@@ -66,6 +66,20 @@ const cardLabelClass =
 
 const STEPS = ["Your idea", "The basics", "Who can help", "Share"] as const;
 
+/** Inspiration rail for step 1 — tap one to start from it. */
+const EXAMPLES: { title: string; desc: string; by: string }[] = [
+  { title: "Neighborhood walk", desc: "Start a neighborhood Sunday morning walk with a maximum of 20 people", by: "Jonathan Hammer" },
+  { title: "Community garden", desc: "Turn the empty lot on 6th into raised beds we plant together", by: "Rosa Alvarez" },
+  { title: "Repair café", desc: "One Saturday a month we fix broken toasters, hems and bikes together", by: "Miguel Torres" },
+  { title: "Little free pantry", desc: "A weatherproof box on my fence anyone can give to or take from", by: "Priya Natarajan" },
+  { title: "Tool library", desc: "My garage full of tools becomes the street's lending shelf", by: "Marcus Reed" },
+  { title: "Skill swap evenings", desc: "You teach me Excel, I teach you guitar — Thursdays at the library", by: "Ken Osei" },
+  { title: "Street mural", desc: "Paint the gray underpass with a design the kids help choose", by: "Lily Zhang" },
+  { title: "Dog-walking pool", desc: "Match shift workers' dogs with neighbors who'd love a walk buddy", by: "Dana Whitfield" },
+  { title: "Senior tech hour", desc: "Help older neighbors video-call their grandkids, one hour a week", by: "Fatima El-Sayed" },
+  { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak" },
+];
+
 export function IdeaForm({ error }: { error?: string }) {
   const [step, setStep] = useState(0);
 
@@ -153,6 +167,7 @@ export function IdeaForm({ error }: { error?: string }) {
   const canContinueFromBasics = title.trim().length > 0;
 
   return (
+    <div className="lg:grid lg:grid-cols-[minmax(0,42rem)_minmax(0,22rem)] lg:items-start lg:gap-10">
     <div className="flex flex-col gap-6">
       {/* Progress */}
       <ol className="flex items-center gap-2" aria-label="Steps">
@@ -515,6 +530,36 @@ export function IdeaForm({ error }: { error?: string }) {
           </form>
         </div>
       ) : null}
+    </div>
+
+    {/* Inspiration rail — step 1 only; tap an example to start from it. */}
+    {step === 0 ? (
+      <aside className="hidden lg:block">
+        <h2 className="text-lg font-bold">Need a spark? ✨</h2>
+        <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
+          Ideas neighbors started — tap one to begin from it.
+        </p>
+        <ul className="mt-4 flex flex-col gap-2">
+          {EXAMPLES.map((ex) => (
+            <li key={ex.title}>
+              <button
+                type="button"
+                onClick={() => setRawIdea(ex.desc)}
+                className="w-full rounded-xl border border-black/5 bg-white px-4 py-2.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-md dark:border-white/5 dark:bg-zinc-900"
+              >
+                <span className="block text-sm font-semibold">{ex.title}</span>
+                <span className="mt-0.5 block text-xs leading-snug text-black/55 dark:text-white/55">
+                  “{ex.desc}”
+                </span>
+                <span className="mt-1 block text-[11px] text-black/40 dark:text-white/40">
+                  by {ex.by}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    ) : null}
     </div>
   );
 }

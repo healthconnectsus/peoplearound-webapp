@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Inspiration rail on step 1: ten tappable example ideas that prefill the talk-it-out box
+
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+
+
 ### 2026-08-04 — Widen the start-an-idea wizard to max-w-3xl
 
 - `src/app/projects/new/page.tsx`
