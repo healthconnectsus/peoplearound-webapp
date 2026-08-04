@@ -170,6 +170,27 @@ A game-like layer for motivation and progress. **Governing rule: reward only wha
 
 > **The test for any game mechanic:** does it reward being acknowledged for real help, or does it reward activity for its own sake? Only the former ships.
 
+### 3.11 Communities, plural — `P0` ✅ *shipped (web)*
+
+A person isn't only their street. Beyond the primary neighborhood, users
+join any number of **communities**: other neighborhoods, plus cultural,
+hobby, identity-based, geographic, and interest-based networks.
+
+- One membership model (`community_members`) across all community kinds; join and leave freely, self-serve. ✅
+- The **primary community** (`profiles.neighborhood_id`) stays special: it drives the home feed, project scoping, and founding-neighbor status. ✅
+- Any signed-in user can create a community (`/neighborhood` page); the first 10 joiners of any community are its Founding Neighbors ([INCENTIVES.md](INCENTIVES.md)). ✅
+- Guardrail: communities widen *belonging*, not *broadcast* — feed scoping rules (§3.7, reach) are unchanged; joining a community is joining people, not subscribing to content.
+
+### 3.12 Messaging — `P0` ✅ *shipped (web)*
+
+Direct conversations between neighbors (`/chats`) — the coordination
+back-channel for teams, events, and offers.
+
+- 1:1 conversations with realtime delivery (Supabase Realtime on `messages`). ✅
+- Read tracking via `last_read_at` per participant (unread indicators). ✅
+- Privacy: participant-scoped end to end in RLS — only participants can read a thread, its member list, or its messages; you can only send as yourself into threads you belong to. ✅
+- Guardrail: messaging serves coordination around real projects and events. No engagement mechanics (no typing indicators races, no read-receipt pressure, no streaks) get added to it.
+
 ## 4. Technical architecture
 
 ### 4.1 Stack rationale

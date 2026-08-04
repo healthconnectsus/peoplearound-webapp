@@ -4,11 +4,12 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, and `neighborhoods` are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `offers` and `reputation` are still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `offers` and `reputation` are still planned.
 
 ## Entity relationships
 
 ```
+neighborhoods (communities) ──< community_members >── profiles   ← many-to-many (live)
 neighborhoods ──< profiles ──< projects ──< stars
                                  │
                                  ├──< memberships          ← the join flow (live)
@@ -16,6 +17,9 @@ neighborhoods ──< profiles ──< projects ──< stars
                                  ├──< events ──< rsvps                 ← physical coordination (live)
                                  └──< offers (optional link)
 reputation (derived from contributions + attestations)
+
+conversations ──< conversation_participants >── profiles         ← messaging (live)
+conversations ──< messages
 ```
 
 ## Tables — live today
@@ -155,9 +159,38 @@ which).
 | kind | text | `neighborhood` (default) · `cultural` · `hobby` · `identity` · `geographic` · `interest` · `other` |
 | boundary | geography(polygon, 4326), nullable | Drawn by operators; enables 📍 location detection via `find_neighborhood(lat,lng)` |
 | center_lat / center_lng | double precision, nullable | Set when a frontier location self-registers (or backfilled from project pins); lets `locate_teaser` match new places without a boundary polygon |
+| description | text, nullable | Community self-description (migration 0011) |
 | created_at | timestamptz | |
 
-> **RLS:** readable by any signed-in user; **no client write path** — rows are created by operators or by `register_frontier_location()` (service-role only, called on behalf of a *signed-up* user from uncovered territory; see [ARCHITECTURE — frontier locations](ARCHITECTURE.md#frontier-locations-live)). `profiles.neighborhood_id` and `projects.neighborhood_id` point here; a trigger stamps new projects with the founder's neighborhood.
+> **RLS:** readable by any signed-in user. Writes: operators (SQL), `register_frontier_location()` (service-role only, on behalf of a signed-up user from uncovered territory — see [ARCHITECTURE](ARCHITECTURE.md#frontier-locations-live)), and — since migration 0011 — **any signed-in user may create a community** (the `/neighborhood` page's create flow). No client update/delete. `profiles.neighborhood_id` remains the user's **primary** community and drives the home feed; a trigger stamps new projects with the founder's primary neighborhood.
+
+### community_members
+
+A user belongs to **many** communities (different neighborhoods plus
+cultural / hobby / identity / geographic / interest groups); this is the
+many-to-many. The primary one stays on `profiles.neighborhood_id`.
+
+| Column | Type | Notes |
+|---|---|---|
+| community_id | uuid (FK → neighborhoods) | |
+| user_id | uuid (FK → profiles) | |
+| created_at | timestamptz | Join order — the first 10 per community are its Founding Neighbors ([INCENTIVES.md](INCENTIVES.md)) |
+
+> **Constraint:** `PRIMARY KEY (community_id, user_id)`.
+> **RLS:** readable by any signed-in user; join/leave own rows only. Backfilled so every profile is a member of its primary neighborhood.
+
+### conversations · conversation_participants · messages
+
+Direct messaging (the `/chats` page). Live-updating via Supabase Realtime
+(`messages` is in the realtime publication).
+
+| Table | Columns | Notes |
+|---|---|---|
+| conversations | id, created_at | A chat thread |
+| conversation_participants | conversation_id, user_id, last_read_at, created_at | PK (conversation_id, user_id); `last_read_at` powers unread counts |
+| messages | id, conversation_id, sender_id, body (1–4000 chars), created_at | Indexed by (conversation_id, created_at) |
+
+> **RLS:** everything is participant-scoped through `is_participant(cid)` — a security-definer helper that checks membership without recursive RLS. Only participants can read a conversation, its participant list, or its messages; you can only send as yourself and only into conversations you're in; you can only update your own `last_read_at`. Starting a chat inserts yourself first, then the other person (allowed because by then you are a participant).
 
 ### frontier_request_log
 

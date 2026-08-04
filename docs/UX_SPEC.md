@@ -148,7 +148,18 @@ The anti-LinkedIn, anti-Facebook profile. Worth measured in confirmed deeds, not
 
 > No public ranking of people appears anywhere in the app. Collective and project-level recognition is allowed; individual leaderboards are not.
 
-### 4.11 AI agent surfaces
+### 4.11 Communities *(live — `/neighborhood`)*
+
+- **Yours**: the communities you belong to, with your primary one marked (⭐ Primary decides your home feed); set-primary and leave are one tap.
+- **Discover**: every other community — neighborhoods and cultural / hobby / identity / geographic / interest networks — with kind badges; join is one tap.
+- **Create**: any signed-in user can start a community; new-location onboarding creates neighborhood communities automatically.
+
+### 4.12 Chats *(live — `/chats`)*
+
+- Conversation list with unread indicators (`last_read_at`); realtime message delivery.
+- A calm, utilitarian surface: coordination for teams and events, not an engagement channel — no read-receipt pressure, no typing-indicator theater.
+
+### 4.13 AI agent surfaces
 
 - **At creation** *(live)*: the "Just talk it out" box — voice or text in, a shaped draft out, everything editable. Suggestive, never blocking.
 - **On a stalling project** (founder-only, private) *(planned)*: a gentle card with one concrete next step. Coach tone.
