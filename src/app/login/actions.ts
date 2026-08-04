@@ -10,12 +10,23 @@ function back(params: Record<string, string>): never {
   redirect(`/login?${qs}`);
 }
 
+/** Cloudflare Turnstile token, present when CAPTCHA is enabled (the widget
+ *  auto-injects this field into the enclosing form). */
+function captcha(formData: FormData): string | undefined {
+  const token = String(formData.get("cf-turnstile-response") ?? "");
+  return token || undefined;
+}
+
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+    options: { captchaToken: captcha(formData) },
+  });
 
   if (error) back({ error: error.message });
 
@@ -32,7 +43,10 @@ export async function signUp(formData: FormData) {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${origin}/auth/confirm` },
+    options: {
+      emailRedirectTo: `${origin}/auth/confirm`,
+      captchaToken: captcha(formData),
+    },
   });
 
   if (error) back({ error: error.message });
@@ -46,7 +60,10 @@ export async function signInWithMagicLink(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origin}/auth/confirm` },
+    options: {
+      emailRedirectTo: `${origin}/auth/confirm`,
+      captchaToken: captcha(formData),
+    },
   });
 
   if (error) back({ error: error.message });

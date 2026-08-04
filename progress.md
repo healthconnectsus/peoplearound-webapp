@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Anti-abuse pass: DB-enforced per-user caps (projects/communities/conversations/messages/AI shaping), 429 on shape-idea, Turnstile CAPTCHA wiring
+
+- `docs/ARCHITECTURE.md`
+- `scripts/configure-captcha.mjs`
+- `src/app/api/shape-idea/route.ts`
+- `src/app/login/actions.ts`
+- `src/app/login/page.tsx`
+- `supabase/migrations/0017_abuse_caps.sql`
+
+
 ### 2026-08-04 — Marketing: public /start landing page (run club / pickup soccer / pickleball starter plans), docs/MARKETING.md with sports-association outreach plan and email templates
 
 - `docs/MARKETING.md`

@@ -63,6 +63,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
 
+  // Every call spends real Claude API money — 20 shapes per user per day,
+  // enforced in the database (migration 0017). Fails open if the RPC is
+  // missing so the feature keeps working pre-migration.
+  const { data: allowed, error: creditError } = await supabase.rpc(
+    "consume_ai_credit",
+  );
+  if (!creditError && allowed === false) {
+    return NextResponse.json(
+      { error: "You've reached today's limit for AI shaping — the manual form still works!" },
+      { status: 429 },
+    );
+  }
+
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
       { error: "AI assist is not configured yet." },

@@ -176,5 +176,7 @@ Later jobs (stall nudges, dignified off-ramps) follow the same constraint: the a
 - The Claude API key lives server-side only (`ANTHROPIC_API_KEY`); the shape-idea endpoint requires an authenticated session.
 - Server-only secrets: `SUPABASE_SERVICE_ROLE_KEY` (admin client in `src/lib/supabase/admin.ts`, guarded by `server-only`), `RESEND_API_KEY` + `ALERT_FROM`/`ALERT_EMAIL` (ops alerts from the verified `peoplearound.com` domain).
 - Visitor coordinates are used transiently (neighborhood lookup, one-time geocode); IPs are only ever stored as salted SHA-256 hashes in the frontier request log.
+- **Per-user abuse caps** (migration 0017, DB-trigger enforced so accounts can't route around them): projects 10/day · communities 3/day (+`created_by` attribution) · conversations 20/day · messages 200/hour · AI idea-shaping 20/day (`consume_ai_credit()`; the shape-idea route returns 429 past the cap — every call costs Claude API money). Operator SQL and service-role paths are exempt.
+- **Sign-up CAPTCHA** (Cloudflare Turnstile) is wired end to end — login forms render the widget when `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is set, server actions forward the token, and `scripts/configure-captcha.mjs` enables verification in Supabase auth once `TURNSTILE_SECRET_KEY` exists.
 - No monetization data paths exist in MVP (no marketplace, no checkout, no advertiser pipelines).
 - Photos and user content will live in Supabase Storage, access-scoped to neighborhood.

@@ -48,6 +48,10 @@ export default async function LoginPage({
 }) {
   const { error, message } = await searchParams;
 
+  // Cloudflare Turnstile (bot protection on sign-up/sign-in). Renders only
+  // when the site key is configured; Supabase verifies the token server-side.
+  const turnstileKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
   // Live teaser of what's being built (anon-readable view, migration 0012).
   const supabase = await createClient();
   const { data: ideaRows, error: ideasError } = await supabase
@@ -61,6 +65,13 @@ export default async function LoginPage({
 
   return (
     <div className="flex min-h-screen flex-col">
+      {turnstileKey ? (
+        <script
+          src="https://challenges.cloudflare.com/turnstile/api.js"
+          async
+          defer
+        />
+      ) : null}
       {/* Full-bleed hero: the collage runs edge to edge and behind the nav */}
       <section
         className="relative bg-cover bg-center"
@@ -128,6 +139,13 @@ export default async function LoginPage({
                     placeholder="Password"
                     className={INPUT}
                   />
+                  {turnstileKey ? (
+                    <div
+                      className="cf-turnstile"
+                      data-sitekey={turnstileKey}
+                      data-size="flexible"
+                    />
+                  ) : null}
                   <button
                     formAction={signIn}
                     className="rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
@@ -160,6 +178,13 @@ export default async function LoginPage({
                     placeholder="Email for a sign-in link"
                     className={INPUT}
                   />
+                  {turnstileKey ? (
+                    <div
+                      className="cf-turnstile"
+                      data-sitekey={turnstileKey}
+                      data-size="flexible"
+                    />
+                  ) : null}
                   <button
                     type="submit"
                     className="rounded-full border border-black/15 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
