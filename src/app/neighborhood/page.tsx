@@ -72,7 +72,7 @@ export default async function CommunitiesPage({
   return (
     <AppShell>
       <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="text-3xl font-extrabold tracking-tight">
           My communities
         </h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
@@ -113,7 +113,7 @@ export default async function CommunitiesPage({
         ) : null}
 
         <section className="mt-6">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
             Yours · {mine.length}
           </h2>
           {mine.length > 0 ? (
@@ -167,7 +167,7 @@ export default async function CommunitiesPage({
 
         {discover.length > 0 ? (
           <section className="mt-8">
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
               Discover
             </h2>
             <ul className="flex flex-col gap-2">
@@ -203,7 +203,7 @@ export default async function CommunitiesPage({
         ) : null}
 
         <section className="mt-8">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
             Start a community
           </h2>
           <form

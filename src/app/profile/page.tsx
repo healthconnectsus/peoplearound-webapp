@@ -182,7 +182,7 @@ export default async function ProfilePage({
                 {initials(name)}
               </div>
             )}
-            <h1 className="mt-3 text-2xl font-semibold tracking-tight">
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight">
               {name}
               {profile?.show_pronouns && profile?.pronouns ? (
                 <span className="ml-2 text-sm font-normal text-black/50 dark:text-white/50">
@@ -298,7 +298,7 @@ export default async function ProfilePage({
         {/* Faves */}
         <section className="mt-6">
           <div className="mb-2 flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
               Faves · {faves.length}
             </h2>
             <Link
@@ -323,7 +323,7 @@ export default async function ProfilePage({
 
         {/* Groups */}
         <section className="mt-6">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
             Groups
           </h2>
           <div className="rounded-2xl border border-black/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-zinc-900">
@@ -344,7 +344,7 @@ export default async function ProfilePage({
         {/* Ideas (posts) */}
         <section className="mt-6">
           <div className="mb-2 flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
               Ideas · {own.length}
             </h2>
             <Link

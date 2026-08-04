@@ -219,7 +219,7 @@ export default async function ProjectDetail({
         ) : null}
 
         <div className="mt-4 flex items-start justify-between gap-3">
-          <h1 className="text-2xl font-semibold leading-snug">
+          <h1 className="text-3xl font-extrabold leading-snug tracking-tight">
             <span className="mr-2" aria-hidden>
               {cat.emoji}
             </span>

@@ -167,7 +167,7 @@ export default async function ChatsPage({
       <LiveRefresh tables="messages" />
       <main className="w-full max-w-5xl flex-1 p-4 lg:py-6">
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight">Chats</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Chats</h1>
           <Link
             href="/chats?new=1"
             className="flex items-center gap-2 rounded-full bg-black/5 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15"

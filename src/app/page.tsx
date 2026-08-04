@@ -471,7 +471,7 @@ export default async function Home({
         <main className="min-w-0 lg:order-1">
           <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-16 lg:pr-8">
             <div className="mb-5">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="text-3xl font-extrabold tracking-tight">
                 Communities{" "}
                 <span className="font-normal text-black/50 dark:text-white/50">
                   ({myCity ?? neighborhoodName}/{hoodMine}/{hoodTotal})
@@ -548,7 +548,7 @@ export default async function Home({
 
             {events.length > 0 && !query ? (
               <div className="mb-7">
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
                   Happening soon
                 </h2>
                 <ul className="grid gap-2 sm:grid-cols-2">
@@ -593,7 +593,7 @@ export default async function Home({
             ) : (
               <div className="flex flex-col gap-8">
                 <section>
-                  <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                  <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
                     In your communities
                   </h2>
                   {local.length > 0 ? (
@@ -615,7 +615,7 @@ export default async function Home({
 
                 {city.length > 0 ? (
                   <section>
-                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
                       Around {myCity ?? "your city"}
                     </h2>
                     <ul className="flex flex-col gap-3">
@@ -628,7 +628,7 @@ export default async function Home({
 
                 {anywhere.length > 0 ? (
                   <section>
-                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
                       🌍 From anywhere
                     </h2>
                     <ul className="flex flex-col gap-2">

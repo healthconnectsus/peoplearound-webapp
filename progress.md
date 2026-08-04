@@ -7,6 +7,24 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Bigger, bolder page titles (text-3xl extrabold) and darker section headers for readability
+
+- `src/app/chats/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/groups/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/neighborhood/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/page.tsx`
+
+
 ### 2026-08-04 — Tighten share-an-idea wizard copy: half the words, same warmth
 
 - `src/app/projects/new/IdeaForm.tsx`

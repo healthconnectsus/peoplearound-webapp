@@ -96,14 +96,14 @@ export default async function PeoplePage() {
   return (
     <AppShell>
       <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
-        <h1 className="text-2xl font-semibold tracking-tight">People around</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">People around</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
           The neighbors near you, and people further away who are open to
           helping online.
         </p>
 
         <section className="mt-6">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
             In {hoodName} · {neighbors.length}
           </h2>
           {neighbors.length > 0 ? (
@@ -129,7 +129,7 @@ export default async function PeoplePage() {
 
         {remoteHelpers.length > 0 ? (
           <section className="mt-8">
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
               💻 Open to helping online
             </h2>
             <ul className="grid gap-2 sm:grid-cols-2">
