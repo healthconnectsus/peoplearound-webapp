@@ -202,7 +202,7 @@ export default async function ProjectDetail({
   return (
     <AppShell>
       <LiveRefresh tables="projects,stars,memberships,events,rsvps,contributions,attestations" />
-      <main className="w-full max-w-2xl flex-1 p-4">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:px-8 lg:py-6">
         <Link
           href="/"
           className="text-sm text-black/50 hover:underline dark:text-white/50"

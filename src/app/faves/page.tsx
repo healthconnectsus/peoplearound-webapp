@@ -34,7 +34,7 @@ export default async function FavesPage() {
 
   return (
     <AppShell>
-      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:px-8 lg:py-6">
         <h1 className="text-2xl font-semibold tracking-tight">Local Faves</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
           The projects your neighbors would most love to see exist, ranked by
