@@ -61,8 +61,16 @@ function ProjectCard({ p }: { p: CardData }) {
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className={`block rounded-2xl border border-black/5 border-l-4 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-500/10 dark:border-white/5 dark:bg-zinc-900 ${categoryTint(p.category)}`}
+        className={`block overflow-hidden rounded-2xl border border-black/5 border-l-4 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-500/10 dark:border-white/5 dark:bg-zinc-900 ${categoryTint(p.category)}`}
       >
+        {p.photo_url ? (
+          <div
+            aria-hidden
+            className="h-40 w-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${p.photo_url})` }}
+          />
+        ) : null}
+        <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-medium leading-snug">
             <span className="mr-1.5" aria-hidden>
@@ -104,6 +112,7 @@ function ProjectCard({ p }: { p: CardData }) {
               {REACH_META[p.reach].emoji} {REACH_META[p.reach].label}
             </span>
           ) : null}
+        </div>
         </div>
       </Link>
     </li>
@@ -267,7 +276,7 @@ export default async function Home({
     supabase
       .from("projects")
       .select(
-        "id,owner_id,title,description,category,state,help,reach,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name),neighborhood:neighborhoods(name,city)",
+        "id,owner_id,title,description,category,state,help,reach,photo_url,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name),neighborhood:neighborhoods(name,city)",
       )
       .neq("state", "archived")
       .order("created_at", { ascending: false }),
@@ -460,7 +469,7 @@ export default async function Home({
         ) : null}
 
         <main className="min-w-0 lg:order-1">
-          <div className="mx-auto w-full max-w-2xl p-4 lg:px-8 lg:py-6">
+          <div className="w-full max-w-2xl p-4 lg:px-8 lg:py-6">
             <div className="mb-5">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Communities{" "}

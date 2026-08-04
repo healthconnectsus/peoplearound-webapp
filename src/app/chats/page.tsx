@@ -165,7 +165,7 @@ export default async function ChatsPage({
   return (
     <AppShell>
       <LiveRefresh tables="messages" />
-      <main className="mx-auto w-full max-w-5xl flex-1 p-4 lg:py-6">
+      <main className="w-full max-w-5xl flex-1 p-4 lg:py-6">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">Chats</h1>
           <Link

@@ -7,6 +7,38 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Project cover photos (9 generated images on demo projects, feed card + detail hero) and left-align app content with the search bar
+
+- `public/photos/air-quality.jpg`
+- `public/photos/choir.jpg`
+- `public/photos/contact-tree.jpg`
+- `public/photos/costumes.jpg`
+- `public/photos/midnight-football.jpg`
+- `public/photos/park-cleanup.jpg`
+- `public/photos/solar-roof.jpg`
+- `public/photos/swim-lessons.jpg`
+- `public/photos/window-boxes.jpg`
+- `scripts/demo-seed-large.sql`
+- `scripts/generate-demo-seed.mjs`
+- `src/app/chats/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/groups/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/neighborhood/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/lib/projects.ts`
+- `supabase/migrations/0018_project_photos.sql`
+
+
 ### 2026-08-04 — Anti-abuse pass: DB-enforced per-user caps (projects/communities/conversations/messages/AI shaping), 429 on shape-idea, Turnstile CAPTCHA wiring
 
 - `docs/ARCHITECTURE.md`

@@ -16,7 +16,7 @@ export default async function InvitePage() {
 
   return (
     <AppShell>
-      <main className="mx-auto w-full max-w-xl flex-1 p-4 lg:py-6">
+      <main className="w-full max-w-xl flex-1 p-4 lg:py-6">
         <h1 className="text-2xl font-semibold tracking-tight">
           Invite neighbors
         </h1>

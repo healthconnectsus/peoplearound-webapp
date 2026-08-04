@@ -39,7 +39,7 @@ export default async function HelpPage() {
 
   return (
     <AppShell>
-      <main className="mx-auto w-full max-w-2xl flex-1 p-4 lg:py-6">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6">
         <h1 className="text-2xl font-semibold tracking-tight">Help Center</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
           Build ideas with your communities. Here is how it all works.

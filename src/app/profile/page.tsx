@@ -158,7 +158,7 @@ export default async function ProfilePage({
   return (
     <AppShell>
       <BadgeCelebration badges={badges} userId={user.id} />
-      <main className="mx-auto w-full max-w-2xl flex-1 p-4 lg:py-6">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6">
         {/* Profile header */}
         <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900">
           <div

@@ -59,7 +59,7 @@ export default async function ProjectDetail({
     .select(
       // profiles is reachable via several FKs now (owner, memberships, stars),
       // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,help,reach,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
+      "id,owner_id,title,description,category,state,help,reach,photo_url,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -202,13 +202,21 @@ export default async function ProjectDetail({
   return (
     <AppShell>
       <LiveRefresh tables="projects,stars,memberships,events,rsvps,contributions,attestations" />
-      <main className="mx-auto w-full max-w-2xl flex-1 p-4">
+      <main className="w-full max-w-2xl flex-1 p-4">
         <Link
           href="/"
           className="text-sm text-black/50 hover:underline dark:text-white/50"
         >
           ← All projects
         </Link>
+
+        {project.photo_url ? (
+          <div
+            aria-hidden
+            className="mt-4 h-56 w-full rounded-2xl border border-black/5 bg-cover bg-center shadow-sm dark:border-white/5"
+            style={{ backgroundImage: `url(${project.photo_url})` }}
+          />
+        ) : null}
 
         <div className="mt-4 flex items-start justify-between gap-3">
           <h1 className="text-2xl font-semibold leading-snug">

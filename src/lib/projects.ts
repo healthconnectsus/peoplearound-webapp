@@ -293,6 +293,7 @@ export type Project = {
   state: ProjectState;
   help: HelpKind;
   reach: ProjectReach;
+  photo_url?: string | null;
   lat: number | null;
   lng: number | null;
   neighborhood_id: string | null;

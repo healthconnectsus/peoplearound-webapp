@@ -94,7 +94,7 @@ export default async function ConnectionsPage() {
 
   return (
     <AppShell>
-      <main className="mx-auto w-full max-w-2xl flex-1 p-4 lg:py-6">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6">
         <h1 className="text-2xl font-semibold tracking-tight">
           My connections
         </h1>

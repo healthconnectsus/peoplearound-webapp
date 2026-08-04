@@ -228,6 +228,19 @@ PROJECTS.forEach(([title, desc, cat, state, help, reach], idx) => {
   const owner = users[ownerIdx - 1];
   const daysAgo = 30 - Math.floor(idx * 0.9); // spread over the last month
   const done = state === "completed";
+  // Cover photos for the projects that have generated imagery (p22–p30).
+  const PHOTOS = {
+    22: "/photos/choir.jpg",
+    23: "/photos/solar-roof.jpg",
+    24: "/photos/midnight-football.jpg",
+    25: "/photos/costumes.jpg",
+    26: "/photos/contact-tree.jpg",
+    27: "/photos/air-quality.jpg",
+    28: "/photos/park-cleanup.jpg",
+    29: "/photos/window-boxes.jpg",
+    30: "/photos/swim-lessons.jpg",
+  };
+  const photo = PHOTOS[p] ? `'${PHOTOS[p]}'` : "null";
   // ~80% of hands-on projects get a map pin near their neighborhood center;
   // remote-help projects less often (the work isn't at a place).
   const pinned = rand() < (help === "remote" ? 0.35 : 0.8);
@@ -235,11 +248,11 @@ PROJECTS.forEach(([title, desc, cat, state, help, reach], idx) => {
   const lat = pinned ? (bLat + (rand() - 0.5) * 0.016).toFixed(6) : "null";
   const lng = pinned ? (bLng + (rand() - 0.5) * 0.022).toFixed(6) : "null";
   projRows.push(
-    `  ('${pid(p)}', '${owner.id}', '${q(title)}', '${q(desc)}', '${cat}', '${state}', '${help}', '${reach}', ${lat}, ${lng}, now() - interval '${daysAgo} days ${int(0, 20)} hours', now() - interval '${done ? int(1, 4) : daysAgo - 1} days')`,
+    `  ('${pid(p)}', '${owner.id}', '${q(title)}', '${q(desc)}', '${cat}', '${state}', '${help}', '${reach}', ${lat}, ${lng}, ${photo}, now() - interval '${daysAgo} days ${int(0, 20)} hours', now() - interval '${done ? int(1, 4) : daysAgo - 1} days')`,
   );
   projMeta.push({ p, owner, ownerIdx, reach, state, daysAgo, hood: owner.hood });
 });
-L.push(`insert into public.projects (id, owner_id, title, description, category, state, help, reach, lat, lng, created_at, updated_at) values
+L.push(`insert into public.projects (id, owner_id, title, description, category, state, help, reach, lat, lng, photo_url, created_at, updated_at) values
 ${projRows.join(",\n")}
 on conflict (id) do nothing;
 
