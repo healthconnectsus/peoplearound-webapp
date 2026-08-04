@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Badges v1 (derived medallions, earned-only), delete-account with confirm lightbox, branded auth emails via Resend SMTP; INCENTIVES.md updated
+
+- `docs/INCENTIVES.md`
+- `scripts/configure-auth-email.mjs`
+- `src/app/profile/DeleteAccountButton.tsx`
+- `src/app/profile/actions.ts`
+- `src/app/profile/page.tsx`
+- `src/components/BadgeMedallion.tsx`
+- `src/lib/badges.ts`
+
+
 ### 2026-08-04 — Add INCENTIVES.md living incentives record; bring docs up to date: frontier locations, security posture, auto-locate onboarding, founding neighbors, communities generalization
 
 - `docs/ARCHITECTURE.md`

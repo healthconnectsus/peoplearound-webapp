@@ -2,12 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
+import { BadgeMedallion } from "@/components/BadgeMedallion";
+import { computeBadges } from "@/lib/badges";
 import {
   categoryMeta,
   initials,
   STATE_META,
   type Project,
 } from "@/lib/projects";
+import { DeleteAccountButton } from "./DeleteAccountButton";
 
 function ProjectRow({ p, stars }: { p: Project; stars: number }) {
   const meta = STATE_META[p.state];
@@ -43,7 +46,12 @@ function ProjectRow({ p, stars }: { p: Project; stars: number }) {
   );
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -116,6 +124,15 @@ export default async function ProfilePage() {
       .eq("contributor_id", user.id)
       .not("confirmed_at", "is", null),
   ]);
+
+  // Badges — derived from confirmed records at read time (see lib/badges.ts).
+  const hoodForBadges = profileRow as unknown as {
+    neighborhood_id?: string | null;
+  } | null;
+  const badges = await computeBadges(supabase, user.id, {
+    id: hoodForBadges?.neighborhood_id ?? null,
+    name: profile?.neighborhood?.name ?? null,
+  });
 
   const starsReceived = own.reduce((sum, p) => sum + starCount(p.id), 0);
   const memberSince = profile?.created_at
@@ -209,6 +226,48 @@ export default async function ProfilePage() {
               </Link>
             </div>
           </div>
+        </section>
+
+        {error ? (
+          <p className="mt-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            {error}
+          </p>
+        ) : null}
+
+        {/* Badges — evidence of acknowledged help, never bait */}
+        <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-medium">Badges</h2>
+            <span className="text-xs text-black/40 dark:text-white/40">
+              Earned, never bought
+            </span>
+          </div>
+          {badges.length > 0 ? (
+            <ul className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4">
+              {badges.map((b) => (
+                <li
+                  key={b.key}
+                  className="flex flex-col items-center text-center"
+                  title={b.fact}
+                >
+                  <BadgeMedallion badge={b} />
+                  <p className="mt-2 text-xs font-medium leading-tight">
+                    {b.label}
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-tight text-black/45 dark:text-white/45">
+                    {b.fact}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm text-black/50 dark:text-white/50">
+              Badges appear as your acknowledged help accumulates — a
+              confirmed contribution, an attested event, a neighborhood you
+              helped found. They certify what actually happened; nothing here
+              can be farmed or bought.
+            </p>
+          )}
         </section>
 
         {/* Dashboard — private stats */}
@@ -308,6 +367,20 @@ export default async function ProfilePage() {
               .
             </p>
           )}
+        </section>
+
+        {/* Danger zone */}
+        <section className="mt-10 rounded-2xl border border-red-200 bg-red-50/40 p-5 dark:border-red-900/50 dark:bg-red-950/20">
+          <h2 className="text-sm font-semibold text-red-700 dark:text-red-400">
+            Danger zone
+          </h2>
+          <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+            Deleting your account removes everything you&apos;ve created,
+            permanently.
+          </p>
+          <div className="mt-3">
+            <DeleteAccountButton />
+          </div>
         </section>
       </main>
     </AppShell>

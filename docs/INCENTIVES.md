@@ -73,11 +73,39 @@ member #1 (see [ARCHITECTURE — frontier locations](ARCHITECTURE.md#frontier-lo
 product has, and it doubles as the anti-bot wall — a place only exists once
 a real account claims it.
 
+### 2.5 Badges v1 — evidence, not trophies ✅ *(2026-08)*
+
+**The mechanic:** seven badges, every one **derived from confirmed records
+at read time** (`src/lib/badges.ts` — no badge table, no counters, nothing
+to farm):
+
+| Badge | Certifies |
+|---|---|
+| 🌱 Founding Neighbor | One of the first 10 in a location (join order) |
+| 🛠️ First Confirmed Help | First contribution confirmed by a neighbor |
+| 🤲 Trusted Hands | 5 confirmed contributions |
+| 👀 Witness | Attested 3 neighbors' contributions |
+| 🙋 Showed Up | A confirmed *presence* contribution |
+| 💡 Made It Real | Founded a project a team carried to completion |
+| 🌟 Brought the Neighbors | 3 sign-ups through their invite link |
+
+**Design language:** gradient medallions (SVG — disc, metallic ring, glossy
+top-light, soft color shadow), sized for real product UI, each badge with
+its own color identity. **Earned badges only** — no locked/greyed teasers,
+because dangling unearned badges is bait (§1.1). Rendered on the profile
+page with the fact each badge certifies written underneath.
+
+**Decision recorded:** a **visible point system was rejected** (see §4) —
+points invite optimizing the number instead of the neighbor. The PRD's
+*private* impact score remains deferred to Phase 1, when reputation's
+impact-weighting exists (a number without weighting degenerates into volume
+counting).
+
 ## 3. Pipeline (design-approved, not yet built)
 
 Ordered by leverage; each entry must still pass §1 at build time.
 
-1. **🌱 badge surfacing** — show founding status on profiles, team lists, and attestation lines. Cheap (derived data already exists), compounds 2.1.
+1. **Badge surfacing beyond the profile** — founding/trusted marks on team lists and attestation lines. Cheap (derived data already exists), compounds 2.1/2.5.
 2. **Founder privileges as responsibility** — founding neighbors can set their neighborhood's description/photo and host its first event. Progression unlocks *responsibility, not vanity* (PRD §3.10).
 3. **Neighborhood milestones** — collective celebration beats in the feed and history: "Aurora reached 10 neighbors 🎉", "Aurora's first completed project". Celebrates the place, never ranks people.
 4. **Invite context in the acknowledgment loop** — when someone you brought gets their first confirmed contribution, you get a quiet moment too: "Maria — who you brought here — just helped complete the garden." Connects the two currencies.
@@ -88,6 +116,8 @@ Ordered by leverage; each entry must still pass §1 at build time.
 
 Recorded so they stay rejected when growth pressure argues for them:
 
+- **A visible point system** *(rejected 2026-08)* — the attention economy's core primitive; the moment there's a number, people optimize the number instead of the neighbor. Fails §1.2 and §1.3 outright. The only sanctioned number is the PRD's *private, impact-weighted* score — own eyes only, Phase 1.
+- **Locked-badge teasers** *(rejected 2026-08)* — greyed-out "here's what you could earn" grids are recognition dangled as bait; badges appear only after the fact they certify.
 - **Referral rewards/discounts/credits** — makes inviting transactional; the product has no money and the inviter's motive must stay social.
 - **Invite leaderboards** ("top inviters this month") — ranks individuals; makes the lonely feel behind.
 - **Founding status for sale or extension** ("11th? Share to unlock a spot!") — manufactured scarcity is bait; real scarcity is the point.
