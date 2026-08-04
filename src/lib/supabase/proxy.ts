@@ -50,6 +50,8 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     path.startsWith("/login") ||
     path.startsWith("/auth") ||
+    // Marketing landing pages (e.g. "start a club") — shareable while logged out.
+    path.startsWith("/start") ||
     // Logged-out landing page calls this to register uncovered locations;
     // it validates its own input and only ever touches anon-safe RPCs.
     path === "/api/register-location" ||

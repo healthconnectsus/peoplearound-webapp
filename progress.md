@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Marketing: public /start landing page (run club / pickup soccer / pickleball starter plans), docs/MARKETING.md with sports-association outreach plan and email templates
+
+- `docs/MARKETING.md`
+- `src/app/start/page.tsx`
+- `src/lib/supabase/proxy.ts`
+
+
 ### 2026-08-04 — Docs: properly document messaging (/chats, participant-scoped RLS) and multi-community membership; fix stale neighborhoods write-path claim
 
 - `docs/ARCHITECTURE.md`
