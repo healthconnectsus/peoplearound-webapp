@@ -155,9 +155,9 @@ export function IdeaForm({ error }: { error?: string }) {
   return (
     <div className="flex flex-col gap-6">
       {/* Progress */}
-      <ol className="flex items-center gap-1.5" aria-label="Steps">
+      <ol className="flex items-center gap-2" aria-label="Steps">
         {STEPS.map((label, i) => (
-          <li key={label} className="flex flex-1 flex-col gap-1">
+          <li key={label} className="flex flex-1 flex-col gap-2">
             <span
               className={`h-1.5 rounded-full transition-colors ${
                 i <= step
@@ -166,12 +166,21 @@ export function IdeaForm({ error }: { error?: string }) {
               }`}
             />
             <span
-              className={`text-[11px] ${
+              className={`flex items-center gap-1.5 text-sm font-bold ${
                 i === step
-                  ? "font-medium text-emerald-700 dark:text-emerald-400"
-                  : "text-black/40 dark:text-white/40"
+                  ? "text-emerald-700 dark:text-emerald-400"
+                  : "text-black/45 dark:text-white/45"
               }`}
             >
+              <span
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                  i <= step
+                    ? "bg-emerald-600 text-white"
+                    : "bg-black/10 text-black/50 dark:bg-white/15 dark:text-white/50"
+                }`}
+              >
+                {i + 1}
+              </span>
               {label}
             </span>
           </li>

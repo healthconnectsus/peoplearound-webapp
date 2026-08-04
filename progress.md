@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Wizard progress: numbered step chips (1-4), bigger bolder labels
+
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-04 — Start an idea: renamed title, wider title-to-wizard spacing, bigger bolder step headings
 
 - `src/app/projects/new/IdeaForm.tsx`
