@@ -116,6 +116,43 @@ logged ──(founder accepts)──> accepted ──(≥1 co-attestation)──
 
 The **"merged commit" test** is enforced semantically: a contribution should correspond to the project moving to a new state. This is a product rule reinforced by the acceptance step rather than something the system can fully verify automatically — see the *unit problem* in [PRD §7](PRD.md#7-risks-and-open-questions).
 
+## Frontier locations (live)
+
+How Peoplearound expands to places it doesn't cover yet — and why bots can't
+abuse it:
+
+```
+logged-out visitor ──(browser geolocation popup)──> locate_teaser (anon RPC)
+        │ match                                          │ no match
+        ▼                                                ▼
+"You're near Oak St — 34 neighbors"        PREVIEW only: Nominatim name,
++ pa-hood cookie                           "sign up to put it on the map"
+        │                                  + pa-frontier coords cookie
+        └───────────────┬──────────────────┘
+                        ▼  (account created — first signed-in visit)
+        home page claims the cookie: existing hood assigned, OR the new
+        place is REGISTERED (register_frontier_location, service-role only)
+        → visitor becomes its first neighbor → one ops alert email (Resend)
+```
+
+Defense in depth on the anonymous surface, outermost first:
+
+1. Browser geolocation consent (nothing happens without it).
+2. Same-origin check + in-memory per-IP throttle on `/api/register-location`.
+3. **A signed-up account is required to create a location** — anonymous
+   visitors get a read-only name preview; the strongest wall.
+4. `register_frontier_location` is executable by `service_role` only (anon
+   direct-RPC calls get `permission denied`).
+5. Hard caps in the database: ≤3 new places per (salted, hashed) IP per
+   24 h, ≤25 globally — which transitively bounds ops emails and Nominatim
+   usage. Dedup: boundary match → neighborhood-center distance (<15 km) →
+   nearest pinned project (<15 km).
+6. `locate_teaser` stays anon-callable but returns only a neighborhood name
+   and two aggregate counts.
+
+Growth incentives built on this flow (founding neighbors, invite
+attribution) are specified in [INCENTIVES.md](INCENTIVES.md).
+
 ## Reputation pipeline (planned)
 
 Reputation is **derived, never directly writable**. It is computed (in Edge Functions / scheduled jobs) from `confirmed` contributions and their attestations:
@@ -135,5 +172,7 @@ Later jobs (stall nudges, dignified off-ramps) follow the same constraint: the a
 - Auth via Supabase Auth (email/magic-link today; phone + verified neighborhood later).
 - RLS is the primary enforcement layer for scoping and anti-tamper; server-side logic holds privileged write paths.
 - The Claude API key lives server-side only (`ANTHROPIC_API_KEY`); the shape-idea endpoint requires an authenticated session.
+- Server-only secrets: `SUPABASE_SERVICE_ROLE_KEY` (admin client in `src/lib/supabase/admin.ts`, guarded by `server-only`), `RESEND_API_KEY` + `ALERT_FROM`/`ALERT_EMAIL` (ops alerts from the verified `peoplearound.com` domain).
+- Visitor coordinates are used transiently (neighborhood lookup, one-time geocode); IPs are only ever stored as salted SHA-256 hashes in the frontier request log.
 - No monetization data paths exist in MVP (no marketplace, no checkout, no advertiser pipelines).
 - Photos and user content will live in Supabase Storage, access-scoped to neighborhood.

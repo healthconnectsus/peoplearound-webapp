@@ -40,15 +40,15 @@ Web today (header nav: feed · share an idea · sign out); the mobile app maps t
 
 > The **Create** button sits center of the tab bar but is deliberately not the loudest element. We want people to feel they can join others before being pushed to broadcast their own idea.
 
-## 3. Onboarding flow
+## 3. Onboarding flow *(live)*
 
 **Goal:** get a new (possibly lonely or skeptical) person to one small, real action fast — ideally a star or a join request, not a project creation.
 
-1. **Welcome** — one line on what Peoplearound is ("Share an idea. Build it together — with the people around you"). No sign-up wall yet.
-2. **Locate** — request location to find the user's neighborhood. Explain plainly why (everything here is local).
-3. **Verify neighborhood** — confirm the detected neighborhood; this becomes the user's scope.
-4. **Auth** — phone or email via Supabase Auth. Kept late so the person sees value first.
-5. **First taste** — immediately show the live feed with 2–3 active local projects and a gentle prompt: "See something you'd be glad existed? Tap the star."
+1. **Welcome** — the logged-out landing page: hero, live "ideas being built right now" teaser (anon-safe view), sign-up card. No wall before the taste.
+2. **Locate, automatically** — the browser's location popup appears on arrival. Allowed + covered area → *"📍 You're near **Oak Street** — 34 neighbors are already here, building 12 ideas."* Allowed + uncovered → *"🎉 You're in **{place}** — brand new to Peoplearound! Sign up to put it on the map and be its first neighbor."* Declined → nothing, and we never nag.
+3. **Auth** — email/password or magic link. Kept after the taste so the person sees value first.
+4. **Neighborhood claimed silently** — the location match rides a cookie, so the first signed-in visit lands straight in the right neighborhood (or *creates* it, if they're founding somewhere new — see [ARCHITECTURE](ARCHITECTURE.md#frontier-locations-live)). The manual `/neighborhood` picker remains the fallback.
+5. **First taste** — the live feed: map, pulse, "Happening soon", local projects. In small neighborhoods, the founding-era banner (see [INCENTIVES.md](INCENTIVES.md)) invites them to bring the next neighbors.
 
 > **First action target:** a star or a join request within the first session — never "share your first idea" as the onboarding ask. We lower activation energy, not raise it.
 

@@ -132,6 +132,8 @@ Replaces a "for sale" marketplace. No money changes hands in MVP.
 
 A game-like layer for motivation and progress. **Governing rule: reward only what is acknowledged by others**, so every mechanic inherits the system's built-in anti-gaming protection. Recognition arrives *after* genuine contribution — it honors what was done, it never baits people into doing it.
 
+> **The living incentives record is [INCENTIVES.md](INCENTIVES.md)** — shipped mechanics (Founding Neighbors, invite attribution, the founding-era banner), the approved pipeline, and the explicitly rejected ideas. Growth incentives shipped ahead of the rest of this section because the cold-start moment needed them first.
+
 **Badges — evidence, not trophies**
 
 - Certify real, attested achievements (e.g. "Helped 5 community projects reach completion," "Trusted on grant-writing by 8 neighbors," "Showed up to 10 events").

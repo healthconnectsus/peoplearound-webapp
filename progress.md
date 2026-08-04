@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Add INCENTIVES.md living incentives record; bring docs up to date: frontier locations, security posture, auto-locate onboarding, founding neighbors, communities generalization
+
+- `docs/ARCHITECTURE.md`
+- `docs/DATA_MODEL.md`
+- `docs/INCENTIVES.md`
+- `docs/PRD.md`
+- `docs/ROADMAP.md`
+- `docs/UX_SPEC.md`
+
+
 ### 2026-08-03 — Founding Neighbors incentive: permanent first-10 status, personal invite links with attribution (invited_by), founding-era growth banner
 
 - `src/app/invite/CopyLinkButton.tsx`

@@ -23,6 +23,12 @@ The goal of this phase is to prove the join-and-build loop works in a single nei
 - ✅ Project history timeline — "The story so far" on each project page: idea → stars → joins → confirmed contributions → events → completion
 - ✅ Neighborhood scoping (PostGIS) — the hard boundary: everything a user sees, stars, joins, or builds is scoped to their picked neighborhood via RLS; location → neighborhood detection when a boundary polygon is drawn
 - ✅ Realtime feed — the feed and project pages refresh live via Supabase Realtime (RLS-filtered)
+- ✅ Help kind + reach — founders declare what help they need (hands nearby / online / both) and who can find the project (neighborhood default / city / global, RLS-enforced); 4-step share-an-idea wizard
+- ✅ Map-first feed — split app shell with a full-height neighborhood map (Leaflet/OSM), pulse header, reach zones, story-beat cards; optional map pin in the wizard
+- ✅ Auto-locate onboarding — logged-out visitors get the location popup; covered areas show a live local teaser, uncovered areas a founding preview; neighborhood claimed silently at sign-up
+- ✅ [Frontier locations](ARCHITECTURE.md#frontier-locations-live) — new places self-register when a real account signs up there (Nominatim naming, dedup, DB-enforced caps, service-role-only writes) + ops alert email (Resend, verified domain)
+- ✅ [Founding Neighbors incentives](INCENTIVES.md) — permanent first-10 status, personal invite links with `invited_by` attribution, founding-era growth banner
+- ✅ Communities generalization — neighborhoods extended with kinds (cultural/hobby/interest…), multi-membership (`community_members`), messaging tables; profile fields + public landing teaser
 
 **All Phase 0 software is live.** What remains is the human part: run the pilot in one real neighborhood and meet the exit criteria below. (Neighborhood *verification* — phone + address — is deliberately later; today neighborhoods are self-selected.)
 

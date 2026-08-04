@@ -30,7 +30,7 @@ One row per auth user, auto-created by a trigger on `auth.users`. (The PRD's `us
 | display_name | text | Defaults from email / sign-up metadata |
 | created_at | timestamptz | |
 
-> `neighborhood_id` (FK → neighborhoods, nullable) is **live** — picked on `/neighborhood` (list or geolocation); everything the user sees is scoped by it.
+> `neighborhood_id` (FK → neighborhoods, nullable) is **live** — picked on `/neighborhood` (list or geolocation), claimed silently from the landing page's location match (`pa-hood`/`pa-frontier` cookies), and scoping everything the user sees. Migration 0010 added profile fields (bio, pronouns, avatar/cover, …); migration 0016 added `invited_by` (FK → profiles, nullable, `invited_by <> id` enforced) — set once when an account arrives through a personal invite link (`/login?via=<id>`), powering the "brought N neighbors" attribution in [INCENTIVES.md](INCENTIVES.md).
 
 ### projects
 
@@ -142,17 +142,36 @@ Lightweight coordination signal — **never** a performance metric. No "no-show"
 
 ### neighborhoods
 
-The hard boundary for all reads and writes.
+The hard boundary for all reads and writes. Since migration 0011 this table
+doubles as **communities** (`kind` distinguishes geographic neighborhoods
+from cultural/hobby/interest groups; `community_members` records who joined
+which).
 
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid (PK) | |
 | name | text | Unique, 1–80 chars |
 | city | text, nullable | Set by operators; groups neighborhoods so `reach = 'city'` projects can cross neighborhood lines |
+| kind | text | `neighborhood` (default) · `cultural` · `hobby` · `identity` · `geographic` · `interest` · `other` |
 | boundary | geography(polygon, 4326), nullable | Drawn by operators; enables 📍 location detection via `find_neighborhood(lat,lng)` |
+| center_lat / center_lng | double precision, nullable | Set when a frontier location self-registers (or backfilled from project pins); lets `locate_teaser` match new places without a boundary polygon |
 | created_at | timestamptz | |
 
-> **RLS:** readable by any signed-in user; **no client write path at all** — neighborhoods are created by operators (manual ops, per the roadmap). `profiles.neighborhood_id` and `projects.neighborhood_id` point here; a trigger stamps new projects with the founder's neighborhood.
+> **RLS:** readable by any signed-in user; **no client write path** — rows are created by operators or by `register_frontier_location()` (service-role only, called on behalf of a *signed-up* user from uncovered territory; see [ARCHITECTURE — frontier locations](ARCHITECTURE.md#frontier-locations-live)). `profiles.neighborhood_id` and `projects.neighborhood_id` point here; a trigger stamps new projects with the founder's neighborhood.
+
+### frontier_request_log
+
+Rate-limit ledger for self-registered locations. No client access at all
+(RLS enabled, zero policies — only security-definer functions touch it).
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| ip_hash | text | Salted SHA-256 of the requester's IP — never the raw IP |
+| registered | boolean | true only when a new neighborhood row was created |
+| created_at | timestamptz | |
+
+> **Caps enforced in `register_frontier_location()`:** ≤3 new places per `ip_hash` per 24 h, ≤25 globally per 24 h — which also bounds ops alert emails.
 
 ## Tables — planned
 
@@ -196,6 +215,8 @@ Give / lend / offer — the non-monetary replacement for a marketplace.
 | No no-show data can exist | `rsvp_status` enum has the single value `joining`; withdrawal deletes the row | ✅ Live |
 | Neighborhood scoping | `projects` select policy checks viewer's `neighborhood_id`; child tables require a visible project; trigger stamps projects | ✅ Live |
 | Reach is opt-in, not a bypass | `reach='city'` needs matching `neighborhoods.city`; `reach='global'` visible to all; default stays `neighborhood` | ✅ Live |
+| New locations need a signed-up human | Anonymous visitors get name preview only; `register_frontier_location` is service-role-only + DB caps (3/IP/day, 25/day) | ✅ Live |
+| No self-invites; attribution set once | `profiles_no_self_invite` check; `invited_by` only written when null | ✅ Live |
 | Reputation read-only | Derived/computed; no client write path | Planned |
 
 > This schema iterates as the human loop is proven. The live tables are deliberately minimal; the trust layer lands on top of them.
