@@ -7,6 +7,25 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-04 — Nudge search bar and content column right on desktop (shared lg:pl-16)
+
+- `src/app/connections/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/groups/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/neighborhood/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/components/TopBar.tsx`
+
+
 ### 2026-08-04 — Align content precisely with the top search bar: left-align the search column, normalize page padding to px-4/lg:px-8 everywhere
 
 - `src/app/connections/page.tsx`

@@ -85,7 +85,7 @@ export default async function IdeasPage() {
 
   return (
     <AppShell>
-      <main className="w-full max-w-2xl flex-1 p-4 lg:px-8 lg:py-6">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
         <h1 className="text-2xl font-semibold tracking-tight">My ideas</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
           The projects you started, and the teams you joined.

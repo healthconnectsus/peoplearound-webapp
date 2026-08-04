@@ -60,7 +60,7 @@ export default async function SettingsPage({
 
   return (
     <AppShell>
-      <main className="w-full max-w-xl flex-1 p-4 lg:px-8 lg:py-6">
+      <main className="w-full max-w-xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
         <div className="mb-4 flex items-center gap-3">
           <Link
             href="/profile"

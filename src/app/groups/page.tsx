@@ -12,7 +12,7 @@ export default async function GroupsPage() {
 
   return (
     <AppShell>
-      <main className="w-full max-w-2xl flex-1 p-4 lg:px-8 lg:py-6">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
         <h1 className="text-2xl font-semibold tracking-tight">Groups</h1>
         <div className="mt-8 rounded-2xl border border-dashed border-black/15 bg-white p-10 text-center dark:border-white/15 dark:bg-zinc-900">
           <p className="text-3xl" aria-hidden>

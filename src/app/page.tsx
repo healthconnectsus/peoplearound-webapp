@@ -469,7 +469,7 @@ export default async function Home({
         ) : null}
 
         <main className="min-w-0 lg:order-1">
-          <div className="w-full max-w-2xl p-4 lg:px-8 lg:py-6">
+          <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-16 lg:pr-8">
             <div className="mb-5">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Communities{" "}
