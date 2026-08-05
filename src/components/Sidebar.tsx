@@ -40,7 +40,14 @@ const UTILITY_ITEMS = [
  * Desktop-only left navigation rail (Nextdoor-style). Mobile keeps the
  * top SiteHeader; the two are swapped at the lg breakpoint by AppShell.
  */
-export function Sidebar({ community }: { community: CommunityInfo | null }) {
+export function Sidebar({
+  community,
+  dimmed = false,
+}: {
+  community: CommunityInfo | null;
+  /** Focus mode (e.g. the idea wizard): veil everything except the logo. */
+  dimmed?: boolean;
+}) {
   const pathname = usePathname();
 
   return (
@@ -49,6 +56,14 @@ export function Sidebar({ community }: { community: CommunityInfo | null }) {
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
         <img src="/logo.svg" alt="Peoplearound" className="h-auto w-full" />
       </Link>
+
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        {dimmed ? (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-3 inset-y-0 z-20 bg-white/80 dark:bg-zinc-950/80"
+          />
+        ) : null}
 
       <nav className="mt-5 flex flex-col gap-0.5">
         {NAV_ITEMS.map((item) => {
@@ -112,6 +127,7 @@ export function Sidebar({ community }: { community: CommunityInfo | null }) {
             {item.label}
           </Link>
         ))}
+      </div>
       </div>
     </aside>
   );

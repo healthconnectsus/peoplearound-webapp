@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-05 — Wizard focus mode: extra-large typography and controls, white veil over the sidebar (logo stays)
+
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-05 — Example ideas in two columns; widen wizard page accordingly
 
 - `src/app/projects/new/IdeaForm.tsx`

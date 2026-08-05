@@ -9,7 +9,7 @@ export default async function NewProjectPage({
   const { error } = await searchParams;
 
   return (
-    <AppShell>
+    <AppShell focus>
       <main className="w-full max-w-7xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
         <h1 className="mb-1 text-3xl font-extrabold tracking-tight">Start an idea 💡</h1>
         <p className="mb-12 text-sm text-black/60 dark:text-white/60">

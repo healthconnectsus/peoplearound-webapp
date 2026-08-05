@@ -59,10 +59,10 @@ function useMicSupported() {
 }
 
 const inputClass =
-  "rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-emerald-500 dark:border-white/20";
+  "rounded-xl border border-black/15 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-emerald-500 dark:border-white/20";
 
 const cardLabelClass =
-  "flex h-full cursor-pointer flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-white/20 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40";
+  "flex h-full cursor-pointer flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 text-base transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-white/20 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40";
 
 const STEPS = ["Your idea", "The basics", "Who can help", "Share"] as const;
 
@@ -167,7 +167,7 @@ export function IdeaForm({ error }: { error?: string }) {
   const canContinueFromBasics = title.trim().length > 0;
 
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,42rem)_minmax(0,36rem)] lg:items-start lg:gap-10">
+    <div className="lg:grid lg:grid-cols-[minmax(0,46rem)_minmax(0,36rem)] lg:items-start lg:gap-10">
     <div className="flex flex-col gap-6">
       {/* Progress */}
       <ol className="flex items-center gap-2" aria-label="Steps">
@@ -181,14 +181,14 @@ export function IdeaForm({ error }: { error?: string }) {
               }`}
             />
             <span
-              className={`flex items-center gap-1.5 text-sm font-bold ${
+              className={`flex items-center gap-1.5 text-base font-bold ${
                 i === step
                   ? "text-emerald-700 dark:text-emerald-400"
                   : "text-black/45 dark:text-white/45"
               }`}
             >
               <span
-                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                   i <= step
                     ? "bg-emerald-600 text-white"
                     : "bg-black/10 text-black/50 dark:bg-white/15 dark:text-white/50"
@@ -212,8 +212,8 @@ export function IdeaForm({ error }: { error?: string }) {
       {step === 0 ? (
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
-            <p className="text-xl font-bold">💬 Just talk it out</p>
-            <p className="mt-0.5 text-sm text-black/60 dark:text-white/60">
+            <p className="text-2xl font-extrabold">💬 Just talk it out</p>
+            <p className="mt-0.5 text-base text-black/60 dark:text-white/60">
               Your words, messy is fine — we&apos;ll shape the post.
             </p>
 
@@ -235,7 +235,7 @@ export function IdeaForm({ error }: { error?: string }) {
                 <button
                   type="button"
                   onClick={toggleMic}
-                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`rounded-full border px-5 py-2.5 text-base font-medium transition-colors ${
                     listening
                       ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-300"
                       : "border-black/15 bg-white hover:bg-black/5 dark:border-white/20 dark:bg-black/20 dark:hover:bg-white/10"
@@ -248,7 +248,7 @@ export function IdeaForm({ error }: { error?: string }) {
                 type="button"
                 onClick={shapeIdea}
                 disabled={shaping || rawIdea.trim().length < 10}
-                className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-full bg-emerald-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {shaping ? "Shaping…" : "✨ Shape my idea"}
               </button>
@@ -269,7 +269,7 @@ export function IdeaForm({ error }: { error?: string }) {
           <button
             type="button"
             onClick={() => setStep(1)}
-            className="self-start text-sm text-black/50 hover:underline dark:text-white/50"
+            className="self-start text-base text-black/50 hover:underline dark:text-white/50"
           >
             Skip — write it myself →
           </button>
@@ -286,7 +286,7 @@ export function IdeaForm({ error }: { error?: string }) {
           ) : null}
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-lg font-bold">What&apos;s the idea?</span>
+            <span className="text-xl font-extrabold">What&apos;s the idea?</span>
             <input
               type="text"
               required
@@ -299,7 +299,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-lg font-bold">
+            <span className="text-xl font-extrabold">
               Tell people more{" "}
               <span className="text-sm font-normal text-black/40 dark:text-white/40">
                 (optional)
@@ -316,7 +316,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </label>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-lg font-bold">
+            <legend className="mb-1.5 text-xl font-extrabold">
               What kind of project is it?
             </legend>
             <div className="flex flex-wrap gap-2">
@@ -337,7 +337,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-lg font-bold">Where are you at?</legend>
+            <legend className="mb-1.5 text-xl font-extrabold">Where are you at?</legend>
             <div className="flex flex-col gap-2 sm:flex-row">
               <label className={`flex-1 ${cardLabelClass}`}>
                 <input
@@ -371,7 +371,7 @@ export function IdeaForm({ error }: { error?: string }) {
               type="button"
               onClick={() => setStep(2)}
               disabled={!canContinueFromBasics}
-              className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Continue →
             </button>
@@ -390,7 +390,7 @@ export function IdeaForm({ error }: { error?: string }) {
       {step === 2 ? (
         <div className="flex flex-col gap-5">
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-lg font-bold">
+            <legend className="mb-1.5 text-xl font-extrabold">
               What kind of help do you need?
             </legend>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -414,7 +414,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-lg font-bold">
+            <legend className="mb-1.5 text-xl font-extrabold">
               Who should be able to find and join it?
             </legend>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -443,7 +443,7 @@ export function IdeaForm({ error }: { error?: string }) {
           </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-lg font-bold">
+            <legend className="mb-1.5 text-xl font-extrabold">
               Where is it happening?{" "}
               <span className="font-normal text-black/40 dark:text-white/40">
                 (optional)
@@ -456,7 +456,7 @@ export function IdeaForm({ error }: { error?: string }) {
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Continue →
             </button>
@@ -510,7 +510,7 @@ export function IdeaForm({ error }: { error?: string }) {
             <input type="hidden" name="lng" value={loc?.lng ?? ""} />
             <button
               type="submit"
-              className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Share it 🎉
             </button>
@@ -535,7 +535,7 @@ export function IdeaForm({ error }: { error?: string }) {
     {/* Inspiration rail — step 1 only; tap an example to start from it. */}
     {step === 0 ? (
       <aside className="hidden lg:block">
-        <h2 className="text-lg font-bold">Need a spark? ✨</h2>
+        <h2 className="text-xl font-extrabold">Need a spark? ✨</h2>
         <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
           Ideas neighbors started — tap one to begin from it.
         </p>
