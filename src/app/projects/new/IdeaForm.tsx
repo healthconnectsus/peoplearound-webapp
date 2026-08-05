@@ -167,7 +167,7 @@ export function IdeaForm({ error }: { error?: string }) {
   const canContinueFromBasics = title.trim().length > 0;
 
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,42rem)_minmax(0,22rem)] lg:items-start lg:gap-10">
+    <div className="lg:grid lg:grid-cols-[minmax(0,42rem)_minmax(0,36rem)] lg:items-start lg:gap-10">
     <div className="flex flex-col gap-6">
       {/* Progress */}
       <ol className="flex items-center gap-2" aria-label="Steps">
@@ -539,7 +539,7 @@ export function IdeaForm({ error }: { error?: string }) {
         <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
           Ideas neighbors started — tap one to begin from it.
         </p>
-        <ul className="mt-4 flex flex-col gap-2">
+        <ul className="mt-4 grid grid-cols-2 gap-2">
           {EXAMPLES.map((ex) => (
             <li key={ex.title}>
               <button
