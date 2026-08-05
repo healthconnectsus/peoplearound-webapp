@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.DEEPSEEK_API_KEY && !process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
       { error: "AI assist is not configured yet." },
       { status: 503 },
@@ -95,6 +95,76 @@ export async function POST(request: Request) {
       { error: "Tell us a bit more first — a sentence or two is plenty." },
       { status: 400 },
     );
+  }
+
+  // DeepSeek first (OpenAI-compatible API, JSON mode); Anthropic as the
+  // fallback provider when only that key is configured.
+  if (process.env.DEEPSEEK_API_KEY) {
+    try {
+      const res = await fetch("https://api.deepseek.com/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "deepseek-chat",
+          response_format: { type: "json_object" },
+          max_tokens: 2048,
+          messages: [
+            {
+              role: "system",
+              content:
+                SYSTEM_PROMPT +
+                `\n\nRespond with ONLY a JSON object with exactly these keys:\n` +
+                `"title" (string, ≤140 chars), "description" (string, 2–5 sentences), ` +
+                `"category" (one of: ${CATEGORIES.join(", ")}), ` +
+                `"state" ("idea" or "active"), ` +
+                `"tip" (string, one short suggestion, or "" if complete).`,
+            },
+            {
+              role: "user",
+              content: `Here's my rough idea, please shape it into a project post:\n\n${raw.slice(0, 4000)}`,
+            },
+          ],
+        }),
+        signal: AbortSignal.timeout(30000),
+      });
+      if (!res.ok) {
+        console.error("shape-idea DeepSeek error:", res.status, await res.text());
+        return NextResponse.json(
+          { error: "The assistant hit a snag — please try again." },
+          { status: 502 },
+        );
+      }
+      const data = (await res.json()) as {
+        choices?: { message?: { content?: string } }[];
+      };
+      const text = data.choices?.[0]?.message?.content ?? "";
+      const draft = JSON.parse(text) as {
+        title?: unknown;
+        description?: unknown;
+        category?: unknown;
+        state?: unknown;
+        tip?: unknown;
+      };
+      // Coerce into DB-safe, schema-valid shape.
+      return NextResponse.json({
+        title: String(draft.title ?? "").slice(0, 140),
+        description: String(draft.description ?? "").slice(0, 4000),
+        category: (CATEGORIES as readonly string[]).includes(String(draft.category))
+          ? String(draft.category)
+          : "community",
+        state: draft.state === "active" ? "active" : "idea",
+        tip: String(draft.tip ?? ""),
+      });
+    } catch (err) {
+      console.error("shape-idea DeepSeek failure:", err);
+      return NextResponse.json(
+        { error: "The assistant hit a snag — please try again." },
+        { status: 502 },
+      );
+    }
   }
 
   const anthropic = new Anthropic();

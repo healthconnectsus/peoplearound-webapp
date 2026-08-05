@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-05 — Wider wizard (fluid column), AI refiner on DeepSeek (Anthropic fallback), skip link only shown as AI-failure escape hatch
+
+- `src/app/api/shape-idea/route.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+
+
 ### 2026-08-05 — Wizard focus mode: extra-large typography and controls, white veil over the sidebar (logo stays)
 
 - `src/app/projects/new/IdeaForm.tsx`

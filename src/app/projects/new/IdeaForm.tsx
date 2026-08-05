@@ -167,7 +167,7 @@ export function IdeaForm({ error }: { error?: string }) {
   const canContinueFromBasics = title.trim().length > 0;
 
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,46rem)_minmax(0,36rem)] lg:items-start lg:gap-10">
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start lg:gap-10">
     <div className="flex flex-col gap-6">
       {/* Progress */}
       <ol className="flex items-center gap-2" aria-label="Steps">
@@ -266,13 +266,15 @@ export function IdeaForm({ error }: { error?: string }) {
             ) : null}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="self-start text-base text-black/50 hover:underline dark:text-white/50"
-          >
-            Skip — write it myself →
-          </button>
+          {aiError ? (
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="self-start text-base text-black/50 hover:underline dark:text-white/50"
+            >
+              Continue without AI →
+            </button>
+          ) : null}
         </div>
       ) : null}
 
