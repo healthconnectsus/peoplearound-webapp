@@ -13,7 +13,15 @@ import {
 } from "@/lib/projects";
 import { DeleteAccountButton } from "./DeleteAccountButton";
 
-function ProjectRow({ p, stars }: { p: Project; stars: number }) {
+function ProjectRow({
+  p,
+  stars,
+  views,
+}: {
+  p: Project;
+  stars: number;
+  views?: number;
+}) {
   const meta = STATE_META[p.state];
   return (
     <li>
@@ -34,6 +42,14 @@ function ProjectRow({ p, stars }: { p: Project; stars: number }) {
             </span>
           ) : null}
         </span>
+        {views != null ? (
+          <span
+            className="shrink-0 text-xs text-black/45 dark:text-white/45"
+            title="Neighbors who viewed this (only you can see this)"
+          >
+            👁 {views}
+          </span>
+        ) : null}
         <span className="shrink-0 text-xs text-black/45 dark:text-white/45">
           ⭐ {stars}
         </span>
@@ -113,7 +129,13 @@ export default async function ProfilePage({
     : { data: [] };
   const faves = (favedRows ?? []) as unknown as Project[];
 
-  const [{ count: teamsJoined }, { count: helpConfirmed }] = await Promise.all([
+  const [
+    { count: teamsJoined },
+    { count: helpConfirmed },
+    viewCountsResult,
+    { count: messagesSent },
+    { count: broughtCount },
+  ] = await Promise.all([
     supabase
       .from("memberships")
       .select("project_id", { count: "exact", head: true })
@@ -124,7 +146,25 @@ export default async function ProfilePage({
       .select("id", { count: "exact", head: true })
       .eq("contributor_id", user.id)
       .not("confirmed_at", "is", null),
+    // Views of MY ideas (owner-only counts, deduped per viewer per day).
+    supabase.rpc("idea_view_counts"),
+    supabase
+      .from("messages")
+      .select("id", { count: "exact", head: true })
+      .eq("sender_id", user.id),
+    supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("invited_by", user.id),
   ]);
+
+  const viewRows = (viewCountsResult.data ?? []) as {
+    project_id: string;
+    views: number;
+  }[];
+  const ideaViews = viewRows.reduce((sum, r) => sum + r.views, 0);
+  const viewsFor = (id: string) =>
+    viewRows.find((r) => r.project_id === id)?.views ?? 0;
 
   // Badges — derived from confirmed records at read time (see lib/badges.ts).
   const hoodForBadges = profileRow as unknown as {
@@ -148,11 +188,16 @@ export default async function ProfilePage({
       : profile.neighborhood.name
     : null;
 
+  const starsGiven = myStarredIds.length;
   const dashboard = [
     { label: "Ideas shared", value: own.length },
+    { label: "Idea views", value: ideaViews },
     { label: "Stars received", value: starsReceived },
+    { label: "Stars given", value: starsGiven },
     { label: "Teams joined", value: teamsJoined ?? 0 },
     { label: "Help confirmed", value: helpConfirmed ?? 0 },
+    { label: "Messages sent", value: messagesSent ?? 0 },
+    { label: "Neighbors brought", value: broughtCount ?? 0 },
   ];
 
   return (
@@ -357,7 +402,12 @@ export default async function ProfilePage({
           {own.length > 0 ? (
             <ul className="flex flex-col gap-2">
               {own.map((p) => (
-                <ProjectRow key={p.id} p={p} stars={starCount(p.id)} />
+                <ProjectRow
+                  key={p.id}
+                  p={p}
+                  stars={starCount(p.id)}
+                  views={viewsFor(p.id)}
+                />
               ))}
             </ul>
           ) : (

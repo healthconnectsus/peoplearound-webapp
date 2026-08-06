@@ -100,6 +100,12 @@ export default async function ProjectDetail({
   const teamSize = accepted.length + 1; // founder + accepted collaborators
   const isTeammate = myMembership?.status === "accepted";
 
+  // Private analytics: count this visit (deduped per day; owners excluded;
+  // raw rows never client-readable — see migration 0020).
+  if (!isOwner) {
+    await supabase.rpc("record_project_view", { p_project_id: id });
+  }
+
   // Badges here too, so sharing your first idea celebrates immediately on
   // the page you land on after creating it.
   const badges = await computeBadges(supabase, user.id, {

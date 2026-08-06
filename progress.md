@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — Profile analytics (idea views with private per-day dedup, messages sent, stars given, neighbors brought) and FEATURE_IDEAS.md backlog
+
+- `docs/FEATURE_IDEAS.md`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `supabase/migrations/0020_project_views.sql`
+
+
 ### 2026-08-06 — First Idea badge (one-time) with celebration on the project page; community flagging with ops review email at 3 flags
 
 - `docs/ARCHITECTURE.md`
