@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — Logo: restore the PEOPLE letter overlap and original cap height after thinning - inset 47.4/1000em then rescale, reproducing every original letter separation; favicon recentred
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-08-06 — Logo: thin the wordmark — inset glyphs 40/1000em (stem 199 to 119), applied to logo.svg, logo-light/dark.svg and the app icon
 
 - `public/logo-dark.svg`
