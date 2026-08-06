@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { NeighborhoodMap } from "@/components/NeighborhoodMap";
+import { BadgeCelebration } from "@/components/BadgeCelebration";
+import { computeBadges } from "@/lib/badges";
+import { FlagButton } from "./FlagButton";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import {
   CONTRIBUTION_TYPES,
@@ -96,6 +99,22 @@ export default async function ProjectDetail({
   const accepted = members.filter((m) => m.status === "accepted");
   const teamSize = accepted.length + 1; // founder + accepted collaborators
   const isTeammate = myMembership?.status === "accepted";
+
+  // Badges here too, so sharing your first idea celebrates immediately on
+  // the page you land on after creating it.
+  const badges = await computeBadges(supabase, user.id, {
+    id: project.neighborhood_id ?? null,
+    name: null,
+  });
+
+  // Community moderation: have I already reported this one? (RLS returns
+  // only my own flag row.)
+  const { data: myFlag } = await supabase
+    .from("project_flags")
+    .select("user_id")
+    .eq("project_id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
 
   // Contributions — apply any pending confirmations (server-side, idempotent;
   // this is also what makes the 7-day founder-bypass window take effect),
@@ -201,6 +220,7 @@ export default async function ProjectDetail({
 
   return (
     <AppShell>
+      <BadgeCelebration badges={badges} userId={user.id} />
       <LiveRefresh tables="projects,stars,memberships,events,rsvps,contributions,attestations" />
       <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
         <Link
@@ -894,6 +914,16 @@ export default async function ProjectDetail({
               Delete project
             </ConfirmSubmit>
           </form>
+        ) : null}
+
+        {/* Community moderation — quiet by design; not shown on your own. */}
+        {!isOwner ? (
+          <div className="mt-10 border-t border-black/5 pt-4 dark:border-white/5">
+            <FlagButton
+              projectId={project.id}
+              alreadyFlagged={Boolean(myFlag)}
+            />
+          </div>
         ) : null}
       </main>
     </AppShell>

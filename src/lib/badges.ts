@@ -28,6 +28,14 @@ const DEFS = {
     from: "#34d399",
     to: "#0d9488",
   }),
+  firstIdea: {
+    key: "first-idea",
+    label: "First Idea Shared",
+    fact: "Put an idea out there for neighbors to join",
+    emoji: "💡",
+    from: "#fde047",
+    to: "#f59e0b",
+  } as Badge,
   firstHelp: {
     key: "first-help",
     label: "First Confirmed Help",
@@ -84,7 +92,7 @@ export async function computeBadges(
   userId: string,
   hood: { id: string | null; name: string | null },
 ): Promise<Badge[]> {
-  const [confirmed, attested, invited, foundingRows, completedOwn] =
+  const [confirmed, attested, invited, foundingRows, completedOwn, ownIdeas] =
     await Promise.all([
       supabase
         .from("contributions")
@@ -112,6 +120,10 @@ export async function computeBadges(
         .select("id,memberships(user_id,status)")
         .eq("owner_id", userId)
         .eq("state", "completed"),
+      supabase
+        .from("projects")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", userId),
     ]);
 
   const confirmedRows = (confirmed.data ?? []) as { id: string; type: string }[];
@@ -120,6 +132,9 @@ export async function computeBadges(
   if ((foundingRows.data ?? []).some((m) => m.user_id === userId)) {
     badges.push(DEFS.founding(hood.name ?? "your neighborhood"));
   }
+  // One-time only: shared an idea at all. Never scales with volume (see
+  // docs/INCENTIVES.md §2.5) — courage moment, not a posting reward.
+  if ((ownIdeas.count ?? 0) >= 1) badges.push(DEFS.firstIdea);
   if (confirmedRows.length >= 1) badges.push(DEFS.firstHelp);
   if (confirmedRows.length >= 5) badges.push(DEFS.trustedHands);
   if ((attested.count ?? 0) >= 3) badges.push(DEFS.witness);

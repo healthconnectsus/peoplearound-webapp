@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — First Idea badge (one-time) with celebration on the project page; community flagging with ops review email at 3 flags
+
+- `docs/ARCHITECTURE.md`
+- `docs/INCENTIVES.md`
+- `src/app/projects/[id]/FlagButton.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/flagActions.ts`
+- `src/lib/badges.ts`
+- `supabase/migrations/0019_project_flags.sql`
+
+
 ### 2026-08-06 — Logo: restore the PEOPLE letter overlap and original cap height after thinning - inset 47.4/1000em then rescale, reproducing every original letter separation; favicon recentred
 
 - `public/logo-dark.svg`

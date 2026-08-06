@@ -82,6 +82,7 @@ to farm):
 | Badge | Certifies |
 |---|---|
 | 🌱 Founding Neighbor | One of the first 10 in a location (join order) |
+| 💡 First Idea Shared | Shared a first idea — **one-time only**, never scales with volume |
 | 🛠️ First Confirmed Help | First contribution confirmed by a neighbor |
 | 🤲 Trusted Hands | 5 confirmed contributions |
 | 👀 Witness | Attested 3 neighbors' contributions |
@@ -103,6 +104,13 @@ card, and the fact it certifies ("A neighbor confirmed your first
 contribution"). Celebrated-state is remembered per user (localStorage), so
 the party never repeats; the UX spec's one-warm-flourish allowance applies
 here because the trigger is always acknowledged help, never activity.
+
+**One deliberate exception, recorded:** 💡 *First Idea Shared* rewards a
+self-declared act (posting), which §1.1 normally forbids. It ships because
+putting an idea in front of neighbors is the product's hardest moment of
+courage, and it is fenced to stay safe: **strictly one-time** — there is no
+"5 ideas" or "10 ideas" badge, ever, so it can never become a posting
+treadmill. Any proposal to add volume tiers here is rejected by §4.
 
 **Decision recorded:** a **visible point system was rejected** (see §4) —
 points invite optimizing the number instead of the neighbor. The PRD's
