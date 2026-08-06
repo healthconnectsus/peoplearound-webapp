@@ -9,12 +9,13 @@ ones at the bottom so they stay rejected.*
 
 ## Tier 1 — sharpen the loop we already have (pilot-critical)
 
-1. **Real photo uploads** — projects, events, avatars via Supabase Storage
-   (the bucket from migration 0010 exists). Real faces and real places beat
-   AI imagery; photography is the UX spec's visual direction. *(M)*
-2. **Project updates (founder posts)** — small text+photo updates that land
-   in the history timeline ("we got the permits!"). Keeps stargazers warm
-   between events and gives the feed fresh beats. *(M)*
+1. ~~**Real photo uploads**~~ ✅ *shipped 2026-08* — public `projects`
+   storage bucket (migration 0021), reusable `PhotoPicker`, cover photo in
+   the wizard and owner-editable on the project page, photos on updates.
+   *(Remaining: event photos.)*
+2. ~~**Project updates (founder posts)**~~ ✅ *shipped 2026-08* — founder and
+   accepted teammates post text+photo progress notes (`project_updates`,
+   migration 0021); each lands in the history timeline as a 📣 beat.
 3. **Notification inbox + email digest** — the TopBar bell is live-only
    today. Persist notifications (join requests, confirmations, event
    reminders) and send a weekly "your neighborhood this week" email via the

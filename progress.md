@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — Mark photo uploads and project updates as shipped in the feature backlog
+
+- `docs/FEATURE_IDEAS.md`
+
+
 ### 2026-08-06 — Tier 1: real photo uploads (projects bucket, wizard + owner editor) and project updates (build log posts into the timeline)
 
 - `src/app/projects/[id]/UpdateComposer.tsx`
