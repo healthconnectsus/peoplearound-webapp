@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — Logo v5: full redesign - lowercase Poppins editorial wordmark, 'people' in Light ink, 'around' Medium with one brand color per letter; matching pa favicon; text vectorized to paths (OFL font, not shipped)
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-08-06 — Project page: sticky full-height map in the right column, matching the feed's split shell
 
 - `src/app/projects/[id]/page.tsx`
