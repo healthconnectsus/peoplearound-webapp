@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — Logo: thin the wordmark — inset glyphs 40/1000em (stem 199 to 119), applied to logo.svg, logo-light/dark.svg and the app icon
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-08-05 — Wider wizard (fluid column), AI refiner on DeepSeek (Anthropic fallback), skip link only shown as AI-failure escape hatch
 
 - `src/app/api/shape-idea/route.ts`
