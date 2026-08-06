@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — Project page: sticky full-height map in the right column, matching the feed's split shell
+
+- `src/app/projects/[id]/page.tsx`
+
+
 ### 2026-08-06 — Mark photo uploads and project updates as shipped in the feature backlog
 
 - `docs/FEATURE_IDEAS.md`

@@ -76,6 +76,7 @@ export default async function ProjectDetail({
   const cat = categoryMeta(project.category);
   const nextStates = TRANSITIONS[project.state];
   const founderName = project.owner?.display_name ?? "Someone";
+  const hasPin = project.lat != null && project.lng != null;
 
   // Stars — count, whether the current user has starred, and who/when for
   // the history timeline.
@@ -253,7 +254,34 @@ export default async function ProjectDetail({
     <AppShell>
       <BadgeCelebration badges={badges} userId={user.id} />
       <LiveRefresh tables="projects,stars,memberships,events,rsvps,contributions,attestations" />
-      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
+      <div
+        className={
+          hasPin
+            ? "lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]"
+            : ""
+        }
+      >
+        {/* Where it's happening — sticky beside the story, like the feed. */}
+        {hasPin ? (
+          <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-0 lg:h-screen lg:p-4">
+            <NeighborhoodMap
+              className="h-64 lg:h-full"
+              pins={[
+                {
+                  id: project.id,
+                  title: project.title,
+                  emoji: cat.emoji,
+                  href: `/projects/${project.id}`,
+                  lat: project.lat!,
+                  lng: project.lng!,
+                  subtitle: `${meta.label} · ${founderName}`,
+                },
+              ]}
+            />
+          </aside>
+        ) : null}
+
+      <main className="w-full max-w-2xl flex-1 p-4 lg:order-1 lg:py-6 lg:pl-16 lg:pr-8">
         <Link
           href="/"
           className="text-sm text-black/50 hover:underline dark:text-white/50"
@@ -322,24 +350,6 @@ export default async function ProjectDetail({
             No description yet.
           </p>
         )}
-
-        {project.lat != null && project.lng != null ? (
-          <div className="mt-5">
-            <NeighborhoodMap
-              pins={[
-                {
-                  id: project.id,
-                  title: project.title,
-                  emoji: cat.emoji,
-                  href: `/projects/${project.id}`,
-                  lat: project.lat,
-                  lng: project.lng,
-                  subtitle: `${meta.label} · ${founderName}`,
-                },
-              ]}
-            />
-          </div>
-        ) : null}
 
         {/* Actions: join + star */}
         <div className="mt-7 rounded-2xl border border-black/10 p-4 dark:border-white/10">
@@ -1020,6 +1030,7 @@ export default async function ProjectDetail({
           </div>
         ) : null}
       </main>
+      </div>
     </AppShell>
   );
 }
