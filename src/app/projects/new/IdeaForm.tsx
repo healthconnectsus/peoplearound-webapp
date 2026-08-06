@@ -14,6 +14,7 @@ import {
 } from "@/lib/projects";
 import { createProject } from "../actions";
 import { MapPicker } from "@/components/MapPicker";
+import { PhotoPicker } from "@/components/PhotoPicker";
 
 type Draft = {
   title: string;
@@ -80,7 +81,13 @@ const EXAMPLES: { title: string; desc: string; by: string }[] = [
   { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak" },
 ];
 
-export function IdeaForm({ error }: { error?: string }) {
+export function IdeaForm({
+  error,
+  userId,
+}: {
+  error?: string;
+  userId: string;
+}) {
   const [step, setStep] = useState(0);
 
   // --- Step 1: talk it out ---
@@ -100,6 +107,7 @@ export function IdeaForm({ error }: { error?: string }) {
   const [help, setHelp] = useState<HelpKind>("local");
   const [reach, setReach] = useState<ProjectReach>("neighborhood");
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
   function toggleMic() {
     if (listening) {
@@ -319,6 +327,21 @@ export function IdeaForm({ error }: { error?: string }) {
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
             <legend className="mb-1.5 text-xl font-extrabold">
+              A photo{" "}
+              <span className="text-sm font-normal text-black/40 dark:text-white/40">
+                (optional)
+              </span>
+            </legend>
+            <PhotoPicker
+              userId={userId}
+              value={photoUrl}
+              onChange={setPhotoUrl}
+              label="Add a photo of the place or the thing"
+            />
+          </fieldset>
+
+          <fieldset className="flex flex-col gap-1.5 text-sm">
+            <legend className="mb-1.5 text-xl font-extrabold">
               What kind of project is it?
             </legend>
             <div className="flex flex-wrap gap-2">
@@ -476,7 +499,15 @@ export function IdeaForm({ error }: { error?: string }) {
       {/* ---- Step 4: review & share ---- */}
       {step === 3 ? (
         <div className="flex flex-col gap-5">
-          <div className="rounded-2xl border border-black/10 p-4 dark:border-white/10">
+          <div className="overflow-hidden rounded-2xl border border-black/10 dark:border-white/10">
+            {photoUrl ? (
+              <div
+                aria-hidden
+                className="h-44 w-full bg-cover bg-center"
+                style={{ backgroundImage: `url(${photoUrl})` }}
+              />
+            ) : null}
+            <div className="p-4">
             <p className="font-medium leading-snug">
               <span className="mr-1.5" aria-hidden>
                 {CATEGORY_META[category as (typeof CATEGORIES)[number]]
@@ -499,6 +530,7 @@ export function IdeaForm({ error }: { error?: string }) {
               </span>
               {loc ? <span>📍 Pinned on the map</span> : null}
             </p>
+            </div>
           </div>
 
           <form action={createProject} className="flex items-center gap-3">
@@ -508,6 +540,7 @@ export function IdeaForm({ error }: { error?: string }) {
             <input type="hidden" name="state" value={state} />
             <input type="hidden" name="help" value={help} />
             <input type="hidden" name="reach" value={reach} />
+            <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
             <input type="hidden" name="lat" value={loc?.lat ?? ""} />
             <input type="hidden" name="lng" value={loc?.lng ?? ""} />
             <button

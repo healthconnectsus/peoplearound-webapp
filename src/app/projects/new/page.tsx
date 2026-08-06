@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { IdeaForm } from "./IdeaForm";
 
@@ -7,6 +9,11 @@ export default async function NewProjectPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
   return (
     <AppShell focus>
@@ -15,7 +22,7 @@ export default async function NewProjectPage({
         <p className="mb-12 text-sm text-black/60 dark:text-white/60">
           Neighbors can star it — or join you and build it.
         </p>
-        <IdeaForm error={error} />
+        <IdeaForm error={error} userId={user.id} />
       </main>
     </AppShell>
   );

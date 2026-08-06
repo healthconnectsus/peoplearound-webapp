@@ -7,6 +7,18 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — Tier 1: real photo uploads (projects bucket, wizard + owner editor) and project updates (build log posts into the timeline)
+
+- `src/app/projects/[id]/UpdateComposer.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/app/projects/updateActions.ts`
+- `src/components/PhotoPicker.tsx`
+- `supabase/migrations/0021_project_photos_and_updates.sql`
+
+
 ### 2026-08-06 — Profile analytics (idea views with private per-day dedup, messages sent, stars given, neighbors brought) and FEATURE_IDEAS.md backlog
 
 - `docs/FEATURE_IDEAS.md`

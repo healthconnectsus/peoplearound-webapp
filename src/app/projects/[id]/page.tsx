@@ -7,6 +7,8 @@ import { NeighborhoodMap } from "@/components/NeighborhoodMap";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { FlagButton } from "./FlagButton";
+import { UpdateComposer, ProjectPhotoEditor } from "./UpdateComposer";
+import { deleteUpdate } from "../updateActions";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import {
   CONTRIBUTION_TYPES,
@@ -113,6 +115,21 @@ export default async function ProjectDetail({
     name: null,
   });
 
+  // The build log — founder/teammate progress notes.
+  const { data: updateRows } = await supabase
+    .from("project_updates")
+    .select("id,author_id,body,photo_url,created_at,author:profiles(display_name)")
+    .eq("project_id", id)
+    .order("created_at", { ascending: false });
+  const updates = (updateRows ?? []) as unknown as {
+    id: string;
+    author_id: string;
+    body: string;
+    photo_url: string | null;
+    created_at: string;
+    author?: { display_name: string | null } | null;
+  }[];
+
   // Community moderation: have I already reported this one? (RLS returns
   // only my own flag row.)
   const { data: myFlag } = await supabase
@@ -214,6 +231,14 @@ export default async function ProjectDetail({
     });
   }
 
+  for (const u of updates) {
+    timeline.push({
+      at: u.created_at,
+      icon: "📣",
+      text: `${u.author?.display_name ?? "The team"} — ${excerpt(u.body)}`,
+    });
+  }
+
   if (project.state === "completed") {
     timeline.push({
       at: project.updated_at,
@@ -236,7 +261,13 @@ export default async function ProjectDetail({
           ← All projects
         </Link>
 
-        {project.photo_url ? (
+        {isOwner ? (
+          <ProjectPhotoEditor
+            projectId={project.id}
+            userId={user.id}
+            photoUrl={project.photo_url ?? null}
+          />
+        ) : project.photo_url ? (
           <div
             aria-hidden
             className="mt-4 h-56 w-full rounded-2xl border border-black/5 bg-cover bg-center shadow-sm dark:border-white/5"
@@ -503,6 +534,63 @@ export default async function ProjectDetail({
             <p className="mt-2 text-xs text-black/40 dark:text-white/40">
               No collaborators yet — you could be the first.
             </p>
+          ) : null}
+        </div>
+
+        {/* Updates — the build log (founder + teammates) */}
+        <div className="mt-7">
+          <h2 className="mb-2 text-sm font-semibold">Updates</h2>
+
+          {updates.length === 0 ? (
+            <p className="text-sm text-black/40 dark:text-white/40">
+              {isOwner || isTeammate
+                ? "No updates yet — a short note keeps neighbors following along."
+                : "No updates yet."}
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {updates.map((u) => (
+                <li
+                  key={u.id}
+                  className="rounded-xl border border-black/10 px-4 py-3 dark:border-white/10"
+                >
+                  <p className="text-xs text-black/45 dark:text-white/45">
+                    📣 {u.author?.display_name ?? "The team"} ·{" "}
+                    {timeAgo(u.created_at)}
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">
+                    {u.body}
+                  </p>
+                  {u.photo_url ? (
+                    <div
+                      aria-hidden
+                      className="mt-2 h-48 w-full rounded-xl border border-black/5 bg-cover bg-center dark:border-white/5"
+                      style={{ backgroundImage: `url(${u.photo_url})` }}
+                    />
+                  ) : null}
+                  {u.author_id === user.id || isOwner ? (
+                    <form action={deleteUpdate} className="mt-2">
+                      <input
+                        type="hidden"
+                        name="projectId"
+                        value={project.id}
+                      />
+                      <input type="hidden" name="updateId" value={u.id} />
+                      <button
+                        type="submit"
+                        className="text-xs text-black/40 hover:underline dark:text-white/40"
+                      >
+                        Remove
+                      </button>
+                    </form>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {isOwner || isTeammate ? (
+            <UpdateComposer projectId={project.id} userId={user.id} />
           ) : null}
         </div>
 

@@ -35,6 +35,9 @@ export async function createProject(formData: FormData) {
     ? reachRaw
     : "neighborhood";
 
+  // Optional cover photo (uploaded client-side to the projects bucket).
+  const photoUrl = String(formData.get("photoUrl") ?? "").trim().slice(0, 500);
+
   // Optional map pin from the wizard.
   const latNum = Number.parseFloat(String(formData.get("lat") ?? ""));
   const lngNum = Number.parseFloat(String(formData.get("lng") ?? ""));
@@ -69,6 +72,7 @@ export async function createProject(formData: FormData) {
       state,
       help,
       reach,
+      photo_url: photoUrl || null,
       lat: hasPin ? latNum : null,
       lng: hasPin ? lngNum : null,
     })
