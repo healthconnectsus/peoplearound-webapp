@@ -47,11 +47,14 @@ const SIZE = 1000;
 // VISUAL bbox overlap per letter pair. Advance-based overlap gets eaten by
 // side bearings (the recurring "forgot the overlap" trap) — place by bbox.
 const OVERLAP = 70;
-const OPACITY = 0.88;
-const INK = "#58585C";      // gray, not black — the colored word is the hero
+// Kept under 1.0 so overlapping letters still mix like layered glass.
+const OPACITY = 0.94;
+const INK = "#505052";      // gray, not black — the colored word is the hero
 const INK_DARK = "#D4D4D8"; // dark mode: soft gray instead of full white
-// One color per POSITION of "people" (letters repeat): p e o p l e
-const COLORS = ["#F7554A", "#F9A215", "#14B487", "#4479E4", "#8A4BD8", "#F45495"];
+// One color per POSITION of "people" (letters repeat): p e o p l e.
+// v6.5 "stronger" set: saturation pushed ~15% toward full, light tones
+// deepened 3% — same six hues as the original wordmark, more vivid.
+const COLORS = ["#FF4033", "#FFA30F", "#08C08C", "#2A6BEF", "#8133E1", "#FF3A8A"];
 // "around" spacing (all bbox-measured, applied after emboldening):
 const WORD_GAP = 70;     // people's right edge → a's left edge
 const TRACK = 40;        // tighten every natural letter gap by this much...
