@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
@@ -59,6 +60,9 @@ export default async function OffersPage() {
     .select(
       "id,user_id,kind,title,description,photo_url,place,claimed_by,claimed_at,created_at,poster:profiles!offers_user_id_fkey(display_name),claimer:profiles!offers_claimed_by_fkey(display_name)",
     )
+    // Small help ("need") lives on its own board at /asks — same table,
+    // opposite direction.
+    .neq("kind", "need")
     .order("created_at", { ascending: false })
     .limit(60);
 
@@ -79,7 +83,11 @@ export default async function OffersPage() {
           <h1 className="text-3xl font-extrabold tracking-tight">Offers</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
             Things neighbors will give, lend, or do for each other. Nothing here
-            costs money.
+            costs money. Need a hand instead?{" "}
+            <Link href="/asks" className="underline">
+              Ask for small help
+            </Link>
+            .
           </p>
 
           {error ? (

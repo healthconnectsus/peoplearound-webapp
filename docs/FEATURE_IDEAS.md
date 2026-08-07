@@ -79,6 +79,16 @@ ones at the bottom so they stay rejected.*
     notifications are skipped, dead endpoints pruned, opt-out in Settings
     (migration 0032). The bridge until React Native.
 
+### Added on request
+
+20. ~~**Small help ("a hand for 20 minutes")**~~ ✅ *shipped 2026-08* —
+    `/asks`: post a need with an honest time estimate (10 min → half a day),
+    optional when/where/photo; neighbors tap "I'll help". Stored as a `need`
+    kind on `offers` (migration 0033), so scoping, rate caps, claim rules and
+    ~110 m location blunting come from the board. Open asks ride the top of
+    the home feed. Also fixed a hole this exposed: a claimer could rewrite a
+    poster's content while claiming (migration 0034).
+
 ## Tier 3 — widen (post-pilot)
 
 15. **Multi-language** — the AI shaper already answers in the user's

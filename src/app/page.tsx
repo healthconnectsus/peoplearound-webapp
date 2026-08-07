@@ -6,6 +6,7 @@ import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { communityMilestone } from "@/lib/milestones";
+import { openAsks, formatMinutes } from "@/lib/asks";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -357,6 +358,11 @@ export default async function Home({
   // place, never a person (see lib/milestones.ts).
   const milestone = await communityMilestone(supabase, myHood, neighborhoodName);
 
+  // Small help is time-sensitive in a way ideas aren't — an ask for Saturday
+  // is worthless on Sunday, so it rides at the top of the feed, not on a
+  // page you have to think to visit.
+  const asks = await openAsks(supabase, 4);
+
   // Onboarding nudge: one small first action beats a blank profile. Shown
   // only to young accounts that haven't starred or RSVPed yet; it retires
   // itself the moment both are done (recognition follows, never nags).
@@ -594,6 +600,33 @@ export default async function Home({
                   Clear search
                 </Link>
               </p>
+            ) : null}
+
+            {asks.length > 0 && !query ? (
+              <div className="mb-7">
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                  Neighbors need a hand
+                </h2>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {asks.map((a) => (
+                    <li key={a.id}>
+                      <Link
+                        href="/asks"
+                        className="flex h-full flex-col gap-0.5 rounded-xl border border-amber-500/25 bg-amber-50/70 px-4 py-3 shadow-sm transition-colors hover:bg-amber-50 dark:border-amber-500/25 dark:bg-amber-950/20 dark:hover:bg-amber-950/40"
+                      >
+                        <span className="text-sm font-medium">
+                          🙋 {a.title}
+                        </span>
+                        <span className="text-xs text-black/50 dark:text-white/50">
+                          ⏱ {formatMinutes(a.minutes)}
+                          {a.when_text ? ` · ${a.when_text}` : ""}
+                          {a.asker ? ` · ${a.asker}` : ""}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : null}
 
             {events.length > 0 && !query ? (

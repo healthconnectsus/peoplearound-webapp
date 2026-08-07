@@ -7,6 +7,24 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Small help: ask for a hand with an honest time estimate
+
+- `docs/DATA_MODEL.md`
+- `docs/FEATURE_IDEAS.md`
+- `docs/UX_SPEC.md`
+- `src/app/asks/AskComposer.tsx`
+- `src/app/asks/askActions.ts`
+- `src/app/asks/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/page.tsx`
+- `src/components/Sidebar.tsx`
+- `src/lib/asks.ts`
+- `src/lib/mapPins.ts`
+- `supabase/migrations/0033_small_help.sql`
+- `supabase/migrations/0034_offer_claim_guard.sql`
+
+
 ### 2026-08-07 — Logo v6.4: darken 'around' ink from #6E6E73 to #58585C (light mode); dark mode stays #D4D4D8 for legibility
 
 - `docs/MARKETING.md`

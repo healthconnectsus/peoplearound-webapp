@@ -11,6 +11,7 @@ import {
   Lightbulb,
   MapPin,
   Gift,
+  HandHelping,
   BookOpen,
   type LucideIcon,
 } from "lucide-react";
@@ -28,6 +29,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/groups", label: "Groups", icon: Users },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/offers", label: "Offers", icon: Gift },
+  { href: "/asks", label: "Small help", icon: HandHelping },
   { href: "/people", label: "People around", icon: HeartHandshake },
   { href: "/playbooks", label: "Playbooks", icon: BookOpen },
   { href: "/ideas", label: "My ideas", icon: Lightbulb },

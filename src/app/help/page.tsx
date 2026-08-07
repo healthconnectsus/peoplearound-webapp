@@ -21,6 +21,10 @@ const FAQ: { q: string; a: string }[] = [
     a: "Anything that moves the project forward: knowledge, time, tools, a truck on Saturday. Contributions are confirmed by the team and credited to you permanently.",
   },
   {
+    q: "I just need a hand with something — do I have to start a project?",
+    a: "No. Post it under Small help instead: what you need and roughly how long it'll take (“Move a sofa into the living room · 20 min”). A neighbor taps “I'll help” and the two of you sort out the rest. Asking is not a favor you owe back.",
+  },
+  {
     q: "What are events?",
     a: "The physical side of a project — a planting day, a fix-up morning. RSVP so the team knows who's coming.",
   },

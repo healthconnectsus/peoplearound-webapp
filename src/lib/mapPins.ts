@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatMinutes } from "@/lib/asks";
 import type { MapPin } from "@/components/NeighborhoodMap";
 import { categoryMeta, STATE_META, type ProjectState } from "@/lib/projects";
 
@@ -121,6 +122,7 @@ export async function offerPins(supabase: Client): Promise<MapPin[]> {
     .from("offers")
     .select("id,kind,title,place,lat,lng,claimed_by")
     .not("lat", "is", null)
+    .neq("kind", "need")
     .is("claimed_by", null)
     .limit(200);
   const emoji: Record<string, string> = {
@@ -143,6 +145,33 @@ export async function offerPins(supabase: Client): Promise<MapPin[]> {
     lat: o.lat,
     lng: o.lng,
     subtitle: o.place ? `Around ${o.place}` : "Roughly here",
+  }));
+}
+
+/** Open small-help asks with a rough spot — same blunting as offers. */
+export async function askPins(supabase: Client): Promise<MapPin[]> {
+  const { data } = await supabase
+    .from("offers")
+    .select("id,title,place,minutes,lat,lng,claimed_by,kind")
+    .eq("kind", "need")
+    .not("lat", "is", null)
+    .is("claimed_by", null)
+    .limit(200);
+  return ((data ?? []) as {
+    id: string;
+    title: string;
+    place: string | null;
+    minutes: number | null;
+    lat: number;
+    lng: number;
+  }[]).map((a) => ({
+    id: a.id,
+    title: a.title,
+    emoji: "🙋",
+    href: "/asks",
+    lat: a.lat,
+    lng: a.lng,
+    subtitle: `${formatMinutes(a.minutes)}${a.place ? ` · around ${a.place}` : ""}`,
   }));
 }
 

@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, `offers`, `user_locations`, `push_subscriptions`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `reputation` is still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, `offers` (including small-help asks), `user_locations`, `push_subscriptions`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `reputation` is still planned.
 
 ## Entity relationships
 
@@ -355,20 +355,31 @@ Give / lend / offer — the non-monetary replacement for a marketplace
 | id | uuid (PK) | |
 | user_id | uuid (FK → profiles) | The poster |
 | neighborhood_id | uuid (FK → neighborhoods) | Stamped from the poster's profile by trigger |
-| kind | enum `offer_kind` | `give` · `lend` · `offer` (a skill) |
+| kind | enum `offer_kind` | `give` · `lend` · `offer` (a skill) · `need` (**small help** — surfaced separately at `/asks`) |
 | title / description | text | ≤ 140 / ≤ 2000 chars |
 | photo_url | text, nullable | Projects storage bucket |
 | place | text, nullable | Free text the poster writes ("5th & Oak"), ≤ 120 chars |
 | lat / lng | double precision, nullable | **Approximate** pickup spot: the poster drops a rough pin, and both the action and a DB trigger round to 3 dp (~110 m). No doorstep can be recorded here. |
 | project_id | uuid (FK → projects), nullable | When linked, the offer feeds that project's contributions |
 | claimed_by / claimed_at | uuid (FK → profiles) / timestamptz, nullable | A claim is a handshake, not a checkout |
+| minutes | int, nullable | Small help only: 5–480. The honest estimate that makes an ask answerable |
+| when_text | text, nullable | Free text ("Saturday morning"), ≤ 80 chars. Deliberately not a datetime — small help is arranged between two people, not scheduled by software |
 | created_at | timestamptz | |
 
 > **RLS:** readable by the poster and anyone in the offer's community; insert
 > only as yourself; the poster may edit/delete their own; **any neighbor who
 > can see an unclaimed offer may claim it** (a separate update policy whose
-> `WITH CHECK` pins `claimed_by = auth.uid()`, so a claimer cannot rewrite
-> the content). Capped at 10 offers/user/day; claiming notifies the poster.
+> `WITH CHECK` pins `claimed_by = auth.uid()`); and **the claimer may release
+> their own claim** so a helper who can't make it isn't trapped into ghosting
+> (migration 0034). Capped at 10 posts/user/day; claiming notifies the poster,
+> worded per kind ("claimed your offer" vs "is coming to help with").
+>
+> `WITH CHECK` can only inspect the resulting row, never compare it to the
+> old one — so a claimer could originally have rewritten the poster's title,
+> body, photo and pin in the same UPDATE. A BEFORE UPDATE trigger
+> (`guard_offer_columns`, migration 0034) now snaps every column except the
+> claim pair back to its old value for anyone who isn't the row's owner. The
+> policies decide *who* may touch a row; the trigger decides *what*.
 
 ### reputation (derived)
 

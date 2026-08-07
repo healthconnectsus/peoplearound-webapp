@@ -275,3 +275,36 @@ carries only the notifications that already exist (someone joined, someone
 confirmed your help, something is planned nearby), on a ten-minute cron. That
 lag is the point: a neighborhood is not an emergency. Anything you already
 read in-app never reaches your phone.
+
+
+## Small help (`/asks`)
+
+> "Move a sofa into the living room." Twenty minutes and a second pair of
+> hands — no team, no history, no arc.
+
+Not every need is an idea, and the project wizard would be absurd here. Small
+help gets its own board and its own one-screen composer: what you need, an
+estimated time, and optionally when, where, and a photo. Nothing else.
+
+**The time estimate is the feature.** "20 min" is a decision a neighbor can
+make standing in their kitchen; "help me move" is a commitment they have to
+think about, and thinking about it is where the yes dies. The composer offers
+six honest sizes (10 min → half a day) rather than a free-text field, because
+a number someone can picture is what gets answered.
+
+Design rules:
+
+- **Asking costs nothing and is never justified.** No reason field, no
+  reciprocity counter, no money anywhere. The page says it out loud: asking is
+  not a favor you owe back.
+- **Either side can step back.** The helper's "I can't after all" is a first-
+  class button, not a message you have to compose to a stranger. A helper with
+  no exit ghosts instead.
+- **Asks expire socially, not technically.** Done removes the row — a small
+  ask has no history worth keeping, and nobody needs a permanent record of the
+  day they couldn't lift a sofa alone.
+- **It rides at the top of the feed.** An ask for Saturday is worthless on
+  Sunday, so open asks appear on the home feed rather than on a page you have
+  to remember to visit.
+- Location is approximate on the same terms as offers — a corner or a block,
+  rounded to ~110 m, never a doorstep.
