@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Logo v6.1: switch wordmark to Quicksand - colored glass 'people' (Medium), 'around' Bold emboldened +15 units via rounded polygon offset (synthetic ExtraBold, round terminals preserved); favicon matches
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-08-07 — Logo v6: invert the two words - 'people' colored per letter with 70-unit glass overlap (Poppins Medium), 'around' solid ink Poppins ExtraBold; favicon pa inverted to match
 
 - `public/logo-dark.svg`
