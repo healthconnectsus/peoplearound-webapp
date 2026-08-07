@@ -230,3 +230,48 @@ neighborhood rather than a continent.
 - An AI agent prominent enough that people relate to it instead of to neighbors.
 
 > If a screen would make a person feel watched, ranked, behind, or like a product being sold — it does not ship, however much it would boost engagement.
+
+
+## Playbooks, milestones, and the installed app
+
+### Playbooks (`/playbooks`)
+
+Proven starting points for people who open the wizard and freeze. Each card
+carries a first concrete step and an explicit *what to ask for* list, because
+a vague ask is the most common reason an idea never gathers anyone. "Start
+from this" opens the wizard at step 1, prefilled — and every word stays
+editable, so a playbook is a running start, not a template to fill in. As real
+projects reach completion, their histories become the next playbooks.
+
+### Milestones and the annual recap
+
+A single banner appears on the feed when the *neighborhood* crosses a
+threshold — 10/25/50/100/250/500 neighbors, or 1/5/10/25/50 things built.
+`/recap?year=` gives the same year in full: neighbors, ideas, things
+finished, acts of help confirmed, times met in person, things given, and the
+categories the year went into. Both are derived on read.
+
+Rule, not preference: milestones celebrate the **place**. No individual is
+named, ranked, or thanked more than another, and there is no leaderboard —
+the same rule that governs badges and reputation. A quiet year shows an
+honest empty state rather than inflated numbers.
+
+### Installed app and push
+
+Peoplearound is used standing in a doorway or walking past the lot in
+question, so it installs: manifest, maskable icons, shortcuts (Start an idea ·
+Around me · Messages), and an `/offline` fallback page. The service worker is
+deliberately network-first and caches **no app HTML** — nearly every page is
+permission-scoped, and a stale cached page could show someone content they no
+longer have access to.
+
+The install invitation is one quiet line at the bottom of the screen, shown
+only when the browser says the app is installable, and never shown again once
+dismissed. An app that nags to be installed has not earned it.
+
+Push is opt-in from Settings and never requested on page load — an unprompted
+permission dialog gets denied forever and costs the channel permanently. It
+carries only the notifications that already exist (someone joined, someone
+confirmed your help, something is planned nearby), on a ten-minute cron. That
+lag is the point: a neighborhood is not an emergency. Anything you already
+read in-app never reaches your phone.

@@ -28,6 +28,7 @@ The architecture exists to protect one thing: a **trustworthy record of what peo
 
 | Layer | Technology | Role |
 |---|---|---|
+| Installed web app | PWA (manifest + service worker) | Home-screen install, `/offline` fallback, opt-in Web Push via VAPID — the bridge until React Native |
 | Mobile client | React Native + Expo | iOS/Android app; managed builds, OTA updates, push, camera, location |
 | Geo | PostGIS | Location-radius queries for hyperlocal feed, projects, offers |
 | Realtime | Supabase Realtime | "What's happening?" feed and live project updates |

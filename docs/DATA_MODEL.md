@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, `offers`, `user_locations`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `reputation` is still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, `offers`, `user_locations`, `push_subscriptions`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `reputation` is still planned.
 
 ## Entity relationships
 
@@ -299,11 +299,36 @@ action.
 | kind | text | `join_request` · `joined` · `star` · `contribution` · `confirmed` · `event` |
 | body / href | text | ≤ 300 chars each |
 | read_at | timestamptz, nullable | Mark-all-read sets it |
+| pushed_at | timestamptz, nullable | Set when the push cron has delivered it (migration 0032) |
 | created_at | timestamptz | |
 
 > **RLS:** read/update (mark read) your own only; no client inserts or
 > deletes. `profiles.is_admin` gates `/admin`; `profiles.digest_opt_out`
-> is respected by the weekly digest (migration 0025).
+> is respected by the weekly digest (migration 0025);
+> `profiles.push_opt_out` by web push (migration 0032).
+
+### push_subscriptions
+
+Web Push endpoints, one row per device. Push is a **delivery channel** for
+`notifications`, not a second source of truth: triggers write the
+notification, then a 10-minute cron (`/api/push`) drains the undelivered
+ones. A failed push never loses the in-app notification, and turning push
+off changes nothing about what the bell shows.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| user_id | uuid (FK → profiles) | |
+| endpoint | text, unique | Re-subscribing on the same device rebinds, never duplicates |
+| p256dh / auth | text | Encryption keys from the browser |
+| failed_at | timestamptz, nullable | Set on permanent failure; the cron prunes 404/410 |
+| created_at | timestamptz | |
+
+> **RLS:** select/insert/delete your own only — an endpoint URL is a
+> capability to ping someone's phone, so it is treated as a credential and is
+> unreadable by any other user. `pending_pushes()` is service-role only and
+> skips opted-out users, already-read notifications, and anything older than
+> 24 h (a stale ping is worse than none) (migration 0032).
 
 ### user_locations
 

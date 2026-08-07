@@ -7,6 +7,30 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 2 complete: PWA install (manifest, icons, offline shell) and opt-in Web Push delivered from the notifications table by a 10-minute cron
+
+- `docs/ARCHITECTURE.md`
+- `docs/DATA_MODEL.md`
+- `docs/FEATURE_IDEAS.md`
+- `docs/ROADMAP.md`
+- `docs/UX_SPEC.md`
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `public/sw.js`
+- `src/app/api/push/route.ts`
+- `src/app/api/push/subscribe/route.ts`
+- `src/app/layout.tsx`
+- `src/app/manifest.ts`
+- `src/app/offline/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/components/InstallPrompt.tsx`
+- `src/components/PushToggle.tsx`
+- `src/components/ServiceWorker.tsx`
+- `supabase/migrations/0032_push_subscriptions.sql`
+- `vercel.json`
+
+
 ### 2026-08-07 — Security: upgrade next 16.2.7 to 16.3.0 - clears all HIGH advisories incl. GHSA-6gpp-xcg3-4w24 proxy/middleware auth bypass (auth guard lives in src/proxy.ts) plus SSRF/DoS/cache-confusion and vulnerable postcss; npm audit now 0 vulnerabilities; build passes, auth redirect and public routes verified on dev server
 
 - `package-lock.json`

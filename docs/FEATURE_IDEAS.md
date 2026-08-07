@@ -53,18 +53,31 @@ ones at the bottom so they stay rejected.*
     ranked by how many distinct neighbors attested (impact, not volume);
     contextual summary line. No score, no leaderboard. *(Private impact
     score still deferred.)*
-11. **Project templates / playbooks** — "start a repair café" kit: proven
-    steps, first-event template, what help to ask for. Templates come from
-    completed projects — the acknowledgment ledger becomes a cookbook. *(M)*
+11. ~~**Project templates / playbooks**~~ ✅ *shipped 2026-08* —
+    `/playbooks`: 8 proven starting points (repair café, community garden,
+    walking group, little free pantry, tool library, skill swap, senior tech
+    hour, block cleanup). Each carries a first step and an explicit "what to
+    ask for" list — a vague ask is the top reason an idea gathers nobody.
+    "Start from this" prefills the wizard at step 1; every word stays
+    editable. As real projects complete, their histories become the next
+    playbooks.
 12. ~~**Co-organizer role**~~ ✅ *shipped 2026-08* — founders promote a
     teammate; co-organizers accept joins, run events, and accept others'
     contributions (never their own; only founders promote). Migration 0028.
-13. **Neighborhood milestones & annual recap** — collective celebration
-    beats ("Aurora's 10th neighbor 🎉", "12 things built in 2026") in feed
-    and a shareable year-recap page. Collective recognition only. *(M)*
-14. **PWA install + push** — manifest, offline shell, opt-in push for the
-    few notifications that matter (join request, confirmation, event
-    tomorrow). The bridge until React Native. *(M)*
+13. ~~**Neighborhood milestones & annual recap**~~ ✅ *shipped 2026-08* — a
+    milestone banner on the feed when the neighborhood crosses a threshold
+    (10/25/50/100/250/500 neighbors; 1/5/10/25/50 things built), plus
+    `/recap?year=` — the neighborhood's year in counts and top categories.
+    Derived on read, never stored. About the place: no person is named,
+    ranked, or thanked more than another.
+14. ~~**PWA install + push**~~ ✅ *shipped 2026-08* — web manifest +
+    maskable icons + shortcuts, a service worker with an `/offline` fallback
+    (network-first, no HTML caching — this app's pages are permission-
+    scoped), a one-line install invitation that never returns once dismissed,
+    and opt-in Web Push. Push is a *delivery channel* for the existing
+    notifications table, drained by a 10-minute cron: already-read
+    notifications are skipped, dead endpoints pruned, opt-out in Settings
+    (migration 0032). The bridge until React Native.
 
 ## Tier 3 — widen (post-pilot)
 

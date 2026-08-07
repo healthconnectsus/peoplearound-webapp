@@ -59,6 +59,11 @@ Enrich the proven loop and broaden within the same neighborhood.
 - [Recognition layer](PRD.md#310-recognition-and-progression--p1) — badges + private personal impact score first
 - Expand to additional project categories within the same neighborhood
 
+**Shipped so far (Tier 2 of [FEATURE_IDEAS](FEATURE_IDEAS.md), 2026-08):** offers
+board · AI Gardener phase 2 · reputation & skills · co-organizer role ·
+playbooks · neighborhood milestones + `/recap` · PWA install + Web Push.
+Remaining in Phase 1: the private impact score.
+
 ## Phase 2 — Template and expand
 
 Replicate, then revisit the business model deliberately.

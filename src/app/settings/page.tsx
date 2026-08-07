@@ -7,6 +7,7 @@ import { signOut } from "@/app/login/actions";
 import { updateProfile } from "./actions";
 import { setDigestOptOut } from "@/app/notificationActions";
 import { AvatarUpload, CoverUpload } from "./PhotoUploads";
+import { PushToggle } from "@/components/PushToggle";
 
 const GENDER_OPTIONS = [
   "Woman",
@@ -264,6 +265,17 @@ export default async function SettingsPage({
                   Save
                 </button>
               </form>
+            </div>
+
+            <div className="mt-6 border-t border-black/5 pt-5 dark:border-white/10">
+              <p className="text-sm font-semibold">Notifications on your phone</p>
+              <p className="mt-0.5 mb-2 text-xs text-black/50 dark:text-white/50">
+                A quiet ping when someone joins your idea, confirms your help,
+                or plans something nearby. Never ads, never &ldquo;come back&rdquo;.
+              </p>
+              <PushToggle
+                vapidKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""}
+              />
             </div>
 
             <div className="mt-6 border-t border-black/5 pt-5 dark:border-white/10">
