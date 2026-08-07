@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Correct stale AI model reference and list new tables/storage in the architecture table
+
+- `docs/ARCHITECTURE.md`
+
+
 ### 2026-08-07 — Docs catch-up: DATA_MODEL tables for updates/flags/views/rate-limit ledger, ROADMAP shipped list, UX_SPEC screens 4.13-4.15, AI provider correction
 
 - `docs/ARCHITECTURE.md`
