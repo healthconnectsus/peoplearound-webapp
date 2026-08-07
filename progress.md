@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Every around-me map frames your neighborhood, not the continent
+
+- `docs/UX_SPEC.md`
+- `src/components/MapShell.tsx`
+- `src/components/NeighborhoodMap.tsx`
+
+
 ### 2026-08-07 — Pin pickers open on your neighborhood, not the whole planet
 
 - `docs/UX_SPEC.md`

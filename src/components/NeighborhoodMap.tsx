@@ -17,6 +17,25 @@ export type MapPin = {
   hot?: boolean;
 };
 
+/** How far from home still counts as "around you", for framing purposes. */
+const NEARBY_KM = 40;
+
+/** Rough great-circle distance in km — precise enough to decide a viewport. */
+function distanceKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+) {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
 /**
  * The neighborhood, as a place: an OpenStreetMap view with one emoji pin
  * per located project. Leaflet is imported dynamically so it only ever
@@ -25,9 +44,17 @@ export type MapPin = {
 export function NeighborhoodMap({
   pins,
   className = "h-72",
+  center = null,
 }: {
   pins: MapPin[];
   className?: string;
+  /**
+   * Your neighborhood. The map frames itself around *here* — a single pin
+   * in another city would otherwise drag the viewport out to a continent,
+   * and a map of a continent tells you nothing about what's around you.
+   * Distant pins still render; they just don't get a vote on the framing.
+   */
+  center?: { lat: number; lng: number } | null;
 }) {
   const holderRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -61,8 +88,21 @@ export function NeighborhoodMap({
         },
       ).addTo(map);
 
-      const bounds = L.latLngBounds(pins.map((p) => [p.lat, p.lng]));
-      map.fitBounds(bounds.pad(0.25), { maxZoom: 16 });
+      const nearby = center
+        ? pins.filter((p) => distanceKm(p, center) <= NEARBY_KM)
+        : pins;
+      if (nearby.length > 0) {
+        const bounds = L.latLngBounds(nearby.map((p) => [p.lat, p.lng]));
+        map.fitBounds(bounds.pad(0.25), { maxZoom: 16 });
+      } else if (center) {
+        // Nothing near home yet — show home anyway rather than the continent
+        // that happens to contain the one distant pin.
+        map.setView([center.lat, center.lng], 13);
+      } else {
+        map.fitBounds(L.latLngBounds(pins.map((p) => [p.lat, p.lng])).pad(0.25), {
+          maxZoom: 16,
+        });
+      }
 
       for (const pin of pins) {
         const icon = L.divIcon({
@@ -93,7 +133,7 @@ export function NeighborhoodMap({
     };
     // Pins come from a server component; re-render on content change only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(pins)]);
+  }, [JSON.stringify(pins), center?.lat, center?.lng]);
 
   if (pins.length === 0) return null;
 

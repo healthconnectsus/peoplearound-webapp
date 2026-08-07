@@ -333,6 +333,20 @@ shouldn't have to go looking for the door, so the ask is one outlined click
 that opens the composer already expanded (`/asks?compose=1`).
 
 
+### Every map frames your neighborhood
+
+The right-hand map fits its viewport to pins **within 40 km of you**, not to
+every pin it was handed. One neighbor in another city used to drag the view
+out to a whole continent — and a map of a continent tells you nothing about
+what's around you. Distant pins still render and are reachable by panning;
+they just don't get a vote on the framing. With nothing nearby yet, the map
+shows home at street-ish zoom rather than the landmass containing the one
+faraway pin.
+
+`MapShell` resolves the centre once for every page that uses it, rather than
+each page passing its own — eight call sites would guarantee one eventually
+forgets. The exception is a project's own page, which frames that project.
+
 ### Pin pickers open where you live
 
 Every "drop a rough pin" map (small help, offers, the idea wizard, your
