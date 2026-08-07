@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Brand tooling: commit logo generator as scripts/gen-logo.mjs (variants quicksand/poppins/comfortaa + licensed-leksen slot, synthetic embolden via rounded polygon offset); verified byte-identical to shipped v6.1 assets; npm audit fix for dev tooling
+
+- `package-lock.json`
+- `package.json`
+- `scripts/gen-logo.mjs`
+
+
 ### 2026-08-07 — Logo v6.1: switch wordmark to Quicksand - colored glass 'people' (Medium), 'around' Bold emboldened +15 units via rounded polygon offset (synthetic ExtraBold, round terminals preserved); favicon matches
 
 - `public/logo-dark.svg`
