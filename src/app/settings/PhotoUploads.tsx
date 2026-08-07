@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Camera, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { initials } from "@/lib/projects";
+import { shrinkImage } from "@/lib/image";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -27,9 +28,10 @@ function usePhotoUpload(userId: string, kind: "avatar" | "cover") {
     const supabase = createClient();
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const path = `${userId}/${kind}.${ext}`;
+    const optimized = await shrinkImage(file);
     const { error: upErr } = await supabase.storage
       .from("profiles")
-      .upload(path, file, { upsert: true });
+      .upload(path, optimized, { upsert: true, cacheControl: "3600" });
     if (upErr) {
       setError(
         /bucket/i.test(upErr.message)

@@ -5,38 +5,100 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * Subscribes to Supabase Realtime for the given tables (comma-separated,
- * kept as a string so the prop is referentially stable across re-renders)
- * and refreshes the current server-rendered route when anything changes.
- * RLS applies to the subscription, so users only get events for rows they
- * can see. Renders nothing.
+ * Keeps a server-rendered page fresh without polling every viewer.
+ *
+ * Scaling notes (see docs/SCALING.md — realtime is the first wall we hit):
+ *  • Each entry may carry a server-side filter — "messages:conversation_id=eq.X"
+ *    — so Postgres only pushes rows this page actually cares about instead of
+ *    every row in the table.
+ *  • Subscriptions are dropped while the tab is hidden and re-established on
+ *    return, which removes the long tail of forgotten background tabs (the
+ *    bulk of concurrent subscribers in a social app).
+ *  • Refreshes are debounced and rate-limited, so a burst of writes costs one
+ *    re-render, not one per event.
+ *  • Set NEXT_PUBLIC_REALTIME=off to fall back to visibility-aware polling
+ *    (cheap escape hatch if realtime ever gets expensive before the
+ *    Broadcast rewrite).
  */
+
+const DEBOUNCE_MS = 1200;
+const MIN_GAP_MS = 5000; // never re-render more than once per 5s
+const POLL_MS = 60000;
+
 export function LiveRefresh({ tables }: { tables: string }) {
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let lastRun = 0;
+    let disposed = false;
 
-    // Debounce: a burst of changes (e.g. reconcile + attest) → one refresh.
     const refresh = () => {
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => router.refresh(), 500);
+      const since = Date.now() - lastRun;
+      const wait = Math.max(DEBOUNCE_MS, MIN_GAP_MS - since);
+      timer = setTimeout(() => {
+        if (disposed || document.visibilityState !== "visible") return;
+        lastRun = Date.now();
+        router.refresh();
+      }, wait);
     };
 
-    let channel = supabase.channel(`live-refresh-${tables}`);
-    for (const table of tables.split(",")) {
-      channel = channel.on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: table.trim() },
-        refresh,
-      );
+    // --- Polling fallback -------------------------------------------------
+    if (process.env.NEXT_PUBLIC_REALTIME === "off") {
+      const id = setInterval(() => {
+        if (document.visibilityState === "visible") router.refresh();
+      }, POLL_MS);
+      return () => clearInterval(id);
     }
-    channel.subscribe();
+
+    // --- Realtime ---------------------------------------------------------
+    const supabase = createClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    const subscribe = () => {
+      if (channel) return;
+      let ch = supabase.channel(`live:${tables}`);
+      for (const entry of tables.split(",")) {
+        const [table, filter] = entry.trim().split(":");
+        if (!table) continue;
+        ch = ch.on(
+          "postgres_changes",
+          filter
+            ? { event: "*", schema: "public", table, filter }
+            : { event: "*", schema: "public", table },
+          refresh,
+        );
+      }
+      ch.subscribe();
+      channel = ch;
+    };
+
+    const unsubscribe = () => {
+      if (!channel) return;
+      supabase.removeChannel(channel);
+      channel = null;
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        subscribe();
+        // Catch up on anything missed while the tab was hidden.
+        refresh();
+      } else {
+        unsubscribe();
+        if (timer) clearTimeout(timer);
+      }
+    };
+
+    if (document.visibilityState === "visible") subscribe();
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
+      disposed = true;
+      document.removeEventListener("visibilitychange", onVisibility);
       if (timer) clearTimeout(timer);
-      supabase.removeChannel(channel);
+      unsubscribe();
     };
   }, [router, tables]);
 

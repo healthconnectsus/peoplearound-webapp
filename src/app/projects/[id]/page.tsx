@@ -253,7 +253,16 @@ export default async function ProjectDetail({
   return (
     <AppShell>
       <BadgeCelebration badges={badges} userId={user.id} />
-      <LiveRefresh tables="projects,stars,memberships,events,rsvps,contributions,attestations" />
+      <LiveRefresh
+        tables={[
+          `projects:id=eq.${id}`,
+          `stars:project_id=eq.${id}`,
+          `memberships:project_id=eq.${id}`,
+          `events:project_id=eq.${id}`,
+          `contributions:project_id=eq.${id}`,
+          `project_updates:project_id=eq.${id}`,
+        ].join(",")}
+      />
       <div
         className={
           hasPin

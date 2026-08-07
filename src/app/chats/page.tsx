@@ -164,7 +164,13 @@ export default async function ChatsPage({
 
   return (
     <AppShell>
-      <LiveRefresh tables="messages" />
+      <LiveRefresh
+        tables={
+          selectedId
+            ? `messages:conversation_id=eq.${selectedId}`
+            : "messages"
+        }
+      />
       <main className="w-full max-w-5xl flex-1 p-4 lg:py-6">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-3xl font-extrabold tracking-tight">Chats</h1>

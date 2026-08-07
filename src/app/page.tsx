@@ -465,7 +465,7 @@ export default async function Home({
   return (
     <AppShell>
       <BadgeCelebration badges={badges} userId={user.id} />
-      <LiveRefresh tables="projects,stars,memberships,events" />
+      <LiveRefresh tables="projects,events" />
 
       <div className={pins.length > 0 ? "lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]" : ""}>
         {/* The map — the neighborhood as a place. Sticky on desktop. */}

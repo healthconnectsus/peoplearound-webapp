@@ -7,6 +7,21 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Scaling fixes: filtered+visibility-gated realtime with polling fallback, client-side image downscaling, swappable map tile provider, Haiku fallback for AI; add docs/SCALING.md
+
+- `docs/SCALING.md`
+- `src/app/api/shape-idea/route.ts`
+- `src/app/chats/page.tsx`
+- `src/app/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/settings/PhotoUploads.tsx`
+- `src/components/LiveRefresh.tsx`
+- `src/components/MapPicker.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/components/PhotoPicker.tsx`
+- `src/lib/image.ts`
+
+
 ### 2026-08-07 — Analytics page (/analytics): funnel, 30-day view trend, per-idea table; map now focuses on local+city pins instead of zooming out to the continent
 
 - `docs/FEATURE_IDEAS.md`

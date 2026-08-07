@@ -3,14 +3,9 @@
 import { useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { shrinkImage } from "@/lib/image";
 
 const MAX_BYTES = 5 * 1024 * 1024;
-
-/**
- * Uploads an image to the public "projects" bucket under the user's own
- * folder (RLS: `{uid}/…`) and hands back the public URL. Used by the
- * share-an-idea wizard (before a project row exists) and by project pages.
- */
 export function PhotoPicker({
   userId,
   value,
@@ -40,12 +35,16 @@ export function PhotoPicker({
     setBusy(true);
     setError(null);
     const supabase = createClient();
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const optimized = await shrinkImage(file);
+    const ext = optimized.name.split(".").pop()?.toLowerCase() || "jpg";
     // Unique per upload so replacing a photo never hits a stale CDN copy.
     const path = `${userId}/${Date.now()}-${Math.round(performance.now())}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("projects")
-      .upload(path, file, { upsert: true });
+      .upload(path, optimized, {
+        upsert: true,
+        cacheControl: "31536000", // immutable: paths are unique per upload
+      });
     if (upErr) {
       setError(
         /bucket/i.test(upErr.message)

@@ -170,7 +170,9 @@ export async function POST(request: Request) {
   const anthropic = new Anthropic();
   try {
     const response = await anthropic.messages.create({
-      model: "claude-opus-4-8",
+      // Fallback only (DeepSeek is primary). Haiku is ~6× cheaper than Opus
+      // for a task this small — see docs/SCALING.md.
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 2048,
       system: SYSTEM_PROMPT,
       output_config: {

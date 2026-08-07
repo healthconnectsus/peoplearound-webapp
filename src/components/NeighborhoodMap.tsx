@@ -46,11 +46,20 @@ export function NeighborhoodMap({
       if (disposed || !holderRef.current) return;
 
       map = L.map(holderRef.current, { scrollWheelZoom: false });
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-      }).addTo(map);
+      // Tiles are provider-swappable: OSM's public tiles are free but
+      // policy-limited (fine for a pilot, throttled for a real user base).
+      // Point NEXT_PUBLIC_MAP_TILE_URL at Stadia/MapTiler when we outgrow
+      // them — no code change (see docs/SCALING.md).
+      L.tileLayer(
+        process.env.NEXT_PUBLIC_MAP_TILE_URL ||
+          "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution:
+            process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ||
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        },
+      ).addTo(map);
 
       const bounds = L.latLngBounds(pins.map((p) => [p.lat, p.lng]));
       map.fitBounds(bounds.pad(0.25), { maxZoom: 16 });

@@ -55,11 +55,20 @@ export function MapPicker({
         value ? [value.lat, value.lng] : [20, 0],
         value ? 15 : 2,
       );
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-      }).addTo(map);
+      // Tiles are provider-swappable: OSM's public tiles are free but
+      // policy-limited (fine for a pilot, throttled for a real user base).
+      // Point NEXT_PUBLIC_MAP_TILE_URL at Stadia/MapTiler when we outgrow
+      // them — no code change (see docs/SCALING.md).
+      L.tileLayer(
+        process.env.NEXT_PUBLIC_MAP_TILE_URL ||
+          "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution:
+            process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ||
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        },
+      ).addTo(map);
       map.on("click", (e: import("leaflet").LeafletMouseEvent) => {
         setMarker(e.latlng.lat, e.latlng.lng);
         onChangeRef.current({ lat: e.latlng.lat, lng: e.latlng.lng });
