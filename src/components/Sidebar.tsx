@@ -5,14 +5,12 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   Star,
-  Users,
   CalendarDays,
   HeartHandshake,
   Lightbulb,
   MapPin,
   Gift,
   HandHelping,
-  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,12 +24,10 @@ export type CommunityInfo = {
 const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/", label: "Home", icon: Home },
   { href: "/faves", label: "Local Faves", icon: Star },
-  { href: "/groups", label: "Groups", icon: Users },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/offers", label: "Offers", icon: Gift },
   { href: "/asks", label: "Small help", icon: HandHelping },
   { href: "/people", label: "People around", icon: HeartHandshake },
-  { href: "/playbooks", label: "Playbooks", icon: BookOpen },
   { href: "/ideas", label: "My ideas", icon: Lightbulb },
   { href: "/neighborhood", label: "My Communities", icon: MapPin },
 ];
@@ -121,6 +117,16 @@ export function Sidebar({
         className="mt-5 rounded-full bg-emerald-600 px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-emerald-700"
       >
         + Share an idea
+      </Link>
+
+      {/* Secondary on purpose: an idea is the thing this place is for, but a
+          person who just needs a hand shouldn't have to go looking for the
+          door. Outlined keeps the hierarchy while still being one click. */}
+      <Link
+        href="/asks?compose=1"
+        className="mt-2 rounded-full border border-emerald-600/40 px-4 py-2.5 text-center text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+      >
+        🙋 Ask for small help
       </Link>
 
       <div className="mt-auto flex flex-col gap-0.5 pb-1">

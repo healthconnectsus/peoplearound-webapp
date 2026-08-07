@@ -7,6 +7,20 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Sidebar: 'Ask for small help' button; fold Groups into People around and Playbooks into My ideas
+
+- `docs/UX_SPEC.md`
+- `src/app/asks/AskComposer.tsx`
+- `src/app/asks/page.tsx`
+- `src/app/groups/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/playbooks/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/components/PlaybookList.tsx`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-07 — Small help: ask for a hand with an honest time estimate
 
 - `docs/DATA_MODEL.md`

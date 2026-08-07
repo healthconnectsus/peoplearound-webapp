@@ -36,7 +36,12 @@ type AskRow = {
   helper?: { display_name: string | null } | null;
 };
 
-export default async function AsksPage() {
+export default async function AsksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ compose?: string }>;
+}) {
+  const { compose } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -79,7 +84,7 @@ export default async function AsksPage() {
           ) : null}
 
           <div className="mt-6">
-            <AskComposer userId={user.id} />
+            <AskComposer userId={user.id} startOpen={compose === "1"} />
           </div>
 
           <section className="mt-8">

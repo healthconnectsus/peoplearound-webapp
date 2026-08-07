@@ -28,8 +28,15 @@ const EXAMPLES = [
   "Read a letter I don't understand",
 ];
 
-export function AskComposer({ userId }: { userId: string }) {
-  const [open, setOpen] = useState(false);
+export function AskComposer({
+  userId,
+  startOpen = false,
+}: {
+  userId: string;
+  /** The sidebar's "Ask for small help" lands here with the form already up. */
+  startOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(startOpen);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [spot, setSpot] = useState<{ lat: number; lng: number } | null>(null);
   const [title, setTitle] = useState("");

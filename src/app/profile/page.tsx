@@ -550,7 +550,7 @@ export default async function ProfilePage({
                 then, every project has a team.
               </p>
               <Link
-                href="/groups"
+                href="/people#groups"
                 className="mt-4 inline-block rounded-full border border-black/15 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
               >
                 👥 Explore groups

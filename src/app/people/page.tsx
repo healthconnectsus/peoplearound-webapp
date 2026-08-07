@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
-import { nearbyProjectPins, peopleClusterPins } from "@/lib/mapPins";
+import { groupPins, nearbyProjectPins, peopleClusterPins } from "@/lib/mapPins";
 import { initials } from "@/lib/projects";
 
 type PersonRow = {
@@ -97,9 +97,16 @@ export default async function PeoplePage() {
 
   // People are pinned as COMMUNITY clusters with headcounts — never at
   // anyone's home (see lib/mapPins.ts).
-  const clusters = await peopleClusterPins(supabase);
-  const pins = clusters.length
-    ? clusters
+  // Groups (communities that aren't a plain neighborhood) live on this page
+  // too — a group IS people, and a separate tab for it was a distinction the
+  // user had to hold rather than one the product earned.
+  const [clusters, gPins] = await Promise.all([
+    peopleClusterPins(supabase),
+    groupPins(supabase),
+  ]);
+  const located = [...clusters, ...gPins];
+  const pins = located.length
+    ? located
     : await nearbyProjectPins(supabase, user.id);
   return (
     <AppShell>
@@ -107,8 +114,8 @@ export default async function PeoplePage() {
         <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">People around</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-            The neighbors near you, and people further away who are open to
-            helping online.
+            The neighbors near you, the groups they form, and people further
+            away who are open to helping online.
           </p>
 
           <section className="mt-6">
@@ -148,6 +155,28 @@ export default async function PeoplePage() {
               </ul>
             </section>
           ) : null}
+          <section id="groups" className="mt-10 scroll-mt-6">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+              👥 Groups
+            </h2>
+            <div className="rounded-2xl border border-dashed border-black/15 bg-white p-8 text-center dark:border-white/15 dark:bg-zinc-900">
+              <p className="text-3xl" aria-hidden>
+                👥
+              </p>
+              <p className="mt-3 font-medium">Groups are coming soon</p>
+              <p className="mx-auto mt-1 max-w-md text-sm text-black/60 dark:text-white/60">
+                Lasting circles of neighbors — gardeners, runners, makers — that
+                outlive any single project. Until then, every project already has
+                a team you can join.
+              </p>
+              <Link
+                href="/"
+                className="mt-5 inline-block rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              >
+                Browse projects
+              </Link>
+            </div>
+          </section>
         </main>
       </MapShell>
     </AppShell>

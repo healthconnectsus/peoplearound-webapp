@@ -308,3 +308,26 @@ Design rules:
   to remember to visit.
 - Location is approximate on the same terms as offers — a corner or a block,
   rounded to ~110 m, never a doorstep.
+
+
+## Navigation: eight rails, not eleven
+
+The left rail holds Home · Local Faves · Events · Offers · Small help ·
+People around · My ideas · My Communities, then two buttons: **+ Share an
+idea** (filled) and **🙋 Ask for small help** (outlined).
+
+Two items were folded away rather than kept:
+
+- **Groups → People around** (`/people#groups`). A group *is* people. A
+  separate rail item made the reader hold a distinction the product hadn't
+  earned yet — especially while Groups is still a coming-soon placeholder.
+- **Playbooks → My ideas** (`/ideas#playbooks`). A playbook is only useful at
+  the moment you're deciding what to start, which is precisely the page you're
+  on when you have no ideas yet. The empty state now points down to them.
+
+Both old routes redirect, so existing links and bookmarks still land.
+
+The ask button is deliberately *secondary*. An idea is what this place is
+for, so it keeps the filled button — but someone who just needs a hand
+shouldn't have to go looking for the door, so the ask is one outlined click
+that opens the composer already expanded (`/asks?compose=1`).

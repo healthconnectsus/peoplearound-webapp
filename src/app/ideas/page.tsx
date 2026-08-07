@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { categoryMeta, STATE_META, type Project } from "@/lib/projects";
+import { PlaybookList } from "@/components/PlaybookList";
 
 function IdeaRow({
   p,
@@ -121,6 +122,13 @@ export default async function IdeasPage() {
               >
                 Share your first idea
               </Link>
+              <p className="mt-3 text-xs text-black/45 dark:text-white/45">
+                Not sure what?{" "}
+                <a href="#playbooks" className="underline">
+                  Start from a playbook
+                </a>{" "}
+                below.
+              </p>
             </div>
           )}
         </section>
@@ -142,6 +150,8 @@ export default async function IdeasPage() {
             </ul>
           </section>
         ) : null}
+
+        <PlaybookList />
       </main>
     </AppShell>
   );
