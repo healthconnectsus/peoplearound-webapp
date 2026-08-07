@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `offers` and `reputation` are still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `offers` and `reputation` are still planned.
 
 ## Entity relationships
 
@@ -283,6 +283,27 @@ Rate-limit ledger behind the per-user abuse caps (migration 0017).
 > (security definer) touch it. Caps: projects 10/day · communities 3/day ·
 > conversations 20/day · messages 200/hour · flags 10/day · updates 20/day ·
 > AI shaping 20/day.
+
+### notifications
+
+The persistent inbox behind the TopBar bell and the weekly digest. Rows are
+created **only by database triggers** (join requests, joins, stars, logged
+contributions, confirmations, new events), so every write path fans out the
+same way. The `notify()` helper never notifies the actor about their own
+action.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| user_id | uuid (FK → profiles) | |
+| kind | text | `join_request` · `joined` · `star` · `contribution` · `confirmed` · `event` |
+| body / href | text | ≤ 300 chars each |
+| read_at | timestamptz, nullable | Mark-all-read sets it |
+| created_at | timestamptz | |
+
+> **RLS:** read/update (mark read) your own only; no client inserts or
+> deletes. `profiles.is_admin` gates `/admin`; `profiles.digest_opt_out`
+> is respected by the weekly digest (migration 0025).
 
 ## Tables — planned
 

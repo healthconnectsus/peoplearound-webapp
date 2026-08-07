@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 1 part 3: /admin ops console (flag queue, community cleanup, health strip) with is_admin gating; docs for the whole batch
+
+- `docs/DATA_MODEL.md`
+- `docs/FEATURE_IDEAS.md`
+- `docs/ROADMAP.md`
+- `src/app/admin/adminActions.ts`
+- `src/app/admin/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-07 — Tier 1 part 2: persistent notification inbox (bell reads the table, mark-all-read, unread styling) and weekly digest email (Vercel Cron + Resend, quiet weeks send nothing, Settings opt-out)
 
 - `src/app/api/digest/route.ts`

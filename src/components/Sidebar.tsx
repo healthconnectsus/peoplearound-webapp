@@ -44,10 +44,12 @@ const UTILITY_ITEMS = [
 export function Sidebar({
   community,
   dimmed = false,
+  isAdmin = false,
 }: {
   community: CommunityInfo | null;
   /** Focus mode (e.g. the idea wizard): veil everything except the logo. */
   dimmed?: boolean;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
 
@@ -115,6 +117,18 @@ export function Sidebar({
       </Link>
 
       <div className="mt-auto flex flex-col gap-0.5 pb-1">
+        {isAdmin ? (
+          <Link
+            href="/admin"
+            className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+              pathname.startsWith("/admin")
+                ? "font-medium text-emerald-700 dark:text-emerald-400"
+                : "text-black/55 hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
+            }`}
+          >
+            🛡️ Admin
+          </Link>
+        ) : null}
         {UTILITY_ITEMS.map((item) => (
           <Link
             key={item.href}

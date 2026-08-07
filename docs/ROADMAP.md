@@ -34,6 +34,8 @@ The goal of this phase is to prove the join-and-build loop works in a single nei
 - ✅ Community moderation — one-flag-per-neighbor reporting with an ops review email at 3 flags; nothing auto-hidden
 - ✅ Private analytics — `/analytics`: looking→helping funnel, 30-day view trend, per-idea table (views never identify viewers)
 - ✅ Anti-abuse + [scaling](SCALING.md) pass — per-user DB rate caps, Turnstile wiring, filtered/visibility-gated realtime, image downscaling, swappable map tiles
+- ✅ Notifications + weekly digest — trigger-fanned inbox behind the bell; one calm Resend email a week (quiet weeks send nothing), Settings opt-out
+- ✅ Ops essentials — `/admin` console (flag queue, community cleanup), add-to-calendar on events, feed filter chips, onboarding first-action nudge
 - ✅ Communities generalization — neighborhoods extended with kinds (cultural/hobby/interest…), multi-membership (`community_members`), messaging tables; profile fields + public landing teaser
 
 **All Phase 0 software is live.** What remains is the human part: run the pilot in one real neighborhood and meet the exit criteria below. (Neighborhood *verification* — phone + address — is deliberately later; today neighborhoods are self-selected.)

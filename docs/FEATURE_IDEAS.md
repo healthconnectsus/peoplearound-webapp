@@ -16,22 +16,22 @@ ones at the bottom so they stay rejected.*
 2. ~~**Project updates (founder posts)**~~ ✅ *shipped 2026-08* — founder and
    accepted teammates post text+photo progress notes (`project_updates`,
    migration 0021); each lands in the history timeline as a 📣 beat.
-3. **Notification inbox + email digest** — the TopBar bell is live-only
-   today. Persist notifications (join requests, confirmations, event
-   reminders) and send a weekly "your neighborhood this week" email via the
-   existing Resend pipe. Digest > push: calm, batched, no dopamine drip. *(L)*
-4. **Onboarding first-action nudge** — after sign-up, one gentle checklist
-   card: "star one idea · RSVP to one event". Matches the PRD's first-action
-   target (star/join within the first session). Disappears once done. *(S)*
-5. **Search & filters that work** — filter the feed by category, help kind
-   (hands/online), state, and "has an event soon". The `q` search exists;
-   make it good. *(S)*
-6. **Add-to-calendar for events** — .ics download + Google Calendar link on
-   every event. Physical showing-up is the product; calendars are how
-   humans show up. *(S)*
-7. **Admin console (ops)** — a `/admin` page for you: flag review queue,
-   frontier locations to rename, community management — replacing SQL
-   editor ops. Gate by an `is_admin` profile flag. *(M)*
+3. ~~**Notification inbox + email digest**~~ ✅ *shipped 2026-08* —
+   `notifications` table with trigger fan-out (migration 0025), persistent
+   bell with unread styling + mark-all-read, weekly Resend digest via Vercel
+   Cron (Saturdays; quiet weeks send nothing; Settings opt-out).
+4. ~~**Onboarding first-action nudge**~~ ✅ *shipped 2026-08* — checklist
+   card for young accounts ("star an idea · say I'm in to one event"),
+   retires itself once both are done.
+5. ~~**Search & filters**~~ ✅ *shipped 2026-08* — server-rendered filter
+   chips (category, hands-nearby/online, "event soon") composing with `q`
+   search as shareable URLs.
+6. ~~**Add-to-calendar for events**~~ ✅ *shipped 2026-08* — Google Calendar
+   link + .ics download on every upcoming event (floating local times).
+7. ~~**Admin console**~~ ✅ *shipped 2026-08* — `/admin` (gated by
+   `profiles.is_admin`): health strip, flag review queue (clear / archive),
+   community rename + city + delete-empty. Every action re-verifies admin
+   before using the service role.
 
 8. ~~**Private analytics page**~~ ✅ *shipped 2026-08* — `/analytics`:
    headline numbers, the looking→helping funnel (views → stars → requests →

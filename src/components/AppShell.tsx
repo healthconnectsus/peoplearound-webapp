@@ -21,19 +21,22 @@ export async function AppShell({
   } = await supabase.auth.getUser();
 
   let community: CommunityInfo | null = null;
+  let isAdmin = false;
   if (user) {
     const { data: profileRow } = await supabase
       .from("profiles")
       .select(
-        "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+        "neighborhood_id,is_admin,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
       )
       .eq("id", user.id)
       .maybeSingle();
     const profile = profileRow as unknown as {
       neighborhood_id: string | null;
+      is_admin?: boolean | null;
       neighborhood?: { name: string; city: string | null } | null;
     } | null;
 
+    isAdmin = Boolean(profile?.is_admin);
     if (profile?.neighborhood_id && profile.neighborhood) {
       const [{ count: mine }, { count: total }, membershipResult] =
         await Promise.all([
@@ -69,7 +72,7 @@ export async function AppShell({
 
   return (
     <div className="min-h-screen lg:flex">
-      <Sidebar community={community} dimmed={focus} />
+      <Sidebar community={community} dimmed={focus} isAdmin={isAdmin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader />
         <TopBar />
