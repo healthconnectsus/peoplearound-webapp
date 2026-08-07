@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-06 — Logo v5.1: 'around' letters now overlap 70 units with 0.88 translucency (layered-glass color mixing, placed by bbox so bearings can't eat the overlap); favicon pa overlaps too
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-08-06 — Logo v5: full redesign - lowercase Poppins editorial wordmark, 'people' in Light ink, 'around' Medium with one brand color per letter; matching pa favicon; text vectorized to paths (OFL font, not shipped)
 
 - `public/logo-dark.svg`
