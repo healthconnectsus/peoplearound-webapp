@@ -18,7 +18,11 @@ export async function shrinkImage(file: File): Promise<File> {
     return file;
   }
   try {
-    const bitmap = await createImageBitmap(file);
+    // "from-image" applies EXIF orientation. Without it, re-encoding a
+    // phone photo silently rotates it (portrait shots land sideways).
+    const bitmap = await createImageBitmap(file, {
+      imageOrientation: "from-image",
+    });
     const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
     if (scale === 1 && file.size < 400 * 1024) {
       bitmap.close();

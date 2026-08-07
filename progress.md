@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Fix two defects in the scaling pass: apply EXIF orientation when downscaling photos, and REPLICA IDENTITY FULL so filtered realtime catches deletes
+
+- `docs/SCALING.md`
+- `src/lib/image.ts`
+- `supabase/migrations/0023_realtime_delete_filters.sql`
+
+
 ### 2026-08-07 — docs: add BUSINESS.md — monetization streams, sequencing, break-even
 
 - `docs/BUSINESS.md`

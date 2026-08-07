@@ -43,6 +43,11 @@ Now:
   writes) instead of also `stars,memberships` (frequent writes).
 - **Escape hatch** — `NEXT_PUBLIC_REALTIME=off` switches to visibility-aware
   60s polling with no code change.
+- **Delete events still match** — Postgres only replicates the primary key on
+  DELETE, so a filter on a non-PK column silently misses deletions. Migration
+  0023 sets `REPLICA IDENTITY FULL` on `contributions`, `events`, and
+  `project_updates` (low-write tables) so removing one still refreshes other
+  viewers. `stars`/`memberships` already carry `project_id` in their PK.
 
 **Next threshold (~10–20k MAU):** move to Realtime **Broadcast** (server
 publishes one lightweight event; clients patch state) instead of
@@ -53,7 +58,9 @@ publishes one lightweight event; clients patch state) instead of
 Uploads used to go up as 5 MB originals and render full-size.
 
 Now: `shrinkImage()` (src/lib/image.ts) re-encodes in the browser before
-upload — max 1600px edge, JPEG q82, typically **~10× smaller** — used by both
+upload — max 1600px edge, JPEG q82, EXIF orientation applied (`imageOrientation:
+"from-image"`, without which portrait phone photos re-encode sideways),
+typically **~10× smaller** — used by both
 project photos and profile avatars/covers. Uploads are cached immutably
 (unique paths). `thumbUrl()` is ready for Supabase image transformations
 behind `NEXT_PUBLIC_IMAGE_TRANSFORM=on` when we're on a plan that includes
