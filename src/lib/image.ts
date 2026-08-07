@@ -33,6 +33,10 @@ export async function shrinkImage(file: File): Promise<File> {
     canvas.height = Math.round(bitmap.height * scale);
     const ctx = canvas.getContext("2d");
     if (!ctx) return file;
+    // JPEG has no alpha channel: without a white base, transparent pixels
+    // (logo-style avatars) encode as black.
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
     bitmap.close();
     const blob = await new Promise<Blob | null>((resolve) =>

@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Fix reviewer-found RSVP staleness (trigger touches parent event), cap realtime debounce at 10s, store JPEG bytes under .jpg paths, flatten transparency to white before JPEG encode
+
+- `docs/SCALING.md`
+- `src/app/settings/PhotoUploads.tsx`
+- `src/components/LiveRefresh.tsx`
+- `src/lib/image.ts`
+- `supabase/migrations/0024_rsvp_touches_event.sql`
+
+
 ### 2026-08-07 — Fix two defects in the scaling pass: apply EXIF orientation when downscaling photos, and REPLICA IDENTITY FULL so filtered realtime catches deletes
 
 - `docs/SCALING.md`

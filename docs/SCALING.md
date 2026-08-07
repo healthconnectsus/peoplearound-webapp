@@ -43,11 +43,25 @@ Now:
   writes) instead of also `stars,memberships` (frequent writes).
 - **Escape hatch** — `NEXT_PUBLIC_REALTIME=off` switches to visibility-aware
   60s polling with no code change.
+- **RSVPs bump their event** — `rsvps` has no `project_id`, so subscribing to
+  it meant every RSVP system-wide reaching every viewer. It was dropped, but
+  an RSVP writes only the `rsvps` row, so other viewers' "N going" counts went
+  stale. Migration 0024 adds `events.updated_at` and a trigger that touches
+  the parent event on RSVP insert/delete, so the existing `events` filter
+  fires. (Attestations needed no equivalent: attesting calls
+  `reconcile_contributions`, which updates a subscribed `contributions` row.)
 - **Delete events still match** — Postgres only replicates the primary key on
   DELETE, so a filter on a non-PK column silently misses deletions. Migration
   0023 sets `REPLICA IDENTITY FULL` on `contributions`, `events`, and
   `project_updates` (low-write tables) so removing one still refreshes other
   viewers. `stars`/`memberships` already carry `project_id` in their PK.
+
+**Accepted tradeoffs:** with a conversation open, chats subscribe only to
+that conversation, so other conversations' sidebar previews update on the
+next navigation rather than instantly — deliberate, since an unfiltered
+`messages` subscription costs a per-subscriber RLS check on every message in
+the system. Likewise `NEXT_PUBLIC_*` values are baked at build time, so
+switching map providers needs a redeploy, not just an env edit.
 
 **Next threshold (~10–20k MAU):** move to Realtime **Broadcast** (server
 publishes one lightweight event; clients patch state) instead of

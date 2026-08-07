@@ -23,6 +23,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const DEBOUNCE_MS = 1200;
 const MIN_GAP_MS = 5000; // never re-render more than once per 5s
+const MAX_WAIT_MS = 10000; // …but never postpone longer than this
 const POLL_MS = 60000;
 
 export function LiveRefresh({ tables }: { tables: string }) {
@@ -31,17 +32,29 @@ export function LiveRefresh({ tables }: { tables: string }) {
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
     let lastRun = 0;
+    let pendingSince = 0; // when the current burst started
     let disposed = false;
 
+    const run = () => {
+      timer = null;
+      pendingSince = 0;
+      if (disposed || document.visibilityState !== "visible") return;
+      lastRun = Date.now();
+      router.refresh();
+    };
+
     const refresh = () => {
+      const now = Date.now();
+      if (!pendingSince) pendingSince = now;
+      // A continuous stream (a hot chat) must not postpone forever: cap the
+      // total wait, so the page still updates mid-burst.
+      const deadline = pendingSince + MAX_WAIT_MS;
+      const wait = Math.min(
+        Math.max(DEBOUNCE_MS, MIN_GAP_MS - (now - lastRun)),
+        Math.max(0, deadline - now),
+      );
       if (timer) clearTimeout(timer);
-      const since = Date.now() - lastRun;
-      const wait = Math.max(DEBOUNCE_MS, MIN_GAP_MS - since);
-      timer = setTimeout(() => {
-        if (disposed || document.visibilityState !== "visible") return;
-        lastRun = Date.now();
-        router.refresh();
-      }, wait);
+      timer = setTimeout(run, wait);
     };
 
     // --- Polling fallback -------------------------------------------------

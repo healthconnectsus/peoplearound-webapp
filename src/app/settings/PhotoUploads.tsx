@@ -26,9 +26,11 @@ function usePhotoUpload(userId: string, kind: "avatar" | "cover") {
     setBusy(true);
     setError(null);
     const supabase = createClient();
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${userId}/${kind}.${ext}`;
     const optimized = await shrinkImage(file);
+    // Extension must describe the BYTES we're storing: shrinkImage re-encodes
+    // to JPEG, so a .png path would hold JPEG data.
+    const ext = optimized.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${userId}/${kind}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("profiles")
       .upload(path, optimized, { upsert: true, cacheControl: "3600" });
