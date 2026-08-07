@@ -41,6 +41,7 @@ import {
   logContribution,
   requestJoin,
   respondToMembership,
+  setMemberRole,
   setProjectState,
   toggleRsvp,
   toggleStar,
@@ -93,7 +94,7 @@ export default async function ProjectDetail({
   // Memberships — requests and accepted collaborators.
   const { data: memberRows } = await supabase
     .from("memberships")
-    .select("user_id,status,created_at,profile:profiles(display_name)")
+    .select("user_id,status,role,created_at,profile:profiles(display_name)")
     .eq("project_id", id)
     .order("created_at", { ascending: true });
   const members = (memberRows ?? []) as unknown as Membership[];
@@ -103,6 +104,10 @@ export default async function ProjectDetail({
   const accepted = members.filter((m) => m.status === "accepted");
   const teamSize = accepted.length + 1; // founder + accepted collaborators
   const isTeammate = myMembership?.status === "accepted";
+  // Co-organizers steward the project alongside the founder: accept joins,
+  // run events, accept others' contributions (never their own).
+  const myRole = (myMembership as unknown as { role?: string } | null)?.role;
+  const isSteward = isOwner || (isTeammate && myRole === "co_organizer");
 
   // Private analytics: count this visit (deduped per day; owners excluded;
   // raw rows never client-readable — see migration 0020).
@@ -463,7 +468,7 @@ export default async function ProjectDetail({
         ) : null}
 
         {/* Owner: pending join requests */}
-        {isOwner && pending.length > 0 ? (
+        {isSteward && pending.length > 0 ? (
           <div className="mt-7">
             <h2 className="mb-2 text-sm font-semibold">
               Wants to join ({pending.length})
@@ -527,21 +532,50 @@ export default async function ProjectDetail({
                 key={m.user_id}
                 className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-4 py-3 dark:border-white/10"
               >
-                <span className="text-sm">
+                <span className="flex flex-wrap items-center gap-2 text-sm">
                   {m.profile?.display_name ?? "Someone"}
+                  {(m as unknown as { role?: string }).role === "co_organizer" ? (
+                    <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-medium text-sky-800 dark:bg-sky-950/50 dark:text-sky-300">
+                      🛠️ Co-organizer
+                    </span>
+                  ) : null}
                 </span>
                 {isOwner ? (
-                  <form action={respondToMembership}>
-                    <input type="hidden" name="projectId" value={project.id} />
-                    <input type="hidden" name="userId" value={m.user_id} />
-                    <input type="hidden" name="decision" value="decline" />
-                    <ConfirmSubmit
-                      message={`Remove ${m.profile?.display_name ?? "this person"} from the project?`}
-                      className="text-xs text-red-600 hover:underline dark:text-red-400"
-                    >
-                      Remove
-                    </ConfirmSubmit>
-                  </form>
+                  <span className="flex flex-wrap items-center gap-3">
+                    <form action={setMemberRole}>
+                      <input type="hidden" name="projectId" value={project.id} />
+                      <input type="hidden" name="memberId" value={m.user_id} />
+                      <input
+                        type="hidden"
+                        name="role"
+                        value={
+                          (m as unknown as { role?: string }).role === "co_organizer"
+                            ? "member"
+                            : "co_organizer"
+                        }
+                      />
+                      <button
+                        type="submit"
+                        title="Co-organizers can accept join requests, run events, and accept others' contributions"
+                        className="text-xs text-black/50 hover:underline dark:text-white/50"
+                      >
+                        {(m as unknown as { role?: string }).role === "co_organizer"
+                          ? "Make member"
+                          : "Make co-organizer"}
+                      </button>
+                    </form>
+                    <form action={respondToMembership}>
+                      <input type="hidden" name="projectId" value={project.id} />
+                      <input type="hidden" name="userId" value={m.user_id} />
+                      <input type="hidden" name="decision" value="decline" />
+                      <ConfirmSubmit
+                        message={`Remove ${m.profile?.display_name ?? "this person"} from the project?`}
+                        className="text-xs text-red-600 hover:underline dark:text-red-400"
+                      >
+                        Remove
+                      </ConfirmSubmit>
+                    </form>
+                  </span>
                 ) : (
                   <span className="text-xs text-black/40 dark:text-white/40">
                     joined {timeAgo(m.created_at)}
@@ -758,7 +792,7 @@ export default async function ProjectDetail({
             </ul>
           )}
 
-          {isOwner ? (
+          {isSteward ? (
             <form
               action={createEvent}
               className="mt-4 rounded-2xl border border-black/10 p-4 dark:border-white/10"
@@ -867,11 +901,11 @@ export default async function ProjectDetail({
                       )}
                     </p>
 
-                    {(isOwner && !isMine && c.status === "logged") ||
+                    {(isSteward && !isMine && c.status === "logged") ||
                     (canAttest && !iAttested) ||
                     (isMine && c.status === "logged") ? (
                       <div className="mt-2.5 flex flex-wrap gap-2">
-                        {isOwner && !isMine && c.status === "logged" ? (
+                        {isSteward && !isMine && c.status === "logged" ? (
                           <>
                             <form action={acceptContribution}>
                               <input

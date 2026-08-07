@@ -242,13 +242,13 @@ export async function respondToMembership(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Owner-only. RLS also enforces this; check here for correct behavior.
-  const { data: project } = await supabase
-    .from("projects")
-    .select("owner_id")
-    .eq("id", projectId)
-    .single();
-  if (!project || project.owner_id !== user.id) {
+  // Stewards only (founder or co-organizer). RLS enforces this too; the
+  // check here just produces friendlier behavior.
+  const { data: steward } = await supabase.rpc("can_steward", {
+    p_project_id: projectId,
+    p_user: user.id,
+  });
+  if (!steward) {
     redirect(`/projects/${projectId}`);
   }
 
@@ -388,13 +388,12 @@ export async function createEvent(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Founder-only. RLS also enforces this; check here for correct behavior.
-  const { data: project } = await supabase
-    .from("projects")
-    .select("owner_id")
-    .eq("id", projectId)
-    .single();
-  if (!project || project.owner_id !== user.id) {
+  // Stewards only (founder or co-organizer); RLS enforces it as well.
+  const { data: steward } = await supabase.rpc("can_steward", {
+    p_project_id: projectId,
+    p_user: user.id,
+  });
+  if (!steward) {
     redirect(`/projects/${projectId}`);
   }
 
@@ -484,6 +483,43 @@ export async function attestContribution(formData: FormData) {
     );
 
   await supabase.rpc("reconcile_contributions", { p_project_id: projectId });
+
+  revalidatePath(`/projects/${projectId}`);
+  redirect(`/projects/${projectId}`);
+}
+
+/**
+ * Founder hands a teammate the keys (or takes them back). Progression as
+ * responsibility: co-organizers can accept joins, run events, and accept
+ * others' contributions — never their own, and never promote anyone else.
+ */
+export async function setMemberRole(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const memberId = String(formData.get("memberId") ?? "");
+  const role = String(formData.get("role") ?? "member");
+  if (!projectId || !memberId) redirect(`/projects/${projectId}`);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // RLS restricts role changes to the founder; check for clean behavior.
+  const { data: project } = await supabase
+    .from("projects")
+    .select("owner_id")
+    .eq("id", projectId)
+    .single();
+  if (!project || project.owner_id !== user.id) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  await supabase
+    .from("memberships")
+    .update({ role: role === "co_organizer" ? "co_organizer" : "member" })
+    .eq("project_id", projectId)
+    .eq("user_id", memberId);
 
   revalidatePath(`/projects/${projectId}`);
   redirect(`/projects/${projectId}`);

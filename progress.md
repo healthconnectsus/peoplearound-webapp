@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 2: co-organizer role — founders promote teammates who can then accept joins, run events, and accept others' contributions (never their own); migration 0028
+
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `supabase/migrations/0028_co_organizers.sql`
+
+
 ### 2026-08-07 — Tier 2: offers board (give/lend/skill, community-scoped, claim flow, no money anywhere) — migration 0027
 
 - `docs/DATA_MODEL.md`
