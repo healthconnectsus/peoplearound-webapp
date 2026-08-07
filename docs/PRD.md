@@ -91,7 +91,7 @@ The trust core of the product. **Logic must live server-side, never client-side.
 - Credit routes around an unresponsive founder: community attestation confirms a contribution if the founder fails to act within 7 days. ✅
 - The acknowledgment moment: a warm banner greets the contributor on recently confirmed work — "You were needed, and you showed up." ✅
 
-### 3.5 Reputation and skills — `P1`
+### 3.5 Reputation and skills — `P1` ✅ *shipped (web — skills; private impact score deferred)*
 
 - Reputation is assembled automatically from acknowledged contributions — never self-declared, never friend-endorsed.
 - Skills emerge from accepted contributions backed by real artifacts (no LinkedIn-style endorsement layer).

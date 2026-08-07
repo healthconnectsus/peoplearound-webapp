@@ -44,17 +44,21 @@ ones at the bottom so they stay rejected.*
    `/offers` (migration 0027): post give/lend/skill offers with a photo,
    claim with one tap, poster can put a claim back on the board. Community-
    scoped, rate-capped, claim notifies the poster. No money anywhere.
-9. **AI Gardener phase 2** — stall nudges ("projects like yours get moving
-   with one concrete ask") and dignified off-ramps, per PRD §3.9, now easy
-   on the DeepSeek pipe. Success metric stays anti-metric-guarded. *(M)*
-10. **Reputation & skills** — auto-assembled from confirmed contributions
-    (PRD §3.5) + the private impact score. Unlocks "trusted to attest". *(L)*
+9. ~~**AI Gardener phase 2**~~ ✅ *shipped 2026-08* — weekly cron finds
+   quiet projects and writes ONE private nudge to the founder (stall: a
+   concrete next step; 21+ days: a dignified off-ramp). Founder-only,
+   dismissible, never says "failed" (migration 0029).
+10. ~~**Reputation & skills**~~ ✅ *shipped 2026-08* — "What neighbors trust
+    you with" on the profile: skills derived from confirmed contributions,
+    ranked by how many distinct neighbors attested (impact, not volume);
+    contextual summary line. No score, no leaderboard. *(Private impact
+    score still deferred.)*
 11. **Project templates / playbooks** — "start a repair café" kit: proven
     steps, first-event template, what help to ask for. Templates come from
     completed projects — the acknowledgment ledger becomes a cookbook. *(M)*
-12. **Co-organizer role** — founder can promote a teammate to co-organizer
-    (accept joins, create events). Progression-as-responsibility, and it
-    de-risks the flaky-founder problem beyond attestation bypass. *(M)*
+12. ~~**Co-organizer role**~~ ✅ *shipped 2026-08* — founders promote a
+    teammate; co-organizers accept joins, run events, and accept others'
+    contributions (never their own; only founders promote). Migration 0028.
 13. **Neighborhood milestones & annual recap** — collective celebration
     beats ("Aurora's 10th neighbor 🎉", "12 things built in 2026") in feed
     and a shareable year-recap page. Collective recognition only. *(M)*

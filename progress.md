@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 2: reputation and skills assembled from confirmed contributions (ranked by distinct attesters, never volume); docs for co-organizer + gardener + reputation
+
+- `docs/FEATURE_IDEAS.md`
+- `docs/PRD.md`
+- `docs/ROADMAP.md`
+
+
 ### 2026-08-07 — Logo v6.2: tighten spacing - word gap 105 to 70, 'around' letter gaps reduced 40 each (floored at 3 where r's arm nearly touches o); around placed by bbox after emboldening
 
 - `public/logo-dark.svg`
