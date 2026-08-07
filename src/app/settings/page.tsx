@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { signOut } from "@/app/login/actions";
 import { updateProfile } from "./actions";
+import { setDigestOptOut } from "@/app/notificationActions";
 import { AvatarUpload, CoverUpload } from "./PhotoUploads";
 
 const GENDER_OPTIONS = [
@@ -238,6 +239,31 @@ export default async function SettingsPage({
               >
                 Update neighborhood
               </Link>
+            </div>
+
+            <div className="mt-6 border-t border-black/5 pt-5 dark:border-white/10">
+              <p className="text-sm font-semibold">Weekly digest</p>
+              <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
+                One email a week with what moved in your neighborhood — only
+                when something actually happened.
+              </p>
+              <form action={setDigestOptOut} className="mt-2 flex items-center gap-2">
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="digest"
+                    defaultChecked={!(profile as unknown as { digest_opt_out?: boolean } | null)?.digest_opt_out}
+                    className="h-4 w-4 accent-emerald-600"
+                  />
+                  Send me the weekly digest
+                </label>
+                <button
+                  type="submit"
+                  className="rounded-full border border-black/15 px-4 py-1 text-xs font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                >
+                  Save
+                </button>
+              </form>
             </div>
 
             <div className="mt-6 border-t border-black/5 pt-5 dark:border-white/10">

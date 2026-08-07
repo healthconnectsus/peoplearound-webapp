@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { isoDaysAgo, timeAgo } from "@/lib/projects";
+import { timeAgo } from "@/lib/projects";
 import { ProfileMenu } from "./ProfileMenu";
 import { TopBarIcons, type Notification } from "./TopBarIcons";
 
@@ -36,62 +36,39 @@ export async function TopBar() {
     neighborhood = profile?.neighborhood?.name ?? null;
     avatarUrl = profile?.avatar_url ?? null;
 
-    // Notifications from things happening to YOUR projects: join requests
-    // (actionable, badged) and fresh stars.
-    const { data: myProjects } = await supabase
-      .from("projects")
-      .select("id,title")
-      .eq("owner_id", user.id)
-      .neq("state", "archived");
-    const mine = (myProjects ?? []) as { id: string; title: string }[];
-    if (mine.length > 0) {
-      const ids = mine.map((p) => p.id);
-      const titleOf = new Map(mine.map((p) => [p.id, p.title]));
-      const [{ data: pendingRows }, { data: starRows }] = await Promise.all([
-        supabase
-          .from("memberships")
-          .select("project_id,user_id,created_at,profile:profiles(display_name)")
-          .in("project_id", ids)
-          .eq("status", "pending")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("stars")
-          .select("project_id,created_at")
-          .in("project_id", ids)
-          .gte("created_at", isoDaysAgo(14)),
-      ]);
-
-      for (const row of (pendingRows ?? []) as unknown as {
-        project_id: string;
-        user_id: string;
-        created_at: string;
-        profile?: { display_name: string | null } | null;
-      }[]) {
-        notifications.push({
-          key: `join-${row.project_id}-${row.user_id}`,
-          kind: "join",
-          text: `${row.profile?.display_name ?? "A neighbor"} asked to join “${titleOf.get(row.project_id) ?? "your project"}” · ${timeAgo(row.created_at)}`,
-          href: `/projects/${row.project_id}`,
-        });
-      }
-      pendingCount = notifications.length;
-
-      const starsByProject = new Map<string, number>();
-      for (const s of starRows ?? []) {
-        starsByProject.set(
-          s.project_id,
-          (starsByProject.get(s.project_id) ?? 0) + 1,
-        );
-      }
-      for (const [projectId, count] of starsByProject) {
-        notifications.push({
-          key: `stars-${projectId}`,
-          kind: "stars",
-          text: `${count} ${count === 1 ? "neighbor" : "neighbors"} starred “${titleOf.get(projectId) ?? "your project"}” recently`,
-          href: `/projects/${projectId}`,
-        });
-      }
+    // The persistent inbox (migration 0025): triggers fan out join
+    // requests, stars, contributions, confirmations, and events into
+    // `notifications`; the bell just reads it.
+    const [{ data: notifRows }, { count: unread }] = await Promise.all([
+      supabase
+        .from("notifications")
+        .select("id,kind,body,href,read_at,created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(15),
+      supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .is("read_at", null),
+    ]);
+    for (const r of (notifRows ?? []) as {
+      id: string;
+      kind: string;
+      body: string;
+      href: string;
+      read_at: string | null;
+      created_at: string;
+    }[]) {
+      notifications.push({
+        key: r.id,
+        kind: r.kind,
+        text: `${r.body} · ${timeAgo(r.created_at)}`,
+        href: r.href,
+        unread: r.read_at == null,
+      });
     }
+    pendingCount = unread ?? 0;
   }
 
   return (

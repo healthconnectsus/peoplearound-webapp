@@ -4,20 +4,32 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Bell,
+  CalendarDays,
+  HandHeart,
   MessageCircle,
+  PartyPopper,
   Star,
   UserPlus,
   type LucideIcon,
 } from "lucide-react";
+import { markAllNotificationsRead } from "@/app/notificationActions";
 
 export type Notification = {
   key: string;
-  kind: "join" | "stars";
+  kind: string;
   text: string;
   href: string;
+  unread?: boolean;
 };
 
-const KIND_ICON: Record<Notification["kind"], LucideIcon> = {
+const KIND_ICON: Record<string, LucideIcon> = {
+  join_request: UserPlus,
+  joined: PartyPopper,
+  star: Star,
+  contribution: HandHeart,
+  confirmed: PartyPopper,
+  event: CalendarDays,
+  // legacy computed kinds
   join: UserPlus,
   stars: Star,
 };
@@ -104,7 +116,19 @@ export function TopBarIcons({
 
       {open === "bell" ? (
         <Panel onClose={() => setOpen(null)}>
-          <p className="px-3 py-2 text-sm font-semibold">Notifications</p>
+          <div className="flex items-baseline justify-between px-3 py-2">
+            <p className="text-sm font-semibold">Notifications</p>
+            {badge > 0 ? (
+              <form action={markAllNotificationsRead}>
+                <button
+                  type="submit"
+                  className="text-xs text-black/45 underline underline-offset-2 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
+                >
+                  Mark all read
+                </button>
+              </form>
+            ) : null}
+          </div>
           {notifications.length === 0 ? (
             <p className="px-3 pb-3 pt-1 text-sm text-black/50 dark:text-white/50">
               Nothing yet. When neighbors star your ideas or ask to join your
@@ -113,13 +137,13 @@ export function TopBarIcons({
           ) : (
             <ul className="flex max-h-96 flex-col gap-0.5 overflow-y-auto">
               {notifications.map((n) => {
-                const Icon = KIND_ICON[n.kind];
+                const Icon = KIND_ICON[n.kind] ?? Bell;
                 return (
                   <li key={n.key}>
                     <Link
                       href={n.href}
                       onClick={() => setOpen(null)}
-                      className="flex items-start gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+                      className={`flex items-start gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10 ${n.unread ? "bg-emerald-50/60 dark:bg-emerald-950/30" : ""}`}
                     >
                       <Icon
                         className="mt-0.5 h-4 w-4 shrink-0 text-black/50 dark:text-white/50"

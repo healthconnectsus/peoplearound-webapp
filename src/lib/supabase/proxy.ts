@@ -55,6 +55,8 @@ export async function updateSession(request: NextRequest) {
     // Logged-out landing page calls this to register uncovered locations;
     // it validates its own input and only ever touches anon-safe RPCs.
     path === "/api/register-location" ||
+    // Vercel Cron hits this with its own bearer token (checked in-route).
+    path === "/api/digest" ||
     // Local visual galleries; the pages themselves 404 in production.
     (process.env.NODE_ENV !== "production" && path.startsWith("/dev"));
 

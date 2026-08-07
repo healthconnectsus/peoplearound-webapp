@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 1 part 2: persistent notification inbox (bell reads the table, mark-all-read, unread styling) and weekly digest email (Vercel Cron + Resend, quiet weeks send nothing, Settings opt-out)
+
+- `src/app/api/digest/route.ts`
+- `src/app/notificationActions.ts`
+- `src/app/settings/page.tsx`
+- `src/components/TopBar.tsx`
+- `src/components/TopBarIcons.tsx`
+- `src/lib/supabase/proxy.ts`
+- `vercel.json`
+
+
 ### 2026-08-07 — Tier 1 part 1: add-to-calendar on events (.ics + Google), feed filter chips (category/help/event-soon), onboarding first-action nudge; notifications schema + fan-out triggers (migration 0025)
 
 - `src/app/api/event-ics/route.ts`
