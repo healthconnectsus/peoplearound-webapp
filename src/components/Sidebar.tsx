@@ -10,6 +10,7 @@ import {
   HeartHandshake,
   Lightbulb,
   MapPin,
+  Gift,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,6 +26,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/faves", label: "Local Faves", icon: Star },
   { href: "/groups", label: "Groups", icon: Users },
   { href: "/events", label: "Events", icon: CalendarDays },
+  { href: "/offers", label: "Offers", icon: Gift },
   { href: "/people", label: "People around", icon: HeartHandshake },
   { href: "/ideas", label: "My ideas", icon: Lightbulb },
   { href: "/neighborhood", label: "My community", icon: MapPin },

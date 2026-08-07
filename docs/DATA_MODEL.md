@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `offers` and `reputation` are still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, `offers`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `reputation` is still planned.
 
 ## Entity relationships
 
@@ -307,18 +307,26 @@ action.
 
 ## Tables — planned
 
-### offers
-
-Give / lend / offer — the non-monetary replacement for a marketplace.
+Give / lend / offer — the non-monetary replacement for a marketplace
+(PRD §3.8). **No price column exists**, by design.
 
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid (PK) | |
-| user_id | uuid (FK → profiles) | |
-| type | enum | `give` · `lend` · `offer` |
-| description | text | |
-| project_id | uuid (FK → projects, nullable) | When linked, converts into a contribution on that project |
+| user_id | uuid (FK → profiles) | The poster |
+| neighborhood_id | uuid (FK → neighborhoods) | Stamped from the poster's profile by trigger |
+| kind | enum `offer_kind` | `give` · `lend` · `offer` (a skill) |
+| title / description | text | ≤ 140 / ≤ 2000 chars |
+| photo_url | text, nullable | Projects storage bucket |
+| project_id | uuid (FK → projects), nullable | When linked, the offer feeds that project's contributions |
+| claimed_by / claimed_at | uuid (FK → profiles) / timestamptz, nullable | A claim is a handshake, not a checkout |
 | created_at | timestamptz | |
+
+> **RLS:** readable by the poster and anyone in the offer's community; insert
+> only as yourself; the poster may edit/delete their own; **any neighbor who
+> can see an unclaimed offer may claim it** (a separate update policy whose
+> `WITH CHECK` pins `claimed_by = auth.uid()`, so a claimer cannot rewrite
+> the content). Capped at 10 offers/user/day; claiming notifies the poster.
 
 ### reputation (derived)
 

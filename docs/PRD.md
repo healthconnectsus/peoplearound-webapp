@@ -111,7 +111,7 @@ The trust core of the product. **Logic must live server-side, never client-side.
 - Live-updates via Supabase Realtime (RLS-filtered) — a neighbor sharing an idea or starring a project appears without a reload. ✅
 - Surfaces opportunities to join and contribute, not vanity content. No infinite-scroll engagement bait.
 
-### 3.8 Offer / give / lend — `P1`
+### 3.8 Offer / give / lend — `P1` ✅ *shipped (web)*
 
 Replaces a "for sale" marketplace. No money changes hands in MVP.
 

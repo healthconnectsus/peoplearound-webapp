@@ -7,6 +7,19 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 2: offers board (give/lend/skill, community-scoped, claim flow, no money anywhere) — migration 0027
+
+- `docs/DATA_MODEL.md`
+- `docs/FEATURE_IDEAS.md`
+- `docs/PRD.md`
+- `docs/ROADMAP.md`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/offers/offerActions.ts`
+- `src/app/offers/page.tsx`
+- `src/components/Sidebar.tsx`
+- `supabase/migrations/0027_offers.sql`
+
+
 ### 2026-08-07 — Grant admin to the operator's app login (peoplearound.alexandre@gmail.com) alongside the GitHub account
 
 - `supabase/migrations/0026_admin_accounts.sql`

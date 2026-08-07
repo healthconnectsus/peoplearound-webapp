@@ -40,8 +40,10 @@ ones at the bottom so they stay rejected.*
 
 ## Tier 2 — deepen (Phase 1 material)
 
-8. **Offers: give / lend / offer board** — already specced in PRD §3.8; the
-   non-monetary marketplace that feeds contributions. *(L)*
+8. ~~**Offers: give / lend / offer board**~~ ✅ *shipped 2026-08* —
+   `/offers` (migration 0027): post give/lend/skill offers with a photo,
+   claim with one tap, poster can put a claim back on the board. Community-
+   scoped, rate-capped, claim notifies the poster. No money anywhere.
 9. **AI Gardener phase 2** — stall nudges ("projects like yours get moving
    with one concrete ask") and dignified off-ramps, per PRD §3.9, now easy
    on the DeepSeek pipe. Success metric stays anti-metric-guarded. *(M)*

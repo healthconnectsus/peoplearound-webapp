@@ -36,6 +36,7 @@ The goal of this phase is to prove the join-and-build loop works in a single nei
 - ✅ Anti-abuse + [scaling](SCALING.md) pass — per-user DB rate caps, Turnstile wiring, filtered/visibility-gated realtime, image downscaling, swappable map tiles
 - ✅ Notifications + weekly digest — trigger-fanned inbox behind the bell; one calm Resend email a week (quiet weeks send nothing), Settings opt-out
 - ✅ Ops essentials — `/admin` console (flag queue, community cleanup), add-to-calendar on events, feed filter chips, onboarding first-action nudge
+- ✅ [Offers board](DATA_MODEL.md#offers) — give / lend / offer a skill, claimable by neighbors; no money anywhere (PRD §3.8)
 - ✅ Communities generalization — neighborhoods extended with kinds (cultural/hobby/interest…), multi-membership (`community_members`), messaging tables; profile fields + public landing teaser
 
 **All Phase 0 software is live.** What remains is the human part: run the pilot in one real neighborhood and meet the exit criteria below. (Neighborhood *verification* — phone + address — is deliberately later; today neighborhoods are self-selected.)
@@ -53,7 +54,6 @@ The goal of this phase is to prove the join-and-build loop works in a single nei
 Enrich the proven loop and broaden within the same neighborhood.
 
 - [Reputation & skills](PRD.md#35-reputation-and-skills--p1) — auto-assembled from acknowledged contributions
-- [Offer / give / lend](PRD.md#38-offer--give--lend--p1) — non-monetary resource sharing that feeds contributions
 - [AI nudging & off-ramps](PRD.md#39-ai-agent-the-gardener--p1-shaping-shipped-nudgingoff-ramp-post-mvp) — stall nudges and dignified redirection
 - [Recognition layer](PRD.md#310-recognition-and-progression--p1) — badges + private personal impact score first
 - Expand to additional project categories within the same neighborhood

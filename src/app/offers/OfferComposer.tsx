@@ -1,0 +1,82 @@
+"use client";
+
+import { useState } from "react";
+import { PhotoPicker } from "@/components/PhotoPicker";
+import { postOffer } from "./offerActions";
+
+const KINDS = [
+  { value: "give", emoji: "🎁", label: "Give away", hint: "Yours to keep" },
+  { value: "lend", emoji: "🔁", label: "Lend", hint: "Borrow and return" },
+  { value: "offer", emoji: "🙌", label: "Offer a skill", hint: "A hand, an hour" },
+];
+
+export function OfferComposer({ userId }: { userId: string }) {
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  return (
+    <form
+      action={postOffer}
+      className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+    >
+      <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
+      <h2 className="text-lg font-bold">Share something</h2>
+      <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
+        A tool, a truck for a day, soil, an hour of help. No money — just
+        neighbors.
+      </p>
+
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        {KINDS.map((k, i) => (
+          <label
+            key={k.value}
+            className="flex flex-1 cursor-pointer flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-white/20 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40"
+          >
+            <input
+              type="radio"
+              name="kind"
+              value={k.value}
+              defaultChecked={i === 0}
+              className="sr-only"
+            />
+            <span className="font-medium">
+              {k.emoji} {k.label}
+            </span>
+            <span className="text-xs text-black/50 dark:text-white/50">
+              {k.hint}
+            </span>
+          </label>
+        ))}
+      </div>
+
+      <input
+        type="text"
+        name="title"
+        required
+        maxLength={140}
+        placeholder="What is it? e.g. “Extension ladder, free to borrow”"
+        className="mt-3 w-full rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+      />
+      <textarea
+        name="description"
+        rows={2}
+        maxLength={2000}
+        placeholder="Anything useful — condition, when you're around, how to reach you"
+        className="mt-2 w-full resize-y rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+      />
+      <div className="mt-2">
+        <PhotoPicker
+          userId={userId}
+          value={photoUrl}
+          onChange={setPhotoUrl}
+          label="Add a photo (optional)"
+        />
+      </div>
+      <button
+        type="submit"
+        className="mt-3 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+      >
+        Post it
+      </button>
+    </form>
+  );
+}
