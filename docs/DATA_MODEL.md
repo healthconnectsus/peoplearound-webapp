@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, `offers`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `reputation` is still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, `notifications`, `offers`, `user_locations`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `reputation` is still planned.
 
 ## Entity relationships
 
@@ -304,6 +304,21 @@ action.
 > **RLS:** read/update (mark read) your own only; no client inserts or
 > deletes. `profiles.is_admin` gates `/admin`; `profiles.digest_opt_out`
 > is respected by the weekly digest (migration 0025).
+
+### user_locations
+
+Your private map centre — deliberately **not** a column on `profiles`, which
+every signed-in neighbor can read (Postgres has no per-column RLS).
+
+| Column | Type | Notes |
+|---|---|---|
+| user_id | uuid (PK, FK → profiles) | |
+| lat / lng | double precision | Blunted to 2 dp (~1.1 km) by trigger on write |
+| updated_at | timestamptz | |
+
+> **RLS:** select/insert/update/delete restricted to your own row. Used only
+> to centre your own profile map; never pins you for anyone else (the People
+> map shows community clusters — see [UX_SPEC](UX_SPEC.md#417-the-map-shell-live-app-wide)).
 
 ## Tables — planned
 

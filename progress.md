@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Profile map: your world (your spot, communities, ideas, faves, events) plus private location control and communities/events sections; migration 0031
+
+- `docs/DATA_MODEL.md`
+- `docs/UX_SPEC.md`
+- `src/app/profile/LocationCard.tsx`
+- `src/app/profile/locationActions.ts`
+- `src/app/profile/page.tsx`
+- `src/lib/mapPins.ts`
+- `supabase/migrations/0031_user_location.sql`
+
+
 ### 2026-08-07 — Spatial context for offers (approximate pin + place text, rounded to ~110m), groups (community centres), and people (community clusters with headcounts, never individuals); migration 0030
 
 - `docs/DATA_MODEL.md`

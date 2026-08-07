@@ -2,6 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
+import { MapShell } from "@/components/MapShell";
+import { myWorldPins } from "@/lib/mapPins";
+import { LocationCard } from "./LocationCard";
 import { BadgeMedallion } from "@/components/BadgeMedallion";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
@@ -172,6 +175,50 @@ export default async function ProfilePage({
     neighborhood_id?: string | null;
   } | null;
   const reputation = await computeReputation(supabase, user.id);
+
+  // Your own world on the map + the lists behind it.
+  const [
+    pins,
+    { data: myLoc },
+    { data: myCommunityRows },
+    { data: myEventRows },
+    { data: myRsvpRows },
+  ] = await Promise.all([
+    myWorldPins(supabase, user.id),
+    supabase
+      .from("user_locations")
+      .select("lat,lng")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("community_members")
+      .select("community_id,community:neighborhoods(id,name,city,kind)")
+      .eq("user_id", user.id),
+    supabase
+      .from("events")
+      .select("id,title,starts_at,place,project_id,project:projects(title,owner_id)")
+      .order("starts_at", { ascending: true })
+      .limit(100),
+    supabase.from("rsvps").select("event_id").eq("user_id", user.id),
+  ]);
+
+  const myCommunities = ((myCommunityRows ?? []) as unknown as {
+    community?: { id: string; name: string; city: string | null; kind: string | null } | null;
+  }[])
+    .map((r) => r.community)
+    .filter(Boolean) as { id: string; name: string; city: string | null; kind: string | null }[];
+
+  const rsvpSet = new Set(
+    ((myRsvpRows ?? []) as { event_id: string }[]).map((r) => r.event_id),
+  );
+  const myEvents = ((myEventRows ?? []) as unknown as {
+    id: string;
+    title: string;
+    starts_at: string;
+    place: string;
+    project_id: string;
+    project?: { title: string; owner_id: string } | null;
+  }[]).filter((e) => e.project?.owner_id === user.id || rsvpSet.has(e.id));
   const badges = await computeBadges(supabase, user.id, {
     id: hoodForBadges?.neighborhood_id ?? null,
     name: profile?.neighborhood?.name ?? null,
@@ -205,273 +252,362 @@ export default async function ProfilePage({
   return (
     <AppShell>
       <BadgeCelebration badges={badges} userId={user.id} />
-      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
-        {/* Profile header */}
-        <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900">
-          <div
-            className="h-28 bg-gradient-to-r from-emerald-100 via-sky-100 to-violet-100 bg-cover bg-center dark:from-emerald-950 dark:via-sky-950 dark:to-violet-950"
-            style={
-              profile?.cover_url
-                ? { backgroundImage: `url(${profile.cover_url})` }
-                : undefined
-            }
-          />
-          <div className="px-6 pb-6">
-            {profile?.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URL, unoptimized is fine
-              <img
-                src={profile.avatar_url}
-                alt=""
-                className="-mt-8 h-20 w-20 rounded-full border-4 border-white object-cover dark:border-zinc-900"
-              />
-            ) : (
-              <div className="-mt-8 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-emerald-100 text-2xl font-semibold text-emerald-800 dark:border-zinc-900 dark:bg-emerald-900 dark:text-emerald-200">
-                {initials(name)}
-              </div>
-            )}
-            <h1 className="mt-3 text-3xl font-extrabold tracking-tight">
-              {name}
-              {profile?.show_pronouns && profile?.pronouns ? (
-                <span className="ml-2 text-sm font-normal text-black/50 dark:text-white/50">
-                  ({profile.pronouns})
-                </span>
-              ) : null}
-            </h1>
-            {profile?.bio ? (
-              <p className="mt-1.5 text-sm leading-relaxed text-black/70 dark:text-white/70">
-                {profile.bio}
-              </p>
-            ) : null}
-            <div className="mt-1.5 flex flex-col gap-1 text-sm text-black/60 dark:text-white/60">
-              {profile?.hometown ? <p>🏡 Hometown: {profile.hometown}</p> : null}
-              {hood ? <p>📍 {hood}</p> : null}
-              {memberSince ? <p>🌱 Member since {memberSince}</p> : null}
-              {profile?.website ? (
-                <p>
-                  🔗{" "}
-                  <a
-                    href={profile.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline underline-offset-2 hover:text-black/80 dark:hover:text-white/80"
-                  >
-                    {profile.website.replace(/^https?:\/\//, "")}
-                  </a>
+      <MapShell pins={pins}>
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
+          {/* Profile header */}
+          <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900">
+            <div
+              className="h-28 bg-gradient-to-r from-emerald-100 via-sky-100 to-violet-100 bg-cover bg-center dark:from-emerald-950 dark:via-sky-950 dark:to-violet-950"
+              style={
+                profile?.cover_url
+                  ? { backgroundImage: `url(${profile.cover_url})` }
+                  : undefined
+              }
+            />
+            <div className="px-6 pb-6">
+              {profile?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URL, unoptimized is fine
+                <img
+                  src={profile.avatar_url}
+                  alt=""
+                  className="-mt-8 h-20 w-20 rounded-full border-4 border-white object-cover dark:border-zinc-900"
+                />
+              ) : (
+                <div className="-mt-8 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-emerald-100 text-2xl font-semibold text-emerald-800 dark:border-zinc-900 dark:bg-emerald-900 dark:text-emerald-200">
+                  {initials(name)}
+                </div>
+              )}
+              <h1 className="mt-3 text-3xl font-extrabold tracking-tight">
+                {name}
+                {profile?.show_pronouns && profile?.pronouns ? (
+                  <span className="ml-2 text-sm font-normal text-black/50 dark:text-white/50">
+                    ({profile.pronouns})
+                  </span>
+                ) : null}
+              </h1>
+              {profile?.bio ? (
+                <p className="mt-1.5 text-sm leading-relaxed text-black/70 dark:text-white/70">
+                  {profile.bio}
                 </p>
               ) : null}
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link
-                href="/settings"
-                className="rounded-full bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-white/80"
-              >
-                Edit profile
-              </Link>
-              <Link
-                href="/projects/new"
-                className="rounded-full border border-black/15 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
-              >
-                Share an idea
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {error ? (
-          <p className="mt-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-            {error}
-          </p>
-        ) : null}
-
-        {/* Badges — evidence of acknowledged help, never bait */}
-        <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-medium">Badges</h2>
-            <span className="text-xs text-black/40 dark:text-white/40">
-              Earned, never bought
-            </span>
-          </div>
-          {badges.length > 0 ? (
-            <ul className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4">
-              {badges.map((b) => (
-                <li
-                  key={b.key}
-                  className="flex flex-col items-center text-center"
-                  title={b.fact}
+              <div className="mt-1.5 flex flex-col gap-1 text-sm text-black/60 dark:text-white/60">
+                {profile?.hometown ? <p>🏡 Hometown: {profile.hometown}</p> : null}
+                {hood ? <p>📍 {hood}</p> : null}
+                {memberSince ? <p>🌱 Member since {memberSince}</p> : null}
+                {profile?.website ? (
+                  <p>
+                    🔗{" "}
+                    <a
+                      href={profile.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2 hover:text-black/80 dark:hover:text-white/80"
+                    >
+                      {profile.website.replace(/^https?:\/\//, "")}
+                    </a>
+                  </p>
+                ) : null}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  href="/settings"
+                  className="rounded-full bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-white/80"
                 >
-                  <BadgeMedallion badge={b} />
-                  <p className="mt-2 text-xs font-medium leading-tight">
-                    {b.label}
-                  </p>
-                  <p className="mt-0.5 text-[11px] leading-tight text-black/45 dark:text-white/45">
-                    {b.fact}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-3 text-sm text-black/50 dark:text-white/50">
-              Badges appear as your acknowledged help accumulates — a
-              confirmed contribution, an attested event, a neighborhood you
-              helped found. They certify what actually happened; nothing here
-              can be farmed or bought.
-            </p>
-          )}
-        </section>
+                  Edit profile
+                </Link>
+                <Link
+                  href="/projects/new"
+                  className="rounded-full border border-black/15 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                >
+                  Share an idea
+                </Link>
+              </div>
+            </div>
+          </section>
 
-        {/* Reputation — assembled from confirmed work, never declared */}
-        {reputation.confirmed > 0 ? (
+          {error ? (
+            <p className="mt-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+              {error}
+            </p>
+          ) : null}
+
+          {/* Badges — evidence of acknowledged help, never bait */}
           <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
             <div className="flex items-baseline justify-between">
-              <h2 className="font-medium">What neighbors trust you with</h2>
+              <h2 className="font-medium">Badges</h2>
               <span className="text-xs text-black/40 dark:text-white/40">
-                Confirmed by others
+                Earned, never bought
               </span>
             </div>
-            {reputation.summary ? (
-              <p className="mt-1.5 text-sm text-black/70 dark:text-white/70">
-                {reputation.summary}
+            {badges.length > 0 ? (
+              <ul className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4">
+                {badges.map((b) => (
+                  <li
+                    key={b.key}
+                    className="flex flex-col items-center text-center"
+                    title={b.fact}
+                  >
+                    <BadgeMedallion badge={b} />
+                    <p className="mt-2 text-xs font-medium leading-tight">
+                      {b.label}
+                    </p>
+                    <p className="mt-0.5 text-[11px] leading-tight text-black/45 dark:text-white/45">
+                      {b.fact}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm text-black/50 dark:text-white/50">
+                Badges appear as your acknowledged help accumulates — a
+                confirmed contribution, an attested event, a neighborhood you
+                helped found. They certify what actually happened; nothing here
+                can be farmed or bought.
               </p>
-            ) : null}
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {reputation.skills.map((sk) => (
-                <li
-                  key={sk.type}
-                  title={`${sk.count} confirmed · ${sk.attesters} neighbor${sk.attesters === 1 ? "" : "s"} attested`}
-                  className="rounded-full border border-emerald-600/25 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-900 dark:border-emerald-500/25 dark:bg-emerald-950/40 dark:text-emerald-200"
-                >
-                  {sk.emoji} {sk.label} · {sk.count}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 text-[11px] text-black/40 dark:text-white/40">
-              Skills here are earned, not claimed — each one is work a
-              neighbor confirmed happened.
-            </p>
+            )}
           </section>
-        ) : null}
 
-        {/* Dashboard — private stats */}
-        <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-medium">Dashboard</h2>
-            <Link
-              href="/analytics"
-              className="text-xs text-black/45 underline underline-offset-2 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
-            >
-              Full analytics →
-            </Link>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {dashboard.map((d) => (
-              <div
-                key={d.label}
-                className="rounded-xl bg-stone-50 p-3 text-center dark:bg-zinc-800"
-              >
-                <p className="text-2xl font-semibold">{d.value}</p>
-                <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
-                  {d.label}
-                </p>
+          {/* Reputation — assembled from confirmed work, never declared */}
+          {reputation.confirmed > 0 ? (
+            <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+              <div className="flex items-baseline justify-between">
+                <h2 className="font-medium">What neighbors trust you with</h2>
+                <span className="text-xs text-black/40 dark:text-white/40">
+                  Confirmed by others
+                </span>
               </div>
-            ))}
-          </div>
-        </section>
+              {reputation.summary ? (
+                <p className="mt-1.5 text-sm text-black/70 dark:text-white/70">
+                  {reputation.summary}
+                </p>
+              ) : null}
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {reputation.skills.map((sk) => (
+                  <li
+                    key={sk.type}
+                    title={`${sk.count} confirmed · ${sk.attesters} neighbor${sk.attesters === 1 ? "" : "s"} attested`}
+                    className="rounded-full border border-emerald-600/25 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-900 dark:border-emerald-500/25 dark:bg-emerald-950/40 dark:text-emerald-200"
+                  >
+                    {sk.emoji} {sk.label} · {sk.count}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-[11px] text-black/40 dark:text-white/40">
+                Skills here are earned, not claimed — each one is work a
+                neighbor confirmed happened.
+              </p>
+            </section>
+          ) : null}
 
-        {/* Faves */}
-        <section className="mt-6">
-          <div className="mb-2 flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-              Faves · {faves.length}
-            </h2>
-            <Link
-              href="/faves"
-              className="text-xs text-black/40 underline underline-offset-2 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60"
-            >
-              See all Local Faves
-            </Link>
-          </div>
-          {faves.length > 0 ? (
-            <ul className="flex flex-col gap-2">
-              {faves.map((p) => (
-                <ProjectRow key={p.id} p={p} stars={starCount(p.id)} />
-              ))}
-            </ul>
-          ) : (
-            <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
-              Projects you star show up here.
-            </p>
-          )}
-        </section>
+          <LocationCard initial={myLoc as { lat: number; lng: number } | null} />
 
-        {/* Groups */}
-        <section className="mt-6">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-            Groups
-          </h2>
-          <div className="rounded-2xl border border-black/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-zinc-900">
-            <p className="font-medium">No groups yet</p>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-black/60 dark:text-white/60">
-              Gardening club? Pickup football? Groups are coming soon — until
-              then, every project has a team.
-            </p>
-            <Link
-              href="/groups"
-              className="mt-4 inline-block rounded-full border border-black/15 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
-            >
-              👥 Explore groups
-            </Link>
-          </div>
-        </section>
-
-        {/* Ideas (posts) */}
-        <section className="mt-6">
-          <div className="mb-2 flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-              Ideas · {own.length}
-            </h2>
-            <Link
-              href="/ideas"
-              className="text-xs text-black/40 underline underline-offset-2 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60"
-            >
-              See all
-            </Link>
-          </div>
-          {own.length > 0 ? (
-            <ul className="flex flex-col gap-2">
-              {own.map((p) => (
-                <ProjectRow
-                  key={p.id}
-                  p={p}
-                  stars={starCount(p.id)}
-                  views={viewsFor(p.id)}
-                />
-              ))}
-            </ul>
-          ) : (
-            <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
-              You haven&apos;t shared an idea yet —{" "}
-              <Link href="/projects/new" className="underline">
-                start your first
+          {/* Your communities */}
+          <section className="mt-6">
+            <div className="mb-2 flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                Your communities · {myCommunities.length}
+              </h2>
+              <Link
+                href="/neighborhood"
+                className="text-xs text-black/40 underline underline-offset-2 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60"
+              >
+                Manage
               </Link>
-              .
-            </p>
-          )}
-        </section>
+            </div>
+            {myCommunities.length > 0 ? (
+              <ul className="flex flex-wrap gap-2">
+                {myCommunities.map((c) => (
+                  <li
+                    key={c.id}
+                    className="rounded-full border border-black/5 bg-white px-3.5 py-1.5 text-sm shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                  >
+                    {c.kind && c.kind !== "neighborhood" ? "👥" : "🏘️"} {c.name}
+                    {c.city ? (
+                      <span className="text-black/40 dark:text-white/40">
+                        {" "}
+                        · {c.city}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                You haven&apos;t joined a community yet —{" "}
+                <Link href="/neighborhood" className="underline">
+                  find yours
+                </Link>
+                .
+              </p>
+            )}
+          </section>
 
-        {/* Danger zone */}
-        <section className="mt-10 rounded-2xl border border-red-200 bg-red-50/40 p-5 dark:border-red-900/50 dark:bg-red-950/20">
-          <h2 className="text-sm font-semibold text-red-700 dark:text-red-400">
-            Danger zone
-          </h2>
-          <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-            Deleting your account removes everything you&apos;ve created,
-            permanently.
-          </p>
-          <div className="mt-3">
-            <DeleteAccountButton />
-          </div>
-        </section>
-      </main>
+          {/* Your events */}
+          <section className="mt-6">
+            <div className="mb-2 flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                Your events · {myEvents.length}
+              </h2>
+              <Link
+                href="/events"
+                className="text-xs text-black/40 underline underline-offset-2 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60"
+              >
+                All events
+              </Link>
+            </div>
+            {myEvents.length > 0 ? (
+              <ul className="flex flex-col gap-2">
+                {myEvents.slice(0, 6).map((e) => (
+                  <li key={e.id}>
+                    <Link
+                      href={`/projects/${e.project_id}`}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-black/5 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors hover:bg-stone-50 dark:border-white/5 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                    >
+                      <span>
+                        📅 <span className="font-medium">{e.title}</span>{" "}
+                        <span className="text-black/45 dark:text-white/45">
+                          · {e.project?.title ?? ""}
+                        </span>
+                      </span>
+                      <span className="text-xs text-black/45 dark:text-white/45">
+                        {e.project?.owner_id === user.id
+                          ? "Yours"
+                          : "You’re in"}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                No events yet — say &quot;I&apos;m in&quot; to one and it shows
+                up here.
+              </p>
+            )}
+          </section>
+
+          {/* Dashboard — private stats */}
+          <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+            <div className="flex items-baseline justify-between">
+              <h2 className="font-medium">Dashboard</h2>
+              <Link
+                href="/analytics"
+                className="text-xs text-black/45 underline underline-offset-2 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
+              >
+                Full analytics →
+              </Link>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {dashboard.map((d) => (
+                <div
+                  key={d.label}
+                  className="rounded-xl bg-stone-50 p-3 text-center dark:bg-zinc-800"
+                >
+                  <p className="text-2xl font-semibold">{d.value}</p>
+                  <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
+                    {d.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Faves */}
+          <section className="mt-6">
+            <div className="mb-2 flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                Faves · {faves.length}
+              </h2>
+              <Link
+                href="/faves"
+                className="text-xs text-black/40 underline underline-offset-2 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60"
+              >
+                See all Local Faves
+              </Link>
+            </div>
+            {faves.length > 0 ? (
+              <ul className="flex flex-col gap-2">
+                {faves.map((p) => (
+                  <ProjectRow key={p.id} p={p} stars={starCount(p.id)} />
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                Projects you star show up here.
+              </p>
+            )}
+          </section>
+
+          {/* Groups */}
+          <section className="mt-6">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+              Groups
+            </h2>
+            <div className="rounded-2xl border border-black/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-zinc-900">
+              <p className="font-medium">No groups yet</p>
+              <p className="mx-auto mt-1 max-w-sm text-sm text-black/60 dark:text-white/60">
+                Gardening club? Pickup football? Groups are coming soon — until
+                then, every project has a team.
+              </p>
+              <Link
+                href="/groups"
+                className="mt-4 inline-block rounded-full border border-black/15 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+              >
+                👥 Explore groups
+              </Link>
+            </div>
+          </section>
+
+          {/* Ideas (posts) */}
+          <section className="mt-6">
+            <div className="mb-2 flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                Ideas · {own.length}
+              </h2>
+              <Link
+                href="/ideas"
+                className="text-xs text-black/40 underline underline-offset-2 hover:text-black/60 dark:text-white/40 dark:hover:text-white/60"
+              >
+                See all
+              </Link>
+            </div>
+            {own.length > 0 ? (
+              <ul className="flex flex-col gap-2">
+                {own.map((p) => (
+                  <ProjectRow
+                    key={p.id}
+                    p={p}
+                    stars={starCount(p.id)}
+                    views={viewsFor(p.id)}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                You haven&apos;t shared an idea yet —{" "}
+                <Link href="/projects/new" className="underline">
+                  start your first
+                </Link>
+                .
+              </p>
+            )}
+          </section>
+
+          {/* Danger zone */}
+          <section className="mt-10 rounded-2xl border border-red-200 bg-red-50/40 p-5 dark:border-red-900/50 dark:bg-red-950/20">
+            <h2 className="text-sm font-semibold text-red-700 dark:text-red-400">
+              Danger zone
+            </h2>
+            <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+              Deleting your account removes everything you&apos;ve created,
+              permanently.
+            </p>
+            <div className="mt-3">
+              <DeleteAccountButton />
+            </div>
+          </section>
+        </main>
+      </MapShell>
     </AppShell>
   );
 }

@@ -217,3 +217,138 @@ export async function peopleClusterPins(supabase: Client): Promise<MapPin[]> {
     })
     .filter((p) => !p.subtitle.startsWith("0 "));
 }
+
+/**
+ * Your own world, for the profile map: where you are, the communities you
+ * belong to, your ideas, the ideas you starred, and the events you're part
+ * of. Everything here is already yours — no other person is ever pinned.
+ */
+export async function myWorldPins(
+  supabase: Client,
+  userId: string,
+): Promise<MapPin[]> {
+  const ids = await myCommunityIds(supabase, userId);
+
+  const [
+    { data: me },
+    { data: hoods },
+    { data: mine },
+    { data: starred },
+    { data: myEvents },
+    { data: myRsvps },
+  ] = await Promise.all([
+    supabase
+      .from("user_locations")
+      .select("lat,lng")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    ids.length
+      ? supabase
+          .from("neighborhoods")
+          .select("id,name,city,kind,center_lat,center_lng")
+          .in("id", ids)
+          .not("center_lat", "is", null)
+      : Promise.resolve({ data: [] }),
+    supabase
+      .from("projects")
+      .select("id,title,category,state,lat,lng")
+      .eq("owner_id", userId)
+      .neq("state", "archived")
+      .not("lat", "is", null),
+    supabase.from("stars").select("project_id").eq("user_id", userId),
+    supabase
+      .from("events")
+      .select("id,title,starts_at,project_id,project:projects(title,lat,lng,owner_id)")
+      .limit(200),
+    supabase.from("rsvps").select("event_id").eq("user_id", userId),
+  ]);
+
+  const pins: MapPin[] = [];
+
+  // You — blunted to ~1.1 km, and only ever visible to you (migration 0031).
+  const loc = me as { lat: number; lng: number } | null;
+  if (loc) {
+    pins.push({
+      id: "me",
+      title: "You are around here",
+      emoji: "📍",
+      href: "/profile",
+      lat: loc.lat,
+      lng: loc.lng,
+      subtitle: "Approximate — only you can see this",
+      hot: true,
+    });
+  }
+
+  for (const c of (hoods ?? []) as {
+    id: string;
+    name: string;
+    city: string | null;
+    kind: string | null;
+    center_lat: number;
+    center_lng: number;
+  }[]) {
+    pins.push({
+      id: `hood-${c.id}`,
+      title: c.name,
+      emoji: c.kind && c.kind !== "neighborhood" ? "👥" : "🏘️",
+      href: "/neighborhood",
+      lat: c.center_lat,
+      lng: c.center_lng,
+      subtitle: c.city ?? "Your community",
+    });
+  }
+
+  for (const p of (mine ?? []) as ProjectPinRow[]) {
+    pins.push({ ...toPins([p])[0], subtitle: "Your idea" });
+  }
+
+  // Faves — fetched separately so their pins read as ⭐, not as your own.
+  const starIds = ((starred ?? []) as { project_id: string }[]).map(
+    (s) => s.project_id,
+  );
+  if (starIds.length) {
+    const { data: favRows } = await supabase
+      .from("projects")
+      .select("id,title,category,state,lat,lng")
+      .in("id", starIds.slice(0, 100))
+      .not("lat", "is", null);
+    for (const p of (favRows ?? []) as ProjectPinRow[]) {
+      if (pins.some((x) => x.id === p.id)) continue;
+      pins.push({ ...toPins([p])[0], emoji: "⭐", subtitle: "You starred this" });
+    }
+  }
+
+  // Events you created or said you're in, pinned at their project.
+  const rsvpIds = new Set(
+    ((myRsvps ?? []) as { event_id: string }[]).map((r) => r.event_id),
+  );
+  for (const e of (myEvents ?? []) as unknown as {
+    id: string;
+    title: string;
+    starts_at: string;
+    project_id: string;
+    project?: {
+      title: string;
+      lat: number | null;
+      lng: number | null;
+      owner_id: string;
+    } | null;
+  }[]) {
+    const isMine = e.project?.owner_id === userId;
+    if (!isMine && !rsvpIds.has(e.id)) continue;
+    if (e.project?.lat == null || e.project?.lng == null) continue;
+    if (pins.some((x) => x.id === `event-${e.id}`)) continue;
+    pins.push({
+      id: `event-${e.id}`,
+      title: e.title,
+      emoji: "📅",
+      href: `/projects/${e.project_id}`,
+      lat: e.project.lat,
+      lng: e.project.lng,
+      subtitle: isMine ? "Your event" : "You're going",
+    });
+  }
+
+  return pins;
+}

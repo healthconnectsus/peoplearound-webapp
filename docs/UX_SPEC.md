@@ -205,6 +205,10 @@ neighborhood rather than a continent.
   clusters with headcounts** ("Aurora · 34 neighbors") — you learn where
   people are without learning where anyone lives.
 - **Groups** pin the community's own centre, not its members.
+- **Your own profile map** shows *your* world — your spot (📍, ~1.1 km
+  blunted, stored in an own-row-only table and visible to nobody else), your
+  communities, your ideas, the ideas you starred, and events you host or
+  joined. You can set, move, or forget your spot at any time.
 
 ## 5. Tone and visual direction
 
