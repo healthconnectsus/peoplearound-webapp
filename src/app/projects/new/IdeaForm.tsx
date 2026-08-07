@@ -81,14 +81,25 @@ const EXAMPLES: { title: string; desc: string; by: string }[] = [
   { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak" },
 ];
 
+type PlaybookSeed = {
+  title: string;
+  description: string;
+  category: string;
+  help: HelpKind;
+  tip: string;
+};
+
 export function IdeaForm({
   error,
   userId,
+  playbook = null,
 }: {
   error?: string;
   userId: string;
+  /** Arriving from /playbooks: skip step 1 with the draft already filled. */
+  playbook?: PlaybookSeed | null;
 }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(playbook ? 1 : 0);
 
   // --- Step 1: talk it out ---
   const [rawIdea, setRawIdea] = useState("");
@@ -96,15 +107,17 @@ export function IdeaForm({
   const micSupported = useMicSupported();
   const [shaping, setShaping] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [tip, setTip] = useState<string | null>(null);
+  const [tip, setTip] = useState<string | null>(playbook?.tip ?? null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   // --- Steps 2–3: the draft ---
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<string>(CATEGORIES[0]);
+  const [title, setTitle] = useState(playbook?.title ?? "");
+  const [description, setDescription] = useState(playbook?.description ?? "");
+  const [category, setCategory] = useState<string>(
+    playbook?.category ?? CATEGORIES[0],
+  );
   const [state, setState] = useState<"idea" | "active">("idea");
-  const [help, setHelp] = useState<HelpKind>("local");
+  const [help, setHelp] = useState<HelpKind>(playbook?.help ?? "local");
   const [reach, setReach] = useState<ProjectReach>("neighborhood");
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);

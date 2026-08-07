@@ -7,6 +7,20 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 2: playbooks (proven starting points that prefill the wizard), collective milestones on the feed, and /recap neighborhood year in review
+
+- `package-lock.json`
+- `package.json`
+- `src/app/page.tsx`
+- `src/app/playbooks/page.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/app/recap/page.tsx`
+- `src/components/Sidebar.tsx`
+- `src/lib/milestones.ts`
+- `src/lib/playbooks.ts`
+
+
 ### 2026-08-07 — Profile map: your world (your spot, communities, ideas, faves, events) plus private location control and communities/events sections; migration 0031
 
 - `docs/DATA_MODEL.md`

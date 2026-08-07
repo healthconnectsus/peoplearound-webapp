@@ -11,6 +11,7 @@ import {
   Lightbulb,
   MapPin,
   Gift,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -28,12 +29,14 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/offers", label: "Offers", icon: Gift },
   { href: "/people", label: "People around", icon: HeartHandshake },
+  { href: "/playbooks", label: "Playbooks", icon: BookOpen },
   { href: "/ideas", label: "My ideas", icon: Lightbulb },
   { href: "/neighborhood", label: "My Communities", icon: MapPin },
 ];
 
 const UTILITY_ITEMS = [
   { href: "/analytics", label: "Your analytics" },
+  { href: "/recap", label: "Year in review" },
   { href: "/settings", label: "Settings" },
   { href: "/help", label: "Help Center" },
   { href: "/invite", label: "Invite neighbors" },

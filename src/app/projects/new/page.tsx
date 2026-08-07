@@ -2,13 +2,15 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { IdeaForm } from "./IdeaForm";
+import { playbookBySlug } from "@/lib/playbooks";
 
 export default async function NewProjectPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; playbook?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, playbook } = await searchParams;
+  const pb = playbook ? playbookBySlug(playbook) : undefined;
   const supabase = await createClient();
   const {
     data: { user },
@@ -22,7 +24,21 @@ export default async function NewProjectPage({
         <p className="mb-12 text-sm text-black/60 dark:text-white/60">
           Neighbors can star it — or join you and build it.
         </p>
-        <IdeaForm error={error} userId={user.id} />
+        <IdeaForm
+          error={error}
+          userId={user.id}
+          playbook={
+            pb
+              ? {
+                  title: pb.title,
+                  description: pb.description,
+                  category: pb.category,
+                  help: pb.help,
+                  tip: pb.firstStep,
+                }
+              : null
+          }
+        />
       </main>
     </AppShell>
   );

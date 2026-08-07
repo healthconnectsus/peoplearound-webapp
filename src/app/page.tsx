@@ -5,6 +5,7 @@ import { ipHash, registerFrontierLocation } from "@/lib/frontier";
 import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
+import { communityMilestone } from "@/lib/milestones";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -352,6 +353,10 @@ export default async function Home({
   const hoodSize = neighborCount ?? foundingMembers.length;
   const isFoundingEra = hoodSize < 10;
 
+  // A collective beat when the neighborhood crosses a threshold — about the
+  // place, never a person (see lib/milestones.ts).
+  const milestone = await communityMilestone(supabase, myHood, neighborhoodName);
+
   // Onboarding nudge: one small first action beats a blank profile. Shown
   // only to young accounts that haven't starred or RSVPed yet; it retires
   // itself the moment both are done (recognition follows, never nags).
@@ -615,6 +620,21 @@ export default async function Home({
                     </li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+
+            {milestone ? (
+              <div className="mb-6 rounded-2xl border border-amber-300/50 bg-gradient-to-br from-amber-50 to-emerald-50/60 p-5 text-center dark:border-amber-600/30 dark:from-amber-950/30 dark:to-emerald-950/20">
+                <p className="text-2xl" aria-hidden>
+                  {milestone.emoji}
+                </p>
+                <p className="mt-1 font-semibold">{milestone.text}</p>
+                <Link
+                  href="/recap"
+                  className="mt-1 inline-block text-xs text-black/50 underline underline-offset-2 hover:text-black/70 dark:text-white/50 dark:hover:text-white/70"
+                >
+                  See the year so far
+                </Link>
               </div>
             ) : null}
 
