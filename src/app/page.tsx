@@ -8,7 +8,8 @@ import { computeBadges } from "@/lib/badges";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
-import { NeighborhoodMap, type MapPin } from "@/components/NeighborhoodMap";
+import { type MapPin } from "@/components/NeighborhoodMap";
+import { MapShell } from "@/components/MapShell";
 import {
   HELP_META,
   REACH_META,
@@ -511,15 +512,8 @@ export default async function Home({
       <BadgeCelebration badges={badges} userId={user.id} />
       <LiveRefresh tables="projects,events" />
 
-      <div className={pins.length > 0 ? "lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]" : ""}>
-        {/* The map — the neighborhood as a place. Sticky on desktop. */}
-        {pins.length > 0 ? (
-          <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-0 lg:h-screen lg:p-4">
-            <NeighborhoodMap pins={pins} className="h-64 lg:h-full" />
-          </aside>
-        ) : null}
-
-        <main className="min-w-0 lg:order-1">
+      <MapShell pins={pins}>
+        <main className="min-w-0">
           <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-16 lg:pr-8">
             <div className="mb-5">
               <h1 className="text-3xl font-extrabold tracking-tight">
@@ -775,7 +769,7 @@ export default async function Home({
             </footer>
           </div>
         </main>
-      </div>
+      </MapShell>
     </AppShell>
   );
 }

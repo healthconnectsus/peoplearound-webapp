@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
+import { MapShell } from "@/components/MapShell";
+import { nearbyProjectPins } from "@/lib/mapPins";
 import { initials } from "@/lib/projects";
 
 type PersonRow = {
@@ -93,53 +95,56 @@ export default async function PeoplePage() {
     (p) => !neighbors.some((n) => n.id === p.id),
   );
 
+  const pins = await nearbyProjectPins(supabase, user.id);
   return (
     <AppShell>
-      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
-        <h1 className="text-3xl font-extrabold tracking-tight">People around</h1>
-        <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-          The neighbors near you, and people further away who are open to
-          helping online.
-        </p>
+      <MapShell pins={pins}>
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
+          <h1 className="text-3xl font-extrabold tracking-tight">People around</h1>
+          <p className="mt-1 text-sm text-black/50 dark:text-white/50">
+            The neighbors near you, and people further away who are open to
+            helping online.
+          </p>
 
-        <section className="mt-6">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-            In {hoodName} · {neighbors.length}
-          </h2>
-          {neighbors.length > 0 ? (
-            <ul className="grid gap-2 sm:grid-cols-2">
-              {neighbors.map((p) => (
-                <PersonCard
-                  key={p.id}
-                  person={p}
-                  badge={p.id === user.id ? "You" : undefined}
-                />
-              ))}
-            </ul>
-          ) : (
-            <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
-              No neighbors here yet —{" "}
-              <Link href="/invite" className="underline">
-                invite some
-              </Link>
-              .
-            </p>
-          )}
-        </section>
-
-        {remoteHelpers.length > 0 ? (
-          <section className="mt-8">
+          <section className="mt-6">
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-              💻 Open to helping online
+              In {hoodName} · {neighbors.length}
             </h2>
-            <ul className="grid gap-2 sm:grid-cols-2">
-              {remoteHelpers.map((p) => (
-                <PersonCard key={p.id} person={p} badge="Welcomes online help" />
-              ))}
-            </ul>
+            {neighbors.length > 0 ? (
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {neighbors.map((p) => (
+                  <PersonCard
+                    key={p.id}
+                    person={p}
+                    badge={p.id === user.id ? "You" : undefined}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                No neighbors here yet —{" "}
+                <Link href="/invite" className="underline">
+                  invite some
+                </Link>
+                .
+              </p>
+            )}
           </section>
-        ) : null}
-      </main>
+
+          {remoteHelpers.length > 0 ? (
+            <section className="mt-8">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                💻 Open to helping online
+              </h2>
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {remoteHelpers.map((p) => (
+                  <PersonCard key={p.id} person={p} badge="Welcomes online help" />
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </main>
+      </MapShell>
     </AppShell>
   );
 }

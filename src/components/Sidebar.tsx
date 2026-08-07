@@ -29,7 +29,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/offers", label: "Offers", icon: Gift },
   { href: "/people", label: "People around", icon: HeartHandshake },
   { href: "/ideas", label: "My ideas", icon: Lightbulb },
-  { href: "/neighborhood", label: "My community", icon: MapPin },
+  { href: "/neighborhood", label: "My Communities", icon: MapPin },
 ];
 
 const UTILITY_ITEMS = [

@@ -7,6 +7,21 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Map shell on every around-me page (faves, groups, events, offers, people, communities) via a shared MapShell; rename to My Communities
+
+- `docs/UX_SPEC.md`
+- `src/app/events/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/groups/page.tsx`
+- `src/app/neighborhood/page.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/components/MapShell.tsx`
+- `src/components/Sidebar.tsx`
+- `src/lib/mapPins.ts`
+
+
 ### 2026-08-07 — Logo v6.3: normalize 'around' to people's exact x-height (emboldening had left it ~30 units taller; measured-band uniform rescale, favicon too); ink softened to gray #6E6E73 light / #D4D4D8 dark
 
 - `public/logo-dark.svg`

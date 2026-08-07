@@ -149,7 +149,7 @@ The anti-LinkedIn, anti-Facebook profile. Worth measured in confirmed deeds, not
 
 > No public ranking of people appears anywhere in the app. Collective and project-level recognition is allowed; individual leaderboards are not.
 
-### 4.11 Communities *(live — `/neighborhood`)*
+### 4.11 My Communities *(live — `/neighborhood`)*
 
 - **Yours**: the communities you belong to, with your primary one marked (⭐ Primary decides your home feed); set-primary and leave are one tap.
 - **Discover**: every other community — neighborhoods and cultural / hobby / identity / geographic / interest networks — with kind badges; join is one tap.
@@ -184,6 +184,17 @@ The anti-LinkedIn, anti-Facebook profile. Worth measured in confirmed deeds, not
 - **On a stalling project** (founder-only, private) *(planned)*: a gentle card with one concrete next step. Coach tone.
 - **Off-ramp** *(planned)*: for a quiet project, a private, kind prompt offering a smaller version or a nearby active project to join. Never the word "failed."
 - **Visual treatment:** the agent is visibly secondary — small, calm, dismissible. It must feel like scaffolding that fades, not a character the user relates to instead of people.
+
+### 4.17 The map shell *(live, app-wide)*
+
+Every "what's around me" surface — the feed, project pages, Local Faves,
+Groups, Events, Offers, People around, My Communities — uses one shared
+`MapShell`: content scrolls on the left, a sticky full-height map sits on the
+right. Each page pins what's relevant to it (your faves; the projects hosting
+upcoming events; nearby projects; community centres), and the map is dropped
+entirely when a page has nothing to pin — an empty gutter is worse than no
+map. Local pins are favoured over distant ones so the view frames your
+neighborhood rather than a continent.
 
 ## 5. Tone and visual direction
 
