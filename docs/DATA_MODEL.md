@@ -4,7 +4,7 @@
 
 This expands the core data model sketch in [PRD §4.3](PRD.md#43-core-data-model-sketch). The invariants in [ARCHITECTURE.md](ARCHITECTURE.md#critical-architectural-rules) constrain everything here.
 
-**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `offers` and `reputation` are still planned.
+**Implementation status:** `profiles`, `projects`, `stars`, `memberships`, `contributions`, `attestations`, `events`, `rsvps`, `neighborhoods` (as **communities**), `community_members`, `frontier_request_log`, `project_updates`, `project_flags`, `project_views`, `user_action_log`, and the messaging tables (`conversations`, `conversation_participants`, `messages`) are **live** in the webapp (see [`supabase/migrations/`](../supabase/migrations/)). `offers` and `reputation` are still planned.
 
 ## Entity relationships
 
@@ -15,6 +15,9 @@ neighborhoods ──< profiles ──< projects ──< stars
                                  ├──< memberships          ← the join flow (live)
                                  ├──< contributions ──< attestations   ← the trust core (live)
                                  ├──< events ──< rsvps                 ← physical coordination (live)
+                                 ├──< project_updates                  ← the build log (live)
+                                 ├──< project_flags                    ← moderation (live)
+                                 ├──< project_views                    ← private analytics (live)
                                  └──< offers (optional link)
 reputation (derived from contributions + attestations)
 
@@ -50,6 +53,7 @@ The central object — a living, joinable page with state, team, and history.
 | state | enum `project_state` | `idea` · `active` · `completed` · `archived` — **never `failed`** |
 | help | enum `help_kind` | `local` (hands nearby) · `remote` (online help) · `both` |
 | reach | enum `project_reach` | `neighborhood` (default) · `city` · `global` — RLS-enforced visibility opt-in |
+| photo_url | text, nullable | Cover photo (public `projects` storage bucket, migration 0021); uploads are downscaled client-side |
 | created_at / updated_at | timestamptz | `updated_at` maintained by trigger |
 
 > `neighborhood_id` (FK → neighborhoods) is **live**, stamped from the founder's profile by a before-insert trigger. `lat`/`lng` (nullable doubles) are **live** — the optional map pin from the wizard's "where is it happening?" step.
@@ -126,6 +130,7 @@ Physical coordination attached to a project.
 | title | text | 1–140 chars (DB check) |
 | starts_at | timestamptz | Stored as the naive neighborhood-local time the founder typed; real timezone handling arrives with neighborhoods |
 | place | text | ≤ 200 chars; becomes geography with PostGIS |
+| updated_at | timestamptz | Touched by a trigger whenever an RSVP is added/removed, so realtime viewers see counts change (migration 0024) |
 | created_at | timestamptz | |
 
 > **RLS:** readable by any signed-in user; insert/update/delete by the project founder only.
@@ -206,6 +211,79 @@ Rate-limit ledger for self-registered locations. No client access at all
 
 > **Caps enforced in `register_frontier_location()`:** ≤3 new places per `ip_hash` per 24 h, ≤25 globally per 24 h — which also bounds ops alert emails.
 
+### project_updates
+
+The build log: short progress notes from the founder or an accepted
+teammate. Each lands in the project's history timeline as a 📣 beat.
+Deliberately *not* comments — only the team can post (see
+[FEATURE_IDEAS](FEATURE_IDEAS.md) rejected list).
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| project_id | uuid (FK → projects) | |
+| author_id | uuid (FK → profiles) | |
+| body | text | 1–2000 chars |
+| photo_url | text, nullable | Optional photo (projects bucket) |
+| created_at | timestamptz | |
+
+> **RLS:** readable by anyone who can see the project; insert only as
+> yourself *and* only as founder or accepted teammate; delete by the author
+> or the founder. Capped at 20/user/day. `REPLICA IDENTITY FULL` so filtered
+> realtime catches deletions.
+
+### project_flags
+
+Community moderation. Any neighbor may flag a project once; at 3 distinct
+flaggers the server emails ops for human review. **Nothing is auto-hidden.**
+
+| Column | Type | Notes |
+|---|---|---|
+| project_id | uuid (FK → projects) | |
+| user_id | uuid (FK → profiles) | |
+| reason | text | `spam` · `harassment` · `unsafe` · `not_local` · `other` |
+| note | text, nullable | ≤ 500 chars |
+| created_at | timestamptz | |
+
+> **Constraint:** `PRIMARY KEY (project_id, user_id)` — one flag per neighbor.
+> **RLS:** you can read only *your own* flag (counts are never client-visible,
+> so no one can see a project "under fire"); insert only as yourself and never
+> on your own project; delete your own. Capped at 10 flags/user/day.
+> `flag_review()` (service-role only) powers the ops email.
+
+### project_views
+
+Private analytics. Counts *unique viewers per day* per project.
+
+| Column | Type | Notes |
+|---|---|---|
+| project_id | uuid (FK → projects) | |
+| viewer_id | uuid (FK → profiles) | |
+| viewed_on | date | |
+
+> **Constraint:** `PRIMARY KEY (project_id, viewer_id, viewed_on)` — a refresh
+> is not a view.
+> **RLS:** *no policies at all.* Rows are written by `record_project_view()`
+> (skips the owner's own visits) and read only as aggregates by
+> `idea_view_counts()` / `idea_view_daily()`, both owner-scoped. Who viewed
+> what never leaves the database.
+
+### user_action_log
+
+Rate-limit ledger behind the per-user abuse caps (migration 0017).
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| user_id | uuid | |
+| action | text | `project` · `community` · `conversation` · `message` · `flag` · `project_update` · `shape_idea` |
+| created_at | timestamptz | |
+
+> **RLS:** no policies — only `assert_rate()` and `consume_ai_credit()`
+> (security definer) touch it. Caps: projects 10/day · communities 3/day ·
+> conversations 20/day · messages 200/hour · flags 10/day · updates 20/day ·
+> AI shaping 20/day.
+
 ## Tables — planned
 
 ### offers
@@ -247,6 +325,9 @@ Give / lend / offer — the non-monetary replacement for a marketplace.
 | Events founder-managed; RSVPs self-only | RLS on `events` (owner writes) and `rsvps` (own rows) | ✅ Live |
 | No no-show data can exist | `rsvp_status` enum has the single value `joining`; withdrawal deletes the row | ✅ Live |
 | Neighborhood scoping | `projects` select policy checks viewer's `neighborhood_id`; child tables require a visible project; trigger stamps projects | ✅ Live |
+| View data never identifies viewers | `project_views` has zero RLS policies; only owner-scoped aggregate functions read it | ✅ Live |
+| Flag counts invisible to users | `project_flags` select policy returns own row only; counts via service-role `flag_review()` | ✅ Live |
+| Per-user write caps | DB triggers → `assert_rate()` on projects, communities, conversations, messages, flags, updates | ✅ Live |
 | Reach is opt-in, not a bypass | `reach='city'` needs matching `neighborhoods.city`; `reach='global'` visible to all; default stays `neighborhood` | ✅ Live |
 | New locations need a signed-up human | Anonymous visitors get name preview only; `register_frontier_location` is service-role-only + DB caps (3/IP/day, 25/day) | ✅ Live |
 | No self-invites; attribution set once | `profiles_no_self_invite` check; `invited_by` only written when null | ✅ Live |

@@ -67,7 +67,7 @@ The home tab. A calm, location-scoped feed of life nearby, opening with the neig
 
 ### 4.2 Project page (living page)
 
-The heart of the product. Persistent, stateful, story-like. *(Live: header, state badge, team list, join flow, star; history timeline to come.)*
+The heart of the product. Persistent, stateful, story-like. *(Live: cover photo, header, state badge, team list, join flow, star, sticky map, updates, contributions, history timeline, report control.)*
 
 - **Header:** title, founder, current state (idea / building / completed), star + team counts.
 - **Primary actions:** ⭐ Star · 🤝 Ask to join — with context-aware microcopy that always tells you where you stand ("Your request is with Maria", "You're on the team").
@@ -81,9 +81,10 @@ The heart of the product. Persistent, stateful, story-like. *(Live: header, stat
 
 How an idea becomes a joinable project. Must feel like talking to a neighbor, not filling in a government form. One question at a time, with a quiet progress bar:
 
-1. **Your idea** — "Just talk it out": a free-form box (typed, or spoken via the mic button) and **✨ Shape my idea** — Claude turns the rough description into a clear title, warm description, category, and stage, then advances to the prefilled draft. A "skip — I'll write it myself" path always exists.
+1. **Your idea** — "Just talk it out": a free-form box (typed, or spoken via the mic button) and **✨ Shape my idea** — the AI turns the rough description into a clear title, warm description, category, and stage, then advances to the prefilled draft. A rail of ten example ideas gives a one-tap starting point; if the assistant is unavailable, a "continue without AI" path appears.
 2. **The basics** — title, description, category pills, stage cards ("💭 Just an idea" / "🚀 Already building"). Every AI-filled field stays editable.
-3. **Who can help** — two friendly card rows: what help is needed (🏠 hands nearby / 💻 online help / 🤝 both) and who can find it (🏘️ my neighborhood — recommended default / 🏙️ my city / 🌍 anywhere).
+2b. **A photo** *(optional)* — a real picture of the place or the thing, downscaled in the browser before upload.
+3. **Who can help** — two friendly card rows: what help is needed (🏠 hands nearby / 💻 online help / 🤝 both) and who can find it (🏘️ my neighborhood — recommended default / 🏙️ my city / 🌍 anywhere), plus an optional map pin.
 4. **Share it 🎉** — a review card showing exactly what neighbors will see, then the project goes live on the feed.
 
 ### 4.4 Join flow *(live)*
@@ -159,7 +160,25 @@ The anti-LinkedIn, anti-Facebook profile. Worth measured in confirmed deeds, not
 - Conversation list with unread indicators (`last_read_at`); realtime message delivery.
 - A calm, utilitarian surface: coordination for teams and events, not an engagement channel — no read-receipt pressure, no typing-indicator theater.
 
-### 4.13 AI agent surfaces
+### 4.13 Updates — the build log *(live)*
+
+- Founder and accepted teammates post short progress notes with an optional photo ("We got the permit — planting day is on!").
+- Each update becomes a 📣 beat in the project's history timeline, so the story captures the middle, not just milestones.
+- Deliberately not comments: only the team can post, so the page stays a build log rather than a like-economy surface.
+
+### 4.14 Report an idea *(live)*
+
+- A quiet "🚩 Report this idea" control at the foot of a project (never your own), with five reasons and an optional note.
+- Says plainly: a community admin reviews personally, nothing disappears automatically, the founder is never told who reported.
+- Reporters can undo. Flag counts are invisible to everyone — no project ever displays as "under fire."
+
+### 4.15 Your analytics *(live — `/analytics`)*
+
+- Private to the user: headline numbers, the looking→helping funnel (views → stars → requests → teammates → confirmed help), a 30-day view trend, and a per-idea table.
+- Views count unique neighbors per day and never identify who looked; the owner's own visits don't count.
+- Never comparative — no ranking against other founders, in line with §6.
+
+### 4.16 AI agent surfaces
 
 - **At creation** *(live)*: the "Just talk it out" box — voice or text in, a shaped draft out, everything editable. Suggestive, never blocking.
 - **On a stalling project** (founder-only, private) *(planned)*: a gentle card with one concrete next step. Coach tone.

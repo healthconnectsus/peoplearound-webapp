@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Docs catch-up: DATA_MODEL tables for updates/flags/views/rate-limit ledger, ROADMAP shipped list, UX_SPEC screens 4.13-4.15, AI provider correction
+
+- `docs/ARCHITECTURE.md`
+- `docs/DATA_MODEL.md`
+- `docs/ROADMAP.md`
+- `docs/UX_SPEC.md`
+
+
 ### 2026-08-07 — Fix reviewer-found RSVP staleness (trigger touches parent event), cap realtime debounce at 10s, store JPEG bytes under .jpg paths, flatten transparency to white before JPEG encode
 
 - `docs/SCALING.md`

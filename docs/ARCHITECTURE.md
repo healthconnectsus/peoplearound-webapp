@@ -20,7 +20,7 @@ The architecture exists to protect one thing: a **trustworthy record of what peo
 | Realtime | Supabase Realtime | `LiveRefresh` client component subscribes (RLS-filtered) and refreshes the feed + project pages on change; live chat delivery on `messages` |
 | Communities | `neighborhoods.kind` + `community_members` | Multi-membership across neighborhood/cultural/hobby/identity/geographic/interest communities; `profiles.neighborhood_id` stays the primary and drives the feed |
 | Messaging | `conversations` · `conversation_participants` · `messages` | `/chats`; participant-scoped RLS via the `is_participant()` security-definer helper; `last_read_at` unread tracking |
-| AI idea shaping | Next.js route handler → Claude API | `/api/shape-idea`: free-form (typed or dictated) idea → structured `{title, description, category, state, tip}` via `claude-opus-4-8` structured outputs; browser Web Speech API for voice input |
+| AI idea shaping | Next.js route handler → DeepSeek (primary), Claude Haiku (fallback) | `/api/shape-idea`: free-form (typed or dictated) idea → structured `{title, description, category, state, tip}` via `claude-opus-4-8` structured outputs; browser Web Speech API for voice input |
 | Migrations | `supabase/migrations/` + `scripts/db-apply.mjs` | Idempotent SQL applied via the Supabase Management API |
 
 ## Target architecture (as the trust layer ships)

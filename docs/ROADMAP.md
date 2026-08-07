@@ -28,6 +28,12 @@ The goal of this phase is to prove the join-and-build loop works in a single nei
 - ✅ Auto-locate onboarding — logged-out visitors get the location popup; covered areas show a live local teaser, uncovered areas a founding preview; neighborhood claimed silently at sign-up
 - ✅ [Frontier locations](ARCHITECTURE.md#frontier-locations-live) — new places self-register when a real account signs up there (Nominatim naming, dedup, DB-enforced caps, service-role-only writes) + ops alert email (Resend, verified domain)
 - ✅ [Founding Neighbors incentives](INCENTIVES.md) — permanent first-10 status, personal invite links with `invited_by` attribution, founding-era growth banner
+- ✅ Photo uploads — public `projects` bucket, client-side downscaling, cover photo in the wizard and on project pages
+- ✅ [Project updates](DATA_MODEL.md#project_updates) — founder/teammate build-log posts that land in the history timeline
+- ✅ [Badges + celebration](INCENTIVES.md) — seven derived patch badges with a one-time unlock moment
+- ✅ Community moderation — one-flag-per-neighbor reporting with an ops review email at 3 flags; nothing auto-hidden
+- ✅ Private analytics — `/analytics`: looking→helping funnel, 30-day view trend, per-idea table (views never identify viewers)
+- ✅ Anti-abuse + [scaling](SCALING.md) pass — per-user DB rate caps, Turnstile wiring, filtered/visibility-gated realtime, image downscaling, swappable map tiles
 - ✅ Communities generalization — neighborhoods extended with kinds (cultural/hobby/interest…), multi-membership (`community_members`), messaging tables; profile fields + public landing teaser
 
 **All Phase 0 software is live.** What remains is the human part: run the pilot in one real neighborhood and meet the exit criteria below. (Neighborhood *verification* — phone + address — is deliberately later; today neighborhoods are self-selected.)
