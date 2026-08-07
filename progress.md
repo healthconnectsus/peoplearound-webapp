@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 1 part 1: add-to-calendar on events (.ics + Google), feed filter chips (category/help/event-soon), onboarding first-action nudge; notifications schema + fan-out triggers (migration 0025)
+
+- `src/app/api/event-ics/route.ts`
+- `src/app/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/lib/projects.ts`
+- `supabase/migrations/0025_notifications_and_admin.sql`
+
+
 ### 2026-08-07 — Correct stale AI model reference and list new tables/storage in the architecture table
 
 - `docs/ARCHITECTURE.md`

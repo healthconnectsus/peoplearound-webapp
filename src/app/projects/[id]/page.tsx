@@ -23,6 +23,7 @@ import {
   isWithinDays,
   timeAgo,
   excerpt,
+  googleCalendarUrl,
   type Contribution,
   type Membership,
   type Project,
@@ -702,24 +703,44 @@ export default async function ProjectDetail({
                     </div>
 
                     {upcoming ? (
-                      <form action={toggleRsvp} className="mt-2.5">
-                        <input
-                          type="hidden"
-                          name="projectId"
-                          value={project.id}
-                        />
-                        <input type="hidden" name="eventId" value={e.id} />
-                        <button
-                          type="submit"
-                          className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
-                            iAmIn
-                              ? "border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
-                              : "border-black/15 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
-                          }`}
+                      <div className="mt-2.5 flex flex-wrap items-center gap-3">
+                        <form action={toggleRsvp}>
+                          <input
+                            type="hidden"
+                            name="projectId"
+                            value={project.id}
+                          />
+                          <input type="hidden" name="eventId" value={e.id} />
+                          <button
+                            type="submit"
+                            className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
+                              iAmIn
+                                ? "border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                : "border-black/15 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                            }`}
+                          >
+                            {iAmIn ? "✓ You're in — tap to change plans" : "🙋 I'm in"}
+                          </button>
+                        </form>
+                        <a
+                          href={googleCalendarUrl(
+                            e,
+                            project.title,
+                            `https://peoplearound.com/projects/${project.id}`,
+                          )}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-black/45 underline underline-offset-2 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
                         >
-                          {iAmIn ? "✓ You're in — tap to change plans" : "🙋 I'm in"}
-                        </button>
-                      </form>
+                          Google Calendar
+                        </a>
+                        <a
+                          href={`/api/event-ics?id=${e.id}`}
+                          className="text-xs text-black/45 underline underline-offset-2 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
+                        >
+                          .ics
+                        </a>
+                      </div>
                     ) : isOwner ? (
                       <p className="mt-2 text-xs text-black/40 dark:text-white/40">
                         Did neighbors help make this happen? When they log it

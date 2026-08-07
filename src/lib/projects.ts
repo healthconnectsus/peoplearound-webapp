@@ -205,6 +205,35 @@ export function isUpcomingEvent(iso: string): boolean {
   return new Date(iso).getTime() > Date.now() - 14 * 60 * 60 * 1000;
 }
 
+/**
+ * Calendar export stamp: YYYYMMDDTHHMMSS with NO trailing Z — a "floating"
+ * local time. Our events store the naive neighborhood-local time the founder
+ * typed (interpreted as UTC), so exporting it floating shows exactly that
+ * wall-clock time in any calendar app.
+ */
+export function calendarStamp(iso: string, addHours = 0): string {
+  return new Date(new Date(iso).getTime() + addHours * 3600000)
+    .toISOString()
+    .slice(0, 19)
+    .replace(/[-:]/g, "");
+}
+
+/** "Add to Google Calendar" URL for an event (default 2h duration). */
+export function googleCalendarUrl(
+  e: { title: string; starts_at: string; place: string },
+  projectTitle: string,
+  projectUrl: string,
+): string {
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: e.title,
+    dates: `${calendarStamp(e.starts_at)}/${calendarStamp(e.starts_at, 2)}`,
+    details: `Part of “${projectTitle}” on Peoplearound — ${projectUrl}`,
+    location: e.place || "",
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 /** The last `n` calendar days as YYYY-MM-DD keys, oldest first. */
 export function recentDayKeys(n: number): string[] {
   const today = Date.now();

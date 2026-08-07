@@ -13,6 +13,8 @@ import {
   HELP_META,
   REACH_META,
   STATE_META,
+  CATEGORIES,
+  CATEGORY_META,
   categoryMeta,
   categoryTint,
   formatEventTime,
@@ -147,9 +149,9 @@ function CompactRow({ p }: { p: CardData }) {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; cat?: string; help?: string; ev?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, cat, help: helpFilter, ev } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -160,13 +162,14 @@ export default async function Home({
   const { data: profileRow } = await supabase
     .from("profiles")
     .select(
-      "neighborhood_id,invited_by,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+      "neighborhood_id,invited_by,created_at,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
     )
     .eq("id", user.id)
     .maybeSingle();
   const profile = profileRow as unknown as {
     neighborhood_id: string | null;
     invited_by: string | null;
+    created_at: string;
     neighborhood?: { name: string; city: string | null } | null;
   } | null;
 
@@ -317,7 +320,12 @@ export default async function Home({
 
   // Founding neighbors: the first 10 members of a location, by join order —
   // a permanent, derived fact (no points, no gaming surface).
-  const [{ data: hoodMemberRows }, { count: broughtCount }] = await Promise.all([
+  const [
+    { data: hoodMemberRows },
+    { count: broughtCount },
+    { count: myStarsGiven },
+    { count: myRsvpCount },
+  ] = await Promise.all([
     supabase
       .from("community_members")
       .select("user_id,created_at")
@@ -328,12 +336,30 @@ export default async function Home({
       .from("profiles")
       .select("id", { count: "exact", head: true })
       .eq("invited_by", user.id),
+    supabase
+      .from("stars")
+      .select("project_id", { count: "exact", head: true })
+      .eq("user_id", user.id),
+    supabase
+      .from("rsvps")
+      .select("event_id", { count: "exact", head: true })
+      .eq("user_id", user.id),
   ]);
   const foundingMembers = hoodMemberRows ?? [];
   const myFoundingRank =
     foundingMembers.findIndex((m) => m.user_id === user.id) + 1; // 0 = not founding
   const hoodSize = neighborCount ?? foundingMembers.length;
   const isFoundingEra = hoodSize < 10;
+
+  // Onboarding nudge: one small first action beats a blank profile. Shown
+  // only to young accounts that haven't starred or RSVPed yet; it retires
+  // itself the moment both are done (recognition follows, never nags).
+  const starredOnce = (myStarsGiven ?? 0) > 0;
+  const rsvpedOnce = (myRsvpCount ?? 0) > 0;
+  const showNudge =
+    profile?.created_at != null &&
+    isWithinDays(profile.created_at, 30) &&
+    (!starredOnce || !rsvpedOnce);
 
   // Badges here too, so a fresh badge (e.g. 🌱 on first login after
   // founding a place) celebrates immediately — not only on the profile page.
@@ -402,11 +428,29 @@ export default async function Home({
 
   // Top-bar search: a simple contains-match over title and description.
   const query = q?.trim().toLowerCase() ?? "";
-  const visible = query
+  const searched = query
     ? cards.filter((p) =>
         `${p.title} ${p.description ?? ""}`.toLowerCase().includes(query),
       )
     : cards;
+
+  // Filter chips (server-rendered, shareable URLs): category, help kind,
+  // and "has an event soon".
+  const projectsWithSoonEvent = new Set(events.map((e) => e.project_id));
+  const visible = searched.filter(
+    (p) =>
+      (!cat || p.category === cat) &&
+      (!helpFilter || p.help === helpFilter || p.help === "both") &&
+      (ev !== "soon" || projectsWithSoonEvent.has(p.id)),
+  );
+  const filterHref = (patch: Record<string, string | undefined>) => {
+    const params = new URLSearchParams();
+    const merged = { q, cat, help: helpFilter, ev, ...patch };
+    for (const [k, v] of Object.entries(merged)) if (v) params.set(k, v);
+    const qs = params.toString();
+    return qs ? `/?${qs}` : "/";
+  };
+  const filtersActive = Boolean(cat || helpFilter || ev);
 
   // Zones: your communities first, then your city, then the wide world.
   const local = visible.filter(
@@ -579,6 +623,84 @@ export default async function Home({
                 </ul>
               </div>
             ) : null}
+
+            {showNudge ? (
+              <div className="mb-6 rounded-2xl border border-sky-600/20 bg-sky-50/70 p-5 dark:border-sky-500/25 dark:bg-sky-950/20">
+                <p className="font-medium">👋 Two small ways to start</p>
+                <ul className="mt-2 flex flex-col gap-1.5 text-sm">
+                  <li className={starredOnce ? "text-black/40 line-through dark:text-white/40" : "text-black/70 dark:text-white/70"}>
+                    {starredOnce ? "✓" : "○"} Star an idea you&apos;d be glad
+                    existed
+                  </li>
+                  <li className={rsvpedOnce ? "text-black/40 line-through dark:text-white/40" : "text-black/70 dark:text-white/70"}>
+                    {rsvpedOnce ? "✓" : "○"} Say &quot;I&apos;m in&quot; to one
+                    event
+                  </li>
+                </ul>
+                <p className="mt-2 text-xs text-black/45 dark:text-white/45">
+                  No commitment — this card disappears once you&apos;ve tried
+                  both.
+                </p>
+              </div>
+            ) : null}
+
+            {/* Filter chips — server-rendered links, shareable URLs */}
+            <div className="mb-6 flex flex-wrap items-center gap-1.5">
+              <Link
+                href={filterHref({ cat: undefined, help: undefined, ev: undefined })}
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  !filtersActive
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                }`}
+              >
+                All
+              </Link>
+              {CATEGORIES.map((c) => (
+                <Link
+                  key={c}
+                  href={filterHref({ cat: cat === c ? undefined : c })}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    cat === c
+                      ? "border-emerald-600 bg-emerald-600 text-white"
+                      : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                  }`}
+                >
+                  {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
+                </Link>
+              ))}
+              <span className="mx-1 h-4 w-px bg-black/10 dark:bg-white/15" aria-hidden />
+              <Link
+                href={filterHref({ help: helpFilter === "local" ? undefined : "local" })}
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  helpFilter === "local"
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                }`}
+              >
+                🏠 Hands nearby
+              </Link>
+              <Link
+                href={filterHref({ help: helpFilter === "remote" ? undefined : "remote" })}
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  helpFilter === "remote"
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                }`}
+              >
+                💻 Online help
+              </Link>
+              <Link
+                href={filterHref({ ev: ev === "soon" ? undefined : "soon" })}
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  ev === "soon"
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                }`}
+              >
+                📅 Event soon
+              </Link>
+            </div>
 
             {cards.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-black/15 bg-white p-10 text-center dark:border-white/15 dark:bg-zinc-900">
