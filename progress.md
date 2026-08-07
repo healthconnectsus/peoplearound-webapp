@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Logo v6.4: darken 'around' ink from #6E6E73 to #58585C (light mode); dark mode stays #D4D4D8 for legibility
+
+- `docs/MARKETING.md`
+- `docs/OUTREACH_TARGETS.md`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `scripts/gen-logo.mjs`
+- `src/app/icon.svg`
+
+
 ### 2026-08-07 — Tier 2 complete: PWA install (manifest, icons, offline shell) and opt-in Web Push delivered from the notifications table by a 10-minute cron
 
 - `docs/ARCHITECTURE.md`

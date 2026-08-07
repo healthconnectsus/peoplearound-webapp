@@ -169,9 +169,15 @@ follow-up, reply, page created.
 
 ## 5. Next steps
 
+The concrete target list — named organizations, doors, contacts, tiers and a
+6-week sequence — lives in `OUTREACH_TARGETS.md`.
+
 - [ ] Pull the USA Pickleball ambassador directory for launch areas; first 10
       sends of template A.
 - [ ] Identify padel clubs opening in launch metros; template C.
+- [ ] Register a community group with the City of Aurora (free, 3+ people) —
+      unlocks neighborhood grant eligibility and free meeting rooms, and makes
+      all Aurora outreach peer-to-peer instead of vendor-to-city.
 - [ ] Seed one "build a court" flagship project in the first neighborhood.
 - [ ] OG-card images for badge unlocks.
 - [ ] Hyperlocal SEO pages from frontier data.

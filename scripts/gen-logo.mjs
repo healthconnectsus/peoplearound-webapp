@@ -48,7 +48,7 @@ const SIZE = 1000;
 // side bearings (the recurring "forgot the overlap" trap) — place by bbox.
 const OVERLAP = 70;
 const OPACITY = 0.88;
-const INK = "#6E6E73";      // gray, not black — the colored word is the hero
+const INK = "#58585C";      // gray, not black — the colored word is the hero
 const INK_DARK = "#D4D4D8"; // dark mode: soft gray instead of full white
 // One color per POSITION of "people" (letters repeat): p e o p l e
 const COLORS = ["#F7554A", "#F9A215", "#14B487", "#4479E4", "#8A4BD8", "#F45495"];
