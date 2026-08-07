@@ -31,10 +31,13 @@ const EXAMPLES = [
 export function AskComposer({
   userId,
   startOpen = false,
+  center = null,
 }: {
   userId: string;
   /** The sidebar's "Ask for small help" lands here with the form already up. */
   startOpen?: boolean;
+  /** Opens the pin map on your neighborhood rather than the whole planet. */
+  center?: { lat: number; lng: number } | null;
 }) {
   const [open, setOpen] = useState(startOpen);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -147,7 +150,7 @@ export function AskComposer({
           Drop a rough pin so neighbors can see if it&rsquo;s near them — a
           corner or a block, not your door. We round it to about 110 m.
         </p>
-        <MapPicker value={spot} onChange={setSpot} />
+        <MapPicker value={spot} onChange={setSpot} center={center} />
       </div>
 
       <div className="mt-2">

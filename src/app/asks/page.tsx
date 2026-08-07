@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
-import { askPins, nearbyProjectPins } from "@/lib/mapPins";
+import { askPins, myMapCenter, nearbyProjectPins } from "@/lib/mapPins";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { initials, timeAgo } from "@/lib/projects";
 import { formatMinutes } from "@/lib/asks";
@@ -61,6 +61,7 @@ export default async function AsksPage({
   const open = asks.filter((a) => !a.claimed_by);
   const covered = asks.filter((a) => a.claimed_by);
 
+  const center = await myMapCenter(supabase, user.id);
   const spotPins = await askPins(supabase);
   const pins = spotPins.length
     ? spotPins
@@ -84,7 +85,11 @@ export default async function AsksPage({
           ) : null}
 
           <div className="mt-6">
-            <AskComposer userId={user.id} startOpen={compose === "1"} />
+            <AskComposer
+              userId={user.id}
+              startOpen={compose === "1"}
+              center={center}
+            />
           </div>
 
           <section className="mt-8">

@@ -7,6 +7,21 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Pin pickers open on your neighborhood, not the whole planet
+
+- `docs/UX_SPEC.md`
+- `src/app/asks/AskComposer.tsx`
+- `src/app/asks/page.tsx`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/profile/LocationCard.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/components/MapPicker.tsx`
+- `src/lib/mapPins.ts`
+
+
 ### 2026-08-07 — Sidebar: 'Ask for small help' button; fold Groups into People around and Playbooks into My ideas
 
 - `docs/UX_SPEC.md`

@@ -331,3 +331,13 @@ The ask button is deliberately *secondary*. An idea is what this place is
 for, so it keeps the filled button — but someone who just needs a hand
 shouldn't have to go looking for the door, so the ask is one outlined click
 that opens the composer already expanded (`/asks?compose=1`).
+
+
+### Pin pickers open where you live
+
+Every "drop a rough pin" map (small help, offers, the idea wizard, your
+profile spot) opens on your saved point if you have one, otherwise your
+neighborhood's centre at street zoom — never the whole planet. A world map is
+a map of nowhere: you can't drop a useful pin from orbit, and the picker
+reads as broken before you've touched it. `myMapCenter()` resolves the centre
+server-side; when neither is known the map falls back to the world view.

@@ -11,7 +11,14 @@ const KINDS = [
   { value: "offer", emoji: "🙌", label: "Offer a skill", hint: "A hand, an hour" },
 ];
 
-export function OfferComposer({ userId }: { userId: string }) {
+export function OfferComposer({
+  userId,
+  center = null,
+}: {
+  userId: string;
+  /** Opens the pin map on your neighborhood rather than the whole planet. */
+  center?: { lat: number; lng: number } | null;
+}) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [spot, setSpot] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -79,7 +86,7 @@ export function OfferComposer({ userId }: { userId: string }) {
           Drop a rough pin so neighbors can see if it&apos;s near them — pick a
           corner or a block, not your door. We round it to about 110 m.
         </p>
-        <MapPicker value={spot} onChange={setSpot} />
+        <MapPicker value={spot} onChange={setSpot} center={center} />
       </div>
       <div className="mt-2">
         <PhotoPicker

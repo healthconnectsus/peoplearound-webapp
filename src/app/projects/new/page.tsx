@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { IdeaForm } from "./IdeaForm";
 import { playbookBySlug } from "@/lib/playbooks";
+import { myMapCenter } from "@/lib/mapPins";
 
 export default async function NewProjectPage({
   searchParams,
@@ -17,6 +18,8 @@ export default async function NewProjectPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const center = await myMapCenter(supabase, user.id);
+
   return (
     <AppShell focus>
       <main className="w-full max-w-[90rem] flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
@@ -27,6 +30,7 @@ export default async function NewProjectPage({
         <IdeaForm
           error={error}
           userId={user.id}
+          center={center}
           playbook={
             pb
               ? {

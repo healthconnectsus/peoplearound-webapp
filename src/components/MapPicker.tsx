@@ -11,9 +11,16 @@ import "leaflet/dist/leaflet.css";
 export function MapPicker({
   value,
   onChange,
+  center = null,
 }: {
   value: { lat: number; lng: number } | null;
   onChange: (v: { lat: number; lng: number } | null) => void;
+  /**
+   * Where to open when no pin is set — your saved spot or your
+   * neighborhood's centre. Without it the map opens on the whole planet,
+   * which is a map of nowhere: you can't drop a useful pin from orbit.
+   */
+  center?: { lat: number; lng: number } | null;
 }) {
   const holderRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -51,9 +58,10 @@ export function MapPicker({
       if (disposed || !holderRef.current || mapRef.current) return;
       leafletRef.current = L;
 
+      const start = value ?? center;
       const map = L.map(holderRef.current, { scrollWheelZoom: false }).setView(
-        value ? [value.lat, value.lng] : [20, 0],
-        value ? 15 : 2,
+        start ? [start.lat, start.lng] : [20, 0],
+        value ? 16 : start ? 14 : 2,
       );
       // Tiles are provider-swappable: OSM's public tiles are free but
       // policy-limited (fine for a pilot, throttled for a real user base).

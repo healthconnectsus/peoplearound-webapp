@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
-import { myWorldPins } from "@/lib/mapPins";
+import { myWorldPins, myMapCenter } from "@/lib/mapPins";
 import { LocationCard } from "./LocationCard";
 import { BadgeMedallion } from "@/components/BadgeMedallion";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
@@ -399,7 +399,10 @@ export default async function ProfilePage({
             </section>
           ) : null}
 
-          <LocationCard initial={myLoc as { lat: number; lng: number } | null} />
+          <LocationCard
+            initial={myLoc as { lat: number; lng: number } | null}
+            center={await myMapCenter(supabase, user.id)}
+          />
 
           {/* Your communities */}
           <section className="mt-6">

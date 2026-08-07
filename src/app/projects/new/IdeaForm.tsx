@@ -93,11 +93,14 @@ export function IdeaForm({
   error,
   userId,
   playbook = null,
+  center = null,
 }: {
   error?: string;
   userId: string;
-  /** Arriving from /playbooks: skip step 1 with the draft already filled. */
+  /** Arriving from a playbook: skip step 1 with the draft already filled. */
   playbook?: PlaybookSeed | null;
+  /** Opens the pin map on your neighborhood rather than the whole planet. */
+  center?: { lat: number; lng: number } | null;
 }) {
   const [step, setStep] = useState(playbook ? 1 : 0);
 
@@ -487,7 +490,7 @@ export function IdeaForm({
                 (optional)
               </span>
             </legend>
-            <MapPicker value={loc} onChange={setLoc} />
+            <MapPicker value={loc} onChange={setLoc} center={center} />
           </fieldset>
 
           <div className="mt-1 flex items-center gap-3">

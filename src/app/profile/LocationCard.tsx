@@ -11,8 +11,11 @@ import { setMyLocation, forgetMyLocation } from "./locationActions";
  */
 export function LocationCard({
   initial,
+  center = null,
 }: {
   initial: { lat: number; lng: number } | null;
+  /** Your neighborhood's centre — where the map opens before you've set a spot. */
+  center?: { lat: number; lng: number } | null;
 }) {
   const [spot, setSpot] = useState(initial);
   const [open, setOpen] = useState(false);
@@ -36,7 +39,7 @@ export function LocationCard({
 
       {open ? (
         <div className="mt-3">
-          <MapPicker value={spot} onChange={setSpot} />
+          <MapPicker value={spot} onChange={setSpot} center={center} />
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <form action={setMyLocation}>
               <input type="hidden" name="lat" value={spot?.lat ?? ""} />

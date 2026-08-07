@@ -148,6 +148,40 @@ export async function offerPins(supabase: Client): Promise<MapPin[]> {
   }));
 }
 
+/**
+ * Where a "drop a pin" map should open. Your own saved point if you've set
+ * one, otherwise your neighborhood's centre — never the whole planet, which
+ * is a map of nowhere and makes the picker feel broken.
+ */
+export async function myMapCenter(
+  supabase: Client,
+  userId: string,
+): Promise<{ lat: number; lng: number } | null> {
+  const { data: mine } = await supabase
+    .from("user_locations")
+    .select("lat,lng")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (mine?.lat != null && mine?.lng != null) {
+    return { lat: mine.lat, lng: mine.lng };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select(
+      "neighborhood:neighborhoods!profiles_neighborhood_id_fkey(center_lat,center_lng)",
+    )
+    .eq("id", userId)
+    .maybeSingle();
+  const hood = (profile as unknown as {
+    neighborhood?: { center_lat: number | null; center_lng: number | null } | null;
+  } | null)?.neighborhood;
+  if (hood?.center_lat != null && hood?.center_lng != null) {
+    return { lat: hood.center_lat, lng: hood.center_lng };
+  }
+  return null;
+}
+
 /** Open small-help asks with a rough spot — same blunting as offers. */
 export async function askPins(supabase: Client): Promise<MapPin[]> {
   const { data } = await supabase

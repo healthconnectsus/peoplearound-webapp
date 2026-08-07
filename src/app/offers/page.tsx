@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
-import { nearbyProjectPins, offerPins } from "@/lib/mapPins";
+import { myMapCenter, nearbyProjectPins, offerPins } from "@/lib/mapPins";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { initials, timeAgo } from "@/lib/projects";
 import { OfferComposer } from "./OfferComposer";
@@ -72,6 +72,7 @@ export default async function OffersPage() {
 
   // Offers with a rough spot pin themselves; otherwise fall back to the
   // neighborhood's projects so the map still gives context.
+  const center = await myMapCenter(supabase, user.id);
   const spotPins = await offerPins(supabase);
   const pins = spotPins.length
     ? spotPins
@@ -98,7 +99,7 @@ export default async function OffersPage() {
           ) : null}
 
           <div className="mt-6">
-            <OfferComposer userId={user.id} />
+            <OfferComposer userId={user.id} center={center} />
           </div>
 
           <section className="mt-8">
