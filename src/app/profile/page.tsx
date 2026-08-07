@@ -321,9 +321,12 @@ export default async function ProfilePage({
         <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
           <div className="flex items-baseline justify-between">
             <h2 className="font-medium">Dashboard</h2>
-            <span className="text-xs text-black/40 dark:text-white/40">
-              Only visible to you
-            </span>
+            <Link
+              href="/analytics"
+              className="text-xs text-black/45 underline underline-offset-2 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
+            >
+              Full analytics →
+            </Link>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {dashboard.map((d) => (

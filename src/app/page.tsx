@@ -442,7 +442,14 @@ export default async function Home({
   ].filter(Boolean) as { emoji: string; text: string }[];
 
   // Map pins for every visible, located project.
-  const pins: MapPin[] = visible
+  // The map is "what's being built AROUND YOU": pin the local + city
+  // projects. Global ideas live in the "From anywhere" list — pinning them
+  // would zoom the map out to the whole continent, which shows nothing.
+  const nearby = [...local, ...city];
+  const mappable = nearby.some((p) => p.lat != null && p.lng != null)
+    ? nearby
+    : visible;
+  const pins: MapPin[] = mappable
     .filter((p) => p.lat != null && p.lng != null)
     .map((p) => ({
       id: p.id,

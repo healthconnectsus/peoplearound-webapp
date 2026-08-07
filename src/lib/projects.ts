@@ -205,6 +205,14 @@ export function isUpcomingEvent(iso: string): boolean {
   return new Date(iso).getTime() > Date.now() - 14 * 60 * 60 * 1000;
 }
 
+/** The last `n` calendar days as YYYY-MM-DD keys, oldest first. */
+export function recentDayKeys(n: number): string[] {
+  const today = Date.now();
+  return Array.from({ length: n }, (_, i) =>
+    new Date(today - (n - 1 - i) * 86400000).toISOString().slice(0, 10),
+  );
+}
+
 /** True if the timestamp is within the last `days` days. */
 export function isWithinDays(iso: string | null, days: number): boolean {
   if (!iso) return false;

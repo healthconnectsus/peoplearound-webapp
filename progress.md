@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Analytics page (/analytics): funnel, 30-day view trend, per-idea table; map now focuses on local+city pins instead of zooming out to the continent
+
+- `docs/FEATURE_IDEAS.md`
+- `src/app/analytics/page.tsx`
+- `src/app/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/components/Sidebar.tsx`
+- `src/lib/projects.ts`
+- `supabase/migrations/0022_view_trends.sql`
+
+
 ### 2026-08-07 — Brand tooling: commit logo generator as scripts/gen-logo.mjs (variants quicksand/poppins/comfortaa + licensed-leksen slot, synthetic embolden via rounded polygon offset); verified byte-identical to shipped v6.1 assets; npm audit fix for dev tooling
 
 - `package-lock.json`

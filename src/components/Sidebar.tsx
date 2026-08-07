@@ -31,6 +31,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
 ];
 
 const UTILITY_ITEMS = [
+  { href: "/analytics", label: "Your analytics" },
   { href: "/settings", label: "Settings" },
   { href: "/help", label: "Help Center" },
   { href: "/invite", label: "Invite neighbors" },

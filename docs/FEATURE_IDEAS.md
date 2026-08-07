@@ -33,6 +33,11 @@ ones at the bottom so they stay rejected.*
    frontier locations to rename, community management — replacing SQL
    editor ops. Gate by an `is_admin` profile flag. *(M)*
 
+8. ~~**Private analytics page**~~ ✅ *shipped 2026-08* — `/analytics`:
+   headline numbers, the looking→helping funnel (views → stars → requests →
+   teammates → confirmed help), a 30-day view trend, and a per-idea table.
+   Owner-only; never comparative (migrations 0020 + 0022).
+
 ## Tier 2 — deepen (Phase 1 material)
 
 8. **Offers: give / lend / offer board** — already specced in PRD §3.8; the
