@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Logo v6.3: normalize 'around' to people's exact x-height (emboldening had left it ~30 units taller; measured-band uniform rescale, favicon too); ink softened to gray #6E6E73 light / #D4D4D8 dark
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `scripts/gen-logo.mjs`
+- `src/app/icon.svg`
+
+
 ### 2026-08-07 — Tier 2: reputation and skills assembled from confirmed contributions (ranked by distinct attesters, never volume); docs for co-organizer + gardener + reputation
 
 - `docs/FEATURE_IDEAS.md`

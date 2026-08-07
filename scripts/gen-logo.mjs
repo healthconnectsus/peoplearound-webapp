@@ -48,7 +48,8 @@ const SIZE = 1000;
 // side bearings (the recurring "forgot the overlap" trap) — place by bbox.
 const OVERLAP = 70;
 const OPACITY = 0.88;
-const INK = "#3A3A3C";
+const INK = "#6E6E73";      // gray, not black — the colored word is the hero
+const INK_DARK = "#D4D4D8"; // dark mode: soft gray instead of full white
 // One color per POSITION of "people" (letters repeat): p e o p l e
 const COLORS = ["#F7554A", "#F9A215", "#14B487", "#4479E4", "#8A4BD8", "#F45495"];
 // "around" spacing (all bbox-measured, applied after emboldening):
@@ -144,6 +145,28 @@ const people = layout(peopleFont, "people", 0, OVERLAP);
 // MIN_GAP — the natural gaps are uneven, r's arm almost touches o already).
 let around = layout(aroundFont, "around", 0);
 if (EMBOLDEN > 0) around = around.map((g) => embolden(g, EMBOLDEN));
+
+// Emboldening grows glyphs in every direction, leaving "around" ~2*EMBOLDEN
+// taller than "people". Normalize: uniformly scale the emboldened word so its
+// x-height band (o) lands exactly on people's (e). Same transform is applied
+// to the favicon's "a" below.
+let normS = 1, normA = 0;
+if (EMBOLDEN > 0) {
+  const pe = people[5].path.getBoundingBox(); // people's trailing e = x-height ref
+  const ao = around[2].path.getBoundingBox(); // emboldened o
+  normS = (pe.y2 - pe.y1) / (ao.y2 - ao.y1);
+  normA = pe.y1 - normS * ao.y1;
+}
+const normalize = (g) => {
+  if (normS === 1) return g;
+  const b = g.path.getBoundingBox();
+  return {
+    d: g.d.replace(/([ML])(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g,
+      (_, cmd, x, y) => `${cmd}${Number((normS * x).toFixed(1))} ${Number((normA + normS * y).toFixed(1))}`),
+    path: { getBoundingBox: () => ({ x1: normS * b.x1, y1: normA + normS * b.y1, x2: normS * b.x2, y2: normA + normS * b.y2 }) },
+  };
+};
+around = around.map(normalize);
 {
   const boxes = around.map((g) => g.path.getBoundingBox());
   const naturalGaps = boxes.map((b, i) => (i === 0 ? 0 : b.x1 - boxes[i - 1].x2));
@@ -188,14 +211,14 @@ if (OUT) fs.mkdirSync(OUT, { recursive: true });
 
 fs.writeFileSync(dest("logo.svg"),
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" role="img" aria-label="Peoplearound">
-<style>.ink{fill:${INK}}@media(prefers-color-scheme:dark){.ink{fill:#fff}}</style>
+<style>.ink{fill:${INK}}@media(prefers-color-scheme:dark){.ink{fill:${INK_DARK}}}</style>
 ${peoplePaths}
 <g class="ink">
 ${aroundPaths}
 </g>
 </svg>`);
 fs.writeFileSync(dest("logo-light.svg"), wordmark(`<g fill="${INK}">`));
-fs.writeFileSync(dest("logo-dark.svg"), wordmark(`<g fill="#ffffff">`));
+fs.writeFileSync(dest("logo-dark.svg"), wordmark(`<g fill="${INK_DARK}">`));
 
 // ---- favicon: white tile, overlapping "pa" (p colored glass, a bold ink) --
 {
@@ -208,7 +231,7 @@ fs.writeFileSync(dest("logo-dark.svg"), wordmark(`<g fill="#ffffff">`));
   const shift = pEnd - 45 - aNatural.getBoundingBox().x1; // 45-unit overlap
   const aPath = aSlots[0].glyph.getPath(aSlots[0].x + shift, 0, SIZE);
   let aGlyph = { d: aPath.toPathData(1), path: aPath };
-  if (EMBOLDEN > 0) aGlyph = embolden(aGlyph, EMBOLDEN);
+  if (EMBOLDEN > 0) aGlyph = normalize(embolden(aGlyph, EMBOLDEN));
 
   const glyphs = [...p, aGlyph];
   const b = union(glyphs);
