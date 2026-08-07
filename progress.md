@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Logo v6.2: tighten spacing - word gap 105 to 70, 'around' letter gaps reduced 40 each (floored at 3 where r's arm nearly touches o); around placed by bbox after emboldening
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `scripts/gen-logo.mjs`
+- `src/app/profile/page.tsx`
+- `src/lib/reputation.ts`
+
+
 ### 2026-08-07 — Tier 2: AI Gardener phase 2 — private stall nudges and dignified off-ramps for quiet projects (DeepSeek, weekly cron, founder-only, dismissible); migration 0029
 
 - `public/logo-dark.svg`

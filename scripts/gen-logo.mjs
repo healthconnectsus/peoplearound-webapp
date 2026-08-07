@@ -52,7 +52,7 @@ const INK = "#3A3A3C";
 // One color per POSITION of "people" (letters repeat): p e o p l e
 const COLORS = ["#F7554A", "#F9A215", "#14B487", "#4479E4", "#8A4BD8", "#F45495"];
 // "around" spacing (all bbox-measured, applied after emboldening):
-const WORD_GAP = 150;    // people's right edge → a's left edge
+const WORD_GAP = 70;     // people's right edge → a's left edge
 const TRACK = 40;        // tighten every natural letter gap by this much...
 const MIN_GAP = 3;       // ...but never below this (r→o is nearly touching)
 

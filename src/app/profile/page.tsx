@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { BadgeMedallion } from "@/components/BadgeMedallion";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
+import { computeReputation } from "@/lib/reputation";
 import {
   categoryMeta,
   initials,
@@ -170,6 +171,7 @@ export default async function ProfilePage({
   const hoodForBadges = profileRow as unknown as {
     neighborhood_id?: string | null;
   } | null;
+  const reputation = await computeReputation(supabase, user.id);
   const badges = await computeBadges(supabase, user.id, {
     id: hoodForBadges?.neighborhood_id ?? null,
     name: profile?.neighborhood?.name ?? null,
@@ -316,6 +318,38 @@ export default async function ProfilePage({
             </p>
           )}
         </section>
+
+        {/* Reputation — assembled from confirmed work, never declared */}
+        {reputation.confirmed > 0 ? (
+          <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+            <div className="flex items-baseline justify-between">
+              <h2 className="font-medium">What neighbors trust you with</h2>
+              <span className="text-xs text-black/40 dark:text-white/40">
+                Confirmed by others
+              </span>
+            </div>
+            {reputation.summary ? (
+              <p className="mt-1.5 text-sm text-black/70 dark:text-white/70">
+                {reputation.summary}
+              </p>
+            ) : null}
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {reputation.skills.map((sk) => (
+                <li
+                  key={sk.type}
+                  title={`${sk.count} confirmed · ${sk.attesters} neighbor${sk.attesters === 1 ? "" : "s"} attested`}
+                  className="rounded-full border border-emerald-600/25 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-900 dark:border-emerald-500/25 dark:bg-emerald-950/40 dark:text-emerald-200"
+                >
+                  {sk.emoji} {sk.label} · {sk.count}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-[11px] text-black/40 dark:text-white/40">
+              Skills here are earned, not claimed — each one is work a
+              neighbor confirmed happened.
+            </p>
+          </section>
+        ) : null}
 
         {/* Dashboard — private stats */}
         <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
