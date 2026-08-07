@@ -7,6 +7,19 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Spatial context for offers (approximate pin + place text, rounded to ~110m), groups (community centres), and people (community clusters with headcounts, never individuals); migration 0030
+
+- `docs/DATA_MODEL.md`
+- `docs/UX_SPEC.md`
+- `src/app/groups/page.tsx`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/offers/offerActions.ts`
+- `src/app/offers/page.tsx`
+- `src/app/people/page.tsx`
+- `src/lib/mapPins.ts`
+- `supabase/migrations/0030_offer_location.sql`
+
+
 ### 2026-08-07 — Map shell on every around-me page (faves, groups, events, offers, people, communities) via a shared MapShell; rename to My Communities
 
 - `docs/UX_SPEC.md`

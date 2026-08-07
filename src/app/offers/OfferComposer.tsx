@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { MapPicker } from "@/components/MapPicker";
 import { postOffer } from "./offerActions";
 
 const KINDS = [
@@ -12,6 +13,7 @@ const KINDS = [
 
 export function OfferComposer({ userId }: { userId: string }) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [spot, setSpot] = useState<{ lat: number; lng: number } | null>(null);
 
   return (
     <form
@@ -19,6 +21,8 @@ export function OfferComposer({ userId }: { userId: string }) {
       className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900"
     >
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
+      <input type="hidden" name="lat" value={spot?.lat ?? ""} />
+      <input type="hidden" name="lng" value={spot?.lng ?? ""} />
       <h2 className="text-lg font-bold">Share something</h2>
       <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
         A tool, a truck for a day, soil, an hour of help. No money — just
@@ -63,6 +67,20 @@ export function OfferComposer({ userId }: { userId: string }) {
         placeholder="Anything useful — condition, when you're around, how to reach you"
         className="mt-2 w-full resize-y rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
       />
+      <input
+        type="text"
+        name="place"
+        maxLength={120}
+        placeholder="Roughly where? e.g. “5th & Oak” (optional)"
+        className="mt-2 w-full rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+      />
+      <div className="mt-2">
+        <p className="mb-1.5 text-xs text-black/50 dark:text-white/50">
+          Drop a rough pin so neighbors can see if it&apos;s near them — pick a
+          corner or a block, not your door. We round it to about 110 m.
+        </p>
+        <MapPicker value={spot} onChange={setSpot} />
+      </div>
       <div className="mt-2">
         <PhotoPicker
           userId={userId}

@@ -114,3 +114,106 @@ export async function communityPins(supabase: Client): Promise<MapPin[]> {
     subtitle: c.city ?? "",
   }));
 }
+
+/** Offers with an approximate pickup spot (rounded to ~110 m on write). */
+export async function offerPins(supabase: Client): Promise<MapPin[]> {
+  const { data } = await supabase
+    .from("offers")
+    .select("id,kind,title,place,lat,lng,claimed_by")
+    .not("lat", "is", null)
+    .is("claimed_by", null)
+    .limit(200);
+  const emoji: Record<string, string> = {
+    give: "🎁",
+    lend: "🔁",
+    offer: "🙌",
+  };
+  return ((data ?? []) as {
+    id: string;
+    kind: string;
+    title: string;
+    place: string | null;
+    lat: number;
+    lng: number;
+  }[]).map((o) => ({
+    id: o.id,
+    title: o.title,
+    emoji: emoji[o.kind] ?? "🎁",
+    href: "/offers",
+    lat: o.lat,
+    lng: o.lng,
+    subtitle: o.place ? `Around ${o.place}` : "Roughly here",
+  }));
+}
+
+/**
+ * Groups = communities that aren't a plain neighborhood (hobby, cultural,
+ * interest…), pinned at their centre.
+ */
+export async function groupPins(supabase: Client): Promise<MapPin[]> {
+  const { data } = await supabase
+    .from("neighborhoods")
+    .select("id,name,city,kind,center_lat,center_lng")
+    .not("center_lat", "is", null)
+    .neq("kind", "neighborhood")
+    .limit(200);
+  return ((data ?? []) as {
+    id: string;
+    name: string;
+    city: string | null;
+    kind: string;
+    center_lat: number;
+    center_lng: number;
+  }[]).map((c) => ({
+    id: c.id,
+    title: c.name,
+    emoji: "👥",
+    href: "/neighborhood",
+    lat: c.center_lat,
+    lng: c.center_lng,
+    subtitle: [c.kind, c.city].filter(Boolean).join(" · "),
+  }));
+}
+
+/**
+ * People, aggregated by community — never individually.
+ *
+ * A neighbor's home is not ours to publish, so this pins the COMMUNITY
+ * centre with a headcount ("Aurora · 34 neighbors"). You learn where people
+ * are without learning where anyone lives.
+ */
+export async function peopleClusterPins(supabase: Client): Promise<MapPin[]> {
+  const [{ data: hoods }, { data: members }] = await Promise.all([
+    supabase
+      .from("neighborhoods")
+      .select("id,name,center_lat,center_lng")
+      .not("center_lat", "is", null)
+      .limit(200),
+    supabase.from("profiles").select("neighborhood_id"),
+  ]);
+  const counts = new Map<string, number>();
+  for (const m of (members ?? []) as { neighborhood_id: string | null }[]) {
+    if (m.neighborhood_id) {
+      counts.set(m.neighborhood_id, (counts.get(m.neighborhood_id) ?? 0) + 1);
+    }
+  }
+  return ((hoods ?? []) as {
+    id: string;
+    name: string;
+    center_lat: number;
+    center_lng: number;
+  }[])
+    .map((h) => {
+      const n = counts.get(h.id) ?? 0;
+      return {
+        id: h.id,
+        title: h.name,
+        emoji: "🧑‍🤝‍🧑",
+        href: "/people",
+        lat: h.center_lat,
+        lng: h.center_lng,
+        subtitle: `${n} neighbor${n === 1 ? "" : "s"}`,
+      };
+    })
+    .filter((p) => !p.subtitle.startsWith("0 "));
+}

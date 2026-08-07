@@ -318,6 +318,8 @@ Give / lend / offer — the non-monetary replacement for a marketplace
 | kind | enum `offer_kind` | `give` · `lend` · `offer` (a skill) |
 | title / description | text | ≤ 140 / ≤ 2000 chars |
 | photo_url | text, nullable | Projects storage bucket |
+| place | text, nullable | Free text the poster writes ("5th & Oak"), ≤ 120 chars |
+| lat / lng | double precision, nullable | **Approximate** pickup spot: the poster drops a rough pin, and both the action and a DB trigger round to 3 dp (~110 m). No doorstep can be recorded here. |
 | project_id | uuid (FK → projects), nullable | When linked, the offer feeds that project's contributions |
 | claimed_by / claimed_at | uuid (FK → profiles) / timestamptz, nullable | A claim is a handshake, not a checkout |
 | created_at | timestamptz | |

@@ -18,6 +18,16 @@ export async function postOffer(formData: FormData) {
     .trim()
     .slice(0, 2000);
   const photoUrl = String(formData.get("photoUrl") ?? "").trim().slice(0, 500);
+  const place = String(formData.get("place") ?? "").trim().slice(0, 120);
+  // Approximate on purpose: rounded to ~110 m here and again by a DB
+  // trigger, so an offer points at a corner, never a doorstep.
+  const latNum = Number.parseFloat(String(formData.get("lat") ?? ""));
+  const lngNum = Number.parseFloat(String(formData.get("lng") ?? ""));
+  const hasSpot =
+    Number.isFinite(latNum) &&
+    Number.isFinite(lngNum) &&
+    Math.abs(latNum) <= 90 &&
+    Math.abs(lngNum) <= 180;
   if (!title) redirect("/offers");
   const kind = (KINDS as readonly string[]).includes(kindRaw) ? kindRaw : "give";
 
@@ -33,6 +43,9 @@ export async function postOffer(formData: FormData) {
     title,
     description,
     photo_url: photoUrl || null,
+    place: place || null,
+    lat: hasSpot ? Math.round(latNum * 1000) / 1000 : null,
+    lng: hasSpot ? Math.round(lngNum * 1000) / 1000 : null,
   });
 
   revalidatePath("/offers");

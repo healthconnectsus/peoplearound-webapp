@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
-import { nearbyProjectPins } from "@/lib/mapPins";
+import { groupPins, nearbyProjectPins } from "@/lib/mapPins";
 
 export default async function GroupsPage() {
   const supabase = await createClient();
@@ -12,7 +12,10 @@ export default async function GroupsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const pins = await nearbyProjectPins(supabase, user.id);
+  // Groups are communities that aren't a plain neighborhood; pin them at
+  // their centres, falling back to nearby projects while none exist yet.
+  const gPins = await groupPins(supabase);
+  const pins = gPins.length ? gPins : await nearbyProjectPins(supabase, user.id);
   return (
     <AppShell>
       <MapShell pins={pins}>

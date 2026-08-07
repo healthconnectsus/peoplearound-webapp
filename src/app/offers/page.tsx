@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
-import { nearbyProjectPins } from "@/lib/mapPins";
+import { nearbyProjectPins, offerPins } from "@/lib/mapPins";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { initials, timeAgo } from "@/lib/projects";
 import { OfferComposer } from "./OfferComposer";
@@ -39,6 +39,7 @@ type OfferRow = {
   title: string;
   description: string;
   photo_url: string | null;
+  place: string | null;
   claimed_by: string | null;
   claimed_at: string | null;
   created_at: string;
@@ -56,7 +57,7 @@ export default async function OffersPage() {
   const { data: rows, error } = await supabase
     .from("offers")
     .select(
-      "id,user_id,kind,title,description,photo_url,claimed_by,claimed_at,created_at,poster:profiles!offers_user_id_fkey(display_name),claimer:profiles!offers_claimed_by_fkey(display_name)",
+      "id,user_id,kind,title,description,photo_url,place,claimed_by,claimed_at,created_at,poster:profiles!offers_user_id_fkey(display_name),claimer:profiles!offers_claimed_by_fkey(display_name)",
     )
     .order("created_at", { ascending: false })
     .limit(60);
@@ -65,7 +66,12 @@ export default async function OffersPage() {
   const available = offers.filter((o) => !o.claimed_by);
   const taken = offers.filter((o) => o.claimed_by);
 
-  const pins = await nearbyProjectPins(supabase, user.id);
+  // Offers with a rough spot pin themselves; otherwise fall back to the
+  // neighborhood's projects so the map still gives context.
+  const spotPins = await offerPins(supabase);
+  const pins = spotPins.length
+    ? spotPins
+    : await nearbyProjectPins(supabase, user.id);
   return (
     <AppShell>
       <MapShell pins={pins}>
@@ -139,6 +145,11 @@ export default async function OffersPage() {
                             {o.poster?.display_name ?? "A neighbor"} ·{" "}
                             {timeAgo(o.created_at)}
                           </span>
+                          {o.place ? (
+                            <span title="Approximate — neighbors arrange the details">
+                              📍 around {o.place}
+                            </span>
+                          ) : null}
                         </div>
                         <div className="mt-3">
                           {mine ? (

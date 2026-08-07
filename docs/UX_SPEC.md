@@ -196,6 +196,16 @@ entirely when a page has nothing to pin — an empty gutter is worse than no
 map. Local pins are favoured over distant ones so the view frames your
 neighborhood rather than a continent.
 
+**Spatial context without exposure** — three deliberate rules:
+- **Offers** carry an *approximate* spot: the poster drops a rough pin (a
+  corner, a block) plus optional free text like "5th & Oak", and it is
+  rounded to ~110 m in the action *and* again by a database trigger. The UI
+  says so plainly: "pick a corner or a block, not your door."
+- **People** are never pinned individually. The People map shows **community
+  clusters with headcounts** ("Aurora · 34 neighbors") — you learn where
+  people are without learning where anyone lives.
+- **Groups** pin the community's own centre, not its members.
+
 ## 5. Tone and visual direction
 
 - **Mood:** warm, calm, human — a town square at golden hour, not a neon arcade or a corporate network.

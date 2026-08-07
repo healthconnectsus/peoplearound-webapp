@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
-import { nearbyProjectPins } from "@/lib/mapPins";
+import { nearbyProjectPins, peopleClusterPins } from "@/lib/mapPins";
 import { initials } from "@/lib/projects";
 
 type PersonRow = {
@@ -95,7 +95,12 @@ export default async function PeoplePage() {
     (p) => !neighbors.some((n) => n.id === p.id),
   );
 
-  const pins = await nearbyProjectPins(supabase, user.id);
+  // People are pinned as COMMUNITY clusters with headcounts — never at
+  // anyone's home (see lib/mapPins.ts).
+  const clusters = await peopleClusterPins(supabase);
+  const pins = clusters.length
+    ? clusters
+    : await nearbyProjectPins(supabase, user.id);
   return (
     <AppShell>
       <MapShell pins={pins}>
