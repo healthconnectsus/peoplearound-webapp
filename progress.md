@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Logo v6: invert the two words - 'people' colored per letter with 70-unit glass overlap (Poppins Medium), 'around' solid ink Poppins ExtraBold; favicon pa inverted to match
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-08-06 — Logo v5.1: 'around' letters now overlap 70 units with 0.88 translucency (layered-glass color mixing, placed by bbox so bearings can't eat the overlap); favicon pa overlaps too
 
 - `public/logo-dark.svg`
