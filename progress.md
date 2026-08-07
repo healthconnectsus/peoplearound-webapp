@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Security: upgrade next 16.2.7 to 16.3.0 - clears all HIGH advisories incl. GHSA-6gpp-xcg3-4w24 proxy/middleware auth bypass (auth guard lives in src/proxy.ts) plus SSRF/DoS/cache-confusion and vulnerable postcss; npm audit now 0 vulnerabilities; build passes, auth redirect and public routes verified on dev server
+
+- `package-lock.json`
+- `package.json`
+
+
 ### 2026-08-07 — Tier 2: playbooks (proven starting points that prefill the wizard), collective milestones on the feed, and /recap neighborhood year in review
 
 - `package-lock.json`
