@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Grant admin to the operator's app login (peoplearound.alexandre@gmail.com) alongside the GitHub account
+
+- `supabase/migrations/0026_admin_accounts.sql`
+
+
 ### 2026-08-07 — Tier 1 part 3: /admin ops console (flag queue, community cleanup, health strip) with is_admin gating; docs for the whole batch
 
 - `docs/DATA_MODEL.md`
