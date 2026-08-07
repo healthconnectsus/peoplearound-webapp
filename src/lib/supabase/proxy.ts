@@ -57,6 +57,7 @@ export async function updateSession(request: NextRequest) {
     path === "/api/register-location" ||
     // Vercel Cron hits this with its own bearer token (checked in-route).
     path === "/api/digest" ||
+    path === "/api/gardener" ||
     // Local visual galleries; the pages themselves 404 in production.
     (process.env.NODE_ENV !== "production" && path.startsWith("/dev"));
 

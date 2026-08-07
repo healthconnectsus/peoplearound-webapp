@@ -8,7 +8,7 @@ import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { FlagButton } from "./FlagButton";
 import { UpdateComposer, ProjectPhotoEditor } from "./UpdateComposer";
-import { deleteUpdate } from "../updateActions";
+import { deleteUpdate, dismissNudge } from "../updateActions";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import {
   CONTRIBUTION_TYPES,
@@ -136,6 +136,18 @@ export default async function ProjectDetail({
     created_at: string;
     author?: { display_name: string | null } | null;
   }[];
+
+  // A private word from the gardener, if this project has gone quiet.
+  // RLS returns a row only to the founder (migration 0029).
+  const { data: nudgeRow } = await supabase
+    .from("project_nudges")
+    .select("kind,body,dismissed_at")
+    .eq("project_id", id)
+    .maybeSingle();
+  const nudge =
+    nudgeRow && !(nudgeRow as { dismissed_at: string | null }).dismissed_at
+      ? (nudgeRow as { kind: string; body: string })
+      : null;
 
   // Community moderation: have I already reported this one? (RLS returns
   // only my own flag row.)
@@ -590,6 +602,28 @@ export default async function ProjectDetail({
             </p>
           ) : null}
         </div>
+
+        {/* The gardener's private nudge — founder only, dismissible, and
+            deliberately quiet: scaffolding that fades (UX_SPEC §4.16). */}
+        {nudge && isOwner ? (
+          <div className="mt-7 rounded-2xl border border-amber-300/50 bg-amber-50/60 p-4 dark:border-amber-700/40 dark:bg-amber-950/20">
+            <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+              🌱 A thought, just for you
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-amber-900/80 dark:text-amber-200/80">
+              {nudge.body}
+            </p>
+            <form action={dismissNudge} className="mt-2">
+              <input type="hidden" name="projectId" value={project.id} />
+              <button
+                type="submit"
+                className="text-xs text-amber-900/60 hover:underline dark:text-amber-200/60"
+              >
+                Thanks — dismiss
+              </button>
+            </form>
+          </div>
+        ) : null}
 
         {/* Updates — the build log (founder + teammates) */}
         <div className="mt-7">

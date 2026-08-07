@@ -76,3 +76,23 @@ export async function setProjectPhoto(formData: FormData) {
   revalidatePath("/");
   redirect(`/projects/${projectId}`);
 }
+
+/** Founder dismisses a private gardener nudge. */
+export async function dismissNudge(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  if (!projectId) redirect("/");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  await supabase
+    .from("project_nudges")
+    .update({ dismissed_at: new Date().toISOString() })
+    .eq("project_id", projectId);
+
+  revalidatePath(`/projects/${projectId}`);
+  redirect(`/projects/${projectId}`);
+}

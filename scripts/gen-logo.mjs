@@ -51,7 +51,10 @@ const OPACITY = 0.88;
 const INK = "#3A3A3C";
 // One color per POSITION of "people" (letters repeat): p e o p l e
 const COLORS = ["#F7554A", "#F9A215", "#14B487", "#4479E4", "#8A4BD8", "#F45495"];
-const WORD_GAP = 80;
+// "around" spacing (all bbox-measured, applied after emboldening):
+const WORD_GAP = 150;    // people's right edge → a's left edge
+const TRACK = 40;        // tighten every natural letter gap by this much...
+const MIN_GAP = 3;       // ...but never below this (r→o is nearly touching)
 
 // Lay a word out glyph by glyph. overlap === 0: natural advances + kerning.
 // overlap > 0: each glyph's bbox starts `overlap` units before the previous
@@ -68,7 +71,7 @@ function layout(font, word, startX, overlap = 0) {
     const x = overlap && cursor !== null ? s.x + (cursor - overlap - nb.x1) : s.x;
     const p = s.glyph.getPath(x, 0, SIZE);
     cursor = p.getBoundingBox().x2;
-    placed.push({ d: p.toPathData(1), path: p });
+    placed.push({ d: p.toPathData(1), path: p, glyph: s.glyph, penX: x });
   }
   return placed;
 }
@@ -130,9 +133,34 @@ const union = (glyphs) =>
     { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity },
   );
 
+// Shift a flattened M/L-only path (embolden output) horizontally.
+const shiftD = (d, dx) =>
+  d.replace(/([ML])(-?\d+(?:\.\d+)?) /g, (_, cmd, x) => `${cmd}${Number((Number(x) + dx).toFixed(1))} `);
+
 const people = layout(peopleFont, "people", 0, OVERLAP);
-let around = layout(aroundFont, "around", union(people).x2 + WORD_GAP);
+
+// "around": natural layout → embolden → re-place by bbox so the word sits
+// WORD_GAP after "people" and every letter gap tightens by TRACK (floored at
+// MIN_GAP — the natural gaps are uneven, r's arm almost touches o already).
+let around = layout(aroundFont, "around", 0);
 if (EMBOLDEN > 0) around = around.map((g) => embolden(g, EMBOLDEN));
+{
+  const boxes = around.map((g) => g.path.getBoundingBox());
+  const naturalGaps = boxes.map((b, i) => (i === 0 ? 0 : b.x1 - boxes[i - 1].x2));
+  let cursor = union(people).x2 + WORD_GAP;
+  around = around.map((g, i) => {
+    const b = boxes[i];
+    const gap = i === 0 ? 0 : Math.max(naturalGaps[i] - TRACK, MIN_GAP);
+    const dx = cursor + gap - b.x1;
+    cursor = b.x2 + dx;
+    if (EMBOLDEN > 0) {
+      return { d: shiftD(g.d, dx), path: { getBoundingBox: () => ({ x1: b.x1 + dx, y1: b.y1, x2: b.x2 + dx, y2: b.y2 }) } };
+    }
+    // Curves present (no embolden): re-render the glyph at the shifted pen x.
+    const p = g.glyph.getPath(g.penX + dx, 0, SIZE);
+    return { d: p.toPathData(1), path: p };
+  });
+}
 
 const bb = union([...people, ...around]);
 const M = 40;

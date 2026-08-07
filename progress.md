@@ -7,6 +7,20 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — Tier 2: AI Gardener phase 2 — private stall nudges and dignified off-ramps for quiet projects (DeepSeek, weekly cron, founder-only, dismissible); migration 0029
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `scripts/gen-logo.mjs`
+- `src/app/api/gardener/route.ts`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/updateActions.ts`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0029_gardener_nudges.sql`
+- `vercel.json`
+
+
 ### 2026-08-07 — Tier 2: co-organizer role — founders promote teammates who can then accept joins, run events, and accept others' contributions (never their own); migration 0028
 
 - `src/app/projects/[id]/page.tsx`
