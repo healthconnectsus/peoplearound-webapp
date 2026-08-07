@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-07 — docs: add BUSINESS.md — monetization streams, sequencing, break-even
+
+- `docs/BUSINESS.md`
+
+
 ### 2026-08-07 — Scaling fixes: filtered+visibility-gated realtime with polling fallback, client-side image downscaling, swappable map tile provider, Haiku fallback for AI; add docs/SCALING.md
 
 - `docs/SCALING.md`
