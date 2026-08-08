@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-08 — Map: community switcher pills, and a map on My ideas
+
+- `docs/UX_SPEC.md`
+- `src/app/ideas/page.tsx`
+- `src/components/MapShell.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/lib/mapPins.ts`
+
+
 ### 2026-08-07 — Every around-me map frames your neighborhood, not the continent
 
 - `docs/UX_SPEC.md`

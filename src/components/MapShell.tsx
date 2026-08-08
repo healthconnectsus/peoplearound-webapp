@@ -1,6 +1,6 @@
 import { NeighborhoodMap, type MapPin } from "@/components/NeighborhoodMap";
 import { createClient } from "@/lib/supabase/server";
-import { myMapCenter } from "@/lib/mapPins";
+import { myCommunityFocuses, myMapCenter } from "@/lib/mapPins";
 
 /**
  * The split app shell: content scrolls on the left, the map sits sticky and
@@ -26,7 +26,12 @@ export async function MapShell({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const center = user ? await myMapCenter(supabase, user.id) : null;
+  const [center, focuses] = user
+    ? await Promise.all([
+        myMapCenter(supabase, user.id),
+        myCommunityFocuses(supabase, user.id),
+      ])
+    : [null, []];
 
   return (
     <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]">
@@ -34,6 +39,7 @@ export async function MapShell({
         <NeighborhoodMap
           pins={pins}
           center={center}
+          focuses={focuses}
           className="h-64 lg:h-full"
         />
       </aside>

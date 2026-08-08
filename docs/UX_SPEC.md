@@ -346,6 +346,14 @@ faraway pin.
 `MapShell` resolves the centre once for every page that uses it, rather than
 each page passing its own — eight call sites would guarantee one eventually
 forgets. The exception is a project's own page, which frames that project.
+**My ideas** carries the map too: the ideas you started and the teams you
+joined, wherever they are.
+
+**Community pills.** You can belong to more than one community — your block,
+plus the cycling group two neighborhoods over — and a map that silently
+averages them centres on a spot where nothing is happening. So when there's
+more than one, pills appear over the map (primary first) and one tap moves
+the view. The user picks; the software doesn't guess.
 
 ### Pin pickers open where you live
 

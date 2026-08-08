@@ -1,8 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
+
+export type MapFocusOption = {
+  id: string;
+  label: string;
+  lat: number;
+  lng: number;
+};
 
 export type MapPin = {
   id: string;
@@ -45,6 +52,7 @@ export function NeighborhoodMap({
   pins,
   className = "h-72",
   center = null,
+  focuses = [],
 }: {
   pins: MapPin[];
   className?: string;
@@ -55,8 +63,16 @@ export function NeighborhoodMap({
    * Distant pins still render; they just don't get a vote on the framing.
    */
   center?: { lat: number; lng: number } | null;
+  /**
+   * The communities this person belongs to. Shown as pills over the map when
+   * there's more than one, because a single fixed viewport can't serve
+   * someone whose life spans two neighborhoods.
+   */
+  focuses?: MapFocusOption[];
 }) {
   const holderRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<import("leaflet").Map | null>(null);
+  const [activeFocus, setActiveFocus] = useState<string | null>(null);
   const router = useRouter();
   const routerRef = useRef(router);
   useEffect(() => {
@@ -73,6 +89,7 @@ export function NeighborhoodMap({
       if (disposed || !holderRef.current) return;
 
       map = L.map(holderRef.current, { scrollWheelZoom: false });
+      mapRef.current = map;
       // Tiles are provider-swappable: OSM's public tiles are free but
       // policy-limited (fine for a pilot, throttled for a real user base).
       // Point NEXT_PUBLIC_MAP_TILE_URL at Stadia/MapTiler when we outgrow
@@ -130,6 +147,7 @@ export function NeighborhoodMap({
     return () => {
       disposed = true;
       map?.remove();
+      mapRef.current = null;
     };
     // Pins come from a server component; re-render on content change only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,6 +166,33 @@ export function NeighborhoodMap({
       <p className="pointer-events-none absolute left-3 top-3 z-[500] rounded-full bg-white/90 px-3 py-1 text-xs font-medium shadow dark:bg-zinc-900/90">
         📍 What&apos;s being built around you
       </p>
+
+      {focuses.length > 1 ? (
+        <div className="absolute right-3 top-3 z-[500] flex max-w-[70%] flex-wrap justify-end gap-1.5">
+          {focuses.map((f) => {
+            const active = activeFocus
+              ? activeFocus === f.id
+              : f.id === focuses[0].id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => {
+                  setActiveFocus(f.id);
+                  mapRef.current?.setView([f.lat, f.lng], 14);
+                }}
+                className={`rounded-full px-3 py-1 text-xs font-medium shadow transition-colors ${
+                  active
+                    ? "bg-emerald-600 text-white"
+                    : "bg-white/90 text-black/70 hover:bg-white dark:bg-zinc-900/90 dark:text-white/70 dark:hover:bg-zinc-900"
+                }`}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

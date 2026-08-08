@@ -148,6 +148,60 @@ export async function offerPins(supabase: Client): Promise<MapPin[]> {
   }));
 }
 
+export type MapFocus = {
+  id: string;
+  label: string;
+  lat: number;
+  lng: number;
+  /** Your profile's neighborhood — the one the map opens on. */
+  primary: boolean;
+};
+
+/**
+ * The places this person can ask the map to look at. You can belong to more
+ * than one community (your block, plus the cycling group two neighborhoods
+ * over), and a map that silently averages them shows you a spot where
+ * nothing is happening. So the user picks.
+ */
+export async function myCommunityFocuses(
+  supabase: Client,
+  userId: string,
+): Promise<MapFocus[]> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("neighborhood_id")
+    .eq("id", userId)
+    .maybeSingle();
+  const primaryId = (profile?.neighborhood_id as string | null) ?? null;
+
+  const ids = await myCommunityIds(supabase, userId);
+  if (ids.length === 0) return [];
+
+  const { data } = await supabase
+    .from("neighborhoods")
+    .select("id,name,city,center_lat,center_lng")
+    .in("id", ids)
+    .not("center_lat", "is", null);
+
+  return ((data ?? []) as {
+    id: string;
+    name: string;
+    city: string | null;
+    center_lat: number;
+    center_lng: number;
+  }[])
+    .map((c) => ({
+      id: c.id,
+      label: c.name,
+      lat: c.center_lat,
+      lng: c.center_lng,
+      primary: c.id === primaryId,
+    }))
+    .sort((a, b) =>
+      a.primary === b.primary ? a.label.localeCompare(b.label) : a.primary ? -1 : 1,
+    );
+}
+
 /**
  * Where a "drop a pin" map should open. Your own saved point if you've set
  * one, otherwise your neighborhood's centre — never the whole planet, which
