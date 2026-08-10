@@ -334,11 +334,15 @@ counts where nobody looked.
 
 ## Navigation: eight rails, not eleven
 
-The left rail leads with the two things you can *start* — **+ Share something
-to do** (filled) and **🙋 Ask for small help** (outlined) — and only then the
-eight places you can browse: Home · Local Faves · Events · Offers · Small
-help · People around · My ideas · My Communities. Doing comes before
-browsing, so the doors sit above the rails.
+The left rail: eight places you can browse — Home · Local Faves · Events ·
+Offers · Small help · People around · My ideas · My Communities — then the
+two things you can *start*: **✨ Share something to do** (filled) and
+**🙋 Ask for small help** (outlined), then the utilities. The buttons sit
+*between* places and utilities, not on top: the rails carry your numbers, so
+orientation comes first, and the sidebar fits one screen either way — top
+placement bought no visibility, it only pushed the map of your world down.
+(Gmail's Compose-on-top works because Gmail is opened *to compose*;
+Peoplearound is opened to see what's around, then act.)
 
 "Share something to do" rather than "Share an idea": the product's contract
 is that every surface asks what you want to **do**, never who you want to

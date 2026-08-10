@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Sidebar: sparkles icon on the share button, doors back between rails and utilities
+
+- `docs/UX_SPEC.md`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-10 — Sidebar: both start-buttons above the rails, and 'Share something to do'
 
 - `docs/UX_SPEC.md`
