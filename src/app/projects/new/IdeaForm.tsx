@@ -97,11 +97,10 @@ const INTENTS: {
     category: "other",
     placeholder: "e.g. “I'd love a Sunday morning walking group, max 20 people…”",
     tint: {
-      front:
-        "border-sky-200 bg-sky-50 dark:border-sky-900 dark:bg-sky-950/40",
-      iconBox: "bg-white dark:bg-sky-900/60",
-      icon: "text-sky-600 dark:text-sky-400",
-      back: "bg-sky-600",
+      front: "bg-gradient-to-br from-sky-500 to-sky-700",
+      iconBox: "bg-white/20",
+      icon: "text-white",
+      back: "bg-sky-800",
     },
     example: {
       title: "Neighborhood walk",
@@ -118,11 +117,10 @@ const INTENTS: {
     category: "community",
     placeholder: "e.g. “the empty lot near the bakery could be a garden…”",
     tint: {
-      front:
-        "border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/40",
-      iconBox: "bg-white dark:bg-emerald-900/60",
-      icon: "text-emerald-600 dark:text-emerald-400",
-      back: "bg-emerald-600",
+      front: "bg-gradient-to-br from-emerald-500 to-emerald-700",
+      iconBox: "bg-white/20",
+      icon: "text-white",
+      back: "bg-emerald-800",
     },
     example: {
       title: "Community garden",
@@ -139,11 +137,10 @@ const INTENTS: {
     category: "venture",
     placeholder: "e.g. “I'm starting a tiny bakery and could use a hand on Saturdays…”",
     tint: {
-      front:
-        "border-violet-200 bg-violet-50 dark:border-violet-900 dark:bg-violet-950/40",
-      iconBox: "bg-white dark:bg-violet-900/60",
-      icon: "text-violet-600 dark:text-violet-400",
-      back: "bg-violet-600",
+      front: "bg-gradient-to-br from-violet-500 to-violet-700",
+      iconBox: "bg-white/20",
+      icon: "text-white",
+      back: "bg-violet-800",
     },
     example: {
       title: "Tiny bakery test",
@@ -353,10 +350,10 @@ export function IdeaForm({
                   >
                     {/* Front */}
                     <span
-                      className={`absolute inset-0 flex flex-col items-start gap-3 rounded-2xl border p-5 shadow-sm [backface-visibility:hidden] ${it.tint.front}`}
+                      className={`absolute inset-0 flex flex-col items-start gap-3 rounded-2xl p-5 text-white shadow-md [backface-visibility:hidden] ${it.tint.front}`}
                     >
                       <span
-                        className={`flex h-11 w-11 items-center justify-center rounded-xl shadow-sm ${it.tint.iconBox}`}
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl ${it.tint.iconBox}`}
                       >
                         <Icon
                           className={`h-6 w-6 ${it.tint.icon}`}
@@ -367,7 +364,7 @@ export function IdeaForm({
                       <span className="text-lg font-bold leading-snug">
                         {it.title}
                       </span>
-                      <span className="text-sm leading-relaxed text-black/55 dark:text-white/55">
+                      <span className="text-sm leading-relaxed text-white/85">
                         {it.desc}
                       </span>
                     </span>

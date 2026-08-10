@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Intent cards: saturated gradient fronts instead of pale tints
+
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-10 — Flip cards use real headshots from the face set
 
 - `public/faces/anna.webp`
