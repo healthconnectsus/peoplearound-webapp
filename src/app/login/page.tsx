@@ -108,7 +108,7 @@ export default async function LoginPage({
                 className="rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900"
               >
                 <h1 className="text-center text-xl font-semibold tracking-tight">
-                  Build ideas with your communities
+                  Let&rsquo;s do something together
                 </h1>
 
                 {error ? (
@@ -202,7 +202,7 @@ export default async function LoginPage({
         {/* Live ideas teaser */}
         <section className="mx-auto w-full max-w-5xl px-4 py-12">
           <h2 className="text-center text-2xl font-semibold tracking-tight">
-            Ideas being built right now
+            Ideas being built right now within the communities
           </h2>
           <p className="mt-1 text-center text-sm text-black/50 dark:text-white/50">
             Real projects from real communities. Join to star them, meet the

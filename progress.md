@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Login page: align headline and section titles with brand tagline
+
+- `src/app/login/page.tsx`
+
+
 ### 2026-08-10 — Sidebar: sparkles icon on the share button, doors back between rails and utilities
 
 - `docs/UX_SPEC.md`
