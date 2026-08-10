@@ -470,6 +470,8 @@ export function IdeaForm({
                 {activeIntent.options.map((o) => {
                   const picked = o.seed !== "" && rawIdea === o.seed;
                   return (
+                    /* Same flip grammar as the intent cards: colored front,
+                       hover turns it over to the exact words a tap drafts. */
                     <button
                       key={o.label}
                       type="button"
@@ -477,20 +479,38 @@ export function IdeaForm({
                         setRawIdea(o.seed);
                         if (o.category) setCategory(o.category);
                       }}
-                      className={`rounded-xl border px-3.5 py-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-md ${
-                        picked
-                          ? "border-emerald-600 bg-white shadow-md ring-2 ring-emerald-500/40 dark:bg-zinc-900"
-                          : "border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900"
+                      className={`group relative h-40 text-left [perspective:800px] ${
+                        picked ? "rounded-xl ring-2 ring-offset-2 ring-emerald-500" : ""
                       }`}
                     >
-                      <span className="block text-xl" aria-hidden>
-                        {o.emoji}
-                      </span>
-                      <span className="mt-1 block text-sm font-bold leading-snug">
-                        {o.label}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-black/50 dark:text-white/50">
-                        {o.hint}
+                      <span className="relative block h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)]">
+                        {/* Front */}
+                        <span
+                          className={`absolute inset-0 flex flex-col rounded-xl p-3.5 text-white shadow-md [backface-visibility:hidden] ${activeIntent.tint.front}`}
+                        >
+                          <span className="block text-2xl" aria-hidden>
+                            {o.emoji}
+                          </span>
+                          <span className="mt-1.5 block text-sm font-bold leading-snug">
+                            {o.label}
+                          </span>
+                          <span className="mt-0.5 block text-xs leading-snug text-white/80">
+                            {o.hint}
+                          </span>
+                        </span>
+                        {/* Back: the words a tap will draft for you */}
+                        <span
+                          className={`absolute inset-0 flex flex-col rounded-xl p-3.5 text-white shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)] ${activeIntent.tint.back}`}
+                        >
+                          <span className="line-clamp-4 text-xs leading-relaxed text-white/90">
+                            {o.seed
+                              ? `“${o.seed}”`
+                              : "Your words, your way — tap and just start typing below."}
+                          </span>
+                          <span className="mt-auto text-[11px] font-semibold uppercase tracking-wide text-white/70">
+                            {o.seed ? "Tap to start from this →" : "Tap to write your own →"}
+                          </span>
+                        </span>
                       </span>
                     </button>
                   );
