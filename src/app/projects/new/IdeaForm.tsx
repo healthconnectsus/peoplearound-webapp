@@ -456,7 +456,7 @@ export function IdeaForm({
       {/* ---- Step 2: your idea — quick picks first, own words below ---- */}
       {step === 1 ? (
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
+          <div>
             {activeIntent ? (
               <p className="text-2xl font-extrabold">
                 I&rsquo;d like to{" "}

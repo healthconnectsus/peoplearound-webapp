@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Wizard page: drop the subtitle and the emerald panel around step 2
+
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/projects/new/page.tsx`
+
+
 ### 2026-08-10 — Quick-pick cards: shorter, real example on the flip side, bridge line to free text
 
 - `public/faces/dana.webp`
