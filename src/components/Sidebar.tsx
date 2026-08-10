@@ -11,7 +11,7 @@ import {
   MapPin,
   Gift,
   HandHelping,
-  Sparkles,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 import type { NavCounts } from "@/lib/navCounts";
@@ -170,22 +170,23 @@ export function Sidebar({
 
       {/* The two doors sit between the places (above) and the utilities
           (below): orient first — the rails carry your numbers — then act.
-          Filled vs outlined keeps the hierarchy: sharing is what this place
-          is for, but someone who just needs a hand shouldn't have to go
-          looking for the door. */}
+          Both solid; the hierarchy is carried by hue, not by weight, so
+          asking for a hand doesn't look like the lesser option. Icons and
+          labels align left with the rails above them. */}
       <div className="mt-5 flex flex-col gap-2">
         <Link
           href="/projects/new"
-          className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+          className="flex items-center gap-2.5 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
         >
-          <Sparkles className="h-4 w-4" strokeWidth={2} aria-hidden />
+          <UsersRound className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
           Start something with people
         </Link>
         <Link
           href="/asks?compose=1"
-          className="rounded-full border border-emerald-600/40 px-4 py-2.5 text-center text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+          className="flex items-center gap-2.5 rounded-full bg-amber-400 px-4 py-2.5 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
         >
-          🙋 Ask for small help
+          <HandHelping className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+          Ask for small help
         </Link>
       </div>
 

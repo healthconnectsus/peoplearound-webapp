@@ -346,8 +346,11 @@ counts where nobody looked.
 
 The left rail: eight places you can browse — Home · Local Faves · Events ·
 Offers · Small help · People around · My ideas · My Communities — then the
-two things you can *start*: **✨ Share something to do** (filled) and
-**🙋 Ask for small help** (outlined), then the utilities. The buttons sit
+two things you can *start*: **Start something with people** (emerald) and
+**Ask for small help** (amber), then the utilities. Both are solid, both
+left-align their lucide icon and label with the rails above — hierarchy comes
+from hue, not from one being outlined, so asking for a hand never reads as
+the lesser option. The buttons sit
 *between* places and utilities, not on top: the rails carry your numbers, so
 orientation comes first, and the sidebar fits one screen either way — top
 placement bought no visibility, it only pushed the map of your world down.

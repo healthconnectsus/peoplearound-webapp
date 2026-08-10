@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Sidebar buttons: both solid, left-aligned, lucide icons
+
+- `docs/UX_SPEC.md`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-10 — Intent step: 'I'd like to:' framing, cards become verbs
 
 - `src/app/projects/new/IdeaForm.tsx`
