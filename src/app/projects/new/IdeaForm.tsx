@@ -327,6 +327,24 @@ export function IdeaForm({
     }
   }
 
+  /** Straight to the draft without the assistant, carrying your words with
+      you: the first line becomes the title, the rest the description. Never
+      overwrites text that's already there (AI-shaped or from a playbook). */
+  function skipShaping() {
+    const raw = rawIdea.trim();
+    if (raw && !title.trim() && !description.trim()) {
+      const [first, ...rest] = raw.split("\n");
+      if (first.length <= 140) {
+        setTitle(first);
+        setDescription(rest.join("\n").trim());
+      } else {
+        setDescription(raw);
+      }
+    }
+    setAiError(null);
+    setStep(2);
+  }
+
   const canContinueFromBasics = title.trim().length > 0;
 
   return (
@@ -581,6 +599,16 @@ export function IdeaForm({
               >
                 {shaping ? "Shaping…" : "✨ Shape my idea"}
               </button>
+              {/* Skipping the assistant is a first-class path, not a fallback
+                  for when it breaks — so whatever you typed comes with you
+                  into the draft rather than being dropped on the floor. */}
+              <button
+                type="button"
+                onClick={skipShaping}
+                className="rounded-full border border-black/15 px-6 py-3 text-base font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+              >
+                Next →
+              </button>
               {listening ? (
                 <span className="text-sm text-red-600 dark:text-red-400">
                   Listening — speak freely…
@@ -596,15 +624,6 @@ export function IdeaForm({
           </div>
 
           <div className="flex items-center gap-3">
-            {aiError ? (
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="text-base text-black/50 hover:underline dark:text-white/50"
-              >
-                Continue without AI →
-              </button>
-            ) : null}
             <button
               type="button"
               onClick={() => setStep(0)}

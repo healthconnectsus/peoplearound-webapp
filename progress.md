@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Your idea: a Next button that skips the assistant and keeps your words
+
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-10 — Wizard page: drop the subtitle and the emerald panel around step 2
 
 - `src/app/projects/new/IdeaForm.tsx`
