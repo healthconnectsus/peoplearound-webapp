@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "./SiteHeader";
-import { Sidebar, type CommunityInfo } from "./Sidebar";
+import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { navCounts, type NavCounts } from "@/lib/navCounts";
 
 /**
  * Shared chrome for signed-in pages: a Nextdoor-style left sidebar plus
@@ -20,59 +21,20 @@ export async function AppShell({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let community: CommunityInfo | null = null;
+  let counts: NavCounts | null = null;
   let isAdmin = false;
   if (user) {
-    const { data: profileRow } = await supabase
-      .from("profiles")
-      .select(
-        "neighborhood_id,is_admin,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
-      )
-      .eq("id", user.id)
-      .maybeSingle();
-    const profile = profileRow as unknown as {
-      neighborhood_id: string | null;
-      is_admin?: boolean | null;
-      neighborhood?: { name: string; city: string | null } | null;
-    } | null;
-
-    isAdmin = Boolean(profile?.is_admin);
-    if (profile?.neighborhood_id && profile.neighborhood) {
-      const [{ count: mine }, { count: total }, membershipResult] =
-        await Promise.all([
-          supabase
-            .from("projects")
-            .select("id", { count: "exact", head: true })
-            .eq("owner_id", user.id)
-            .eq("neighborhood_id", profile.neighborhood_id)
-            .neq("state", "archived"),
-          supabase
-            .from("projects")
-            .select("id", { count: "exact", head: true })
-            .eq("neighborhood_id", profile.neighborhood_id)
-            .neq("state", "archived"),
-          supabase
-            .from("community_members")
-            .select("community_id", { count: "exact", head: true })
-            .eq("user_id", user.id),
-        ]);
-      community = {
-        label: profile.neighborhood.city
-          ? `${profile.neighborhood.name} (${profile.neighborhood.city})`
-          : profile.neighborhood.name,
-        mine: mine ?? 0,
-        total: total ?? 0,
-        // null before migration 0011 (community_members doesn't exist yet)
-        communities: membershipResult.error
-          ? null
-          : (membershipResult.count ?? 0),
-      };
-    }
+    const [{ data: profileRow }, resolved] = await Promise.all([
+      supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle(),
+      navCounts(supabase, user.id),
+    ]);
+    isAdmin = Boolean((profileRow as { is_admin?: boolean | null } | null)?.is_admin);
+    counts = resolved;
   }
 
   return (
     <div className="min-h-screen lg:flex">
-      <Sidebar community={community} dimmed={focus} isAdmin={isAdmin} />
+      <Sidebar counts={counts} dimmed={focus} isAdmin={isAdmin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader />
         <TopBar />

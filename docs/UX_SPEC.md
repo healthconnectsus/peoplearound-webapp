@@ -310,6 +310,19 @@ Design rules:
   rounded to ~110 m, never a doorstep.
 
 
+### Rail numbers are yours, not the room's
+
+Each rail carries one number, and every one is about **you**: ideas your
+neighbors starred, events you said you're coming to, things you've offered,
+times you've helped, neighbors in your community, ideas you started plus
+teams you joined, communities you belong to. "412 people around" would be a
+vanity metric; "3 times you helped" is something you recognise.
+
+Zero renders as nothing at all. An empty rail should read as an invitation,
+not a scoreboard you're losing. The old block of stats under My Communities
+is gone — it repeated the community name already on the page and buried two
+counts where nobody looked.
+
 ## Navigation: eight rails, not eleven
 
 The left rail holds Home · Local Faves · Events · Offers · Small help ·

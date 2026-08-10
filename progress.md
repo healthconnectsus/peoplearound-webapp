@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Sidebar: one number per rail, and drop the community stats block
+
+- `docs/UX_SPEC.md`
+- `src/components/AppShell.tsx`
+- `src/components/Sidebar.tsx`
+- `src/lib/navCounts.ts`
+
+
 ### 2026-08-08 — Map: community switcher pills, and a map on My ideas
 
 - `docs/UX_SPEC.md`

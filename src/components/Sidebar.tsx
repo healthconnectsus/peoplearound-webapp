@@ -13,23 +13,69 @@ import {
   HandHelping,
   type LucideIcon,
 } from "lucide-react";
+import type { NavCounts } from "@/lib/navCounts";
 
-export type CommunityInfo = {
-  label: string; // e.g. "Manhattan (NYC)"
-  mine: number; // your ideas in this neighborhood
-  total: number; // all ideas in this neighborhood
-  communities?: number | null; // how many communities you belong to
-};
+type CountKey = keyof NavCounts;
 
-const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
+const NAV_ITEMS: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  /** Which of your numbers belongs on this rail. Home deliberately has none. */
+  count?: CountKey;
+  /** What the number means, on hover. */
+  title?: string;
+}[] = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/faves", label: "Local Faves", icon: Star },
-  { href: "/events", label: "Events", icon: CalendarDays },
-  { href: "/offers", label: "Offers", icon: Gift },
-  { href: "/asks", label: "Small help", icon: HandHelping },
-  { href: "/people", label: "People around", icon: HeartHandshake },
-  { href: "/ideas", label: "My ideas", icon: Lightbulb },
-  { href: "/neighborhood", label: "My Communities", icon: MapPin },
+  {
+    href: "/faves",
+    label: "Local Faves",
+    icon: Star,
+    count: "faves",
+    title: "Ideas your neighbors have starred",
+  },
+  {
+    href: "/events",
+    label: "Events",
+    icon: CalendarDays,
+    count: "events",
+    title: "Events you said you're coming to",
+  },
+  {
+    href: "/offers",
+    label: "Offers",
+    icon: Gift,
+    count: "offers",
+    title: "Things you've offered",
+  },
+  {
+    href: "/asks",
+    label: "Small help",
+    icon: HandHelping,
+    count: "asks",
+    title: "Times you've helped a neighbor",
+  },
+  {
+    href: "/people",
+    label: "People around",
+    icon: HeartHandshake,
+    count: "people",
+    title: "Neighbors in your community",
+  },
+  {
+    href: "/ideas",
+    label: "My ideas",
+    icon: Lightbulb,
+    count: "ideas",
+    title: "Ideas you started, plus teams you joined",
+  },
+  {
+    href: "/neighborhood",
+    label: "My Communities",
+    icon: MapPin,
+    count: "communities",
+    title: "Communities you belong to",
+  },
 ];
 
 const UTILITY_ITEMS = [
@@ -45,11 +91,12 @@ const UTILITY_ITEMS = [
  * top SiteHeader; the two are swapped at the lg breakpoint by AppShell.
  */
 export function Sidebar({
-  community,
+  counts = null,
   dimmed = false,
   isAdmin = false,
 }: {
-  community: CommunityInfo | null;
+  /** Your numbers, rail by rail. Null while signed out. */
+  counts?: NavCounts | null;
   /** Focus mode (e.g. the idea wizard): veil everything except the logo. */
   dimmed?: boolean;
   isAdmin?: boolean;
@@ -78,36 +125,38 @@ export function Sidebar({
               ? pathname === "/"
               : pathname.startsWith(item.href);
           const Icon = item.icon;
+          // Zero renders as nothing: an empty rail should read as an
+          // invitation, not a scoreboard you're losing.
+          const n = item.count && counts ? counts[item.count] : 0;
           return (
-            <div key={item.href}>
-              <Link
-                href={item.href}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors ${
-                  active
-                    ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
-                    : "text-black/70 hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
-                }`}
-              >
-                <Icon
-                  className={`h-5 w-5 shrink-0 ${active ? "" : "text-black/55 dark:text-white/55"}`}
-                  strokeWidth={1.75}
-                  aria-hidden
-                />
-                {item.label}
-              </Link>
-              {item.href === "/neighborhood" && community ? (
-                <div className="ml-11 mt-0.5 flex flex-col gap-0.5 pb-1 text-xs text-black/50 dark:text-white/50">
-                  <p className="font-medium text-black/70 dark:text-white/70">
-                    {community.label}
-                  </p>
-                  <p>Your ideas · {community.mine}</p>
-                  <p>All ideas · {community.total}</p>
-                  {community.communities != null && community.communities > 1 ? (
-                    <p>Communities · {community.communities}</p>
-                  ) : null}
-                </div>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors ${
+                active
+                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
+                  : "text-black/70 hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
+              }`}
+            >
+              <Icon
+                className={`h-5 w-5 shrink-0 ${active ? "" : "text-black/55 dark:text-white/55"}`}
+                strokeWidth={1.75}
+                aria-hidden
+              />
+              <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              {n > 0 ? (
+                <span
+                  title={item.title}
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
+                    active
+                      ? "bg-emerald-600/15 text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-300"
+                      : "text-black/45 dark:text-white/45"
+                  }`}
+                >
+                  {n}
+                </span>
               ) : null}
-            </div>
+            </Link>
           );
         })}
       </nav>
