@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Flip cards use real headshots from the face set
+
+- `public/faces/anna.webp`
+- `public/faces/jonathan.webp`
+- `public/faces/people1.webp`
+- `public/faces/people2.webp`
+- `public/faces/people3.webp`
+- `public/faces/rosa.webp`
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-10 — Wizard intent cards: color-tinted, flip on hover to a real example
 
 - `src/app/projects/new/IdeaForm.tsx`

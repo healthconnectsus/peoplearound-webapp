@@ -86,10 +86,8 @@ const INTENTS: {
   placeholder: string;
   /** Front and back of the flip card. */
   tint: { front: string; iconBox: string; icon: string; back: string };
-  /** Shown on the card's back on hover — a real-sounding post of this kind.
-      `crop` positions a face tile out of /hero-collage.jpg (same trick as
-      the login page's idea cards — no extra image assets). */
-  example: { title: string; desc: string; by: string; crop: string };
+  /** Shown on the card's back on hover — a real-sounding post of this kind. */
+  example: { title: string; desc: string; by: string; photo: string };
 }[] = [
   {
     key: "meet",
@@ -109,7 +107,7 @@ const INTENTS: {
       title: "Neighborhood walk",
       desc: "Start a neighborhood Sunday morning walk with a maximum of 20 people",
       by: "Jonathan Hammer",
-      crop: "30% 14%",
+      photo: "/faces/jonathan.webp",
     },
   },
   {
@@ -130,7 +128,7 @@ const INTENTS: {
       title: "Community garden",
       desc: "Turn the empty lot on 6th into raised beds we plant together",
       by: "Rosa Alvarez",
-      crop: "64% 40%",
+      photo: "/faces/rosa.webp",
     },
   },
   {
@@ -151,7 +149,7 @@ const INTENTS: {
       title: "Tiny bakery test",
       desc: "I bake twenty loaves every Saturday — help me try selling them at the market",
       by: "Anna Kowalski",
-      crop: "10% 78%",
+      photo: "/faces/anna.webp",
     },
   },
 ];
@@ -387,14 +385,11 @@ export function IdeaForm({
                         “{it.example.desc}”
                       </span>
                       <span className="mt-auto flex items-center gap-2.5">
-                        <span
-                          aria-hidden
-                          className="h-9 w-9 shrink-0 rounded-full border-2 border-white/70 bg-cover"
-                          style={{
-                            backgroundImage: "url(/hero-collage.jpg)",
-                            backgroundSize: "900%",
-                            backgroundPosition: it.example.crop,
-                          }}
+                        {/* eslint-disable-next-line @next/next/no-img-element -- tiny static asset */}
+                        <img
+                          src={it.example.photo}
+                          alt=""
+                          className="h-9 w-9 shrink-0 rounded-full border-2 border-white/70 object-cover"
                         />
                         <span className="text-sm font-medium text-white/90">
                           {it.example.by}
