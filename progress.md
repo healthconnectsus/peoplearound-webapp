@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Intent step: 'I'd like to:' framing, cards become verbs
+
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-10 — Intent cards: saturated gradient fronts instead of pale tints
 
 - `src/app/projects/new/IdeaForm.tsx`

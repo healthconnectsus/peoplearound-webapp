@@ -112,7 +112,7 @@ const INTENTS: {
   {
     key: "community",
     icon: Sprout,
-    title: "An idea for the community",
+    title: "Start an idea for and with a community",
     desc: "A garden, a mural, a pantry — something the neighborhood builds and keeps.",
     category: "community",
     placeholder: "e.g. “the empty lot near the bakery could be a garden…”",
@@ -132,7 +132,7 @@ const INTENTS: {
   {
     key: "personal",
     icon: Rocket,
-    title: "A personal project",
+    title: "Ask for help for a personal project",
     desc: "Your own build, venture, or goal — and the hands or company to move it.",
     category: "venture",
     placeholder: "e.g. “I'm starting a tiny bakery and could use a hand on Saturdays…”",
@@ -328,7 +328,7 @@ export function IdeaForm({
       {/* ---- Step 1: what are we talking about? ---- */}
       {step === 0 ? (
         <div className="flex flex-col gap-4">
-          <p className="text-2xl font-extrabold">What are we talking about?</p>
+          <p className="text-2xl font-extrabold">I&rsquo;d like to:</p>
           <div className="grid gap-3 sm:grid-cols-3">
             {INTENTS.map((it) => {
               const Icon = it.icon;
