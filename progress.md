@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Your idea step: quick-pick cards per intent, heading carries the choice
+
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-10 — Sidebar buttons: both solid, left-aligned, lucide icons
 
 - `docs/UX_SPEC.md`

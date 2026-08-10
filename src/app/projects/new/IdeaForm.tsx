@@ -84,15 +84,23 @@ const INTENTS: {
   /** Prefills the category chip on "The basics". */
   category: string;
   placeholder: string;
-  /** Front and back of the flip card. */
-  tint: { front: string; iconBox: string; icon: string; back: string };
+  /** The title, lowercased mid-sentence: "I'd like to {short}:". */
+  short: string;
+  /** Front and back of the flip card; headline tints step 2's heading. */
+  tint: { front: string; iconBox: string; icon: string; back: string; headline: string };
   /** Shown on the card's back on hover — a real-sounding post of this kind. */
   example: { title: string; desc: string; by: string; photo: string };
+  /** Quick picks on "Your idea" — tapping one drafts the words for you.
+      `seed` is written in the first person on purpose: it goes straight
+      into the talk-it-out box, still editable, then through the AI shaper
+      like anything typed by hand. `category` pre-picks the chip later. */
+  options: { emoji: string; label: string; hint: string; seed: string; category?: string }[];
 }[] = [
   {
     key: "meet",
     icon: UsersRound,
     title: "Meet people over an activity",
+    short: "meet people over an activity",
     desc: "A walk, a game night, a running buddy — the point is the company.",
     category: "other",
     placeholder: "e.g. “I'd love a Sunday morning walking group, max 20 people…”",
@@ -101,6 +109,7 @@ const INTENTS: {
       iconBox: "bg-white/20",
       icon: "text-white",
       back: "bg-sky-800",
+      headline: "text-sky-600 dark:text-sky-400",
     },
     example: {
       title: "Neighborhood walk",
@@ -108,11 +117,20 @@ const INTENTS: {
       by: "Jonathan Hammer",
       photo: "/faces/jonathan.webp",
     },
+    options: [
+      { emoji: "🎲", label: "Play games", hint: "board games, chess, poker…", seed: "I'd like to meet neighbors for a regular game night — board games, chess, cards, whatever people bring.", category: "other" },
+      { emoji: "🧘", label: "Exercise outdoors", hint: "walk, tai chi, yoga…", seed: "I'd like to exercise outdoors with neighbors — a walking group, tai chi, or yoga in the park, easy pace, everyone welcome.", category: "fitness" },
+      { emoji: "🎬", label: "Go out together", hint: "movie, concert, game…", seed: "I'd like company for going out — a movie, a concert, or watching a game together instead of going alone.", category: "other" },
+      { emoji: "🍲", label: "Cook or eat together", hint: "potluck, dinner club…", seed: "I'd like to share meals with neighbors — a potluck or a small dinner club that rotates between houses.", category: "other" },
+      { emoji: "☕", label: "Coffee & conversation", hint: "a standing chat…", seed: "I'd like a standing coffee meetup — same café, same morning each week, whoever shows up.", category: "other" },
+      { emoji: "🐕", label: "Walking buddies", hint: "dogs, kids, or just you…", seed: "I'd like a walking buddy — with dogs, with strollers, or just for the company on a regular loop.", category: "fitness" },
+    ],
   },
   {
     key: "community",
     icon: Sprout,
     title: "Start an idea for and with a community",
+    short: "start an idea for and with a community",
     desc: "A garden, a mural, a pantry — something the neighborhood builds and keeps.",
     category: "community",
     placeholder: "e.g. “the empty lot near the bakery could be a garden…”",
@@ -121,6 +139,7 @@ const INTENTS: {
       iconBox: "bg-white/20",
       icon: "text-white",
       back: "bg-emerald-800",
+      headline: "text-emerald-600 dark:text-emerald-400",
     },
     example: {
       title: "Community garden",
@@ -128,11 +147,20 @@ const INTENTS: {
       by: "Rosa Alvarez",
       photo: "/faces/rosa.webp",
     },
+    options: [
+      { emoji: "🌱", label: "Green the block", hint: "garden, planting, cleanup…", seed: "I have an idea for greening our neighborhood — a shared garden, planting, or a regular cleanup of a spot we all pass.", category: "community" },
+      { emoji: "🛠", label: "Fix & share things", hint: "repair café, tool library…", seed: "I'd like to start a fixing or sharing setup — a repair café or a tool library so we stop buying what we could borrow.", category: "community" },
+      { emoji: "🎨", label: "Make it beautiful", hint: "mural, benches, lights…", seed: "I have an idea to make our neighborhood more beautiful — a mural, benches, or lighting for a gray corner that deserves better.", category: "community" },
+      { emoji: "📚", label: "Share skills", hint: "classes, tutoring, tech help…", seed: "I'd like neighbors to teach each other — language practice, homework help, or tech hours for anyone stuck.", category: "learning" },
+      { emoji: "🥫", label: "Food & giving", hint: "pantry, food drive…", seed: "I have an idea around food and giving — a little free pantry or a recurring food drive the block runs together.", category: "community" },
+      { emoji: "🎉", label: "A neighborhood event", hint: "block party, market…", seed: "I'd like to organize a neighborhood event — a block party, a street market, or a first-Friday gathering.", category: "community" },
+    ],
   },
   {
     key: "personal",
     icon: Rocket,
     title: "Ask for help for a personal project",
+    short: "ask for help for a personal project",
     desc: "Your own build, venture, or goal — and the hands or company to move it.",
     category: "venture",
     placeholder: "e.g. “I'm starting a tiny bakery and could use a hand on Saturdays…”",
@@ -141,6 +169,7 @@ const INTENTS: {
       iconBox: "bg-white/20",
       icon: "text-white",
       back: "bg-violet-800",
+      headline: "text-violet-600 dark:text-violet-400",
     },
     example: {
       title: "Tiny bakery test",
@@ -148,6 +177,14 @@ const INTENTS: {
       by: "Anna Kowalski",
       photo: "/faces/anna.webp",
     },
+    options: [
+      { emoji: "🔨", label: "Build something", hint: "shed, sauna, treehouse…", seed: "I'm building something at my place and could use a hand — I'll trade food, tools, or a lesson in what I'm doing.", category: "home" },
+      { emoji: "🚀", label: "Test a venture", hint: "bakery, stall, service…", seed: "I'm testing a small venture — help me try it for real, from a market stall to first customers.", category: "venture" },
+      { emoji: "🏃", label: "Chase a goal", hint: "10K, language, habit…", seed: "I'm chasing a personal goal and want someone to keep me honest — training, practice, or a weekly check-in.", category: "fitness" },
+      { emoji: "🎨", label: "Make a thing", hint: "game, album, book…", seed: "I'm making something — a game, music, writing — and need honest testers or feedback from real people.", category: "other" },
+      { emoji: "🧑‍🏫", label: "Learn from someone", hint: "a skill I'm missing…", seed: "I'm trying to learn something for my project and would love a neighbor who knows it to show me the ropes.", category: "learning" },
+      { emoji: "📦", label: "Something else", hint: "it's my thing — hear me out…", seed: "" },
+    ],
   },
 ];
 
@@ -196,6 +233,7 @@ export function IdeaForm({
   const [intent, setIntent] = useState<Intent | null>(
     playbook ? "community" : null,
   );
+  const activeIntent = INTENTS.find((it) => it.key === intent) ?? null;
 
   // --- Step 1: talk it out ---
   const [rawIdea, setRawIdea] = useState("");
@@ -407,14 +445,58 @@ export function IdeaForm({
         </div>
       ) : null}
 
-      {/* ---- Step 2: your idea, in your own words ---- */}
+      {/* ---- Step 2: your idea — quick picks first, own words below ---- */}
       {step === 1 ? (
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
-            <p className="text-2xl font-extrabold">💬 Just talk it out</p>
+            {activeIntent ? (
+              <p className="text-2xl font-extrabold">
+                I&rsquo;d like to{" "}
+                <span className={activeIntent.tint.headline}>
+                  {activeIntent.short}
+                </span>
+                :
+              </p>
+            ) : (
+              <p className="text-2xl font-extrabold">💬 Just talk it out</p>
+            )}
             <p className="mt-0.5 text-base text-black/60 dark:text-white/60">
-              Your words, messy is fine — we&apos;ll shape the post.
+              Tap the closest — or say it in your own words below. Messy is
+              fine, we&apos;ll shape the post.
             </p>
+
+            {activeIntent ? (
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {activeIntent.options.map((o) => {
+                  const picked = o.seed !== "" && rawIdea === o.seed;
+                  return (
+                    <button
+                      key={o.label}
+                      type="button"
+                      onClick={() => {
+                        setRawIdea(o.seed);
+                        if (o.category) setCategory(o.category);
+                      }}
+                      className={`rounded-xl border px-3.5 py-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                        picked
+                          ? "border-emerald-600 bg-white shadow-md ring-2 ring-emerald-500/40 dark:bg-zinc-900"
+                          : "border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900"
+                      }`}
+                    >
+                      <span className="block text-xl" aria-hidden>
+                        {o.emoji}
+                      </span>
+                      <span className="mt-1 block text-sm font-bold leading-snug">
+                        {o.label}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-black/50 dark:text-white/50">
+                        {o.hint}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
 
             <textarea
               value={rawIdea}
@@ -422,7 +504,7 @@ export function IdeaForm({
               rows={4}
               maxLength={4000}
               placeholder={
-                INTENTS.find((it) => it.key === intent)?.placeholder ??
+                activeIntent?.placeholder ??
                 "e.g. “the empty lot near the bakery could be a garden…”"
               }
               className={`${inputClass} mt-3 w-full resize-y bg-white dark:bg-black/20`}
