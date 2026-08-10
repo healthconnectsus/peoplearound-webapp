@@ -310,6 +310,16 @@ Design rules:
   rounded to ~110 m, never a doorstep.
 
 
+### The wizard opens with intent, not content
+
+/projects/new begins with "What are we talking about?" — three cards: meet
+people over an activity, an idea for the community, or a personal project.
+The choice doesn't fork the data model; it tunes the register of everything
+after it: the talk-it-out placeholder, the example rail, the prefilled
+category, the basics heading, and the context the AI shaper writes in. A
+walking-buddy post and a community-garden post shouldn't sound alike.
+Playbooks skip the question — a playbook is a community idea by definition.
+
 ### The tagline lives under the wordmark
 
 *"Let's do something together."* sits directly beneath the logo in the

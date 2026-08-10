@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Wizard: opening step asks what kind of thing this is
+
+- `docs/UX_SPEC.md`
+- `src/app/api/shape-idea/route.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-10 — Wizard page heading: 'Start something with people' (matches button label)
 
 - `src/app/manifest.ts`

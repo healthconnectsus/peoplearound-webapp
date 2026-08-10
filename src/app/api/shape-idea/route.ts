@@ -84,9 +84,11 @@ export async function POST(request: Request) {
   }
 
   let raw: string;
+  let intent: string;
   try {
     const body = await request.json();
     raw = String(body.idea ?? "").trim();
+    intent = String(body.intent ?? "");
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
@@ -96,6 +98,21 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+
+  // The wizard's first step asks what kind of thing this is; passing that
+  // through keeps a walking-buddy post from sounding like a grant proposal.
+  const INTENT_REGISTER: Record<string, string> = {
+    meet: "This is a social activity — the user mainly wants company for something (a walk, a game night, a buddy). Keep the post casual and inviting; the activity is the excuse, the people are the point.",
+    community:
+      "This is a community project — something the neighborhood would build or run together. Emphasize the shared benefit and the concrete first step.",
+    personal:
+      "This is a personal project the user is inviting others into — their own build, venture, or goal. Keep their ownership clear, and make the ask (hands, company, expertise) specific.",
+  };
+  const register = INTENT_REGISTER[intent];
+  const userContent =
+    `Here's my rough idea, please shape it into a project post:` +
+    (register ? `\n\nContext: ${register}` : "") +
+    `\n\n${raw.slice(0, 4000)}`;
 
   // DeepSeek first (OpenAI-compatible API, JSON mode); Anthropic as the
   // fallback provider when only that key is configured.
@@ -124,7 +141,7 @@ export async function POST(request: Request) {
             },
             {
               role: "user",
-              content: `Here's my rough idea, please shape it into a project post:\n\n${raw.slice(0, 4000)}`,
+              content: userContent,
             },
           ],
         }),
@@ -184,7 +201,7 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "user",
-          content: `Here's my rough idea, please shape it into a project post:\n\n${raw.slice(0, 4000)}`,
+          content: userContent,
         },
       ],
     });

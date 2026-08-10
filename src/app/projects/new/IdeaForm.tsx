@@ -2,6 +2,7 @@
 
 import { useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { UsersRound, Sprout, Rocket, type LucideIcon } from "lucide-react";
 import {
   CATEGORIES,
   CATEGORY_META,
@@ -65,20 +66,67 @@ const inputClass =
 const cardLabelClass =
   "flex h-full cursor-pointer flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 text-base transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-white/20 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40";
 
-const STEPS = ["Your idea", "The basics", "Who can help", "Share"] as const;
+const STEPS = ["What is it", "Your idea", "The basics", "Who can help", "Share"] as const;
 
-/** Inspiration rail for step 1 — tap one to start from it. */
-const EXAMPLES: { title: string; desc: string; by: string }[] = [
-  { title: "Neighborhood walk", desc: "Start a neighborhood Sunday morning walk with a maximum of 20 people", by: "Jonathan Hammer" },
-  { title: "Community garden", desc: "Turn the empty lot on 6th into raised beds we plant together", by: "Rosa Alvarez" },
-  { title: "Repair café", desc: "One Saturday a month we fix broken toasters, hems and bikes together", by: "Miguel Torres" },
-  { title: "Little free pantry", desc: "A weatherproof box on my fence anyone can give to or take from", by: "Priya Natarajan" },
-  { title: "Tool library", desc: "My garage full of tools becomes the street's lending shelf", by: "Marcus Reed" },
-  { title: "Skill swap evenings", desc: "You teach me Excel, I teach you guitar — Thursdays at the library", by: "Ken Osei" },
-  { title: "Street mural", desc: "Paint the gray underpass with a design the kids help choose", by: "Lily Zhang" },
-  { title: "Dog-walking pool", desc: "Match shift workers' dogs with neighbors who'd love a walk buddy", by: "Dana Whitfield" },
-  { title: "Senior tech hour", desc: "Help older neighbors video-call their grandkids, one hour a week", by: "Fatima El-Sayed" },
-  { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak" },
+/**
+ * Step 0: what kind of thing is this? The choice doesn't create a different
+ * data model — it tunes the words on the steps that follow (placeholder,
+ * examples, default category) and tells the AI shaper what register to write
+ * in. A walking-buddy post and a community-garden post shouldn't sound alike.
+ */
+type Intent = "meet" | "community" | "personal";
+
+const INTENTS: {
+  key: Intent;
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+  /** Prefills the category chip on "The basics". */
+  category: string;
+  placeholder: string;
+}[] = [
+  {
+    key: "meet",
+    icon: UsersRound,
+    title: "Meet people over an activity",
+    desc: "A walk, a game night, a running buddy — the point is the company.",
+    category: "other",
+    placeholder: "e.g. “I'd love a Sunday morning walking group, max 20 people…”",
+  },
+  {
+    key: "community",
+    icon: Sprout,
+    title: "An idea for the community",
+    desc: "A garden, a mural, a pantry — something the neighborhood builds and keeps.",
+    category: "community",
+    placeholder: "e.g. “the empty lot near the bakery could be a garden…”",
+  },
+  {
+    key: "personal",
+    icon: Rocket,
+    title: "A personal project",
+    desc: "Your own build, venture, or goal — and the hands or company to move it.",
+    category: "venture",
+    placeholder: "e.g. “I'm starting a tiny bakery and could use a hand on Saturdays…”",
+  },
+];
+
+/** Inspiration rail for the talk-it-out step — tap one to start from it. */
+const EXAMPLES: { title: string; desc: string; by: string; intent: Intent }[] = [
+  { title: "Neighborhood walk", desc: "Start a neighborhood Sunday morning walk with a maximum of 20 people", by: "Jonathan Hammer", intent: "meet" },
+  { title: "Community garden", desc: "Turn the empty lot on 6th into raised beds we plant together", by: "Rosa Alvarez", intent: "community" },
+  { title: "Repair café", desc: "One Saturday a month we fix broken toasters, hems and bikes together", by: "Miguel Torres", intent: "community" },
+  { title: "Little free pantry", desc: "A weatherproof box on my fence anyone can give to or take from", by: "Priya Natarajan", intent: "community" },
+  { title: "Tool library", desc: "My garage full of tools becomes the street's lending shelf", by: "Marcus Reed", intent: "community" },
+  { title: "Skill swap evenings", desc: "You teach me Excel, I teach you guitar — Thursdays at the library", by: "Ken Osei", intent: "meet" },
+  { title: "Street mural", desc: "Paint the gray underpass with a design the kids help choose", by: "Lily Zhang", intent: "community" },
+  { title: "Dog-walking pool", desc: "Match shift workers' dogs with neighbors who'd love a walk buddy", by: "Dana Whitfield", intent: "meet" },
+  { title: "Senior tech hour", desc: "Help older neighbors video-call their grandkids, one hour a week", by: "Fatima El-Sayed", intent: "community" },
+  { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak", intent: "meet" },
+  { title: "Tiny bakery test", desc: "I bake twenty loaves every Saturday — help me try selling them at the market", by: "Anna Kowalski", intent: "personal" },
+  { title: "Backyard sauna build", desc: "Building a small sauna this fall — trading pizza for a hand with the framing", by: "Leo Virtanen", intent: "personal" },
+  { title: "First 10K", desc: "Training for my first 10K and looking for someone to keep me honest", by: "Grace Adeyemi", intent: "personal" },
+  { title: "Board-game prototype", desc: "I designed a card game and need honest playtesters, one evening a month", by: "Tom Becker", intent: "personal" },
 ];
 
 type PlaybookSeed = {
@@ -102,7 +150,12 @@ export function IdeaForm({
   /** Opens the pin map on your neighborhood rather than the whole planet. */
   center?: { lat: number; lng: number } | null;
 }) {
-  const [step, setStep] = useState(playbook ? 1 : 0);
+  // Playbooks are community ideas by definition — they arrive with the
+  // draft filled, so they skip straight to "The basics".
+  const [step, setStep] = useState(playbook ? 2 : 0);
+  const [intent, setIntent] = useState<Intent | null>(
+    playbook ? "community" : null,
+  );
 
   // --- Step 1: talk it out ---
   const [rawIdea, setRawIdea] = useState("");
@@ -163,7 +216,7 @@ export function IdeaForm({
       const res = await fetch("/api/shape-idea", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea: rawIdea }),
+        body: JSON.stringify({ idea: rawIdea, intent }),
       });
       const data = (await res.json()) as Partial<Draft> & { error?: string };
       if (!res.ok) {
@@ -180,7 +233,7 @@ export function IdeaForm({
       }
       setState(data.state === "active" ? "active" : "idea");
       if (data.tip) setTip(data.tip);
-      setStep(1); // straight to the prefilled draft
+      setStep(2); // straight to the prefilled draft
     } catch {
       setAiError("Couldn't reach the assistant — check your connection.");
     } finally {
@@ -232,8 +285,49 @@ export function IdeaForm({
         </p>
       ) : null}
 
-      {/* ---- Step 1: your idea, in your own words ---- */}
+      {/* ---- Step 1: what are we talking about? ---- */}
       {step === 0 ? (
+        <div className="flex flex-col gap-4">
+          <p className="text-2xl font-extrabold">What are we talking about?</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {INTENTS.map((it) => {
+              const Icon = it.icon;
+              return (
+                <button
+                  key={it.key}
+                  type="button"
+                  onClick={() => {
+                    setIntent(it.key);
+                    setCategory(it.category);
+                    setStep(1);
+                  }}
+                  className="flex h-full flex-col items-start gap-3 rounded-2xl border border-black/10 bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/50 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
+                >
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/50">
+                    <Icon
+                      className="h-6 w-6 text-emerald-700 dark:text-emerald-400"
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                  </span>
+                  <span className="text-lg font-bold leading-snug">
+                    {it.title}
+                  </span>
+                  <span className="text-sm leading-relaxed text-black/55 dark:text-white/55">
+                    {it.desc}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-sm text-black/45 dark:text-white/45">
+            Not sure? Pick the closest — nothing here locks you in.
+          </p>
+        </div>
+      ) : null}
+
+      {/* ---- Step 2: your idea, in your own words ---- */}
+      {step === 1 ? (
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 p-4 dark:border-emerald-500/30 dark:bg-emerald-950/20">
             <p className="text-2xl font-extrabold">💬 Just talk it out</p>
@@ -247,9 +341,8 @@ export function IdeaForm({
               rows={4}
               maxLength={4000}
               placeholder={
-                micSupported
-                  ? "e.g. “the empty lot near the bakery could be a garden…”"
-                  : "e.g. “the empty lot near the bakery could be a garden…”"
+                INTENTS.find((it) => it.key === intent)?.placeholder ??
+                "e.g. “the empty lot near the bakery could be a garden…”"
               }
               className={`${inputClass} mt-3 w-full resize-y bg-white dark:bg-black/20`}
             />
@@ -290,20 +383,29 @@ export function IdeaForm({
             ) : null}
           </div>
 
-          {aiError ? (
+          <div className="flex items-center gap-3">
+            {aiError ? (
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="text-base text-black/50 hover:underline dark:text-white/50"
+              >
+                Continue without AI →
+              </button>
+            ) : null}
             <button
               type="button"
-              onClick={() => setStep(1)}
-              className="self-start text-base text-black/50 hover:underline dark:text-white/50"
+              onClick={() => setStep(0)}
+              className="text-sm text-black/50 hover:underline dark:text-white/50"
             >
-              Continue without AI →
+              ← Back
             </button>
-          ) : null}
+          </div>
         </div>
       ) : null}
 
-      {/* ---- Step 2: the basics ---- */}
-      {step === 1 ? (
+      {/* ---- Step 3: the basics ---- */}
+      {step === 2 ? (
         <div className="flex flex-col gap-5">
           {tip ? (
             <p className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -312,14 +414,26 @@ export function IdeaForm({
           ) : null}
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-xl font-extrabold">What&apos;s the idea?</span>
+            <span className="text-xl font-extrabold">
+              {intent === "meet"
+                ? "What do you want to do together?"
+                : intent === "personal"
+                  ? "What's your project?"
+                  : "What's the idea?"}
+            </span>
             <input
               type="text"
               required
               maxLength={140}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Start a community garden on Oak Street"
+              placeholder={
+                intent === "meet"
+                  ? "Sunday morning walking group, 8am at the park"
+                  : intent === "personal"
+                    ? "Help me build my backyard sauna this fall"
+                    : "Start a community garden on Oak Street"
+              }
               className={inputClass}
             />
           </label>
@@ -410,7 +524,7 @@ export function IdeaForm({
           <div className="mt-1 flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setStep(2)}
+              onClick={() => setStep(3)}
               disabled={!canContinueFromBasics}
               className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -418,7 +532,7 @@ export function IdeaForm({
             </button>
             <button
               type="button"
-              onClick={() => setStep(0)}
+              onClick={() => setStep(1)}
               className="text-sm text-black/50 hover:underline dark:text-white/50"
             >
               ← Back
@@ -427,8 +541,8 @@ export function IdeaForm({
         </div>
       ) : null}
 
-      {/* ---- Step 3: who can help ---- */}
-      {step === 2 ? (
+      {/* ---- Step 4: who can help ---- */}
+      {step === 3 ? (
         <div className="flex flex-col gap-5">
           <fieldset className="flex flex-col gap-1.5 text-sm">
             <legend className="mb-1.5 text-xl font-extrabold">
@@ -496,14 +610,14 @@ export function IdeaForm({
           <div className="mt-1 flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setStep(3)}
+              onClick={() => setStep(4)}
               className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Continue →
             </button>
             <button
               type="button"
-              onClick={() => setStep(1)}
+              onClick={() => setStep(2)}
               className="text-sm text-black/50 hover:underline dark:text-white/50"
             >
               ← Back
@@ -512,8 +626,8 @@ export function IdeaForm({
         </div>
       ) : null}
 
-      {/* ---- Step 4: review & share ---- */}
-      {step === 3 ? (
+      {/* ---- Step 5: review & share ---- */}
+      {step === 4 ? (
         <div className="flex flex-col gap-5">
           <div className="overflow-hidden rounded-2xl border border-black/10 dark:border-white/10">
             {photoUrl ? (
@@ -567,7 +681,7 @@ export function IdeaForm({
             </button>
             <button
               type="button"
-              onClick={() => setStep(2)}
+              onClick={() => setStep(3)}
               className="text-sm text-black/50 hover:underline dark:text-white/50"
             >
               ← Back
@@ -583,15 +697,19 @@ export function IdeaForm({
       ) : null}
     </div>
 
-    {/* Inspiration rail — step 1 only; tap an example to start from it. */}
-    {step === 0 ? (
+    {/* Inspiration rail — talk-it-out step only, matched to the intent you
+        just picked; tap an example to start from it. */}
+    {step === 1 ? (
       <aside className="hidden lg:block">
         <h2 className="text-xl font-extrabold">Need a spark? ✨</h2>
         <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
           Ideas neighbors started — tap one to begin from it.
         </p>
         <ul className="mt-4 grid grid-cols-2 gap-2">
-          {EXAMPLES.map((ex) => (
+          {(intent
+            ? EXAMPLES.filter((ex) => ex.intent === intent)
+            : EXAMPLES
+          ).map((ex) => (
             <li key={ex.title}>
               <button
                 type="button"
