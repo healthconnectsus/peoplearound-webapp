@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Sidebar: both start-buttons above the rails, and 'Share something to do'
+
+- `docs/UX_SPEC.md`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-08-10 — Tagline under the logo: 'Let's do something together.'
 
 - `docs/UX_SPEC.md`

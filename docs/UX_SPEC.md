@@ -334,9 +334,16 @@ counts where nobody looked.
 
 ## Navigation: eight rails, not eleven
 
-The left rail holds Home · Local Faves · Events · Offers · Small help ·
-People around · My ideas · My Communities, then two buttons: **+ Share an
-idea** (filled) and **🙋 Ask for small help** (outlined).
+The left rail leads with the two things you can *start* — **+ Share something
+to do** (filled) and **🙋 Ask for small help** (outlined) — and only then the
+eight places you can browse: Home · Local Faves · Events · Offers · Small
+help · People around · My ideas · My Communities. Doing comes before
+browsing, so the doors sit above the rails.
+
+"Share something to do" rather than "Share an idea": the product's contract
+is that every surface asks what you want to **do**, never who you want to
+meet (CONCEPT.md § Non-goals). "An idea" also sounds like it has to be big,
+and most of what a neighborhood needs isn't.
 
 Two items were folded away rather than kept:
 

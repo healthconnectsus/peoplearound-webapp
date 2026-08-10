@@ -124,6 +124,25 @@ export function Sidebar({
           />
         ) : null}
 
+      {/* Both doors, above the rails: the two things you can *start* come
+          before the eight places you can browse. Filled vs outlined keeps
+          the hierarchy — sharing is what this place is for, but someone who
+          just needs a hand shouldn't have to go looking for the door. */}
+      <div className="mt-5 flex flex-col gap-2">
+        <Link
+          href="/projects/new"
+          className="rounded-full bg-emerald-600 px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+        >
+          + Share something to do
+        </Link>
+        <Link
+          href="/asks?compose=1"
+          className="rounded-full border border-emerald-600/40 px-4 py-2.5 text-center text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+        >
+          🙋 Ask for small help
+        </Link>
+      </div>
+
       <nav className="mt-5 flex flex-col gap-0.5">
         {NAV_ITEMS.map((item) => {
           const active =
@@ -166,23 +185,6 @@ export function Sidebar({
           );
         })}
       </nav>
-
-      <Link
-        href="/projects/new"
-        className="mt-5 rounded-full bg-emerald-600 px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-      >
-        + Share an idea
-      </Link>
-
-      {/* Secondary on purpose: an idea is the thing this place is for, but a
-          person who just needs a hand shouldn't have to go looking for the
-          door. Outlined keeps the hierarchy while still being one click. */}
-      <Link
-        href="/asks?compose=1"
-        className="mt-2 rounded-full border border-emerald-600/40 px-4 py-2.5 text-center text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
-      >
-        🙋 Ask for small help
-      </Link>
 
       <div className="mt-auto flex flex-col gap-0.5 pb-1">
         {isAdmin ? (

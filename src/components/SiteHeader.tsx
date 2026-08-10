@@ -16,7 +16,7 @@ export function SiteHeader() {
           href="/projects/new"
           className="rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
         >
-          + Share an idea
+          + Share something to do
         </Link>
         <form action={signOut}>
           <button
