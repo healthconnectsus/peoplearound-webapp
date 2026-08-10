@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Primary button: 'Start something with people' instead of 'Share something to do'
+
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-08-10 — Login page: align headline and section titles with brand tagline
 
 - `src/app/login/page.tsx`

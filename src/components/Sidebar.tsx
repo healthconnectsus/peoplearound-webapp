@@ -179,7 +179,7 @@ export function Sidebar({
           className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
         >
           <Sparkles className="h-4 w-4" strokeWidth={2} aria-hidden />
-          Share something to do
+          Start something with people
         </Link>
         <Link
           href="/asks?compose=1"
