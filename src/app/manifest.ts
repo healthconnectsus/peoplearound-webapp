@@ -35,7 +35,7 @@ export default function manifest(): MetadataRoute.Manifest {
       },
     ],
     shortcuts: [
-      { name: "Start an idea", url: "/projects/new" },
+      { name: "Start something with people", url: "/projects/new" },
       { name: "Around me", url: "/" },
       { name: "Messages", url: "/chats" },
     ],

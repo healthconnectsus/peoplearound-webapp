@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Wizard page heading: 'Start something with people' (matches button label)
+
+- `src/app/manifest.ts`
+- `src/app/projects/new/page.tsx`
+
+
 ### 2026-08-10 — Primary button: 'Start something with people' instead of 'Share something to do'
 
 - `src/components/Sidebar.tsx`
