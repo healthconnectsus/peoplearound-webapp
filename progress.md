@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Tagline under the logo: 'Let's do something together.'
+
+- `docs/UX_SPEC.md`
+- `src/app/login/page.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-08-10 — docs: brand voice (tagline, CTA, core question) in MARKETING.md; non-goals section in CONCEPT.md
 
 - `docs/CONCEPT.md`

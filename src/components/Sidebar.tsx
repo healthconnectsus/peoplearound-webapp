@@ -105,9 +105,15 @@ export function Sidebar({
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col px-3 py-4 lg:flex">
-      <Link href="/" className="px-1 py-1">
+      <Link href="/" className="block px-1 py-1">
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
         <img src="/logo.svg" alt="Peoplearound" className="h-auto w-full" />
+        {/* The brand promise in five words: warm, plural, action-first
+            (MARKETING.md). It sits under the wordmark, not inside it, so the
+            logo stays a logo. */}
+        <span className="mt-1 block px-0.5 text-[13px] font-medium italic text-black/45 dark:text-white/45">
+          Let&rsquo;s do something together.
+        </span>
       </Link>
 
       <div className="relative flex min-h-0 flex-1 flex-col">

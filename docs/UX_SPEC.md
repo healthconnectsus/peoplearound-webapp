@@ -310,6 +310,15 @@ Design rules:
   rounded to ~110 m, never a doorstep.
 
 
+### The tagline lives under the wordmark
+
+*"Let's do something together."* sits directly beneath the logo in the
+sidebar, the mobile header, and the landing footer — under the wordmark, not
+inside it, so the logo stays a logo and the promise stays readable at any
+size. Set in the muted ink used for secondary text, italic, never competing
+with the rail labels beside it. Wording and rationale live in
+[MARKETING.md](MARKETING.md).
+
 ### Rail numbers are yours, not the room's
 
 Each rail carries one number, and every one is about **you**: ideas your
