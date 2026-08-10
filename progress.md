@@ -7,6 +7,24 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — Quick-pick cards: shorter, real example on the flip side, bridge line to free text
+
+- `public/faces/dana.webp`
+- `public/faces/elena.webp`
+- `public/faces/grace.webp`
+- `public/faces/hannah.webp`
+- `public/faces/ken.webp`
+- `public/faces/leo.webp`
+- `public/faces/lily.webp`
+- `public/faces/marcus.webp`
+- `public/faces/mei.webp`
+- `public/faces/miguel.webp`
+- `public/faces/ruth.webp`
+- `public/faces/sam.webp`
+- `public/faces/tom.webp`
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-10 — Quick-pick cards match the intent cards: colored gradients, hover flip
 
 - `src/app/projects/new/IdeaForm.tsx`
