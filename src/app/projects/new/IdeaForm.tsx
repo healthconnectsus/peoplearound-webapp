@@ -84,6 +84,12 @@ const INTENTS: {
   /** Prefills the category chip on "The basics". */
   category: string;
   placeholder: string;
+  /** Front and back of the flip card. */
+  tint: { front: string; iconBox: string; icon: string; back: string };
+  /** Shown on the card's back on hover — a real-sounding post of this kind.
+      `crop` positions a face tile out of /hero-collage.jpg (same trick as
+      the login page's idea cards — no extra image assets). */
+  example: { title: string; desc: string; by: string; crop: string };
 }[] = [
   {
     key: "meet",
@@ -92,6 +98,19 @@ const INTENTS: {
     desc: "A walk, a game night, a running buddy — the point is the company.",
     category: "other",
     placeholder: "e.g. “I'd love a Sunday morning walking group, max 20 people…”",
+    tint: {
+      front:
+        "border-sky-200 bg-sky-50 dark:border-sky-900 dark:bg-sky-950/40",
+      iconBox: "bg-white dark:bg-sky-900/60",
+      icon: "text-sky-600 dark:text-sky-400",
+      back: "bg-sky-600",
+    },
+    example: {
+      title: "Neighborhood walk",
+      desc: "Start a neighborhood Sunday morning walk with a maximum of 20 people",
+      by: "Jonathan Hammer",
+      crop: "30% 14%",
+    },
   },
   {
     key: "community",
@@ -100,6 +119,19 @@ const INTENTS: {
     desc: "A garden, a mural, a pantry — something the neighborhood builds and keeps.",
     category: "community",
     placeholder: "e.g. “the empty lot near the bakery could be a garden…”",
+    tint: {
+      front:
+        "border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/40",
+      iconBox: "bg-white dark:bg-emerald-900/60",
+      icon: "text-emerald-600 dark:text-emerald-400",
+      back: "bg-emerald-600",
+    },
+    example: {
+      title: "Community garden",
+      desc: "Turn the empty lot on 6th into raised beds we plant together",
+      by: "Rosa Alvarez",
+      crop: "64% 40%",
+    },
   },
   {
     key: "personal",
@@ -108,6 +140,19 @@ const INTENTS: {
     desc: "Your own build, venture, or goal — and the hands or company to move it.",
     category: "venture",
     placeholder: "e.g. “I'm starting a tiny bakery and could use a hand on Saturdays…”",
+    tint: {
+      front:
+        "border-violet-200 bg-violet-50 dark:border-violet-900 dark:bg-violet-950/40",
+      iconBox: "bg-white dark:bg-violet-900/60",
+      icon: "text-violet-600 dark:text-violet-400",
+      back: "bg-violet-600",
+    },
+    example: {
+      title: "Tiny bakery test",
+      desc: "I bake twenty loaves every Saturday — help me try selling them at the market",
+      by: "Anna Kowalski",
+      crop: "10% 78%",
+    },
   },
 ];
 
@@ -293,6 +338,8 @@ export function IdeaForm({
             {INTENTS.map((it) => {
               const Icon = it.icon;
               return (
+                /* Flip card: front says what the kind is, hover turns it
+                   over to show a real post of that kind. Click picks it. */
                 <button
                   key={it.key}
                   type="button"
@@ -301,20 +348,62 @@ export function IdeaForm({
                     setCategory(it.category);
                     setStep(1);
                   }}
-                  className="flex h-full flex-col items-start gap-3 rounded-2xl border border-black/10 bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/50 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
+                  className="group relative h-64 text-left [perspective:1000px]"
                 >
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/50">
-                    <Icon
-                      className="h-6 w-6 text-emerald-700 dark:text-emerald-400"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                  </span>
-                  <span className="text-lg font-bold leading-snug">
-                    {it.title}
-                  </span>
-                  <span className="text-sm leading-relaxed text-black/55 dark:text-white/55">
-                    {it.desc}
+                  <span
+                    className="relative block h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)]"
+                  >
+                    {/* Front */}
+                    <span
+                      className={`absolute inset-0 flex flex-col items-start gap-3 rounded-2xl border p-5 shadow-sm [backface-visibility:hidden] ${it.tint.front}`}
+                    >
+                      <span
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl shadow-sm ${it.tint.iconBox}`}
+                      >
+                        <Icon
+                          className={`h-6 w-6 ${it.tint.icon}`}
+                          strokeWidth={1.75}
+                          aria-hidden
+                        />
+                      </span>
+                      <span className="text-lg font-bold leading-snug">
+                        {it.title}
+                      </span>
+                      <span className="text-sm leading-relaxed text-black/55 dark:text-white/55">
+                        {it.desc}
+                      </span>
+                    </span>
+                    {/* Back: one real-sounding example of this kind */}
+                    <span
+                      className={`absolute inset-0 flex flex-col rounded-2xl p-5 text-white shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)] ${it.tint.back}`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
+                        <span className="text-base font-bold">
+                          {it.example.title}
+                        </span>
+                      </span>
+                      <span className="mt-2 text-sm leading-relaxed text-white/90">
+                        “{it.example.desc}”
+                      </span>
+                      <span className="mt-auto flex items-center gap-2.5">
+                        <span
+                          aria-hidden
+                          className="h-9 w-9 shrink-0 rounded-full border-2 border-white/70 bg-cover"
+                          style={{
+                            backgroundImage: "url(/hero-collage.jpg)",
+                            backgroundSize: "900%",
+                            backgroundPosition: it.example.crop,
+                          }}
+                        />
+                        <span className="text-sm font-medium text-white/90">
+                          {it.example.by}
+                        </span>
+                      </span>
+                      <span className="mt-3 text-xs font-semibold uppercase tracking-wide text-white/70">
+                        Start one like this →
+                      </span>
+                    </span>
                   </span>
                 </button>
               );
