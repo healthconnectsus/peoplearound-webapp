@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-10 — docs: brand voice (tagline, CTA, core question) in MARKETING.md; non-goals section in CONCEPT.md
+
+- `docs/CONCEPT.md`
+- `docs/MARKETING.md`
+
+
 ### 2026-08-10 — Sidebar: one number per rail, and drop the community stats block
 
 - `docs/UX_SPEC.md`

@@ -14,7 +14,8 @@
 6. [Events: where it becomes physical](#6-events-where-it-becomes-physical)
 7. [What makes this different](#7-what-makes-this-different)
 8. [Open questions and risks](#8-open-questions-and-risks)
-9. [A way to start](#9-a-way-to-start)
+9. [Non-goals](#9-non-goals)
+10. [A way to start](#10-a-way-to-start)
 
 ---
 
@@ -142,7 +143,37 @@ These are the parts most likely to make or break the product, named honestly rat
 - **The seriousness gradient.** Community projects, ventures, and home projects are very different beasts — some private and emotional, some public and practical. Launching with one category where joining is most natural is safer than serving all of them poorly.
 - **Who pays, and why.** If the lonely person is the product sold to sponsors, this becomes Facebook with a kinder interface. If the lonely person is the customer being served, it is something new. This question must be answered before scale, not after.
 
-## 9. A way to start
+## 9. Non-goals
+
+Boundaries held on purpose. Each was considered and rejected — recorded here so
+future feature brainstorms start from the decision, not from scratch.
+
+- **No "meet anyone" button — ever.** The product runs on one social contract:
+  *approach people about the work; be judged by what you build.* That contract
+  is what makes approaching a stranger low-risk — a join request is about the
+  project, and a "no" is never personal. A direct request-to-meet channel
+  breaks the contract everywhere at once: every profile becomes personally
+  approachable, people start editing what they share (or whether they show up
+  at all), and a real-name, real-location network opens its worst harassment
+  surface. Meeting neighbors is the product's **output**, never its feature.
+  The person who "just wants to meet people" is served by the smallest
+  possible project — a seeded coffee hangout, a weekly run, a Saturday
+  event — under the same star / join / RSVP contract as everything else
+  (§6: events are already "the gentlest on-ramp for an isolated person").
+  If any person-to-person surface ever expands, user blocking, person-level
+  reporting, and send caps come first; none exist today. Pure social matching,
+  if the data ever screams for it, is a separate product with its own brand —
+  not a button in this one.
+- **No monetizing neighbor-to-neighbor reach, no programmatic ads.** Boosting
+  a local business is fine; a resident paying to be heard by their own
+  neighborhood kills the reason the product exists. (Full guardrails in
+  `BUSINESS.md`.)
+
+The front-door question enforces the first boundary structurally: the app asks
+*"What do you want to do today with your communities?"* — what you want to
+**do**, never who you want to meet (see `MARKETING.md` for the brand voice).
+
+## 10. A way to start
 
 "As impactful as Facebook" is an outcome, not a starting strategy. The biggest things started absurdly small and specific. A sensible sequence:
 

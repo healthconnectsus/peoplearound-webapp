@@ -4,6 +4,22 @@ Living marketing plan for Peoplearound. Started 2026-08-04.
 
 **Positioning in one line:** the place where neighbors turn ideas into things that exist — with a named, credited team.
 
+**Tagline:** *"Let's do something together."* — the brand promise in five words:
+warm, plural, action-first. Decided 2026-08-10.
+
+**Call to action:** *"Start something within your communities."* — the
+imperative form for buttons, the app-store subtitle, and hero sub-lines.
+"Start" is the product's core verb: founders start, neighbors join. (Copy
+variant worth A/B-ing: "…with the people around you," which echoes the brand
+name and reads warmer than "communities.")
+
+**The core question:** *"What do you want to do today with your communities?"*
+— the app's front door and the idea-composer prompt. It makes the product's
+one social contract structural: every surface asks what you want to **do**,
+never who you want to meet (see CONCEPT.md § Non-goals). "Today" invites the
+small stuff — hangouts, events, one-off asks — which is what gives a
+projects app a daily reason to be opened.
+
 ---
 
 ## 1. Sports wedge
