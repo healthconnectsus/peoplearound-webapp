@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — The basics: drop the title field, add an edit pencil, rename the description
+
+- `docs/UX_SPEC.md`
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-11 — The basics: a blue summary line, and lighter form furniture
 
 - `src/app/projects/new/IdeaForm.tsx`

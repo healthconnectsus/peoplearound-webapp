@@ -2,7 +2,7 @@
 
 import { useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { UsersRound, Sprout, Rocket, type LucideIcon } from "lucide-react";
+import { UsersRound, Sprout, Rocket, Pencil, type LucideIcon } from "lucide-react";
 import {
   CATEGORIES,
   CATEGORY_META,
@@ -360,7 +360,27 @@ export function IdeaForm({
       to, so The basics doesn't have to ask it again. */
   const summary = picked?.summary ?? activeIntent?.short ?? null;
 
-  const canContinueFromBasics = title.trim().length > 0;
+  /** No title field any more: the post is titled by its own first sentence,
+      which is what people write naturally anyway. The assistant's title wins
+      when it produced one; the summary is the last resort. */
+  const effectiveTitle = (() => {
+    const explicit = title.trim();
+    if (explicit) return explicit.slice(0, 140);
+    const body = description.trim();
+    if (body) {
+      // Sentence end, line break, or a dash aside — "I'd like a game night
+      // — board games, chess, cards" should title itself with the first half.
+      const first = body.split(/(?<=[.!?])\s|\n| — /)[0].trim();
+      return first.length > 140 ? `${first.slice(0, 137)}…` : first;
+    }
+    if (summary) {
+      const sentence = `I'd like to ${summary}`;
+      return sentence.slice(0, 140);
+    }
+    return "";
+  })();
+
+  const canContinueFromBasics = effectiveTitle.length > 0;
 
   return (
     <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start lg:gap-10">
@@ -680,12 +700,21 @@ export function IdeaForm({
                 Summary
               </p>
               <p
-                className={`mt-0.5 text-xl font-extrabold ${
+                className={`mt-0.5 flex flex-wrap items-center gap-2 text-xl font-extrabold ${
                   activeIntent?.tint.headline ??
                   "text-emerald-700 dark:text-emerald-400"
                 }`}
               >
                 I&rsquo;d like to {summary}.
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  title="Change what you'd like to do"
+                  className="rounded-full p-1.5 text-black/40 transition-colors hover:bg-black/5 hover:text-black/70 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white/70"
+                >
+                  <Pencil className="h-4 w-4" strokeWidth={2} aria-hidden />
+                  <span className="sr-only">Edit</span>
+                </button>
               </p>
             </div>
           ) : null}
@@ -698,28 +727,7 @@ export function IdeaForm({
 
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-base font-bold">
-              Give it a short title
-            </span>
-            <input
-              type="text"
-              required
-              maxLength={140}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={
-                intent === "meet"
-                  ? "Sunday morning walking group, 8am at the park"
-                  : intent === "personal"
-                    ? "Help me build my backyard sauna this fall"
-                    : "Start a community garden on Oak Street"
-              }
-              className={inputClass}
-            />
-          </label>
-
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-base font-bold">
-              Tell people more{" "}
+              Small description{" "}
               <span className="font-normal text-black/40 dark:text-white/40">
                 (optional)
               </span>
@@ -921,7 +929,7 @@ export function IdeaForm({
                 {CATEGORY_META[category as (typeof CATEGORIES)[number]]
                   ?.emoji ?? "✨"}
               </span>
-              {title}
+              {effectiveTitle}
             </p>
             {description ? (
               <p className="mt-2 whitespace-pre-wrap text-sm text-black/60 dark:text-white/60">
@@ -942,7 +950,7 @@ export function IdeaForm({
           </div>
 
           <form action={createProject} className="flex items-center gap-3">
-            <input type="hidden" name="title" value={title} />
+            <input type="hidden" name="title" value={effectiveTitle} />
             <input type="hidden" name="description" value={description} />
             <input type="hidden" name="category" value={category} />
             <input type="hidden" name="state" value={state} />

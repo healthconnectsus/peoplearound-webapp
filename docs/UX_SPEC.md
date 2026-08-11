@@ -320,6 +320,16 @@ category, the basics heading, and the context the AI shaper writes in. A
 walking-buddy post and a community-garden post shouldn't sound alike.
 Playbooks skip the question — a playbook is a community idea by definition.
 
+### The basics has no title field
+
+The post is titled by its own first sentence — split at a full stop, a line
+break, or a dash aside — so nobody is asked to name a thing they just
+described. The assistant's title wins when it produced one; the summary
+sentence is the last resort. What The basics does show first is that summary,
+"I'd like to meet people to play games.", in the intent's colour with a pencil
+back to step 2: state the decision, offer the way to change it, then ask only
+for what is still unknown.
+
 ### The tagline lives under the wordmark
 
 *"Let's do something together."* sits directly beneath the logo in the
