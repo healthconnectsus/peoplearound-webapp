@@ -64,8 +64,13 @@ function useMicSupported() {
 const inputClass =
   "rounded-xl border border-black/15 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-emerald-500 dark:border-white/20";
 
-const cardLabelClass =
-  "flex h-full cursor-pointer flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 text-base transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-white/20 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40";
+const CARD_LABEL_BASE =
+  "flex h-full cursor-pointer flex-col gap-0.5 rounded-xl border border-black/15 px-4 py-3 text-base transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10";
+/** `checked` is one intent's `tint.checked` — so a radio card lights up in
+    the colour of what you're building, not always emerald. */
+function cardLabelClass(checked: string): string {
+  return `${CARD_LABEL_BASE} ${checked}`;
+}
 
 const STEPS = ["What is it", "Your idea", "The basics", "Who can help", "Share"] as const;
 
@@ -91,7 +96,17 @@ const INTENTS: {
   /** The title, lowercased mid-sentence: "I'd like to {short}:". */
   short: string;
   /** Front and back of the flip card; headline tints step 2's heading. */
-  tint: { front: string; iconBox: string; icon: string; back: string; headline: string };
+  tint: {
+    front: string;
+    iconBox: string;
+    icon: string;
+    back: string;
+    headline: string;
+    solid: string;
+    ring: string;
+    checked: string;
+    chip: string;
+  };
   /** Shown on the card's back on hover — a real-sounding post of this kind. */
   example: { title: string; desc: string; by: string; photo: string };
   /** Quick picks on "Your idea" — tapping one drafts the words for you.
@@ -125,6 +140,10 @@ const INTENTS: {
       icon: "text-white",
       back: "bg-sky-800",
       headline: "text-sky-600 dark:text-sky-400",
+      solid: "bg-sky-600 hover:bg-sky-700",
+      ring: "ring-sky-500",
+      checked: "has-[:checked]:border-sky-600 has-[:checked]:bg-sky-50 dark:has-[:checked]:border-sky-500 dark:has-[:checked]:bg-sky-950/40",
+      chip: "peer-checked:border-sky-600 peer-checked:bg-sky-600 peer-focus-visible:ring-sky-500/50",
     },
     example: {
       title: "Neighborhood walk",
@@ -156,6 +175,10 @@ const INTENTS: {
       icon: "text-white",
       back: "bg-emerald-800",
       headline: "text-emerald-600 dark:text-emerald-400",
+      solid: "bg-emerald-600 hover:bg-emerald-700",
+      ring: "ring-emerald-500",
+      checked: "has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40",
+      chip: "peer-checked:border-emerald-600 peer-checked:bg-emerald-600 peer-focus-visible:ring-emerald-500/50",
     },
     example: {
       title: "Community garden",
@@ -187,6 +210,10 @@ const INTENTS: {
       icon: "text-white",
       back: "bg-violet-800",
       headline: "text-violet-600 dark:text-violet-400",
+      solid: "bg-violet-600 hover:bg-violet-700",
+      ring: "ring-violet-500",
+      checked: "has-[:checked]:border-violet-600 has-[:checked]:bg-violet-50 dark:has-[:checked]:border-violet-500 dark:has-[:checked]:bg-violet-950/40",
+      chip: "peer-checked:border-violet-600 peer-checked:bg-violet-600 peer-focus-visible:ring-violet-500/50",
     },
     example: {
       title: "Tiny bakery test",
@@ -251,6 +278,16 @@ export function IdeaForm({
     playbook ? "community" : null,
   );
   const activeIntent = INTENTS.find((it) => it.key === intent) ?? null;
+  /** Before a type is picked (step 1, nothing chosen yet) the wizard has no
+      colour to borrow, so it stays neutral rather than defaulting to
+      emerald — emerald is the community intent's colour, not the brand's. */
+  const accent = activeIntent?.tint ?? {
+    solid: "bg-zinc-700 hover:bg-zinc-800 dark:bg-zinc-600 dark:hover:bg-zinc-500",
+    ring: "ring-zinc-500",
+    checked: "has-[:checked]:border-zinc-600 has-[:checked]:bg-zinc-100 dark:has-[:checked]:border-zinc-400 dark:has-[:checked]:bg-zinc-800",
+    chip: "peer-checked:border-zinc-700 peer-checked:bg-zinc-700 peer-focus-visible:ring-zinc-500/50",
+    headline: "text-zinc-700 dark:text-zinc-300",
+  };
 
   // --- Step 1: talk it out ---
   const [rawIdea, setRawIdea] = useState("");
@@ -400,22 +437,22 @@ export function IdeaForm({
             <span
               className={`h-1.5 rounded-full transition-colors ${
                 i <= step
-                  ? "bg-emerald-600"
+                  ? accent.solid.split(" ")[0]
                   : "bg-black/10 dark:bg-white/15"
               }`}
             />
             <span
               className={`flex items-center gap-1.5 text-base font-bold ${
                 i === step
-                  ? "text-emerald-700 dark:text-emerald-400"
+                  ? accent.headline
                   : "text-black/45 dark:text-white/45"
               }`}
             >
               <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white transition-colors ${
                   i <= step
-                    ? "bg-emerald-600 text-white"
-                    : "bg-black/10 text-black/50 dark:bg-white/15 dark:text-white/50"
+                    ? accent.solid.split(" ")[0]
+                    : "bg-black/10 !text-black/50 dark:bg-white/15 dark:!text-white/50"
                 }`}
               >
                 {i + 1}
@@ -547,7 +584,7 @@ export function IdeaForm({
                         if (!o.seed) ideaRef.current?.focus();
                       }}
                       className={`group relative h-28 text-left [perspective:800px] ${
-                        isPicked ? "rounded-xl ring-2 ring-offset-2 ring-emerald-500" : ""
+                        isPicked ? `rounded-xl ring-2 ring-offset-2 ${activeIntent.tint.ring}` : ""
                       }`}
                     >
                       <span className="relative block h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)]">
@@ -665,7 +702,7 @@ export function IdeaForm({
                 type="button"
                 onClick={shapeIdea}
                 disabled={shaping || rawIdea.trim().length < 10}
-                className="rounded-full bg-emerald-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className={`rounded-full px-6 py-3 text-base font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${accent.solid}`}
               >
                 {shaping ? "Shaping…" : "✨ Shape my idea"}
               </button>
@@ -707,10 +744,7 @@ export function IdeaForm({
                 Summary
               </p>
               <p
-                className={`mt-0.5 flex flex-wrap items-center gap-2 text-xl font-extrabold ${
-                  activeIntent?.tint.headline ??
-                  "text-emerald-700 dark:text-emerald-400"
-                }`}
+                className={`mt-0.5 flex flex-wrap items-center gap-2 text-xl font-extrabold ${accent.headline}`}
               >
                 I&rsquo;d like to {summary}.
                 <button
@@ -776,7 +810,9 @@ export function IdeaForm({
                     onChange={() => setCategory(c)}
                     className="peer sr-only"
                   />
-                  <span className="inline-block rounded-full border border-black/15 px-3.5 py-1.5 transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-600 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/50 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10">
+                  <span
+                    className={`inline-block rounded-full border border-black/15 px-3.5 py-1.5 transition-colors peer-checked:text-white peer-focus-visible:ring-2 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10 ${accent.chip}`}
+                  >
                     {categoryMeta(c).emoji} {categoryMeta(c).label}
                   </span>
                 </label>
@@ -787,7 +823,7 @@ export function IdeaForm({
           <fieldset className="flex flex-col gap-1.5 text-sm">
             <legend className="mb-1.5 text-base font-bold">Where are you at?</legend>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <label className={`flex-1 ${cardLabelClass}`}>
+              <label className={`flex-1 ${cardLabelClass(accent.checked)}`}>
                 <input
                   type="radio"
                   checked={state === "idea"}
@@ -799,7 +835,7 @@ export function IdeaForm({
                   Looking for people to make it real
                 </span>
               </label>
-              <label className={`flex-1 ${cardLabelClass}`}>
+              <label className={`flex-1 ${cardLabelClass(accent.checked)}`}>
                 <input
                   type="radio"
                   checked={state === "active"}
@@ -826,7 +862,7 @@ export function IdeaForm({
               type="button"
               onClick={() => setStep(3)}
               disabled={!canContinueFromBasics}
-              className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className={`rounded-full px-7 py-3 text-base font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${accent.solid}`}
             >
               Continue →
             </button>
@@ -843,7 +879,7 @@ export function IdeaForm({
             </legend>
             <div className="flex flex-col gap-2 sm:flex-row">
               {HELP_KINDS.map((h) => (
-                <label key={h} className={`flex-1 ${cardLabelClass}`}>
+                <label key={h} className={`flex-1 ${cardLabelClass(accent.checked)}`}>
                   <input
                     type="radio"
                     checked={help === h}
@@ -867,7 +903,7 @@ export function IdeaForm({
             </legend>
             <div className="flex flex-col gap-2 sm:flex-row">
               {REACHES.map((r) => (
-                <label key={r} className={`flex-1 ${cardLabelClass}`}>
+                <label key={r} className={`flex-1 ${cardLabelClass(accent.checked)}`}>
                   <input
                     type="radio"
                     checked={reach === r}
@@ -911,7 +947,7 @@ export function IdeaForm({
             <button
               type="button"
               onClick={() => setStep(4)}
-              className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700"
+              className={`rounded-full px-7 py-3 text-base font-medium text-white transition-colors ${accent.solid}`}
             >
               Continue →
             </button>
@@ -975,7 +1011,7 @@ export function IdeaForm({
             </button>
             <button
               type="submit"
-              className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700"
+              className={`rounded-full px-7 py-3 text-base font-medium text-white transition-colors ${accent.solid}`}
             >
               Share it 🎉
             </button>
@@ -998,10 +1034,10 @@ export function IdeaForm({
         {STEPS.map((label, i) => (
           <li key={label} className="flex items-center gap-3">
             <span
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors ${
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white transition-colors ${
                 i <= step
-                  ? "bg-emerald-600 text-white"
-                  : "bg-black/10 text-black/50 dark:bg-white/15 dark:text-white/50"
+                  ? accent.solid.split(" ")[0]
+                  : "bg-black/10 !text-black/50 dark:bg-white/15 dark:!text-white/50"
               }`}
             >
               {i + 1}
@@ -1009,7 +1045,7 @@ export function IdeaForm({
             <span
               className={`text-base font-bold ${
                 i === step
-                  ? "text-emerald-700 dark:text-emerald-400"
+                  ? accent.headline
                   : "text-black/45 dark:text-white/45"
               }`}
             >

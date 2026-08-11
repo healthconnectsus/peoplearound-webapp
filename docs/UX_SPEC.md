@@ -320,6 +320,17 @@ category, the basics heading, and the context the AI shaper writes in. A
 walking-buddy post and a community-garden post shouldn't sound alike.
 Playbooks skip the question — a playbook is a community idea by definition.
 
+### The wizard wears the colour you picked
+
+Once you choose a type on step 1 (sky / emerald / violet), that colour
+follows you: both step trackers, the quick-pick selection ring, every
+primary button (Shape my idea, Continue, Share it), the category chips, and
+the "Where are you at?" / "Who can help" radio cards all switch to it. Before
+you've picked — step 1 itself — the wizard stays a neutral dark grey rather
+than defaulting to emerald, since emerald is the *community* intent's colour,
+not the brand's. One `accent` object, derived from `activeIntent`, drives all
+of it — see IdeaForm.tsx.
+
 ### The basics has no title field
 
 The post is titled by its own first sentence — split at a full stop, a line

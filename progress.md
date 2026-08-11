@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Wizard adopts the colour of the intent you picked
+
+- `docs/UX_SPEC.md`
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-11 — Sidebar tagline: drop italic, semibold weight
 
 - `src/components/Sidebar.tsx`
