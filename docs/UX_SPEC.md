@@ -341,13 +341,29 @@ sentence is the last resort. What The basics does show first is that summary,
 back to step 2: state the decision, offer the way to change it, then ask only
 for what is still unknown.
 
-### Only the first letter wears the wordmark's colour
+### The icon wears the wordmark's colour, not the label
 
-Hovering or landing on a rail tints just its initial — the "P" in "People
-around" red, the "E" in "Events" amber — not the whole label. A full-word
-tint read as childish; a single coloured letter reads as the logo unpacked
-one row at a time, without turning the rail into a paint box. Everything
-else about the row (weight, icon colour) still follows the bold-only rule.
+Hovering or landing on a rail tints its icon — the People-around heart red,
+the Events calendar amber — via a CSS variable, so each row still has one
+literal Tailwind class for the build-time scanner to find. Two earlier
+passes are recorded here on purpose: tinting the whole label read as
+childish, and tinting just its first letter read as a typo. The icon is the
+element built to carry a single accent without competing with the text
+weight that does the "you are here" signalling.
+
+### peoplearound.com opens on People around, not Explore
+
+The root route (`src/app/page.tsx`) no longer renders a feed — it's a thin
+redirect. Every signed-in visit passes through it once per
+onboarding-state (invite attribution via the `pa-via` cookie, silent
+neighborhood claim or frontier registration via `pa-hood` / `pa-frontier`,
+set by the logged-out AutoLocate flow), then hands off to `/people`. Explore
+moved to its own route, `/explore` — reachable from the rail's last letter or
+the "Change" links — unchanged in every other respect: same zones (your
+communities → your city → anywhere), same pulse chips, same filters. The
+choice: "what's happening among people I've actually joined" is a better
+front door than "what's interesting," and the acrostic still spells P·E·O·P·L·E
+top to bottom with Explore's E in last place.
 
 ### People around is Explore's twin
 

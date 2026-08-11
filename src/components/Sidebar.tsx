@@ -26,10 +26,10 @@ const NAV_ITEMS: {
   count?: CountKey;
   /** What the number means, on hover. */
   title?: string;
-  /** The hex of this rail's letter in the wordmark — only the FIRST letter
-      of the label wears it (a drop-cap, not a paint job), on hover and when
-      current. Everything else stays neutral so the rail reads calm. */
-  letterHex: string;
+  /** This rail's hue from the wordmark — the ICON wears it, on hover and
+      when current. The label stays plain text; colouring the whole row
+      read as childish, and colouring a single letter read as a typo. */
+  iconHex: string;
 }[] = [
   // Top to bottom, the first letters spell the product: P·E·O·P·L·E.
   // "Explore" is the home feed — it sits last so the word works, and the
@@ -40,7 +40,7 @@ const NAV_ITEMS: {
     icon: HeartHandshake,
     count: "people",
     title: "Neighbors in your community",
-    letterHex: "#FF4033",
+    iconHex: "#FF4033",
   },
   {
     href: "/events",
@@ -48,7 +48,7 @@ const NAV_ITEMS: {
     icon: CalendarDays,
     count: "events",
     title: "Events you said you're coming to",
-    letterHex: "#FFA30F",
+    iconHex: "#FFA30F",
   },
   {
     href: "/offers",
@@ -56,7 +56,7 @@ const NAV_ITEMS: {
     icon: Gift,
     count: "offers",
     title: "Things you've offered",
-    letterHex: "#08C08C",
+    iconHex: "#08C08C",
   },
   {
     href: "/ideas",
@@ -64,7 +64,7 @@ const NAV_ITEMS: {
     icon: Lightbulb,
     count: "ideas",
     title: "Ideas you started, plus teams you joined",
-    letterHex: "#2A6BEF",
+    iconHex: "#2A6BEF",
   },
   {
     href: "/faves",
@@ -72,13 +72,13 @@ const NAV_ITEMS: {
     icon: Star,
     count: "faves",
     title: "Ideas your neighbors have starred",
-    letterHex: "#8133E1",
+    iconHex: "#8133E1",
   },
   {
-    href: "/",
+    href: "/explore",
     label: "Explore",
     icon: Compass,
-    letterHex: "#FF3A8A",
+    iconHex: "#FF3A8A",
   },
 ];
 
@@ -132,10 +132,7 @@ export function Sidebar({
 
       <nav className="mt-5 flex flex-col gap-0.5">
         {NAV_ITEMS.map((item) => {
-          const active =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
+          const active = pathname.startsWith(item.href);
           const Icon = item.icon;
           // Zero renders as nothing: an empty rail should read as an
           // invitation, not a scoreboard you're losing.
@@ -153,31 +150,24 @@ export function Sidebar({
                   : "font-normal text-black/75 hover:font-bold hover:text-black dark:text-white/75 dark:hover:text-white"
               }`}
             >
+              {/* The icon wears the wordmark's hue — on hover and while
+                  current — via a CSS var so Tailwind's scanner still sees a
+                  literal utility class ([color:var(--icon)]) per row. */}
               <Icon
-                className={`h-[22px] w-[22px] shrink-0 ${
+                className={`h-[22px] w-[22px] shrink-0 transition-colors ${
                   active
-                    ? "text-black dark:text-white"
-                    : "text-black/60 group-hover:text-black dark:text-white/60 dark:group-hover:text-white"
+                    ? ""
+                    : "text-black/60 group-hover:[color:var(--icon)] dark:text-white/60"
                 }`}
+                style={
+                  active
+                    ? { color: item.iconHex }
+                    : ({ "--icon": item.iconHex } as CSSProperties)
+                }
                 strokeWidth={active ? 2.25 : 1.75}
                 aria-hidden
               />
-              <span className="min-w-0 flex-1 truncate">
-                {/* Only the first letter wears the wordmark's colour — on
-                    hover and while current — so the rail spells itself out
-                    in the logo's own hues without becoming a paint box. */}
-                <span
-                  className={active ? "" : "transition-colors group-hover:[color:var(--letter)]"}
-                  style={
-                    active
-                      ? { color: item.letterHex }
-                      : ({ "--letter": item.letterHex } as CSSProperties)
-                  }
-                >
-                  {item.label.slice(0, 1)}
-                </span>
-                {item.label.slice(1)}
-              </span>
+              <span className="min-w-0 flex-1 truncate">{item.label}</span>
               {n > 0 ? (
                 <span
                   title={item.title}

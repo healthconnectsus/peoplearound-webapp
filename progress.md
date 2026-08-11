@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — peoplearound.com opens on People around; Explore moves to its own route
+
+- `docs/UX_SPEC.md`
+- `src/app/explore/page.tsx`
+- `src/app/page.tsx`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-11 — Sidebar: color only the first letter, and fix a broken Ask link
 
 - `docs/UX_SPEC.md`
