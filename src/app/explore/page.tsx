@@ -406,25 +406,6 @@ export default async function ExplorePage({
     (p) => !local.includes(p) && !city.includes(p),
   );
 
-  // The neighborhood pulse — proof of life above the fold.
-  const building = local.filter((p) => p.state === "active").length;
-  const eventsThisWeek = events.filter(
-    (e) => new Date(e.starts_at).getTime() < new Date(isoDaysAgo(-7)).getTime(),
-  ).length;
-  const confirmedThisMonth = confirmed.length;
-  const pulse: { emoji: string; text: string }[] = [
-    neighborCount ? { emoji: "👥", text: `${neighborCount} neighbors` } : null,
-    building
-      ? { emoji: "🚀", text: `${building} building` }
-      : null,
-    eventsThisWeek
-      ? { emoji: "📅", text: `${eventsThisWeek} ${eventsThisWeek === 1 ? "event" : "events"} this week` }
-      : null,
-    confirmedThisMonth
-      ? { emoji: "🙌", text: `${confirmedThisMonth} confirmed this month` }
-      : null,
-  ].filter(Boolean) as { emoji: string; text: string }[];
-
   // Map pins for every visible, located project.
   // The map is "what's being built AROUND YOU": pin the local + city
   // projects. Global ideas live in the "From anywhere" list — pinning them
@@ -461,22 +442,12 @@ export default async function ExplorePage({
                   ({myCity ?? neighborhoodName}/{hoodMine}/{hoodTotal})
                 </span>
               </h1>
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                {pulse.map((s) => (
-                  <span
-                    key={s.text}
-                    className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60"
-                  >
-                    {s.emoji} {s.text}
-                  </span>
-                ))}
-                <Link
-                  href="/neighborhood"
-                  className="px-1 text-xs text-black/40 underline decoration-black/20 underline-offset-2 hover:decoration-current dark:text-white/40 dark:decoration-white/20"
-                >
-                  Change
-                </Link>
-              </div>
+              <Link
+                href="/neighborhood"
+                className="mt-1 inline-block text-xs text-black/40 underline decoration-black/20 underline-offset-2 hover:decoration-current dark:text-white/40 dark:decoration-white/20"
+              >
+                Change
+              </Link>
             </div>
 
             <FeedComposer name={myName} />

@@ -12,7 +12,6 @@ import { openAsks, formatMinutes } from "@/lib/asks";
 import { groupPins, nearbyProjectPins, peopleClusterPins } from "@/lib/mapPins";
 import {
   initials,
-  isoDaysAgo,
   formatEventTime,
   CATEGORIES,
   CATEGORY_META,
@@ -193,10 +192,7 @@ export default async function PeoplePage({
         .neq("state", "archived")
     : { data: [] };
   const communityProjectIds = (idRows ?? []).map((r) => r.id as string);
-  const { cards, events, confirmedThisMonth } = await loadFeedCards(
-    supabase,
-    communityProjectIds,
-  );
+  const { cards, events } = await loadFeedCards(supabase, communityProjectIds);
   const asks = await openAsks(supabase, 4);
 
   const visible = cards.filter(
@@ -212,11 +208,6 @@ export default async function PeoplePage({
     return qs ? `/people?${qs}#feed` : "/people#feed";
   };
   const filtersActive = Boolean(cat || helpFilter);
-
-  const building = cards.filter((p) => p.state === "active").length;
-  const eventsThisWeek = events.filter(
-    (e) => new Date(e.starts_at).getTime() < new Date(isoDaysAgo(-7)).getTime(),
-  ).length;
 
   // People are pinned as COMMUNITY clusters with headcounts — never at
   // anyone's home (see lib/mapPins.ts). Groups live here too: a group IS
@@ -244,34 +235,6 @@ export default async function PeoplePage({
                 ({hoodName})
               </span>
             </h1>
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
-                👥 {neighbors.length} {neighbors.length === 1 ? "neighbor" : "neighbors"}
-              </span>
-              <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
-                🏘 {mine.length} {mine.length === 1 ? "community" : "communities"}
-              </span>
-              {building > 0 ? (
-                <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
-                  🚀 {building} building
-                </span>
-              ) : null}
-              {eventsThisWeek > 0 ? (
-                <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
-                  📅 {eventsThisWeek} {eventsThisWeek === 1 ? "event" : "events"} this week
-                </span>
-              ) : null}
-              {confirmedThisMonth > 0 ? (
-                <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
-                  🙌 {confirmedThisMonth} confirmed this month
-                </span>
-              ) : null}
-              {remoteHelpers.length > 0 ? (
-                <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
-                  💻 {remoteHelpers.length} helping online
-                </span>
-              ) : null}
-            </div>
           </div>
 
           <FeedComposer name={myName} />

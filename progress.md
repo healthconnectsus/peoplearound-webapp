@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Composer on one row; drop the pulse chips from both feeds
+
+- `src/app/explore/page.tsx`
+- `src/app/people/page.tsx`
+- `src/components/FeedComposer.tsx`
+
+
 ### 2026-08-11 — Composer strip: shorter prompt, buttons split evenly and aligned
 
 - `src/components/FeedComposer.tsx`
