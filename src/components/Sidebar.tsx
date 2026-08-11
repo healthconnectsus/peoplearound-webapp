@@ -25,20 +25,12 @@ const NAV_ITEMS: {
   count?: CountKey;
   /** What the number means, on hover. */
   title?: string;
-  /** This rail's letter colour in the wordmark — hover and active wear it.
-      Written as literal classes because Tailwind's scanner reads source text. */
-  tint: { text: string; hoverText: string; groupHoverText: string };
 }[] = [
   // Top to bottom, the first letters spell the product: P·E·O·P·L·E.
   // "Explore" is the home feed — it sits last so the word works, and the
   // logo above is a second, always-visible way home.
   {
     href: "/people",
-    tint: {
-      text: "text-[#FF4033]",
-      hoverText: "hover:text-[#FF4033]",
-      groupHoverText: "group-hover:text-[#FF4033]",
-    },
     label: "People around",
     icon: HeartHandshake,
     count: "people",
@@ -46,11 +38,6 @@ const NAV_ITEMS: {
   },
   {
     href: "/events",
-    tint: {
-      text: "text-[#FFA30F]",
-      hoverText: "hover:text-[#FFA30F]",
-      groupHoverText: "group-hover:text-[#FFA30F]",
-    },
     label: "Events",
     icon: CalendarDays,
     count: "events",
@@ -58,11 +45,6 @@ const NAV_ITEMS: {
   },
   {
     href: "/offers",
-    tint: {
-      text: "text-[#08C08C]",
-      hoverText: "hover:text-[#08C08C]",
-      groupHoverText: "group-hover:text-[#08C08C]",
-    },
     label: "Offers",
     icon: Gift,
     count: "offers",
@@ -70,11 +52,6 @@ const NAV_ITEMS: {
   },
   {
     href: "/ideas",
-    tint: {
-      text: "text-[#2A6BEF]",
-      hoverText: "hover:text-[#2A6BEF]",
-      groupHoverText: "group-hover:text-[#2A6BEF]",
-    },
     label: "Projects",
     icon: Lightbulb,
     count: "ideas",
@@ -82,11 +59,6 @@ const NAV_ITEMS: {
   },
   {
     href: "/faves",
-    tint: {
-      text: "text-[#8133E1]",
-      hoverText: "hover:text-[#8133E1]",
-      groupHoverText: "group-hover:text-[#8133E1]",
-    },
     label: "Local Faves",
     icon: Star,
     count: "faves",
@@ -96,11 +68,6 @@ const NAV_ITEMS: {
     href: "/",
     label: "Explore",
     icon: Compass,
-    tint: {
-      text: "text-[#FF3A8A]",
-      hoverText: "hover:text-[#FF3A8A]",
-      groupHoverText: "group-hover:text-[#FF3A8A]",
-    },
   },
 ];
 
@@ -130,7 +97,7 @@ export function Sidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col px-3 py-4 lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col px-3 py-4 lg:flex">
       <Link href="/" className="block px-1 py-1">
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
         <img src="/logo.svg" alt="Peoplearound" className="h-auto w-full" />
@@ -166,20 +133,20 @@ export function Sidebar({
             <Link
               key={item.href}
               href={item.href}
-              /* Each rail wears its own letter of the wordmark: hover
-                 bolds AND colours it, the page you're on stays that way.
-                 No fill — weight and hue carry the whole signal. */
+              /* Weight is the whole signal: hovering bolds, the page
+                 you're on stays bold. No fill, no colour — the rail never
+                 competes with the content beside it. */
               className={`group flex items-center gap-4 rounded-lg px-3 py-2.5 text-[15px] ${
                 active
-                  ? `font-bold ${item.tint.text}`
-                  : `font-medium text-black/75 hover:font-bold dark:text-white/75 ${item.tint.hoverText}`
+                  ? "font-bold text-black dark:text-white"
+                  : "font-medium text-black/75 hover:font-bold hover:text-black dark:text-white/75 dark:hover:text-white"
               }`}
             >
               <Icon
                 className={`h-[22px] w-[22px] shrink-0 ${
                   active
-                    ? item.tint.text
-                    : `text-black/60 dark:text-white/60 ${item.tint.groupHoverText}`
+                    ? "text-black dark:text-white"
+                    : "text-black/60 group-hover:text-black dark:text-white/60 dark:group-hover:text-white"
                 }`}
                 strokeWidth={active ? 2.25 : 1.75}
                 aria-hidden
@@ -189,7 +156,9 @@ export function Sidebar({
                 <span
                   title={item.title}
                   className={`shrink-0 text-xs font-semibold tabular-nums ${
-                    active ? item.tint.text : "text-black/40 dark:text-white/40"
+                    active
+                      ? "text-black/70 dark:text-white/70"
+                      : "text-black/40 dark:text-white/40"
                   }`}
                 >
                   {n}

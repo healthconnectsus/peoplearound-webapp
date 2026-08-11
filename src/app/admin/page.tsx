@@ -47,7 +47,7 @@ export default async function AdminPage({
   if (!admin) {
     return (
       <AppShell>
-        <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
+        <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
           <p className="mt-4 text-sm text-red-600">
             SUPABASE_SERVICE_ROLE_KEY is not configured.
@@ -116,7 +116,7 @@ export default async function AdminPage({
 
   return (
     <AppShell>
-      <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
+      <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
           Ops console — only admins see this. Every decision here is a human

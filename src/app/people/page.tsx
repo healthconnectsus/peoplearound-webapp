@@ -176,12 +176,31 @@ export default async function PeoplePage({
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
-          <h1 className="text-3xl font-extrabold tracking-tight">People around</h1>
-          <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-            The neighbors near you, the communities and groups they form, and
-            the small asks they bring to each other.
-          </p>
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+          {/* Same header grammar as Explore: the place in the title, the
+              numbers as pulse chips — this page is Explore's twin, focused
+              on who's here rather than what's happening. */}
+          <div className="mb-5">
+            <h1 className="text-3xl font-extrabold tracking-tight">
+              People around{" "}
+              <span className="font-normal text-black/50 dark:text-white/50">
+                ({hoodName})
+              </span>
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
+                👥 {neighbors.length} {neighbors.length === 1 ? "neighbor" : "neighbors"}
+              </span>
+              <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
+                🏘 {mine.length} {mine.length === 1 ? "community" : "communities"}
+              </span>
+              {remoteHelpers.length > 0 ? (
+                <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
+                  💻 {remoteHelpers.length} helping online
+                </span>
+              ) : null}
+            </div>
+          </div>
 
           {error ? (
             <p className="mt-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
