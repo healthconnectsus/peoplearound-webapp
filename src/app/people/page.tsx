@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { AsksSection } from "@/components/AsksSection";
 import { FeedComposer } from "@/components/FeedComposer";
+import { CommunityFilter } from "@/components/CommunityFilter";
 import { ProjectCard } from "@/components/ProjectFeedCard";
 import { loadFeedCards } from "@/lib/feed";
 import { openAsks, formatMinutes } from "@/lib/asks";
@@ -96,9 +97,17 @@ export default async function PeoplePage({
     compose?: string;
     cat?: string;
     help?: string;
+    community?: string;
   }>;
 }) {
-  const { error, message, compose, cat, help: helpFilter } = await searchParams;
+  const {
+    error,
+    message,
+    compose,
+    cat,
+    help: helpFilter,
+    community,
+  } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -181,7 +190,10 @@ export default async function PeoplePage({
   // The feed strip, narrowed to your own communities — projects.neighborhood_id
   // is the same table as community_members.community_id (0011 generalized
   // neighborhoods into communities), so this is a direct filter, not a guess.
-  const communityIds = [...myIds];
+  // A picked community narrows the feed further — but only one of yours;
+  // an arbitrary id in the URL falls back to all, never widens.
+  const picked = community && myIds.has(community) ? community : "";
+  const communityIds = picked ? [picked] : [...myIds];
   const { data: idRows } = communityIds.length
     ? await supabase
         .from("projects")
@@ -200,7 +212,7 @@ export default async function PeoplePage({
   );
   const filterHref = (patch: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
-    const merged = { cat, help: helpFilter, ...patch };
+    const merged = { community: picked || undefined, cat, help: helpFilter, ...patch };
     for (const [k, v] of Object.entries(merged)) if (v) params.set(k, v);
     const qs = params.toString();
     return qs ? `/people?${qs}#feed` : "/people#feed";
@@ -223,18 +235,6 @@ export default async function PeoplePage({
     <AppShell>
       <MapShell pins={pins}>
         <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
-          {/* Same header grammar as Explore: the place in the title, the
-              numbers as pulse chips — this page is Explore's twin, focused
-              on who's here rather than what's happening. */}
-          <div className="mb-5">
-            <h1 className="text-3xl font-extrabold tracking-tight">
-              People around{" "}
-              <span className="font-normal text-black/50 dark:text-white/50">
-                ({hoodName})
-              </span>
-            </h1>
-          </div>
-
           <FeedComposer />
 
           {error ? (
@@ -269,9 +269,18 @@ export default async function PeoplePage({
           ) : null}
 
           <section id="feed" className="mt-6 scroll-mt-6">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-              What&rsquo;s happening in your communities
-            </h2>
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                What&rsquo;s happening in your communities
+              </h2>
+              <CommunityFilter
+                communities={mine.map((c) => ({
+                  id: c.id,
+                  label: communityLabel(c),
+                }))}
+                selected={picked}
+              />
+            </div>
 
             {asks.length > 0 ? (
               <div className="mb-6">

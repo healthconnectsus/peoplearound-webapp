@@ -20,9 +20,9 @@ export function CloseWizard() {
         if (window.history.length > 1) router.back();
         else router.push("/people");
       }}
-      className="rounded-full p-2 text-black/40 transition-colors hover:bg-black/5 hover:text-black dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white"
+      className="fixed left-3 top-3 z-10 rounded-full p-3 text-black/50 transition-colors hover:bg-black/5 hover:text-black dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
     >
-      <X className="h-9 w-9" strokeWidth={1.75} aria-hidden />
+      <X className="h-12 w-12" strokeWidth={2} aria-hidden />
     </button>
   );
 }

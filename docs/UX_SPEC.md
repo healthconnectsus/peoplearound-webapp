@@ -376,6 +376,17 @@ choice: "what's happening among people I've actually joined" is a better
 front door than "what's interesting," and the acrostic still spells P·E·O·P·L·E
 top to bottom with Explore's E in last place.
 
+### The composer prompt opens a five-door chooser
+
+Tapping "Hey community,…" covers the page (same lightbox grammar as the
+wizard, same corner X) with five doors, each a plain link into the flow that
+actually handles it: Let's do something (wizard), I need a favor (small-help
+composer), I have an event (wizard with the meet intent preselected — events
+live on projects), I have an offer (/offers), and I just want to share
+something (wizard, community intent). `/projects/new?intent=` preselects a
+card and lands on "Your idea", so doors that already imply the kind skip the
+chooser step. The two most-used doors stay inline beside the prompt.
+
 ### People around is Explore's twin
 
 People around now opens with the same feed grammar as Explore — composer,

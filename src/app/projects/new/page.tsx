@@ -15,9 +15,9 @@ import { myMapCenter } from "@/lib/mapPins";
 export default async function NewProjectPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; playbook?: string }>;
+  searchParams: Promise<{ error?: string; playbook?: string; intent?: string }>;
 }) {
-  const { error, playbook } = await searchParams;
+  const { error, playbook, intent } = await searchParams;
   const pb = playbook ? playbookBySlug(playbook) : undefined;
   const supabase = await createClient();
   const {
@@ -30,16 +30,22 @@ export default async function NewProjectPage({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-white dark:bg-zinc-950">
       <div className="mx-auto w-full max-w-[90rem] px-4 py-6 lg:px-10">
-        {/* Top-left, ahead of the title in both reading and tab order: the
-            way out is the first thing you find, not something you hunt for. */}
+        {/* Pinned to the page's top-left corner, ahead of the title in tab
+            order: the way out is the first thing you find. The container
+            keeps left padding so content clears it. */}
         <CloseWizard />
-        <h1 className="mb-6 mt-3 text-3xl font-extrabold tracking-tight">
+        <h1 className="mb-6 text-3xl font-extrabold tracking-tight lg:pl-14">
           Start something with people ✨
         </h1>
         <IdeaForm
           error={error}
           userId={user.id}
           center={center}
+          initialIntent={
+            intent === "meet" || intent === "community" || intent === "personal"
+              ? intent
+              : null
+          }
           playbook={
             pb
               ? {

@@ -263,6 +263,7 @@ export function IdeaForm({
   userId,
   playbook = null,
   center = null,
+  initialIntent = null,
 }: {
   error?: string;
   userId: string;
@@ -270,14 +271,22 @@ export function IdeaForm({
   playbook?: PlaybookSeed | null;
   /** Opens the pin map on your neighborhood rather than the whole planet. */
   center?: { lat: number; lng: number } | null;
+  /** Arriving from a door that already implies the kind ("I have an event"
+      → meet): skip the chooser and land on "Your idea". */
+  initialIntent?: Intent | null;
 }) {
   // Playbooks are community ideas by definition — they arrive with the
   // draft filled, so they skip straight to "The basics".
-  const [step, setStep] = useState(playbook ? 2 : 0);
+  const [step, setStep] = useState(playbook ? 2 : initialIntent ? 1 : 0);
   const [intent, setIntent] = useState<Intent | null>(
-    playbook ? "community" : null,
+    playbook ? "community" : initialIntent,
   );
   const activeIntent = INTENTS.find((it) => it.key === intent) ?? null;
+  const [category, setCategory] = useState<string>(
+    playbook?.category ??
+      INTENTS.find((it) => it.key === initialIntent)?.category ??
+      CATEGORIES[0],
+  );
   /** Before a type is picked (step 1, nothing chosen yet) the wizard has no
       colour to borrow, so it stays neutral rather than defaulting to
       emerald — emerald is the community intent's colour, not the brand's. */
@@ -309,9 +318,6 @@ export function IdeaForm({
   // --- Steps 2–3: the draft ---
   const [title, setTitle] = useState(playbook?.title ?? "");
   const [description, setDescription] = useState(playbook?.description ?? "");
-  const [category, setCategory] = useState<string>(
-    playbook?.category ?? CATEGORIES[0],
-  );
   const [state, setState] = useState<"idea" | "active">("idea");
   const [help, setHelp] = useState<HelpKind>(playbook?.help ?? "local");
   const [reach, setReach] = useState<ProjectReach>("neighborhood");
