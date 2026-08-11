@@ -308,7 +308,7 @@ export default async function ProjectDetail({
           </aside>
         ) : null}
 
-      <main className="w-full max-w-2xl flex-1 p-4 lg:order-1 lg:py-6 lg:pl-6 lg:pr-8">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:order-1 lg:py-6 lg:pl-16 lg:pr-8">
         <Link
           href="/"
           className="text-sm text-black/50 hover:underline dark:text-white/50"

@@ -33,7 +33,7 @@ export async function AppShell({
   }
 
   return (
-    <div className="min-h-screen lg:flex lg:pl-8 xl:pl-20">
+    <div className="min-h-screen lg:flex lg:pl-3 xl:pl-6">
       <Sidebar counts={counts} dimmed={focus} isAdmin={isAdmin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader />

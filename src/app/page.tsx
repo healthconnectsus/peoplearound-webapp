@@ -12,6 +12,7 @@ import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { type MapPin } from "@/components/NeighborhoodMap";
 import { MapShell } from "@/components/MapShell";
+import { FeedComposer } from "@/components/FeedComposer";
 import {
   HELP_META,
   REACH_META,
@@ -165,10 +166,14 @@ export default async function Home({
   const { data: profileRow } = await supabase
     .from("profiles")
     .select(
-      "neighborhood_id,invited_by,created_at,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+      "neighborhood_id,invited_by,created_at,display_name,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
     )
     .eq("id", user.id)
     .maybeSingle();
+  const myName =
+    ((profileRow as { display_name?: string | null } | null)?.display_name ??
+      user.email ??
+      null);
   const profile = profileRow as unknown as {
     neighborhood_id: string | null;
     invited_by: string | null;
@@ -525,7 +530,7 @@ export default async function Home({
 
       <MapShell pins={pins}>
         <main className="min-w-0">
-          <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-6 lg:pr-8">
+          <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-16 lg:pr-8">
             <div className="mb-5">
               <h1 className="text-3xl font-extrabold tracking-tight">
                 Explore{" "}
@@ -550,6 +555,8 @@ export default async function Home({
                 </Link>
               </div>
             </div>
+
+            <FeedComposer name={myName} />
 
             {/* Founding era: the first 10 neighbors of a location are its
                 founding neighbors, permanently — real scarcity, no points. */}

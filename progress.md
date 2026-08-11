@@ -7,6 +7,30 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Rail letters wear the wordmark's colors, Explore gets a composer strip
+
+- `src/app/admin/page.tsx`
+- `src/app/analytics/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/app/recap/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/TopBar.tsx`
+
+
 ### 2026-08-11 — The rail spells PEOPLE, and the shell breathes on the left
 
 - `docs/UX_SPEC.md`

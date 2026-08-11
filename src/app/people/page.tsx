@@ -176,7 +176,7 @@ export default async function PeoplePage({
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-6 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">People around</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
             The neighbors near you, the communities and groups they form, and
@@ -214,47 +214,7 @@ export default async function PeoplePage({
             </div>
           ) : null}
 
-          {primaryId ? (
-            <section className="mt-6">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                In {hoodName} · {neighbors.length}
-              </h2>
-              {neighbors.length > 0 ? (
-                <ul className="grid gap-2 sm:grid-cols-2">
-                  {neighbors.map((p) => (
-                    <PersonCard
-                      key={p.id}
-                      person={p}
-                      badge={p.id === user.id ? "You" : undefined}
-                    />
-                  ))}
-                </ul>
-              ) : (
-                <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
-                  No neighbors here yet —{" "}
-                  <Link href="/invite" className="underline">
-                    invite some
-                  </Link>
-                  .
-                </p>
-              )}
-            </section>
-          ) : null}
-
-          {remoteHelpers.length > 0 ? (
-            <section className="mt-8">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                💻 Open to helping online
-              </h2>
-              <ul className="grid gap-2 sm:grid-cols-2">
-                {remoteHelpers.map((p) => (
-                  <PersonCard key={p.id} person={p} badge="Welcomes online help" />
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          <section id="communities" className="mt-10 scroll-mt-6">
+          <section id="communities" className="mt-6 scroll-mt-6">
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
               🏘 My communities · {mine.length}
             </h2>
@@ -400,6 +360,47 @@ export default async function PeoplePage({
               </form>
             </div>
           </section>
+
+          {primaryId ? (
+            <section className="mt-10">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                In {hoodName} · {neighbors.length}
+              </h2>
+              {neighbors.length > 0 ? (
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {neighbors.map((p) => (
+                    <PersonCard
+                      key={p.id}
+                      person={p}
+                      badge={p.id === user.id ? "You" : undefined}
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                  No neighbors here yet —{" "}
+                  <Link href="/invite" className="underline">
+                    invite some
+                  </Link>
+                  .
+                </p>
+              )}
+            </section>
+          ) : null}
+
+          {remoteHelpers.length > 0 ? (
+            <section className="mt-8">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                💻 Open to helping online
+              </h2>
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {remoteHelpers.map((p) => (
+                  <PersonCard key={p.id} person={p} badge="Welcomes online help" />
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
 
           <AsksSection userId={user.id} startOpen={compose === "1"} />
         </main>
