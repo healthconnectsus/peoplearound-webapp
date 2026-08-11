@@ -114,7 +114,7 @@ export default async function PeoplePage({
     supabase
       .from("profiles")
       .select(
-        "neighborhood_id,display_name,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name)",
+        "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name)",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -136,12 +136,10 @@ export default async function PeoplePage({
 
   const profile = profileRow as unknown as {
     neighborhood_id: string | null;
-    display_name: string | null;
     neighborhood?: { name: string } | null;
   } | null;
   const primaryId = profile?.neighborhood_id ?? null;
   const hoodName = profile?.neighborhood?.name ?? "your neighborhood";
-  const myName = profile?.display_name ?? user.email ?? null;
 
   const { data: neighborRows } = primaryId
     ? await supabase
@@ -237,7 +235,7 @@ export default async function PeoplePage({
             </h1>
           </div>
 
-          <FeedComposer name={myName} />
+          <FeedComposer />
 
           {error ? (
             <p className="mt-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">

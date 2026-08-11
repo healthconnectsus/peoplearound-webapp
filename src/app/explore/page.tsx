@@ -171,14 +171,10 @@ export default async function ExplorePage({
   const { data: profileRow } = await supabase
     .from("profiles")
     .select(
-      "neighborhood_id,created_at,display_name,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
+      "neighborhood_id,created_at,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
     )
     .eq("id", user.id)
     .maybeSingle();
-  const myName =
-    ((profileRow as { display_name?: string | null } | null)?.display_name ??
-      user.email ??
-      null);
   const profile = profileRow as unknown as {
     neighborhood_id: string | null;
     created_at: string;
@@ -450,7 +446,7 @@ export default async function ExplorePage({
               </Link>
             </div>
 
-            <FeedComposer name={myName} />
+            <FeedComposer />
 
             {/* Founding era: the first 10 neighbors of a location are its
                 founding neighbors, permanently — real scarcity, no points. */}
