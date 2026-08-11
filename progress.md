@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Sidebar: bigger text, inactive rails go fully regular weight
+
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-11 — Rail back to neutral, wider sidebar, Roboto, Explore-style People header
 
 - `src/app/admin/page.tsx`

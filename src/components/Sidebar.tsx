@@ -136,10 +136,10 @@ export function Sidebar({
               /* Weight is the whole signal: hovering bolds, the page
                  you're on stays bold. No fill, no colour — the rail never
                  competes with the content beside it. */
-              className={`group flex items-center gap-4 rounded-lg px-3 py-2.5 text-[15px] ${
+              className={`group flex items-center gap-4 rounded-lg px-3 py-2.5 text-[16px] ${
                 active
                   ? "font-bold text-black dark:text-white"
-                  : "font-medium text-black/75 hover:font-bold hover:text-black dark:text-white/75 dark:hover:text-white"
+                  : "font-normal text-black/75 hover:font-bold hover:text-black dark:text-white/75 dark:hover:text-white"
               }`}
             >
               <Icon
@@ -177,14 +177,14 @@ export function Sidebar({
       <div className="mt-5 flex flex-col gap-2">
         <Link
           href="/projects/new"
-          className="flex items-center gap-2.5 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+          className="flex items-center gap-2.5 rounded-full bg-emerald-600 px-4 py-2.5 text-[15px] font-medium text-white transition-colors hover:bg-emerald-700"
         >
           <UsersRound className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
           Start something with people
         </Link>
         <Link
           href="/neighborhood?compose=1#asks"
-          className="flex items-center gap-2.5 rounded-full bg-amber-400 px-4 py-2.5 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
+          className="flex items-center gap-2.5 rounded-full bg-amber-400 px-4 py-2.5 text-[15px] font-medium text-amber-950 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
         >
           <HandHelping className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
           Ask for small help
@@ -195,10 +195,10 @@ export function Sidebar({
         {isAdmin ? (
           <Link
             href="/admin"
-            className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+            className={`rounded-lg px-3 py-1.5 text-[14px] transition-colors ${
               pathname.startsWith("/admin")
                 ? "font-bold text-black dark:text-white"
-                : "font-medium text-black/55 hover:font-bold hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
+                : "font-normal text-black/55 hover:font-bold hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
             }`}
           >
             🛡️ Admin
@@ -208,10 +208,10 @@ export function Sidebar({
           <Link
             key={item.href}
             href={item.href}
-            className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+            className={`rounded-lg px-3 py-1.5 text-[14px] transition-colors ${
               pathname.startsWith(item.href)
                 ? "font-bold text-black dark:text-white"
-                : "font-medium text-black/55 hover:font-bold hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
+                : "font-normal text-black/55 hover:font-bold hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
             }`}
           >
             {item.label}
