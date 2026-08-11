@@ -12,16 +12,20 @@ export function PhotoPicker({
   onChange,
   label = "Add a photo",
   className = "",
+  compact = false,
 }: {
   userId: string;
   value: string | null;
   onChange: (url: string | null) => void;
   label?: string;
   className?: string;
+  /** One line instead of a big dashed target, for form-dense steps. */
+  compact?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [over, setOver] = useState(false);
 
   async function upload(file: File) {
     if (!file.type.startsWith("image/")) {
@@ -102,9 +106,26 @@ export function PhotoPicker({
           type="button"
           disabled={busy}
           onClick={() => inputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-black/20 px-4 py-6 text-sm font-medium text-black/60 transition-colors hover:border-emerald-500 hover:bg-emerald-50/50 disabled:opacity-50 dark:border-white/20 dark:text-white/60 dark:hover:bg-emerald-950/20"
+          onDragOver={(e) => {
+            e.preventDefault();
+            setOver(true);
+          }}
+          onDragLeave={() => setOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setOver(false);
+            const f = e.dataTransfer.files?.[0];
+            if (f) void upload(f);
+          }}
+          className={`flex w-full items-center gap-2 rounded-xl border border-dashed px-4 text-sm font-medium text-black/60 transition-colors hover:border-emerald-500 hover:bg-emerald-50/50 disabled:opacity-50 dark:text-white/60 dark:hover:bg-emerald-950/20 ${
+            compact ? "justify-start py-3" : "justify-center py-6"
+          } ${
+            over
+              ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20"
+              : "border-black/20 dark:border-white/20"
+          }`}
         >
-          <Camera className="h-4 w-4" aria-hidden />
+          <Camera className="h-4 w-4 shrink-0" aria-hidden />
           {busy ? "Uploading…" : label}
         </button>
       )}

@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — The basics: a blue summary line, and lighter form furniture
+
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/PhotoPicker.tsx`
+
+
 ### 2026-08-11 — Wizard: stepper moves to the right rail, tighter step 2, Back leads every row
 
 - `src/app/projects/new/IdeaForm.tsx`

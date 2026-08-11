@@ -101,6 +101,8 @@ const INTENTS: {
     hint: string;
     seed: string;
     category?: string;
+    /** Completes "I'd like to …" in the summary on The basics. */
+    summary: string;
     example?: { title: string; desc: string; by: string; photo: string };
   }[];
 }[] = [
@@ -126,12 +128,12 @@ const INTENTS: {
       photo: "/faces/jonathan.webp",
     },
     options: [
-      { emoji: "🎲", label: "Play games", example: { title: "Thursday chess club", desc: "Six of us at the café's back table — all levels, bring a board", by: "Marcus Reed", photo: "/faces/marcus.webp" }, hint: "board games, chess, poker…", seed: "I'd like to meet neighbors for a regular game night — board games, chess, cards, whatever people bring.", category: "other" },
-      { emoji: "🧘", label: "Exercise outdoors", example: { title: "Sunrise tai chi", desc: "Twenty easy minutes in the park before work, beginners welcome", by: "Mei Chen", photo: "/faces/mei.webp" }, hint: "walk, tai chi, yoga…", seed: "I'd like to exercise outdoors with neighbors — a walking group, tai chi, or yoga in the park, easy pace, everyone welcome.", category: "fitness" },
-      { emoji: "🎬", label: "Go out together", example: { title: "Movie night crew", desc: "Tuesday discount screenings — and the dinner debate after", by: "Dana Whitfield", photo: "/faces/dana.webp" }, hint: "movie, concert, game…", seed: "I'd like company for going out — a movie, a concert, or watching a game together instead of going alone.", category: "other" },
-      { emoji: "🍲", label: "Cook or eat together", example: { title: "Sunday dinner rotation", desc: "Four houses take turns hosting one big table a month", by: "Sam Novak", photo: "/faces/sam.webp" }, hint: "potluck, dinner club…", seed: "I'd like to share meals with neighbors — a potluck or a small dinner club that rotates between houses.", category: "other" },
-      { emoji: "☕", label: "Coffee & conversation", example: { title: "Saturday coffee corner", desc: "Same café, 9am, no agenda — whoever shows up, shows up", by: "Elena Petrova", photo: "/faces/elena.webp" }, hint: "a standing chat…", seed: "I'd like a standing coffee meetup — same café, same morning each week, whoever shows up.", category: "other" },
-      { emoji: "🐕", label: "Walking buddies", example: { title: "Morning loop", desc: "3 km around the reservoir before work — dogs and strollers welcome", by: "Jonathan Hammer", photo: "/faces/jonathan.webp" }, hint: "dogs, kids, or just you…", seed: "I'd like a walking buddy — with dogs, with strollers, or just for the company on a regular loop.", category: "fitness" },
+      { emoji: "🎲", label: "Play games", summary: "meet people to play games", example: { title: "Thursday chess club", desc: "Six of us at the café's back table — all levels, bring a board", by: "Marcus Reed", photo: "/faces/marcus.webp" }, hint: "board games, chess, poker…", seed: "I'd like to meet neighbors for a regular game night — board games, chess, cards, whatever people bring.", category: "other" },
+      { emoji: "🧘", label: "Exercise outdoors", summary: "meet people to exercise outdoors", example: { title: "Sunrise tai chi", desc: "Twenty easy minutes in the park before work, beginners welcome", by: "Mei Chen", photo: "/faces/mei.webp" }, hint: "walk, tai chi, yoga…", seed: "I'd like to exercise outdoors with neighbors — a walking group, tai chi, or yoga in the park, easy pace, everyone welcome.", category: "fitness" },
+      { emoji: "🎬", label: "Go out together", summary: "meet people to go out together", example: { title: "Movie night crew", desc: "Tuesday discount screenings — and the dinner debate after", by: "Dana Whitfield", photo: "/faces/dana.webp" }, hint: "movie, concert, game…", seed: "I'd like company for going out — a movie, a concert, or watching a game together instead of going alone.", category: "other" },
+      { emoji: "🍲", label: "Cook or eat together", summary: "meet people to cook and eat together", example: { title: "Sunday dinner rotation", desc: "Four houses take turns hosting one big table a month", by: "Sam Novak", photo: "/faces/sam.webp" }, hint: "potluck, dinner club…", seed: "I'd like to share meals with neighbors — a potluck or a small dinner club that rotates between houses.", category: "other" },
+      { emoji: "☕", label: "Coffee & conversation", summary: "meet people for coffee and conversation", example: { title: "Saturday coffee corner", desc: "Same café, 9am, no agenda — whoever shows up, shows up", by: "Elena Petrova", photo: "/faces/elena.webp" }, hint: "a standing chat…", seed: "I'd like a standing coffee meetup — same café, same morning each week, whoever shows up.", category: "other" },
+      { emoji: "🐕", label: "Walking buddies", summary: "find walking buddies", example: { title: "Morning loop", desc: "3 km around the reservoir before work — dogs and strollers welcome", by: "Jonathan Hammer", photo: "/faces/jonathan.webp" }, hint: "dogs, kids, or just you…", seed: "I'd like a walking buddy — with dogs, with strollers, or just for the company on a regular loop.", category: "fitness" },
     ],
   },
   {
@@ -156,12 +158,12 @@ const INTENTS: {
       photo: "/faces/rosa.webp",
     },
     options: [
-      { emoji: "🌱", label: "Green the block", example: { title: "Community garden", desc: "Turn the empty lot on 6th into raised beds we plant together", by: "Rosa Alvarez", photo: "/faces/rosa.webp" }, hint: "garden, planting, cleanup…", seed: "I have an idea for greening our neighborhood — a shared garden, planting, or a regular cleanup of a spot we all pass.", category: "community" },
-      { emoji: "🛠", label: "Fix & share things", example: { title: "Repair café", desc: "One Saturday a month we fix broken toasters, hems and bikes", by: "Miguel Torres", photo: "/faces/miguel.webp" }, hint: "repair café, tool library…", seed: "I'd like to start a fixing or sharing setup — a repair café or a tool library so we stop buying what we could borrow.", category: "community" },
-      { emoji: "🎨", label: "Make it beautiful", example: { title: "Street mural", desc: "Paint the gray underpass with a design the kids help choose", by: "Lily Zhang", photo: "/faces/lily.webp" }, hint: "mural, benches, lights…", seed: "I have an idea to make our neighborhood more beautiful — a mural, benches, or lighting for a gray corner that deserves better.", category: "community" },
-      { emoji: "📚", label: "Share skills", example: { title: "Senior tech hour", desc: "Help older neighbors video-call their grandkids, one hour a week", by: "Ruth Kaplan", photo: "/faces/ruth.webp" }, hint: "classes, tutoring, tech help…", seed: "I'd like neighbors to teach each other — language practice, homework help, or tech hours for anyone stuck.", category: "learning" },
-      { emoji: "🥫", label: "Food & giving", example: { title: "Little free pantry", desc: "A weatherproof box on my fence anyone can give to or take from", by: "Hannah Brooks", photo: "/faces/hannah.webp" }, hint: "pantry, food drive…", seed: "I have an idea around food and giving — a little free pantry or a recurring food drive the block runs together.", category: "community" },
-      { emoji: "🎉", label: "A neighborhood event", example: { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak", photo: "/faces/sam.webp" }, hint: "block party, market…", seed: "I'd like to organize a neighborhood event — a block party, a street market, or a first-Friday gathering.", category: "community" },
+      { emoji: "🌱", label: "Green the block", summary: "start an idea to green the block", example: { title: "Community garden", desc: "Turn the empty lot on 6th into raised beds we plant together", by: "Rosa Alvarez", photo: "/faces/rosa.webp" }, hint: "garden, planting, cleanup…", seed: "I have an idea for greening our neighborhood — a shared garden, planting, or a regular cleanup of a spot we all pass.", category: "community" },
+      { emoji: "🛠", label: "Fix & share things", summary: "start an idea to fix and share things", example: { title: "Repair café", desc: "One Saturday a month we fix broken toasters, hems and bikes", by: "Miguel Torres", photo: "/faces/miguel.webp" }, hint: "repair café, tool library…", seed: "I'd like to start a fixing or sharing setup — a repair café or a tool library so we stop buying what we could borrow.", category: "community" },
+      { emoji: "🎨", label: "Make it beautiful", summary: "start an idea to make the neighborhood beautiful", example: { title: "Street mural", desc: "Paint the gray underpass with a design the kids help choose", by: "Lily Zhang", photo: "/faces/lily.webp" }, hint: "mural, benches, lights…", seed: "I have an idea to make our neighborhood more beautiful — a mural, benches, or lighting for a gray corner that deserves better.", category: "community" },
+      { emoji: "📚", label: "Share skills", summary: "start an idea to share skills", example: { title: "Senior tech hour", desc: "Help older neighbors video-call their grandkids, one hour a week", by: "Ruth Kaplan", photo: "/faces/ruth.webp" }, hint: "classes, tutoring, tech help…", seed: "I'd like neighbors to teach each other — language practice, homework help, or tech hours for anyone stuck.", category: "learning" },
+      { emoji: "🥫", label: "Food & giving", summary: "start an idea around food and giving", example: { title: "Little free pantry", desc: "A weatherproof box on my fence anyone can give to or take from", by: "Hannah Brooks", photo: "/faces/hannah.webp" }, hint: "pantry, food drive…", seed: "I have an idea around food and giving — a little free pantry or a recurring food drive the block runs together.", category: "community" },
+      { emoji: "🎉", label: "A neighborhood event", summary: "start a neighborhood event", example: { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak", photo: "/faces/sam.webp" }, hint: "block party, market…", seed: "I'd like to organize a neighborhood event — a block party, a street market, or a first-Friday gathering.", category: "community" },
     ],
   },
   {
@@ -186,12 +188,12 @@ const INTENTS: {
       photo: "/faces/anna.webp",
     },
     options: [
-      { emoji: "🔨", label: "Build something", example: { title: "Backyard sauna build", desc: "Framing a small sauna this fall — pizza for a hand with the build", by: "Leo Virtanen", photo: "/faces/leo.webp" }, hint: "shed, sauna, treehouse…", seed: "I'm building something at my place and could use a hand — I'll trade food, tools, or a lesson in what I'm doing.", category: "home" },
-      { emoji: "🚀", label: "Test a venture", example: { title: "Tiny bakery test", desc: "I bake twenty loaves every Saturday — help me sell them at the market", by: "Anna Kowalski", photo: "/faces/anna.webp" }, hint: "bakery, stall, service…", seed: "I'm testing a small venture — help me try it for real, from a market stall to first customers.", category: "venture" },
-      { emoji: "🏃", label: "Chase a goal", example: { title: "First 10K", desc: "Training for my first 10K and need someone to keep me honest", by: "Grace Adeyemi", photo: "/faces/grace.webp" }, hint: "10K, language, habit…", seed: "I'm chasing a personal goal and want someone to keep me honest — training, practice, or a weekly check-in.", category: "fitness" },
-      { emoji: "🎨", label: "Make a thing", example: { title: "Board-game prototype", desc: "I designed a card game and need honest playtesters monthly", by: "Tom Becker", photo: "/faces/tom.webp" }, hint: "game, album, book…", seed: "I'm making something — a game, music, writing — and need honest testers or feedback from real people.", category: "other" },
-      { emoji: "🧑‍🏫", label: "Learn from someone", example: { title: "Welding crash course", desc: "I'll fix your bikes all year if you teach me to weld", by: "Ken Osei", photo: "/faces/ken.webp" }, hint: "a skill I'm missing…", seed: "I'm trying to learn something for my project and would love a neighbor who knows it to show me the ropes.", category: "learning" },
-      { emoji: "📦", label: "Something else", hint: "it's my thing — hear me out…", seed: "" },
+      { emoji: "🔨", label: "Build something", summary: "ask for help to build something", example: { title: "Backyard sauna build", desc: "Framing a small sauna this fall — pizza for a hand with the build", by: "Leo Virtanen", photo: "/faces/leo.webp" }, hint: "shed, sauna, treehouse…", seed: "I'm building something at my place and could use a hand — I'll trade food, tools, or a lesson in what I'm doing.", category: "home" },
+      { emoji: "🚀", label: "Test a venture", summary: "ask for help to test a venture", example: { title: "Tiny bakery test", desc: "I bake twenty loaves every Saturday — help me sell them at the market", by: "Anna Kowalski", photo: "/faces/anna.webp" }, hint: "bakery, stall, service…", seed: "I'm testing a small venture — help me try it for real, from a market stall to first customers.", category: "venture" },
+      { emoji: "🏃", label: "Chase a goal", summary: "ask for help to chase a goal", example: { title: "First 10K", desc: "Training for my first 10K and need someone to keep me honest", by: "Grace Adeyemi", photo: "/faces/grace.webp" }, hint: "10K, language, habit…", seed: "I'm chasing a personal goal and want someone to keep me honest — training, practice, or a weekly check-in.", category: "fitness" },
+      { emoji: "🎨", label: "Make a thing", summary: "ask for help to make a thing", example: { title: "Board-game prototype", desc: "I designed a card game and need honest playtesters monthly", by: "Tom Becker", photo: "/faces/tom.webp" }, hint: "game, album, book…", seed: "I'm making something — a game, music, writing — and need honest testers or feedback from real people.", category: "other" },
+      { emoji: "🧑‍🏫", label: "Learn from someone", summary: "learn a skill from a neighbor", example: { title: "Welding crash course", desc: "I'll fix your bikes all year if you teach me to weld", by: "Ken Osei", photo: "/faces/ken.webp" }, hint: "a skill I'm missing…", seed: "I'm trying to learn something for my project and would love a neighbor who knows it to show me the ropes.", category: "learning" },
+      { emoji: "📦", label: "Something else", summary: "", hint: "it's my thing — hear me out…", seed: "" },
     ],
   },
 ];
@@ -252,6 +254,11 @@ export function IdeaForm({
   const [tip, setTip] = useState<string | null>(playbook?.tip ?? null);
   /** Set when someone tries to move on without choosing or writing anything. */
   const [needIdea, setNeedIdea] = useState(false);
+  /** The quick pick, kept so later steps can say what you chose. Dropped once
+      the words no longer resemble it — a stale summary is worse than none. */
+  const [picked, setPicked] = useState<{ seed: string; summary: string } | null>(
+    null,
+  );
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const ideaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -342,18 +349,16 @@ export function IdeaForm({
       ideaRef.current?.focus();
       return;
     }
-    if (raw && !title.trim() && !description.trim()) {
-      const [first, ...rest] = raw.split("\n");
-      if (first.length <= 140) {
-        setTitle(first);
-        setDescription(rest.join("\n").trim());
-      } else {
-        setDescription(raw);
-      }
-    }
+    // Your words become the description, never the title: a spoken sentence
+    // makes a poor headline, and the summary on the next step says the gist.
+    if (!description.trim()) setDescription(raw);
     setAiError(null);
     setStep(2);
   }
+
+  /** "I'd like to meet people to play games." — what steps 1 and 2 add up
+      to, so The basics doesn't have to ask it again. */
+  const summary = picked?.summary ?? activeIntent?.short ?? null;
 
   const canContinueFromBasics = title.trim().length > 0;
 
@@ -500,7 +505,7 @@ export function IdeaForm({
             {activeIntent ? (
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {activeIntent.options.map((o) => {
-                  const picked = o.seed !== "" && rawIdea === o.seed;
+                  const isPicked = o.seed !== "" && picked?.seed === o.seed;
                   return (
                     /* Same flip grammar as the intent cards: colored front,
                        hover turns it over to the exact words a tap drafts. */
@@ -509,12 +514,13 @@ export function IdeaForm({
                       type="button"
                       onClick={() => {
                         setRawIdea(o.seed);
+                        setPicked(o.summary ? { seed: o.seed, summary: o.summary } : null);
                         if (o.category) setCategory(o.category);
                         setNeedIdea(false);
                         if (!o.seed) ideaRef.current?.focus();
                       }}
                       className={`group relative h-28 text-left [perspective:800px] ${
-                        picked ? "rounded-xl ring-2 ring-offset-2 ring-emerald-500" : ""
+                        isPicked ? "rounded-xl ring-2 ring-offset-2 ring-emerald-500" : ""
                       }`}
                     >
                       <span className="relative block h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)]">
@@ -582,8 +588,12 @@ export function IdeaForm({
               ref={ideaRef}
               value={rawIdea}
               onChange={(e) => {
-                setRawIdea(e.target.value);
-                if (e.target.value.trim()) setNeedIdea(false);
+                const next = e.target.value;
+                setRawIdea(next);
+                if (next.trim()) setNeedIdea(false);
+                if (picked && !next.startsWith(picked.seed.slice(0, 15))) {
+                  setPicked(null);
+                }
               }}
               rows={2}
               maxLength={4000}
@@ -661,7 +671,25 @@ export function IdeaForm({
 
       {/* ---- Step 3: the basics ---- */}
       {step === 2 ? (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
+          {/* What steps 1 and 2 added up to. Stated once, in the intent's own
+              colour, so the form below can get on with the details. */}
+          {summary ? (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+                Summary
+              </p>
+              <p
+                className={`mt-0.5 text-xl font-extrabold ${
+                  activeIntent?.tint.headline ??
+                  "text-emerald-700 dark:text-emerald-400"
+                }`}
+              >
+                I&rsquo;d like to {summary}.
+              </p>
+            </div>
+          ) : null}
+
           {tip ? (
             <p className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
               💡 {tip}
@@ -669,12 +697,8 @@ export function IdeaForm({
           ) : null}
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-xl font-extrabold">
-              {intent === "meet"
-                ? "What do you want to do together?"
-                : intent === "personal"
-                  ? "What's your project?"
-                  : "What's the idea?"}
+            <span className="text-base font-bold">
+              Give it a short title
             </span>
             <input
               type="text"
@@ -694,14 +718,14 @@ export function IdeaForm({
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-xl font-extrabold">
+            <span className="text-base font-bold">
               Tell people more{" "}
-              <span className="text-sm font-normal text-black/40 dark:text-white/40">
+              <span className="font-normal text-black/40 dark:text-white/40">
                 (optional)
               </span>
             </span>
             <textarea
-              rows={5}
+              rows={3}
               maxLength={4000}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -711,9 +735,9 @@ export function IdeaForm({
           </label>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-xl font-extrabold">
-              A photo{" "}
-              <span className="text-sm font-normal text-black/40 dark:text-white/40">
+            <legend className="mb-1.5 text-base font-bold">
+              Cover photo{" "}
+              <span className="font-normal text-black/40 dark:text-white/40">
                 (optional)
               </span>
             </legend>
@@ -721,14 +745,13 @@ export function IdeaForm({
               userId={userId}
               value={photoUrl}
               onChange={setPhotoUrl}
-              label="Add a photo of the place or the thing"
+              compact
+              label="Upload or drag a photo here"
             />
           </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-xl font-extrabold">
-              What kind of project is it?
-            </legend>
+            <legend className="mb-1.5 text-base font-bold">What kind of project is it?</legend>
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((c) => (
                 <label key={c} className="cursor-pointer">
@@ -747,7 +770,7 @@ export function IdeaForm({
           </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-xl font-extrabold">Where are you at?</legend>
+            <legend className="mb-1.5 text-base font-bold">Where are you at?</legend>
             <div className="flex flex-col gap-2 sm:flex-row">
               <label className={`flex-1 ${cardLabelClass}`}>
                 <input
