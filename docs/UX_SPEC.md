@@ -341,6 +341,14 @@ sentence is the last resort. What The basics does show first is that summary,
 back to step 2: state the decision, offer the way to change it, then ask only
 for what is still unknown.
 
+### Only the first letter wears the wordmark's colour
+
+Hovering or landing on a rail tints just its initial — the "P" in "People
+around" red, the "E" in "Events" amber — not the whole label. A full-word
+tint read as childish; a single coloured letter reads as the logo unpacked
+one row at a time, without turning the rail into a paint box. Everything
+else about the row (weight, icon colour) still follows the bold-only rule.
+
 ### People around is Explore's twin
 
 People around now opens with the same feed grammar as Explore — composer,

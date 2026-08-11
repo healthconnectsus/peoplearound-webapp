@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Sidebar: color only the first letter, and fix a broken Ask link
+
+- `docs/UX_SPEC.md`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-11 — People around becomes Explore's twin, scoped to your own communities
 
 - `docs/UX_SPEC.md`

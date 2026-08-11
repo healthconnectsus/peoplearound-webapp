@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { CSSProperties } from "react";
 import {
   Compass,
   CalendarDays,
@@ -25,6 +26,10 @@ const NAV_ITEMS: {
   count?: CountKey;
   /** What the number means, on hover. */
   title?: string;
+  /** The hex of this rail's letter in the wordmark — only the FIRST letter
+      of the label wears it (a drop-cap, not a paint job), on hover and when
+      current. Everything else stays neutral so the rail reads calm. */
+  letterHex: string;
 }[] = [
   // Top to bottom, the first letters spell the product: P·E·O·P·L·E.
   // "Explore" is the home feed — it sits last so the word works, and the
@@ -35,6 +40,7 @@ const NAV_ITEMS: {
     icon: HeartHandshake,
     count: "people",
     title: "Neighbors in your community",
+    letterHex: "#FF4033",
   },
   {
     href: "/events",
@@ -42,6 +48,7 @@ const NAV_ITEMS: {
     icon: CalendarDays,
     count: "events",
     title: "Events you said you're coming to",
+    letterHex: "#FFA30F",
   },
   {
     href: "/offers",
@@ -49,6 +56,7 @@ const NAV_ITEMS: {
     icon: Gift,
     count: "offers",
     title: "Things you've offered",
+    letterHex: "#08C08C",
   },
   {
     href: "/ideas",
@@ -56,6 +64,7 @@ const NAV_ITEMS: {
     icon: Lightbulb,
     count: "ideas",
     title: "Ideas you started, plus teams you joined",
+    letterHex: "#2A6BEF",
   },
   {
     href: "/faves",
@@ -63,11 +72,13 @@ const NAV_ITEMS: {
     icon: Star,
     count: "faves",
     title: "Ideas your neighbors have starred",
+    letterHex: "#8133E1",
   },
   {
     href: "/",
     label: "Explore",
     icon: Compass,
+    letterHex: "#FF3A8A",
   },
 ];
 
@@ -151,7 +162,22 @@ export function Sidebar({
                 strokeWidth={active ? 2.25 : 1.75}
                 aria-hidden
               />
-              <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              <span className="min-w-0 flex-1 truncate">
+                {/* Only the first letter wears the wordmark's colour — on
+                    hover and while current — so the rail spells itself out
+                    in the logo's own hues without becoming a paint box. */}
+                <span
+                  className={active ? "" : "transition-colors group-hover:[color:var(--letter)]"}
+                  style={
+                    active
+                      ? { color: item.letterHex }
+                      : ({ "--letter": item.letterHex } as CSSProperties)
+                  }
+                >
+                  {item.label.slice(0, 1)}
+                </span>
+                {item.label.slice(1)}
+              </span>
               {n > 0 ? (
                 <span
                   title={item.title}
@@ -183,7 +209,7 @@ export function Sidebar({
           Start something with people
         </Link>
         <Link
-          href="/neighborhood?compose=1#asks"
+          href="/people?compose=1#asks"
           className="flex items-center gap-2.5 rounded-full bg-amber-400 px-4 py-2.5 text-[15px] font-medium text-amber-950 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
         >
           <HandHelping className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
