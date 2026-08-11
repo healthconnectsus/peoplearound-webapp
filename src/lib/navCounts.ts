@@ -17,11 +17,11 @@ type Client = SupabaseClient<any, any, any>;
  * so no count can leak the size of somewhere you don't belong.
  */
 export type NavCounts = {
+  faves: number;
   events: number;
   offers: number;
   people: number;
   ideas: number;
-  communities: number;
 };
 
 export async function navCounts(
@@ -35,8 +35,11 @@ export async function navCounts(
     .maybeSingle();
   const primaryId = (profile?.neighborhood_id as string | null) ?? null;
 
-  const [rsvpRes, offerRes, peopleRes, ownRes, joinedRes, memberRes] =
+  const [starRes, rsvpRes, offerRes, peopleRes, ownRes, joinedRes] =
     await Promise.all([
+    // Local Faves lists starred, non-archived projects — count the distinct
+    // projects that have a star, which is what the page will show you.
+    supabase.from("stars").select("project_id"),
     // Events you said "I'm in" to. There is no creator column on events —
     // they belong to the project, not a person (migration 0006).
     supabase
@@ -65,23 +68,17 @@ export async function navCounts(
       .select("project_id", { count: "exact", head: true })
       .eq("user_id", userId)
       .eq("status", "accepted"),
-    supabase
-      .from("community_members")
-      .select("community_id")
-      .eq("user_id", userId),
   ]);
 
-  const communityIds = new Set<string>();
-  if (primaryId) communityIds.add(primaryId);
-  for (const m of (memberRes.data ?? []) as { community_id: string }[]) {
-    communityIds.add(m.community_id);
-  }
+  const starred = new Set(
+    ((starRes.data ?? []) as { project_id: string }[]).map((s) => s.project_id),
+  );
 
   return {
+    faves: starred.size,
     events: rsvpRes.count ?? 0,
     offers: offerRes.count ?? 0,
     people: peopleRes.count ?? 0,
     ideas: (ownRes.count ?? 0) + (joinedRes.count ?? 0),
-    communities: communityIds.size,
   };
 }

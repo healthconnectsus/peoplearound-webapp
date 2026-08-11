@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Home,
+  Compass,
   CalendarDays,
+  Star,
   HeartHandshake,
   Lightbulb,
   MapPin,
@@ -26,7 +27,16 @@ const NAV_ITEMS: {
   /** What the number means, on hover. */
   title?: string;
 }[] = [
-  { href: "/", label: "Home", icon: Home },
+  // Top to bottom, the first letters spell the product: P·E·O·P·L·E.
+  // "Explore" is the home feed — it sits last so the word works, and the
+  // logo above is a second, always-visible way home.
+  {
+    href: "/people",
+    label: "People around",
+    icon: HeartHandshake,
+    count: "people",
+    title: "Neighbors in your community",
+  },
   {
     href: "/events",
     label: "Events",
@@ -42,26 +52,20 @@ const NAV_ITEMS: {
     title: "Things you've offered",
   },
   {
-    href: "/people",
-    label: "People around",
-    icon: HeartHandshake,
-    count: "people",
-    title: "Neighbors in your community",
-  },
-  {
     href: "/ideas",
-    label: "My ideas",
+    label: "Projects",
     icon: Lightbulb,
     count: "ideas",
     title: "Ideas you started, plus teams you joined",
   },
   {
-    href: "/neighborhood",
-    label: "My Communities",
-    icon: MapPin,
-    count: "communities",
-    title: "Communities you belong to",
+    href: "/faves",
+    label: "Local Faves",
+    icon: Star,
+    count: "faves",
+    title: "Ideas your neighbors have starred",
   },
+  { href: "/", label: "Explore", icon: Compass },
 ];
 
 const UTILITY_ITEMS = [

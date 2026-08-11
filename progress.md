@@ -7,6 +7,22 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — The rail spells PEOPLE, and the shell breathes on the left
+
+- `docs/UX_SPEC.md`
+- `src/app/asks/askActions.ts`
+- `src/app/asks/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/neighborhood/communityActions.ts`
+- `src/app/neighborhood/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/FavesList.tsx`
+- `src/components/Sidebar.tsx`
+- `src/lib/navCounts.ts`
+
+
 ### 2026-08-11 — Inter replaces Arial app-wide, and rails bold on hover
 
 - `src/app/globals.css`

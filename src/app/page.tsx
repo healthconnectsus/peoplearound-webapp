@@ -528,7 +528,7 @@ export default async function Home({
           <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-6 lg:pr-8">
             <div className="mb-5">
               <h1 className="text-3xl font-extrabold tracking-tight">
-                Communities{" "}
+                Explore{" "}
                 <span className="font-normal text-black/50 dark:text-white/50">
                   ({myCity ?? neighborhoodName}/{hoodMine}/{hoodTotal})
                 </span>

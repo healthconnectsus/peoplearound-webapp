@@ -24,12 +24,12 @@ async function requireUser() {
 }
 
 function fail(message: string): never {
-  redirect(`/neighborhood?error=${encodeURIComponent(message)}`);
+  redirect(`/people?error=${encodeURIComponent(message)}#communities`);
 }
 
 export async function joinCommunity(formData: FormData) {
   const communityId = String(formData.get("communityId") ?? "");
-  if (!communityId) redirect("/neighborhood");
+  if (!communityId) redirect("/people#communities");
   const { supabase, user } = await requireUser();
 
   const { error } = await supabase
@@ -75,12 +75,12 @@ export async function joinCommunity(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/neighborhood?message=Joined");
+  redirect("/people?message=Joined#communities");
 }
 
 export async function leaveCommunity(formData: FormData) {
   const communityId = String(formData.get("communityId") ?? "");
-  if (!communityId) redirect("/neighborhood");
+  if (!communityId) redirect("/people#communities");
   const { supabase, user } = await requireUser();
 
   const { data: profile } = await supabase
@@ -100,12 +100,12 @@ export async function leaveCommunity(formData: FormData) {
   if (error) fail(migrationHint(error.message));
 
   revalidatePath("/", "layout");
-  redirect("/neighborhood?message=Left the community");
+  redirect("/people?message=Left the community#communities");
 }
 
 export async function setPrimaryCommunity(formData: FormData) {
   const communityId = String(formData.get("communityId") ?? "");
-  if (!communityId) redirect("/neighborhood");
+  if (!communityId) redirect("/people#communities");
   const { supabase, user } = await requireUser();
 
   // Must be a real community; make sure membership exists too.
@@ -114,7 +114,7 @@ export async function setPrimaryCommunity(formData: FormData) {
     .select("id")
     .eq("id", communityId)
     .maybeSingle();
-  if (!community) redirect("/neighborhood");
+  if (!community) redirect("/people#communities");
 
   await supabase
     .from("community_members")
@@ -129,7 +129,7 @@ export async function setPrimaryCommunity(formData: FormData) {
   if (error) fail(error.message);
 
   revalidatePath("/", "layout");
-  redirect("/neighborhood?message=Primary community updated");
+  redirect("/people?message=Primary community updated#communities");
 }
 
 export async function createCommunity(formData: FormData) {
@@ -162,7 +162,7 @@ export async function createCommunity(formData: FormData) {
     );
 
   revalidatePath("/", "layout");
-  redirect("/neighborhood?message=Community created");
+  redirect("/people?message=Community created#communities");
 }
 
 function migrationHint(message: string): string {
