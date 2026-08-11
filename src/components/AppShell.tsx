@@ -8,14 +8,7 @@ import { navCounts, type NavCounts } from "@/lib/navCounts";
  * Shared chrome for signed-in pages: a Nextdoor-style left sidebar plus
  * search top bar on desktop, the classic top header on mobile.
  */
-export async function AppShell({
-  children,
-  focus = false,
-}: {
-  children: React.ReactNode;
-  /** Focus mode: veil the sidebar (except the logo) so the content owns the page. */
-  focus?: boolean;
-}) {
+export async function AppShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -34,7 +27,7 @@ export async function AppShell({
 
   return (
     <div className="min-h-screen lg:flex lg:pl-3 xl:pl-6">
-      <Sidebar counts={counts} dimmed={focus} isAdmin={isAdmin} />
+      <Sidebar counts={counts} isAdmin={isAdmin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader />
         <TopBar />

@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — The idea wizard becomes a full-page lightbox
+
+- `docs/UX_SPEC.md`
+- `src/app/projects/new/CloseWizard.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-11 — Composer: drop the avatar
 
 - `src/app/explore/page.tsx`

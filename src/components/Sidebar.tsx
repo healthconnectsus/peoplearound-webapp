@@ -96,13 +96,10 @@ const UTILITY_ITEMS = [
  */
 export function Sidebar({
   counts = null,
-  dimmed = false,
   isAdmin = false,
 }: {
   /** Your numbers, rail by rail. Null while signed out. */
   counts?: NavCounts | null;
-  /** Focus mode (e.g. the idea wizard): veil everything except the logo. */
-  dimmed?: boolean;
   isAdmin?: boolean;
 }) {
   const pathname = usePathname();
@@ -123,13 +120,6 @@ export function Sidebar({
       </Link>
 
       <div className="relative flex min-h-0 flex-1 flex-col">
-        {dimmed ? (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -inset-x-3 inset-y-0 z-20 bg-white/80 dark:bg-zinc-950/80"
-          />
-        ) : null}
-
       <nav className="mt-5 flex flex-col gap-0.5">
         {NAV_ITEMS.map((item) => {
           const active = pathname.startsWith(item.href);

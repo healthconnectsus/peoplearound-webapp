@@ -310,6 +310,17 @@ Design rules:
   rounded to ~110 m, never a doorstep.
 
 
+### The wizard is a lightbox, not a page
+
+/projects/new covers the viewport on a white background — no rail, no top
+bar, nothing to click but the work and a large X in the top-left corner. The
+X comes before the title in reading and tab order: the way out should be the
+first thing you find, never something you hunt for. It goes back where you
+came from when there's history to go back to, and falls back to People
+around when there isn't (a fresh tab, a link from outside). This replaced an
+earlier "focus mode" that dimmed the sidebar in place; a veiled-but-present
+rail still invited clicks, and the props that drove it are gone.
+
 ### The wizard opens with intent, not content
 
 /projects/new begins with "What are we talking about?" — three cards: meet
