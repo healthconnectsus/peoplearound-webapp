@@ -8,7 +8,7 @@ export function SiteHeader() {
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
         <img src="/logo.svg" alt="Peoplearound" className="h-7 w-auto" />
         <span className="truncate text-[11px] font-medium italic text-black/45 dark:text-white/45">
-          Let&rsquo;s do something together.
+          Do something with the people around you.
         </span>
       </Link>
       <nav className="flex items-center gap-2">

@@ -113,7 +113,7 @@ export function Sidebar({
             (MARKETING.md). It sits under the wordmark, not inside it, so the
             logo stays a logo. */}
         <span className="mt-1 block px-0.5 text-[13px] font-medium italic text-black/45 dark:text-white/45">
-          Let&rsquo;s do something together.
+          Do something with the people around you.
         </span>
       </Link>
 

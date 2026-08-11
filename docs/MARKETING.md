@@ -4,8 +4,11 @@ Living marketing plan for Peoplearound. Started 2026-08-04.
 
 **Positioning in one line:** the place where neighbors turn ideas into things that exist — with a named, credited team.
 
-**Tagline:** *"Let's do something together."* — the brand promise in five words:
-warm, plural, action-first. Decided 2026-08-10.
+**Tagline:** *"Do something with the people around you."* — the brand promise
+with the brand name inside it: "people around" is the product. Imperative,
+action-first, and it answers "with whom?" in the same breath. Decided
+2026-08-11, replacing *"Let's do something together"* (2026-08-10), which was
+warmer but generic — it could caption any group app; this one can only be ours.
 
 **Call to action:** *"Start something within your communities."* — the
 imperative form for buttons, the app-store subtitle, and hero sub-lines.

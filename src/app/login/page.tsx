@@ -108,7 +108,7 @@ export default async function LoginPage({
                 className="rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900"
               >
                 <h1 className="text-center text-xl font-semibold tracking-tight">
-                  Let&rsquo;s do something together
+                  Do something with the people around you
                 </h1>
 
                 {error ? (
@@ -323,7 +323,7 @@ export default async function LoginPage({
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
             <img src="/logo.svg" alt="Peoplearound" className="h-6 w-auto" />
             <p className="mt-2 max-w-xs text-sm italic text-black/50 dark:text-white/50">
-              Let&rsquo;s do something together.
+              Do something with the people around you.
             </p>
           </div>
           <div className="text-sm">

@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Per-intent project tags, and the tagline becomes the brand name
+
+- `docs/MARKETING.md`
+- `src/app/login/page.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+- `src/lib/projects.ts`
+
+
 ### 2026-08-11 — Wizard: 2-row description textarea, 'Already started' instead of 'Already building'
 
 - `src/app/projects/new/IdeaForm.tsx`

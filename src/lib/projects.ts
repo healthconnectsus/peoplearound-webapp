@@ -35,8 +35,15 @@ export const STATE_META: Record<
 
 export const CATEGORIES = [
   "community",
+  "games",
   "fitness",
+  "outdoors",
+  "food",
+  "social",
+  "arts",
   "learning",
+  "events",
+  "giving",
   "home",
   "venture",
   "other",
@@ -48,8 +55,15 @@ export const CATEGORY_META: Record<
   { label: string; emoji: string }
 > = {
   community: { label: "Community", emoji: "🌱" },
+  games: { label: "Games", emoji: "🎲" },
   fitness: { label: "Fitness", emoji: "🏃" },
+  outdoors: { label: "Outdoors", emoji: "🌳" },
+  food: { label: "Food & drink", emoji: "🍲" },
+  social: { label: "Social", emoji: "☕" },
+  arts: { label: "Arts & music", emoji: "🎨" },
   learning: { label: "Learning", emoji: "📚" },
+  events: { label: "Events", emoji: "🎉" },
+  giving: { label: "Giving", emoji: "🤝" },
   home: { label: "Home", emoji: "🏠" },
   venture: { label: "Venture", emoji: "💡" },
   other: { label: "Other", emoji: "✨" },
@@ -113,8 +127,15 @@ export const REACH_META: Record<
 /** Left-border tint per category, for feed cards. */
 export const CATEGORY_TINT: Record<(typeof CATEGORIES)[number], string> = {
   community: "border-l-emerald-400",
+  games: "border-l-blue-400",
   fitness: "border-l-orange-400",
+  outdoors: "border-l-green-500",
+  food: "border-l-red-400",
+  social: "border-l-teal-400",
+  arts: "border-l-pink-400",
   learning: "border-l-sky-400",
+  events: "border-l-fuchsia-400",
+  giving: "border-l-rose-400",
   home: "border-l-amber-400",
   venture: "border-l-violet-400",
   other: "border-l-zinc-300 dark:border-l-zinc-600",
