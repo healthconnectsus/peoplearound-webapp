@@ -114,7 +114,7 @@ export function Sidebar({
             logo stays a logo. */}
         {/* Sized to sit on one line under the wordmark: a tagline that
             wraps stops being a tagline. */}
-        <span className="mt-1 block whitespace-nowrap px-0.5 text-[11px] font-medium italic tracking-tight text-black/45 dark:text-white/45">
+        <span className="mt-1 block whitespace-nowrap px-0.5 text-[12px] font-medium italic tracking-tight text-black/45 dark:text-white/45">
           Do something with people around you.
         </span>
       </Link>

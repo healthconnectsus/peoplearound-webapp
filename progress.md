@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Sidebar tagline: bump to 12px
+
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-11 — Tagline fits on one line under the wordmark
 
 - `docs/MARKETING.md`
