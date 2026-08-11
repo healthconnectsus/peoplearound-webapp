@@ -733,7 +733,7 @@ export function IdeaForm({
               </span>
             </span>
             <textarea
-              rows={3}
+              rows={2}
               maxLength={4000}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -799,7 +799,7 @@ export function IdeaForm({
                   onChange={() => setState("active")}
                   className="sr-only"
                 />
-                <span className="font-medium">🚀 Already building</span>
+                <span className="font-medium">🚀 Already started</span>
                 <span className="text-xs text-black/50 dark:text-white/50">
                   Under way — more hands welcome
                 </span>
@@ -937,7 +937,7 @@ export function IdeaForm({
               </p>
             ) : null}
             <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-black/50 dark:text-white/50">
-              <span>{state === "active" ? "🚀 Already building" : "💭 Just an idea"}</span>
+              <span>{state === "active" ? "🚀 Already started" : "💭 Just an idea"}</span>
               <span>
                 {HELP_META[help].emoji} {HELP_META[help].label}
               </span>

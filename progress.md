@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Wizard: 2-row description textarea, 'Already started' instead of 'Already building'
+
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-11 — The basics: drop the title field, add an edit pencil, rename the description
 
 - `docs/UX_SPEC.md`
