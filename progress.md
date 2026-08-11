@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Tagline fits on one line under the wordmark
+
+- `docs/MARKETING.md`
+- `src/app/login/page.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-08-11 — Per-intent project tags, and the tagline becomes the brand name
 
 - `docs/MARKETING.md`

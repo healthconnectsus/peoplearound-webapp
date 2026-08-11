@@ -112,8 +112,10 @@ export function Sidebar({
         {/* The brand promise in five words: warm, plural, action-first
             (MARKETING.md). It sits under the wordmark, not inside it, so the
             logo stays a logo. */}
-        <span className="mt-1 block px-0.5 text-[13px] font-medium italic text-black/45 dark:text-white/45">
-          Do something with the people around you.
+        {/* Sized to sit on one line under the wordmark: a tagline that
+            wraps stops being a tagline. */}
+        <span className="mt-1 block whitespace-nowrap px-0.5 text-[11px] font-medium italic tracking-tight text-black/45 dark:text-white/45">
+          Do something with people around you.
         </span>
       </Link>
 
