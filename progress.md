@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Inter replaces Arial app-wide, and rails bold on hover
+
+- `src/app/globals.css`
+- `src/app/layout.tsx`
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-11 — Six rails: Local Faves joins People around, Small help joins My Communities
 
 - `docs/UX_SPEC.md`

@@ -126,18 +126,20 @@ export function Sidebar({
             <Link
               key={item.href}
               href={item.href}
-              /* Nextdoor's grammar: hover is a soft grey pill, the page
-                 you're on is simply *bolder and darker* — no colour fill, so
-                 the rail never competes with the content beside it. */
-              className={`flex items-center gap-4 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
+              /* Weight is the whole signal here: hovering bolds, and the
+                 page you're on stays bold. No fill, no tint — the rail
+                 never competes with the content beside it. */
+              className={`group flex items-center gap-4 rounded-lg px-3 py-2.5 text-[15px] ${
                 active
                   ? "font-bold text-black dark:text-white"
-                  : "font-medium text-black/75 hover:bg-black/[0.06] dark:text-white/75 dark:hover:bg-white/10"
+                  : "font-medium text-black/75 hover:font-bold hover:text-black dark:text-white/75 dark:hover:text-white"
               }`}
             >
               <Icon
                 className={`h-[22px] w-[22px] shrink-0 ${
-                  active ? "text-black dark:text-white" : "text-black/60 dark:text-white/60"
+                  active
+                    ? "text-black dark:text-white"
+                    : "text-black/60 group-hover:text-black dark:text-white/60 dark:group-hover:text-white"
                 }`}
                 strokeWidth={active ? 2.25 : 1.75}
                 aria-hidden
@@ -189,7 +191,7 @@ export function Sidebar({
             className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
               pathname.startsWith("/admin")
                 ? "font-bold text-black dark:text-white"
-                : "font-medium text-black/55 hover:bg-black/[0.06] hover:text-black/80 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white/80"
+                : "font-medium text-black/55 hover:font-bold hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
             }`}
           >
             🛡️ Admin
@@ -202,7 +204,7 @@ export function Sidebar({
             className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
               pathname.startsWith(item.href)
                 ? "font-bold text-black dark:text-white"
-                : "font-medium text-black/55 hover:bg-black/[0.06] hover:text-black/80 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white/80"
+                : "font-medium text-black/55 hover:font-bold hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
             }`}
           >
             {item.label}
