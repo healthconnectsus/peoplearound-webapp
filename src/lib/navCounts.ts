@@ -17,10 +17,8 @@ type Client = SupabaseClient<any, any, any>;
  * so no count can leak the size of somewhere you don't belong.
  */
 export type NavCounts = {
-  faves: number;
   events: number;
   offers: number;
-  asks: number;
   people: number;
   ideas: number;
   communities: number;
@@ -37,19 +35,8 @@ export async function navCounts(
     .maybeSingle();
   const primaryId = (profile?.neighborhood_id as string | null) ?? null;
 
-  const [
-    starRes,
-    rsvpRes,
-    offerRes,
-    askRes,
-    peopleRes,
-    ownRes,
-    joinedRes,
-    memberRes,
-  ] = await Promise.all([
-    // Local Faves lists starred, non-archived projects — count the distinct
-    // projects that have a star, which is what the page will show you.
-    supabase.from("stars").select("project_id"),
+  const [rsvpRes, offerRes, peopleRes, ownRes, joinedRes, memberRes] =
+    await Promise.all([
     // Events you said "I'm in" to. There is no creator column on events —
     // they belong to the project, not a person (migration 0006).
     supabase
@@ -61,13 +48,6 @@ export async function navCounts(
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .neq("kind", "need"),
-    // Small help: the ones you answered, not the ones you asked for. The
-    // number worth seeing is what you've done for people.
-    supabase
-      .from("offers")
-      .select("id", { count: "exact", head: true })
-      .eq("kind", "need")
-      .eq("claimed_by", userId),
     primaryId
       ? supabase
           .from("profiles")
@@ -91,10 +71,6 @@ export async function navCounts(
       .eq("user_id", userId),
   ]);
 
-  const starred = new Set(
-    ((starRes.data ?? []) as { project_id: string }[]).map((s) => s.project_id),
-  );
-
   const communityIds = new Set<string>();
   if (primaryId) communityIds.add(primaryId);
   for (const m of (memberRes.data ?? []) as { community_id: string }[]) {
@@ -102,10 +78,8 @@ export async function navCounts(
   }
 
   return {
-    faves: starred.size,
     events: rsvpRes.count ?? 0,
     offers: offerRes.count ?? 0,
-    asks: askRes.count ?? 0,
     people: peopleRes.count ?? 0,
     ideas: (ownRes.count ?? 0) + (joinedRes.count ?? 0),
     communities: communityIds.size,

@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { groupPins, nearbyProjectPins, peopleClusterPins } from "@/lib/mapPins";
 import { initials } from "@/lib/projects";
+import { FavesList } from "@/components/FavesList";
 
 type PersonRow = {
   id: string;
@@ -111,11 +112,11 @@ export default async function PeoplePage() {
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-6 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">People around</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-            The neighbors near you, the groups they form, and people further
-            away who are open to helping online.
+            The neighbors near you, what they&rsquo;ve starred, the groups they
+            form, and people further away who are open to helping online.
           </p>
 
           <section className="mt-6">
@@ -155,6 +156,8 @@ export default async function PeoplePage() {
               </ul>
             </section>
           ) : null}
+          <FavesList />
+
           <section id="groups" className="mt-10 scroll-mt-6">
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
               👥 Groups

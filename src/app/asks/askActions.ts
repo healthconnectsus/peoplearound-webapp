@@ -36,7 +36,7 @@ export async function postAsk(formData: FormData) {
     Math.abs(latNum) <= 90 &&
     Math.abs(lngNum) <= 180;
 
-  if (!title) redirect("/asks");
+  if (!title) redirect("/neighborhood#asks");
 
   const supabase = await createClient();
   const {
@@ -57,14 +57,14 @@ export async function postAsk(formData: FormData) {
     lng: hasSpot ? Math.round(lngNum * 1000) / 1000 : null,
   });
 
-  revalidatePath("/asks");
-  redirect("/asks");
+  revalidatePath("/neighborhood");
+  redirect("/neighborhood#asks");
 }
 
 /** "I'll help" — RLS permits this only on open, visible rows. */
 export async function claimAsk(formData: FormData) {
   const id = String(formData.get("askId") ?? "");
-  if (!id) redirect("/asks");
+  if (!id) redirect("/neighborhood#asks");
 
   const supabase = await createClient();
   const {
@@ -77,8 +77,8 @@ export async function claimAsk(formData: FormData) {
     .update({ claimed_by: user.id, claimed_at: new Date().toISOString() })
     .eq("id", id);
 
-  revalidatePath("/asks");
-  redirect("/asks");
+  revalidatePath("/neighborhood");
+  redirect("/neighborhood#asks");
 }
 
 /**
@@ -88,7 +88,7 @@ export async function claimAsk(formData: FormData) {
  */
 export async function closeAsk(formData: FormData) {
   const id = String(formData.get("askId") ?? "");
-  if (!id) redirect("/asks");
+  if (!id) redirect("/neighborhood#asks");
 
   const supabase = await createClient();
   const {
@@ -98,14 +98,14 @@ export async function closeAsk(formData: FormData) {
 
   await supabase.from("offers").delete().eq("id", id).eq("user_id", user.id);
 
-  revalidatePath("/asks");
-  redirect("/asks");
+  revalidatePath("/neighborhood");
+  redirect("/neighborhood#asks");
 }
 
 /** Plans changed — put it back on the board, no penalty either way. */
 export async function reopenAsk(formData: FormData) {
   const id = String(formData.get("askId") ?? "");
-  if (!id) redirect("/asks");
+  if (!id) redirect("/neighborhood#asks");
 
   const supabase = await createClient();
   const {
@@ -121,6 +121,6 @@ export async function reopenAsk(formData: FormData) {
     .eq("id", id)
     .or(`user_id.eq.${user.id},claimed_by.eq.${user.id}`);
 
-  revalidatePath("/asks");
-  redirect("/asks");
+  revalidatePath("/neighborhood");
+  redirect("/neighborhood#asks");
 }

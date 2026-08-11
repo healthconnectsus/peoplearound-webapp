@@ -525,7 +525,7 @@ export default async function Home({
 
       <MapShell pins={pins}>
         <main className="min-w-0">
-          <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-16 lg:pr-8">
+          <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-6 lg:pr-8">
             <div className="mb-5">
               <h1 className="text-3xl font-extrabold tracking-tight">
                 Communities{" "}

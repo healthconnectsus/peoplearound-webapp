@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
-  Star,
   CalendarDays,
   HeartHandshake,
   Lightbulb,
@@ -29,13 +28,6 @@ const NAV_ITEMS: {
 }[] = [
   { href: "/", label: "Home", icon: Home },
   {
-    href: "/faves",
-    label: "Local Faves",
-    icon: Star,
-    count: "faves",
-    title: "Ideas your neighbors have starred",
-  },
-  {
     href: "/events",
     label: "Events",
     icon: CalendarDays,
@@ -48,13 +40,6 @@ const NAV_ITEMS: {
     icon: Gift,
     count: "offers",
     title: "Things you've offered",
-  },
-  {
-    href: "/asks",
-    label: "Small help",
-    icon: HandHelping,
-    count: "asks",
-    title: "Times you've helped a neighbor",
   },
   {
     href: "/people",
@@ -141,25 +126,30 @@ export function Sidebar({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors ${
+              /* Nextdoor's grammar: hover is a soft grey pill, the page
+                 you're on is simply *bolder and darker* — no colour fill, so
+                 the rail never competes with the content beside it. */
+              className={`flex items-center gap-4 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
                 active
-                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
-                  : "text-black/70 hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
+                  ? "font-bold text-black dark:text-white"
+                  : "font-medium text-black/75 hover:bg-black/[0.06] dark:text-white/75 dark:hover:bg-white/10"
               }`}
             >
               <Icon
-                className={`h-5 w-5 shrink-0 ${active ? "" : "text-black/55 dark:text-white/55"}`}
-                strokeWidth={1.75}
+                className={`h-[22px] w-[22px] shrink-0 ${
+                  active ? "text-black dark:text-white" : "text-black/60 dark:text-white/60"
+                }`}
+                strokeWidth={active ? 2.25 : 1.75}
                 aria-hidden
               />
               <span className="min-w-0 flex-1 truncate">{item.label}</span>
               {n > 0 ? (
                 <span
                   title={item.title}
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
+                  className={`shrink-0 text-xs font-semibold tabular-nums ${
                     active
-                      ? "bg-emerald-600/15 text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-300"
-                      : "text-black/45 dark:text-white/45"
+                      ? "text-black/70 dark:text-white/70"
+                      : "text-black/40 dark:text-white/40"
                   }`}
                 >
                   {n}
@@ -184,7 +174,7 @@ export function Sidebar({
           Start something with people
         </Link>
         <Link
-          href="/asks?compose=1"
+          href="/neighborhood?compose=1#asks"
           className="flex items-center gap-2.5 rounded-full bg-amber-400 px-4 py-2.5 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
         >
           <HandHelping className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
@@ -198,8 +188,8 @@ export function Sidebar({
             href="/admin"
             className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
               pathname.startsWith("/admin")
-                ? "font-medium text-emerald-700 dark:text-emerald-400"
-                : "text-black/55 hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
+                ? "font-bold text-black dark:text-white"
+                : "font-medium text-black/55 hover:bg-black/[0.06] hover:text-black/80 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white/80"
             }`}
           >
             🛡️ Admin
@@ -211,8 +201,8 @@ export function Sidebar({
             href={item.href}
             className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
               pathname.startsWith(item.href)
-                ? "font-medium text-emerald-700 dark:text-emerald-400"
-                : "text-black/55 hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
+                ? "font-bold text-black dark:text-white"
+                : "font-medium text-black/55 hover:bg-black/[0.06] hover:text-black/80 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white/80"
             }`}
           >
             {item.label}

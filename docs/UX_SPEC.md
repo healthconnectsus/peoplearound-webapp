@@ -341,6 +341,21 @@ sentence is the last resort. What The basics does show first is that summary,
 back to step 2: state the decision, offer the way to change it, then ask only
 for what is still unknown.
 
+### Six rails, and the rail never shouts
+
+The left rail is Home · Events · Offers · People around · My ideas · My
+Communities. Two former rails were folded in: **Local Faves** into People
+around (what your neighbors starred is a fact about the people around you)
+and **Small help** into My Communities (a need for a hand is something you
+bring to a community, not a place of its own). Both old URLs redirect, and
+`/asks?compose=1` still opens the composer — it lands on
+`/neighborhood?compose=1#asks`.
+
+Styling follows Nextdoor's grammar, which the app adopted deliberately:
+hover is a soft grey pill, and the page you are on is simply **bolder and
+darker** — no colour fill. A coloured active state made the rail compete
+with the content beside it; weight alone is enough to say "you are here."
+
 ### The tagline lives under the wordmark
 
 *"Let's do something together."* sits directly beneath the logo in the

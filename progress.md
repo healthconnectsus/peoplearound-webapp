@@ -7,6 +7,36 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Six rails: Local Faves joins People around, Small help joins My Communities
+
+- `docs/UX_SPEC.md`
+- `src/app/admin/page.tsx`
+- `src/app/analytics/page.tsx`
+- `src/app/asks/askActions.ts`
+- `src/app/asks/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/neighborhood/page.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/app/recap/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/components/AsksSection.tsx`
+- `src/components/FavesList.tsx`
+- `src/components/MapShell.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/TopBar.tsx`
+- `src/lib/navCounts.ts`
+
+
 ### 2026-08-11 — Wizard adopts the colour of the intent you picked
 
 - `docs/UX_SPEC.md`

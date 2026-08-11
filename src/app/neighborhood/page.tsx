@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { communityPins } from "@/lib/mapPins";
 import { KIND_META, communityLabel, kindMeta, type Community } from "@/lib/communities";
+import { AsksSection } from "@/components/AsksSection";
 import { LocateButton } from "./LocateButton";
 import {
   createCommunity,
@@ -32,9 +33,9 @@ function KindBadge({ kind }: { kind: string | null | undefined }) {
 export default async function CommunitiesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; compose?: string }>;
 }) {
-  const { error, message } = await searchParams;
+  const { error, message, compose } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -75,7 +76,7 @@ export default async function CommunitiesPage({
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-16 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-6 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">
             My Communities
           </h1>
@@ -253,6 +254,8 @@ export default async function CommunitiesPage({
               </button>
             </form>
           </section>
+
+          <AsksSection userId={user.id} startOpen={compose === "1"} />
         </main>
       </MapShell>
     </AppShell>
