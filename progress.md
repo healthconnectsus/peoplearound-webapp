@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — Wizard: stepper moves to the right rail, tighter step 2, Back leads every row
+
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-10 — Your idea: a Next button that skips the assistant and keeps your words
 
 - `src/app/projects/new/IdeaForm.tsx`

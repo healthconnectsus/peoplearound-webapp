@@ -250,7 +250,10 @@ export function IdeaForm({
   const [shaping, setShaping] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [tip, setTip] = useState<string | null>(playbook?.tip ?? null);
+  /** Set when someone tries to move on without choosing or writing anything. */
+  const [needIdea, setNeedIdea] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const ideaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // --- Steps 2–3: the draft ---
   const [title, setTitle] = useState(playbook?.title ?? "");
@@ -332,6 +335,13 @@ export function IdeaForm({
       overwrites text that's already there (AI-shaped or from a playbook). */
   function skipShaping() {
     const raw = rawIdea.trim();
+    // Nothing chosen and nothing written: there is no idea to carry forward,
+    // so say so here rather than landing on an empty draft.
+    if (!raw) {
+      setNeedIdea(true);
+      ideaRef.current?.focus();
+      return;
+    }
     if (raw && !title.trim() && !description.trim()) {
       const [first, ...rest] = raw.split("\n");
       if (first.length <= 140) {
@@ -350,8 +360,9 @@ export function IdeaForm({
   return (
     <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start lg:gap-10">
     <div className="flex flex-col gap-6">
-      {/* Progress */}
-      <ol className="flex items-center gap-2" aria-label="Steps">
+      {/* Progress. On desktop this lives in the right rail (below); here it
+          stays horizontal for narrow screens that have no rail. */}
+      <ol className="flex items-center gap-2 lg:hidden" aria-label="Steps">
         {STEPS.map((label, i) => (
           <li key={label} className="flex flex-1 flex-col gap-2">
             <span
@@ -499,57 +510,59 @@ export function IdeaForm({
                       onClick={() => {
                         setRawIdea(o.seed);
                         if (o.category) setCategory(o.category);
+                        setNeedIdea(false);
+                        if (!o.seed) ideaRef.current?.focus();
                       }}
-                      className={`group relative h-36 text-left [perspective:800px] ${
+                      className={`group relative h-28 text-left [perspective:800px] ${
                         picked ? "rounded-xl ring-2 ring-offset-2 ring-emerald-500" : ""
                       }`}
                     >
                       <span className="relative block h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)]">
                         {/* Front */}
                         <span
-                          className={`absolute inset-0 flex flex-col rounded-xl p-3.5 text-white shadow-md [backface-visibility:hidden] ${activeIntent.tint.front}`}
+                          className={`absolute inset-0 flex flex-col rounded-xl p-3 text-white shadow-md [backface-visibility:hidden] ${activeIntent.tint.front}`}
                         >
-                          <span className="block text-2xl" aria-hidden>
+                          <span className="block text-xl leading-none" aria-hidden>
                             {o.emoji}
                           </span>
                           <span className="mt-1.5 block text-sm font-bold leading-snug">
                             {o.label}
                           </span>
-                          <span className="mt-0.5 block text-xs leading-snug text-white/80">
+                          <span className="mt-0.5 block text-[11px] leading-snug text-white/80">
                             {o.hint}
                           </span>
                         </span>
                         {/* Back: a real-sounding post of this kind */}
                         <span
-                          className={`absolute inset-0 flex flex-col rounded-xl p-3.5 text-white shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)] ${activeIntent.tint.back}`}
+                          className={`absolute inset-0 flex flex-col rounded-xl p-3 text-white shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)] ${activeIntent.tint.back}`}
                         >
                           {o.example ? (
                             <>
-                              <span className="text-sm font-bold leading-snug">
+                              <span className="text-[13px] font-bold leading-snug">
                                 {o.example.title}
                               </span>
-                              <span className="mt-1 line-clamp-3 text-xs leading-relaxed text-white/85">
+                              <span className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-white/85">
                                 “{o.example.desc}”
                               </span>
-                              <span className="mt-auto flex items-center gap-2">
+                              <span className="mt-auto flex items-center gap-1.5">
                                 {/* eslint-disable-next-line @next/next/no-img-element -- tiny static asset */}
                                 <img
                                   src={o.example.photo}
                                   alt=""
-                                  className="h-7 w-7 shrink-0 rounded-full border-2 border-white/60 object-cover"
+                                  className="h-6 w-6 shrink-0 rounded-full border border-white/60 object-cover"
                                 />
-                                <span className="truncate text-xs font-medium text-white/90">
+                                <span className="truncate text-[11px] font-medium text-white/90">
                                   {o.example.by}
                                 </span>
                               </span>
                             </>
                           ) : (
                             <>
-                              <span className="text-xs leading-relaxed text-white/90">
-                                Your words, your way — tap and just start
-                                typing below.
+                              <span className="text-[11px] leading-snug text-white/90">
+                                Your words, your way — tap and start typing
+                                below.
                               </span>
-                              <span className="mt-auto text-[11px] font-semibold uppercase tracking-wide text-white/70">
+                              <span className="mt-auto text-[10px] font-semibold uppercase tracking-wide text-white/70">
                                 Tap to write your own →
                               </span>
                             </>
@@ -566,9 +579,13 @@ export function IdeaForm({
               …or you have something else in mind:
             </p>
             <textarea
+              ref={ideaRef}
               value={rawIdea}
-              onChange={(e) => setRawIdea(e.target.value)}
-              rows={4}
+              onChange={(e) => {
+                setRawIdea(e.target.value);
+                if (e.target.value.trim()) setNeedIdea(false);
+              }}
+              rows={2}
               maxLength={4000}
               placeholder={
                 activeIntent?.placeholder ??
@@ -577,7 +594,23 @@ export function IdeaForm({
               className={`${inputClass} mt-1.5 w-full resize-y bg-white dark:bg-black/20`}
             />
 
-            <div className="mt-2 flex flex-wrap items-center gap-2">
+            <div className="relative mt-3 flex flex-wrap items-center gap-2">
+              {needIdea ? (
+                <p
+                  role="alert"
+                  className="absolute -top-3 left-0 -translate-y-full rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-sm font-medium text-amber-900 shadow-md dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+                >
+                  Pick one above, or tell us in your own words what you&rsquo;d
+                  like to do.
+                </p>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setStep(0)}
+                className="rounded-full border border-black/15 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+              >
+                ← Back
+              </button>
               {micSupported ? (
                 <button
                   type="button"
@@ -623,15 +656,6 @@ export function IdeaForm({
             ) : null}
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setStep(0)}
-              className="text-sm text-black/50 hover:underline dark:text-white/50"
-            >
-              ← Back
-            </button>
-          </div>
         </div>
       ) : null}
 
@@ -755,18 +779,18 @@ export function IdeaForm({
           <div className="mt-1 flex items-center gap-3">
             <button
               type="button"
+              onClick={() => setStep(1)}
+              className="rounded-full border border-black/15 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+            >
+              ← Back
+            </button>
+            <button
+              type="button"
               onClick={() => setStep(3)}
               disabled={!canContinueFromBasics}
               className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Continue →
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="text-sm text-black/50 hover:underline dark:text-white/50"
-            >
-              ← Back
             </button>
           </div>
         </div>
@@ -841,17 +865,17 @@ export function IdeaForm({
           <div className="mt-1 flex items-center gap-3">
             <button
               type="button"
+              onClick={() => setStep(2)}
+              className="rounded-full border border-black/15 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+            >
+              ← Back
+            </button>
+            <button
+              type="button"
               onClick={() => setStep(4)}
               className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Continue →
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep(2)}
-              className="text-sm text-black/50 hover:underline dark:text-white/50"
-            >
-              ← Back
             </button>
           </div>
         </div>
@@ -905,17 +929,17 @@ export function IdeaForm({
             <input type="hidden" name="lat" value={loc?.lat ?? ""} />
             <input type="hidden" name="lng" value={loc?.lng ?? ""} />
             <button
+              type="button"
+              onClick={() => setStep(3)}
+              className="rounded-full border border-black/15 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+            >
+              ← Back
+            </button>
+            <button
               type="submit"
               className="rounded-full bg-emerald-600 px-7 py-3 text-base font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Share it 🎉
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep(3)}
-              className="text-sm text-black/50 hover:underline dark:text-white/50"
-            >
-              ← Back
             </button>
             <Link
               href="/"
@@ -928,10 +952,37 @@ export function IdeaForm({
       ) : null}
     </div>
 
-    {/* Inspiration rail — talk-it-out step only, matched to the intent you
-        just picked; tap an example to start from it. */}
-    {step === 1 ? (
-      <aside className="hidden lg:block">
+    {/* Right rail: where you are in the flow, then (on the talk-it-out step)
+        a few real ideas to start from. The stepper reads vertically here —
+        five labels across a 30rem column would wrap into mush. */}
+    <aside className="hidden lg:block">
+      <ol className="mb-8 flex flex-col gap-1" aria-label="Steps">
+        {STEPS.map((label, i) => (
+          <li key={label} className="flex items-center gap-3">
+            <span
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors ${
+                i <= step
+                  ? "bg-emerald-600 text-white"
+                  : "bg-black/10 text-black/50 dark:bg-white/15 dark:text-white/50"
+              }`}
+            >
+              {i + 1}
+            </span>
+            <span
+              className={`text-base font-bold ${
+                i === step
+                  ? "text-emerald-700 dark:text-emerald-400"
+                  : "text-black/45 dark:text-white/45"
+              }`}
+            >
+              {label}
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      {step === 1 ? (
+        <>
         <h2 className="text-xl font-extrabold">Need a spark? ✨</h2>
         <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
           Ideas neighbors started — tap one to begin from it.
@@ -958,8 +1009,9 @@ export function IdeaForm({
             </li>
           ))}
         </ul>
-      </aside>
-    ) : null}
+        </>
+      ) : null}
+    </aside>
     </div>
   );
 }
