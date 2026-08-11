@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-11 — People around becomes Explore's twin, scoped to your own communities
+
+- `docs/UX_SPEC.md`
+- `src/app/people/page.tsx`
+- `src/components/ProjectFeedCard.tsx`
+- `src/lib/feed.ts`
+
+
 ### 2026-08-11 — Sidebar: bigger text, inactive rails go fully regular weight
 
 - `src/components/Sidebar.tsx`

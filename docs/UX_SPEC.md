@@ -341,6 +341,21 @@ sentence is the last resort. What The basics does show first is that summary,
 back to step 2: state the decision, offer the way to change it, then ask only
 for what is still unknown.
 
+### People around is Explore's twin
+
+People around now opens with the same feed grammar as Explore — composer,
+"Neighbors need a hand", "Happening soon", category/help filter chips,
+project cards with their beats — built from the same `loadFeedCards` helper
+(`lib/feed.ts`) and the same `ProjectCard` component
+(`components/ProjectFeedCard.tsx`). The one difference is scope: Explore
+shows your communities, then your city, then everywhere; People around shows
+*only* your communities — `projects.neighborhood_id` filtered to the
+communities you've joined, since that table doubles as `communities` after
+migration 0011. Below the feed: community management (join/leave/create,
+absorbed from the old "My Communities" rail), the neighbor directory, and
+Small help. Explore is "what's interesting"; People around is "what's
+happening among people I've actually joined."
+
 ### The rail spells the product
 
 Top to bottom, the first letters spell P·E·O·P·L·E:

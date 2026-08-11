@@ -5,8 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { AsksSection } from "@/components/AsksSection";
+import { FeedComposer } from "@/components/FeedComposer";
+import { ProjectCard } from "@/components/ProjectFeedCard";
+import { loadFeedCards } from "@/lib/feed";
+import { openAsks, formatMinutes } from "@/lib/asks";
 import { groupPins, nearbyProjectPins, peopleClusterPins } from "@/lib/mapPins";
-import { initials } from "@/lib/projects";
+import {
+  initials,
+  isoDaysAgo,
+  formatEventTime,
+  CATEGORIES,
+  CATEGORY_META,
+} from "@/lib/projects";
 import { KIND_META, communityLabel, kindMeta, type Community } from "@/lib/communities";
 import { LocateButton } from "@/app/neighborhood/LocateButton";
 import {
@@ -17,10 +27,12 @@ import {
 } from "@/app/neighborhood/communityActions";
 
 /**
- * People around — the P that opens the rail's acrostic. Everything social
- * lives here: the neighbors near you, the groups and communities they form
- * (absorbed from the old "My Communities" rail), and the small asks they
- * bring to each other.
+ * People around — the P that opens the rail's acrostic. Explore's twin: the
+ * same feed grammar (composer, asks/events highlights, filter chips, project
+ * cards), but narrowed to your own communities rather than the whole city
+ * and beyond. Below the feed: the neighbors near you, the communities and
+ * groups they form (absorbed from the old "My Communities" rail), and the
+ * small asks they bring to each other.
  */
 
 const PILL_BTN =
@@ -79,9 +91,15 @@ function KindBadge({ kind }: { kind: string | null | undefined }) {
 export default async function PeoplePage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string; compose?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    message?: string;
+    compose?: string;
+    cat?: string;
+    help?: string;
+  }>;
 }) {
-  const { error, message, compose } = await searchParams;
+  const { error, message, compose, cat, help: helpFilter } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -97,7 +115,7 @@ export default async function PeoplePage({
     supabase
       .from("profiles")
       .select(
-        "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name)",
+        "neighborhood_id,display_name,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name)",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -119,10 +137,12 @@ export default async function PeoplePage({
 
   const profile = profileRow as unknown as {
     neighborhood_id: string | null;
+    display_name: string | null;
     neighborhood?: { name: string } | null;
   } | null;
   const primaryId = profile?.neighborhood_id ?? null;
   const hoodName = profile?.neighborhood?.name ?? "your neighborhood";
+  const myName = profile?.display_name ?? user.email ?? null;
 
   const { data: neighborRows } = primaryId
     ? await supabase
@@ -161,6 +181,43 @@ export default async function PeoplePage({
   const mine = communities.filter((c) => myIds.has(c.id));
   const discover = communities.filter((c) => !myIds.has(c.id));
 
+  // The feed strip, narrowed to your own communities — projects.neighborhood_id
+  // is the same table as community_members.community_id (0011 generalized
+  // neighborhoods into communities), so this is a direct filter, not a guess.
+  const communityIds = [...myIds];
+  const { data: idRows } = communityIds.length
+    ? await supabase
+        .from("projects")
+        .select("id")
+        .in("neighborhood_id", communityIds)
+        .neq("state", "archived")
+    : { data: [] };
+  const communityProjectIds = (idRows ?? []).map((r) => r.id as string);
+  const { cards, events, confirmedThisMonth } = await loadFeedCards(
+    supabase,
+    communityProjectIds,
+  );
+  const asks = await openAsks(supabase, 4);
+
+  const visible = cards.filter(
+    (p) =>
+      (!cat || p.category === cat) &&
+      (!helpFilter || p.help === helpFilter || p.help === "both"),
+  );
+  const filterHref = (patch: Record<string, string | undefined>) => {
+    const params = new URLSearchParams();
+    const merged = { cat, help: helpFilter, ...patch };
+    for (const [k, v] of Object.entries(merged)) if (v) params.set(k, v);
+    const qs = params.toString();
+    return qs ? `/people?${qs}#feed` : "/people#feed";
+  };
+  const filtersActive = Boolean(cat || helpFilter);
+
+  const building = cards.filter((p) => p.state === "active").length;
+  const eventsThisWeek = events.filter(
+    (e) => new Date(e.starts_at).getTime() < new Date(isoDaysAgo(-7)).getTime(),
+  ).length;
+
   // People are pinned as COMMUNITY clusters with headcounts — never at
   // anyone's home (see lib/mapPins.ts). Groups live here too: a group IS
   // people.
@@ -194,6 +251,21 @@ export default async function PeoplePage({
               <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
                 🏘 {mine.length} {mine.length === 1 ? "community" : "communities"}
               </span>
+              {building > 0 ? (
+                <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
+                  🚀 {building} building
+                </span>
+              ) : null}
+              {eventsThisWeek > 0 ? (
+                <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
+                  📅 {eventsThisWeek} {eventsThisWeek === 1 ? "event" : "events"} this week
+                </span>
+              ) : null}
+              {confirmedThisMonth > 0 ? (
+                <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
+                  🙌 {confirmedThisMonth} confirmed this month
+                </span>
+              ) : null}
               {remoteHelpers.length > 0 ? (
                 <span className="rounded-full border border-black/5 bg-white px-2.5 py-1 text-xs font-medium text-black/60 shadow-sm dark:border-white/5 dark:bg-zinc-900 dark:text-white/60">
                   💻 {remoteHelpers.length} helping online
@@ -201,6 +273,8 @@ export default async function PeoplePage({
               ) : null}
             </div>
           </div>
+
+          <FeedComposer name={myName} />
 
           {error ? (
             <p className="mt-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
@@ -233,7 +307,135 @@ export default async function PeoplePage({
             </div>
           ) : null}
 
-          <section id="communities" className="mt-6 scroll-mt-6">
+          <section id="feed" className="mt-6 scroll-mt-6">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+              What&rsquo;s happening in your communities
+            </h2>
+
+            {asks.length > 0 ? (
+              <div className="mb-6">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-black/45 dark:text-white/45">
+                  Neighbors need a hand
+                </h3>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {asks.map((a) => (
+                    <li key={a.id}>
+                      <Link
+                        href="/people#asks"
+                        className="flex h-full flex-col gap-0.5 rounded-xl border border-amber-500/25 bg-amber-50/70 px-4 py-3 shadow-sm transition-colors hover:bg-amber-50 dark:border-amber-500/25 dark:bg-amber-950/20 dark:hover:bg-amber-950/40"
+                      >
+                        <span className="text-sm font-medium">🙋 {a.title}</span>
+                        <span className="text-xs text-black/50 dark:text-white/50">
+                          ⏱ {formatMinutes(a.minutes)}
+                          {a.when_text ? ` · ${a.when_text}` : ""}
+                          {a.asker ? ` · ${a.asker}` : ""}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {events.length > 0 ? (
+              <div className="mb-6">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-black/45 dark:text-white/45">
+                  Happening soon
+                </h3>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {events.slice(0, 4).map((e) => (
+                    <li key={e.id}>
+                      <Link
+                        href={`/projects/${e.project_id}`}
+                        className="flex h-full flex-col gap-0.5 rounded-xl border border-emerald-600/20 bg-emerald-50/70 px-4 py-3 shadow-sm transition-colors hover:bg-emerald-50 dark:border-emerald-500/25 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40"
+                      >
+                        <span className="text-sm font-medium">📅 {e.title}</span>
+                        <span className="text-xs text-black/50 dark:text-white/50">
+                          {formatEventTime(e.starts_at)}
+                          {e.place ? ` · ${e.place}` : ""} · 🙋 {e.rsvps.length} going
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {cards.length > 0 ? (
+              <div className="mb-4 flex flex-wrap items-center gap-1.5">
+                <Link
+                  href={filterHref({ cat: undefined, help: undefined })}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    !filtersActive
+                      ? "border-emerald-600 bg-emerald-600 text-white"
+                      : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                  }`}
+                >
+                  All
+                </Link>
+                {CATEGORIES.map((c) => (
+                  <Link
+                    key={c}
+                    href={filterHref({ cat: cat === c ? undefined : c })}
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                      cat === c
+                        ? "border-emerald-600 bg-emerald-600 text-white"
+                        : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                    }`}
+                  >
+                    {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
+                  </Link>
+                ))}
+                <span className="mx-1 h-4 w-px bg-black/10 dark:bg-white/15" aria-hidden />
+                <Link
+                  href={filterHref({ help: helpFilter === "local" ? undefined : "local" })}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    helpFilter === "local"
+                      ? "border-emerald-600 bg-emerald-600 text-white"
+                      : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                  }`}
+                >
+                  🏠 Hands nearby
+                </Link>
+                <Link
+                  href={filterHref({ help: helpFilter === "remote" ? undefined : "remote" })}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    helpFilter === "remote"
+                      ? "border-emerald-600 bg-emerald-600 text-white"
+                      : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                  }`}
+                >
+                  💻 Online help
+                </Link>
+              </div>
+            ) : null}
+
+            {cards.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                Nothing in your communities yet —{" "}
+                <Link href="/projects/new" className="underline">
+                  yours could be the first
+                </Link>
+                .
+              </p>
+            ) : visible.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+                Nothing matches that filter —{" "}
+                <Link href="/people#feed" className="underline">
+                  clear it
+                </Link>
+                .
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {visible.map((p) => (
+                  <ProjectCard key={p.id} p={p} />
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section id="communities" className="mt-10 scroll-mt-6">
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
               🏘 My communities · {mine.length}
             </h2>
