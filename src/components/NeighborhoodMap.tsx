@@ -160,7 +160,7 @@ export function NeighborhoodMap({
       <style>{`@keyframes pa-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }`}</style>
       <div
         ref={holderRef}
-        className="z-0 h-full w-full overflow-hidden rounded-2xl border border-slate-300 shadow-sm dark:border-slate-600"
+        className="z-0 h-full w-full overflow-hidden rounded-2xl border border-slate-400 shadow-sm dark:border-slate-500"
         aria-label="Map of projects around you"
       />
       <p className="pointer-events-none absolute left-3 top-3 z-[500] rounded-full bg-white/90 px-3 py-1 text-xs font-medium shadow dark:bg-zinc-900/90">

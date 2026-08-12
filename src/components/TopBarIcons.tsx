@@ -81,7 +81,7 @@ function Panel({
         className="fixed inset-0 z-[1090] cursor-default"
         tabIndex={-1}
       />
-      <div className="absolute right-0 top-11 z-[1100] w-80 rounded-2xl border border-slate-300 bg-white p-2 shadow-xl dark:border-slate-600 dark:bg-zinc-900">
+      <div className="absolute right-0 top-11 z-[1100] w-80 rounded-2xl border border-slate-400 bg-white p-2 shadow-xl dark:border-slate-500 dark:bg-zinc-900">
         {children}
       </div>
     </>

@@ -75,8 +75,11 @@ export async function TopBar() {
     <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]">
       {/* The search column mirrors the home feed column (both left-aligned)
           so the input's left edge lines up with the content beneath it. */}
-      <div className="w-full max-w-2xl px-4 lg:pl-36 lg:pr-8">
-        <form action="/">
+      <div className="w-full max-w-3xl px-4 lg:pl-36 lg:pr-8">
+        {/* Explore is the only page that reads ?q= — since the root route
+            became a redirect (peoplearound.com now opens on People around),
+            submitting to "/" would drop the query on the way through. */}
+        <form action="/explore">
           <label className="relative block max-w-xl">
             <Search
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40 dark:text-white/40"
@@ -86,8 +89,8 @@ export async function TopBar() {
             <input
               type="search"
               name="q"
-              placeholder="Search projects around you"
-              className="w-full rounded-full border border-slate-300 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-slate-600 dark:bg-zinc-900 dark:placeholder:text-white/40"
+              placeholder="Search people, events, offers, projects around you"
+              className="w-full rounded-full border border-slate-400 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-slate-500 dark:bg-zinc-900 dark:placeholder:text-white/40"
             />
           </label>
         </form>

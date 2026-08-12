@@ -62,10 +62,10 @@ function useMicSupported() {
 }
 
 const inputClass =
-  "rounded-xl border border-slate-300 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-emerald-500 dark:border-slate-500";
+  "rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-emerald-500 dark:border-slate-400";
 
 const CARD_LABEL_BASE =
-  "flex h-full cursor-pointer flex-col gap-0.5 rounded-xl border border-slate-300 px-4 py-3 text-base transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10";
+  "flex h-full cursor-pointer flex-col gap-0.5 rounded-xl border border-slate-400 px-4 py-3 text-base transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10";
 /** `checked` is one intent's `tint.checked` — so a radio card lights up in
     the colour of what you're building, not always emerald. */
 function cardLabelClass(checked: string): string {
@@ -687,7 +687,7 @@ export function IdeaForm({
               <button
                 type="button"
                 onClick={() => setStep(0)}
-                className="rounded-full border border-slate-300 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 ← Back
               </button>
@@ -698,7 +698,7 @@ export function IdeaForm({
                   className={`rounded-full border px-5 py-2.5 text-base font-medium transition-colors ${
                     listening
                       ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-300"
-                      : "border-slate-300 bg-white hover:bg-black/5 dark:border-slate-500 dark:bg-black/20 dark:hover:bg-white/10"
+                      : "border-slate-400 bg-white hover:bg-black/5 dark:border-slate-400 dark:bg-black/20 dark:hover:bg-white/10"
                   }`}
                 >
                   {listening ? "⏹ Stop" : "🎤 Speak"}
@@ -718,7 +718,7 @@ export function IdeaForm({
               <button
                 type="button"
                 onClick={skipShaping}
-                className="rounded-full border border-slate-300 px-6 py-3 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                className="rounded-full border border-slate-400 px-6 py-3 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 Next →
               </button>
@@ -817,7 +817,7 @@ export function IdeaForm({
                     className="peer sr-only"
                   />
                   <span
-                    className={`inline-block rounded-full border border-slate-300 px-3.5 py-1.5 transition-colors peer-checked:text-white peer-focus-visible:ring-2 hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10 ${accent.chip}`}
+                    className={`inline-block rounded-full border border-slate-400 px-3.5 py-1.5 transition-colors peer-checked:text-white peer-focus-visible:ring-2 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10 ${accent.chip}`}
                   >
                     {categoryMeta(c).emoji} {categoryMeta(c).label}
                   </span>
@@ -860,7 +860,7 @@ export function IdeaForm({
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="rounded-full border border-slate-300 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+              className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
             >
               ← Back
             </button>
@@ -946,7 +946,7 @@ export function IdeaForm({
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="rounded-full border border-slate-300 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+              className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
             >
               ← Back
             </button>
@@ -964,7 +964,7 @@ export function IdeaForm({
       {/* ---- Step 5: review & share ---- */}
       {step === 4 ? (
         <div className="flex flex-col gap-5">
-          <div className="overflow-hidden rounded-2xl border border-slate-300 dark:border-slate-600">
+          <div className="overflow-hidden rounded-2xl border border-slate-400 dark:border-slate-500">
             {photoUrl ? (
               <div
                 aria-hidden
@@ -1011,7 +1011,7 @@ export function IdeaForm({
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="rounded-full border border-slate-300 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+              className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
             >
               ← Back
             </button>
@@ -1076,7 +1076,7 @@ export function IdeaForm({
               <button
                 type="button"
                 onClick={() => setRawIdea(ex.desc)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-md dark:border-slate-700 dark:bg-zinc-900"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
               >
                 <span className="block text-sm font-semibold">{ex.title}</span>
                 <span className="mt-0.5 block text-xs leading-snug text-black/55 dark:text-white/55">

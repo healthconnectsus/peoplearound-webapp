@@ -68,7 +68,7 @@ export function FeedComposer() {
 
   return (
     <>
-      <div className="mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-zinc-900 sm:flex-nowrap">
+      <div className="mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-300 bg-white p-3 shadow-sm dark:border-slate-600 dark:bg-zinc-900 sm:flex-nowrap">
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -103,7 +103,7 @@ export function FeedComposer() {
             <X className="h-12 w-12" strokeWidth={2} aria-hidden />
           </button>
 
-          <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-20">
+          <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center px-4 py-20">
             <h2 className="text-3xl font-extrabold tracking-tight">
               Hey community,&hellip;
             </h2>
@@ -119,7 +119,7 @@ export function FeedComposer() {
                     <Link
                       href={d.href}
                       onClick={() => setOpen(false)}
-                      className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
+                      className="flex items-center gap-4 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-500 dark:bg-zinc-900"
                     >
                       <span
                         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white ${d.tint}`}

@@ -73,7 +73,7 @@ function ProjectCard({ p }: { p: CardData }) {
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className={`block overflow-hidden rounded-2xl border border-slate-200 border-l-4 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-500/10 dark:border-slate-700 dark:bg-zinc-900 ${categoryTint(p.category)}`}
+        className={`block overflow-hidden rounded-2xl border border-slate-300 border-l-4 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-500/10 dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(p.category)}`}
       >
         {p.photo_url ? (
           <div
@@ -137,7 +137,7 @@ function CompactRow({ p }: { p: CardData }) {
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+        className="flex items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
       >
         <span className="min-w-0 truncate text-sm">
           <span className="mr-1" aria-hidden>
@@ -430,7 +430,7 @@ export default async function ExplorePage({
 
       <MapShell pins={pins}>
         <main className="min-w-0">
-          <div className="w-full max-w-2xl p-4 lg:py-6 lg:pl-36 lg:pr-8">
+          <div className="w-full max-w-3xl p-4 lg:py-6 lg:pl-36 lg:pr-8">
             <div className="mb-5">
               <h1 className="text-3xl font-extrabold tracking-tight">
                 Explore{" "}
@@ -595,7 +595,7 @@ export default async function ExplorePage({
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                   !filtersActive
                     ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                    : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                 }`}
               >
                 All
@@ -607,7 +607,7 @@ export default async function ExplorePage({
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     cat === c
                       ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                      : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                   }`}
                 >
                   {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
@@ -619,7 +619,7 @@ export default async function ExplorePage({
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                   helpFilter === "local"
                     ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                    : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                 }`}
               >
                 🏠 Hands nearby
@@ -629,7 +629,7 @@ export default async function ExplorePage({
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                   helpFilter === "remote"
                     ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                    : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                 }`}
               >
                 💻 Online help
@@ -639,7 +639,7 @@ export default async function ExplorePage({
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                   ev === "soon"
                     ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                    : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                 }`}
               >
                 📅 Event soon
@@ -647,7 +647,7 @@ export default async function ExplorePage({
             </div>
 
             {cards.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-600 dark:bg-zinc-900">
+              <div className="rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">
                 <p className="text-3xl" aria-hidden>
                   🌱
                 </p>
@@ -676,7 +676,7 @@ export default async function ExplorePage({
                       ))}
                     </ul>
                   ) : (
-                    <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60">
+                    <p className="rounded-2xl border border-dashed border-slate-400 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60">
                       Nothing in your communities yet —{" "}
                       <Link href="/projects/new" className="underline">
                         yours could be the first

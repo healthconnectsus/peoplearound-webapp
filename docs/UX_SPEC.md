@@ -313,13 +313,20 @@ Design rules:
 ### Content margin and border colour
 
 Content pages sit at `lg:pl-36` from the rail (`pl-24` → `pl-28` → `pl-36`
-across two rounds of "move it right"). Neutral card/divider borders are
-solid `slate`, not translucent black/white — `border-slate-200/300/400` in
-light mode, `border-slate-700/600/500` in dark, mapped from the old
-`border-black/10·15·20` and `dark:border-white/10·15·20` tiers respectively.
-Slate carries a blue undertone where zinc/gray read neutral and stone reads
-warm, which is what "darker blueish gray" meant here. Colored borders
-(category tints, state badges, warning/error banners, the three white
+across two rounds of "move it right"), and the main content column is
+`max-w-3xl` (up from `max-w-2xl`) everywhere it appears — the feed, project
+page, offers, events, and the composer's door-picker all widened together
+so nothing drifted out of alignment with the others.
+
+Neutral card/divider borders are solid `slate`, not translucent black/white
+— `border-slate-300/400/500` in light mode, `dark:border-slate-600/500/400`
+in dark. Slate carries a blue undertone where zinc/gray read neutral and
+stone reads warm, which is what "blueish gray" meant here; the shade climbed
+twice ("darker" asked for again) — light mode moved to heavier tints,
+dark mode moved *away* from the near-black background rather than toward
+it, since a literally darker border in dark mode would have disappeared
+into the page instead of reading as bolder. Colored borders (category
+tints, state badges, warning/error banners, the three white
 avatar-ring borders on saturated card backgrounds) were untouched — this
 only ever touches the plain lines that outline cards and sections.
 

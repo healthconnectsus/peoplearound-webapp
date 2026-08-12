@@ -7,6 +7,53 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-12 — Wider content, bolder borders, and a fixed search bar
+
+- `docs/UX_SPEC.md`
+- `src/app/admin/page.tsx`
+- `src/app/analytics/page.tsx`
+- `src/app/asks/AskComposer.tsx`
+- `src/app/chats/Composer.tsx`
+- `src/app/chats/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/explore/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/login/page.tsx`
+- `src/app/neighborhood/LocateButton.tsx`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/DeleteAccountButton.tsx`
+- `src/app/profile/LocationCard.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/FlagButton.tsx`
+- `src/app/projects/[id]/UpdateComposer.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/recap/page.tsx`
+- `src/app/settings/PhotoUploads.tsx`
+- `src/app/settings/page.tsx`
+- `src/app/start/page.tsx`
+- `src/components/AsksSection.tsx`
+- `src/components/CommunityFilter.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/InstallPrompt.tsx`
+- `src/components/MapPicker.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/components/PhotoPicker.tsx`
+- `src/components/PlaybookList.tsx`
+- `src/components/ProfileMenu.tsx`
+- `src/components/ProjectFeedCard.tsx`
+- `src/components/PushToggle.tsx`
+- `src/components/SiteHeader.tsx`
+- `src/components/TopBar.tsx`
+- `src/components/TopBarIcons.tsx`
+
+
 ### 2026-08-12 — Content further right, neutral borders become solid slate (blueish-gray)
 
 - `docs/UX_SPEC.md`

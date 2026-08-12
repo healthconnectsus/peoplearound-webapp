@@ -94,7 +94,7 @@ export default async function ConnectionsPage() {
 
   return (
     <AppShell>
-      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
+      <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">
           My connections
         </h1>
@@ -104,7 +104,7 @@ export default async function ConnectionsPage() {
         </p>
 
         {list.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-600 dark:bg-zinc-900">
+          <div className="mt-8 rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">
             <p className="text-3xl" aria-hidden>
               🤝
             </p>
@@ -125,7 +125,7 @@ export default async function ConnectionsPage() {
             {list.map((c) => (
               <li
                 key={c.id}
-                className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+                className="flex items-center gap-3 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
               >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
                   {initials(c.name)}
@@ -140,7 +140,7 @@ export default async function ConnectionsPage() {
                 </div>
                 <Link
                   href={`/chats?to=${c.id}`}
-                  className="shrink-0 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                  className="shrink-0 rounded-full border border-slate-400 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 >
                   Message
                 </Link>

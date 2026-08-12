@@ -25,7 +25,7 @@ export function OfferComposer({
   return (
     <form
       action={postOffer}
-      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+      className="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
     >
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
       <input type="hidden" name="lat" value={spot?.lat ?? ""} />
@@ -40,7 +40,7 @@ export function OfferComposer({
         {KINDS.map((k, i) => (
           <label
             key={k.value}
-            className="flex flex-1 cursor-pointer flex-col gap-0.5 rounded-xl border border-slate-300 px-4 py-3 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-slate-500 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40"
+            className="flex flex-1 cursor-pointer flex-col gap-0.5 rounded-xl border border-slate-400 px-4 py-3 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-slate-400 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40"
           >
             <input
               type="radio"
@@ -65,21 +65,21 @@ export function OfferComposer({
         required
         maxLength={140}
         placeholder="What is it? e.g. “Extension ladder, free to borrow”"
-        className="mt-3 w-full rounded-xl border border-slate-300 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
+        className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
       />
       <textarea
         name="description"
         rows={2}
         maxLength={2000}
         placeholder="Anything useful — condition, when you're around, how to reach you"
-        className="mt-2 w-full resize-y rounded-xl border border-slate-300 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
+        className="mt-2 w-full resize-y rounded-xl border border-slate-400 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
       />
       <input
         type="text"
         name="place"
         maxLength={120}
         placeholder="Roughly where? e.g. “5th & Oak” (optional)"
-        className="mt-2 w-full rounded-xl border border-slate-300 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
+        className="mt-2 w-full rounded-xl border border-slate-400 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
       />
       <div className="mt-2">
         <p className="mb-1.5 text-xs text-black/50 dark:text-white/50">

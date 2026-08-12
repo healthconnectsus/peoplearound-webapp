@@ -12,7 +12,7 @@ import { signIn, signUp, signInWithMagicLink } from "./actions";
 import { AutoLocate } from "./AutoLocate";
 
 const INPUT =
-  "rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-500 dark:bg-zinc-800";
+  "rounded-lg border border-slate-400 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400 dark:bg-zinc-800";
 
 type PublicIdea = {
   id: string;
@@ -154,7 +154,7 @@ export default async function LoginPage({
                   </button>
                   <button
                     formAction={signUp}
-                    className="rounded-full border border-slate-300 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                    className="rounded-full border border-slate-400 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                   >
                     Create account
                   </button>
@@ -187,7 +187,7 @@ export default async function LoginPage({
                   ) : null}
                   <button
                     type="submit"
-                    className="rounded-full border border-slate-300 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                    className="rounded-full border border-slate-400 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                   >
                     Email me a sign-in link
                   </button>
@@ -214,7 +214,7 @@ export default async function LoginPage({
               return (
                 <li
                   key={idea.id}
-                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-zinc-900"
+                  className="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
                 >
                   <div
                     aria-hidden
@@ -317,7 +317,7 @@ export default async function LoginPage({
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-stone-100/60 dark:border-slate-700 dark:bg-zinc-900/60">
+      <footer className="border-t border-slate-300 bg-stone-100/60 dark:border-slate-600 dark:bg-zinc-900/60">
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}

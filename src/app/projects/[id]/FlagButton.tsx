@@ -79,7 +79,7 @@ export function FlagButton({
               {REASONS.map((r, i) => (
                 <label
                   key={r.value}
-                  className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-slate-600 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-slate-400 px-3.5 py-2.5 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-slate-500 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40"
                 >
                   <input
                     type="radio"
@@ -98,14 +98,14 @@ export function FlagButton({
               rows={2}
               maxLength={500}
               placeholder="Anything the admin should know? (optional)"
-              className="mt-3 w-full rounded-xl border border-slate-300 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
+              className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
             />
 
             <div className="mt-5 flex flex-wrap justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full border border-slate-300 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                className="rounded-full border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 Cancel
               </button>

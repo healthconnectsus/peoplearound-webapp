@@ -76,7 +76,7 @@ export function ProfileMenu({
           />
           <div
             role="menu"
-            className="absolute right-0 top-11 z-[1100] w-64 rounded-2xl border border-slate-300 bg-white p-2 shadow-xl dark:border-slate-600 dark:bg-zinc-900"
+            className="absolute right-0 top-11 z-[1100] w-64 rounded-2xl border border-slate-400 bg-white p-2 shadow-xl dark:border-slate-500 dark:bg-zinc-900"
           >
             <div className="flex flex-col items-center px-3 pb-3 pt-4 text-center">
               <Avatar
@@ -98,7 +98,7 @@ export function ProfileMenu({
                 View profile
               </Link>
             </div>
-            <div className="my-1 border-t border-slate-200 dark:border-slate-600" />
+            <div className="my-1 border-t border-slate-300 dark:border-slate-500" />
             <Link
               href="/ideas"
               onClick={() => setOpen(false)}
@@ -131,7 +131,7 @@ export function ProfileMenu({
               <MapPin className={ICON_CLASS} strokeWidth={1.75} aria-hidden />
               Change neighborhood
             </Link>
-            <div className="my-1 border-t border-slate-200 dark:border-slate-600" />
+            <div className="my-1 border-t border-slate-300 dark:border-slate-500" />
             <form action={signOut}>
               <button type="submit" className={`${ITEM_CLASS} w-full text-left`}>
                 <LogOut className={ICON_CLASS} strokeWidth={1.75} aria-hidden />

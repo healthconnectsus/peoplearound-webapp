@@ -36,9 +36,9 @@ import {
  */
 
 const PILL_BTN =
-  "rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10";
+  "rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10";
 const INPUT =
-  "rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-500";
+  "rounded-lg border border-slate-400 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400";
 
 type PersonRow = {
   id: string;
@@ -55,7 +55,7 @@ function PersonCard({
 }) {
   const name = person.display_name ?? "A neighbor";
   return (
-    <li className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-zinc-900">
+    <li className="flex items-center gap-3 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-zinc-900">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
         {initials(name)}
       </span>
@@ -68,7 +68,7 @@ function PersonCard({
       {badge !== "You" ? (
         <Link
           href={`/chats?to=${person.id}`}
-          className="shrink-0 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+          className="shrink-0 rounded-full border border-slate-400 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
         >
           Message
         </Link>
@@ -234,7 +234,7 @@ export default async function PeoplePage({
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
+        <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <FeedComposer />
 
           {error ? (
@@ -338,7 +338,7 @@ export default async function PeoplePage({
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     !filtersActive
                       ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                      : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                   }`}
                 >
                   All
@@ -350,7 +350,7 @@ export default async function PeoplePage({
                     className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                       cat === c
                         ? "border-emerald-600 bg-emerald-600 text-white"
-                        : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                        : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                     }`}
                   >
                     {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
@@ -362,7 +362,7 @@ export default async function PeoplePage({
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     helpFilter === "local"
                       ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                      : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                   }`}
                 >
                   🏠 Hands nearby
@@ -372,7 +372,7 @@ export default async function PeoplePage({
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     helpFilter === "remote"
                       ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-300 bg-white text-black/60 hover:bg-black/5 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60"
+                      : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                   }`}
                 >
                   💻 Online help
@@ -381,7 +381,7 @@ export default async function PeoplePage({
             ) : null}
 
             {cards.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60">
+              <p className="rounded-2xl border border-dashed border-slate-400 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60">
                 Nothing in your communities yet —{" "}
                 <Link href="/projects/new" className="underline">
                   yours could be the first
@@ -389,7 +389,7 @@ export default async function PeoplePage({
                 .
               </p>
             ) : visible.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60">
+              <p className="rounded-2xl border border-dashed border-slate-400 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60">
                 Nothing matches that filter —{" "}
                 <Link href="/people#feed" className="underline">
                   clear it
@@ -419,7 +419,7 @@ export default async function PeoplePage({
                 {mine.map((c) => (
                   <li
                     key={c.id}
-                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
                   >
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-center gap-2">
@@ -457,7 +457,7 @@ export default async function PeoplePage({
                 ))}
               </ul>
             ) : (
-              <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60">
+              <p className="rounded-2xl border border-dashed border-slate-400 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60">
                 You haven&apos;t joined any communities yet — find yours below.
               </p>
             )}
@@ -471,7 +471,7 @@ export default async function PeoplePage({
                   {discover.map((c) => (
                     <li
                       key={c.id}
-                      className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+                      className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
                     >
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
@@ -505,7 +505,7 @@ export default async function PeoplePage({
               </h3>
               <form
                 action={createCommunity}
-                className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+                className="flex flex-col gap-3 rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
               >
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <input
@@ -568,7 +568,7 @@ export default async function PeoplePage({
                   ))}
                 </ul>
               ) : (
-                <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60">
+                <p className="rounded-2xl border border-dashed border-slate-400 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60">
                   No neighbors here yet —{" "}
                   <Link href="/invite" className="underline">
                     invite some

@@ -20,9 +20,9 @@ import {
  */
 
 const INPUT =
-  "rounded-lg border border-slate-300 bg-transparent px-3 py-1.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-500";
+  "rounded-lg border border-slate-400 bg-transparent px-3 py-1.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400";
 const PILL =
-  "rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10";
+  "rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10";
 
 export default async function AdminPage({
   searchParams,
@@ -138,7 +138,7 @@ export default async function AdminPage({
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+              className="rounded-2xl border border-slate-300 bg-white p-4 text-center shadow-sm dark:border-slate-600 dark:bg-zinc-900"
             >
               <p className="text-2xl font-extrabold">{s.value}</p>
               <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
@@ -154,7 +154,7 @@ export default async function AdminPage({
             Flag review queue · {queue.length}
           </h2>
           {queue.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60">
+            <p className="rounded-2xl border border-dashed border-slate-400 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60">
               Nothing to review. 🎉
             </p>
           ) : (
@@ -164,7 +164,7 @@ export default async function AdminPage({
                 return (
                   <li
                     key={projectId}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+                    className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <Link
@@ -233,7 +233,7 @@ export default async function AdminPage({
               return (
                 <li
                   key={h.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+                  className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
                 >
                   <form
                     action={renameCommunity}

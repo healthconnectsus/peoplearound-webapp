@@ -21,7 +21,7 @@ function IdeaRow({
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-zinc-900"
+        className="flex items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
       >
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">
@@ -98,7 +98,7 @@ export default async function IdeasPage() {
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
+        <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">My ideas</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
             The projects you started, and the teams you joined.
@@ -120,7 +120,7 @@ export default async function IdeasPage() {
                 ))}
               </ul>
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center dark:border-slate-600 dark:bg-zinc-900">
+              <div className="rounded-2xl border border-dashed border-slate-400 bg-white p-8 text-center dark:border-slate-500 dark:bg-zinc-900">
                 <p className="text-3xl" aria-hidden>
                   💡
                 </p>

@@ -20,7 +20,7 @@ export default async function InvitePage() {
         <h1 className="text-3xl font-extrabold tracking-tight">
           Invite neighbors
         </h1>
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-zinc-900">
+        <div className="mt-6 rounded-2xl border border-slate-300 bg-white p-8 text-center shadow-sm dark:border-slate-600 dark:bg-zinc-900">
           <p className="text-4xl" aria-hidden>
             🏘️
           </p>
@@ -39,7 +39,7 @@ export default async function InvitePage() {
             <CopyLinkButton userId={user.id} />
             <a
               href={`mailto:?subject=${encodeURIComponent("Join me on Peoplearound")}&body=${encodeURIComponent("I'm on Peoplearound — a place where neighbors share ideas and build them together. Join me!")}`}
-              className="rounded-full border border-slate-300 px-6 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+              className="rounded-full border border-slate-400 px-6 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
             >
               Invite by email
             </a>

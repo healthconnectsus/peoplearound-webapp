@@ -308,7 +308,7 @@ export default async function ProjectDetail({
           </aside>
         ) : null}
 
-      <main className="w-full max-w-2xl flex-1 p-4 lg:order-1 lg:py-6 lg:pl-36 lg:pr-8">
+      <main className="w-full max-w-3xl flex-1 p-4 lg:order-1 lg:py-6 lg:pl-36 lg:pr-8">
         <Link
           href="/"
           className="text-sm text-black/50 hover:underline dark:text-white/50"
@@ -325,7 +325,7 @@ export default async function ProjectDetail({
         ) : project.photo_url ? (
           <div
             aria-hidden
-            className="mt-4 h-56 w-full rounded-2xl border border-slate-200 bg-cover bg-center shadow-sm dark:border-slate-700"
+            className="mt-4 h-56 w-full rounded-2xl border border-slate-300 bg-cover bg-center shadow-sm dark:border-slate-600"
             style={{ backgroundImage: `url(${project.photo_url})` }}
           />
         ) : null}
@@ -379,7 +379,7 @@ export default async function ProjectDetail({
         )}
 
         {/* Actions: join + star */}
-        <div className="mt-7 rounded-2xl border border-slate-300 p-4 dark:border-slate-600">
+        <div className="mt-7 rounded-2xl border border-slate-400 p-4 dark:border-slate-500">
           {isOwner ? (
             <p className="text-sm text-black/60 dark:text-white/60">
               This is your project. When neighbors ask to join, their requests
@@ -420,7 +420,7 @@ export default async function ProjectDetail({
                 <input type="hidden" name="projectId" value={project.id} />
                 <button
                   type="submit"
-                  className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                  className="rounded-full border border-slate-400 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 >
                   Cancel my request
                 </button>
@@ -432,7 +432,7 @@ export default async function ProjectDetail({
                 <input type="hidden" name="projectId" value={project.id} />
                 <ConfirmSubmit
                   message="Leave this project?"
-                  className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                  className="rounded-full border border-slate-400 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 >
                   Leave project
                 </ConfirmSubmit>
@@ -447,7 +447,7 @@ export default async function ProjectDetail({
                 className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
                   hasStarred
                     ? "border-amber-400 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-500/50 dark:bg-amber-950/40 dark:text-amber-300"
-                    : "border-slate-300 hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                    : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 }`}
               >
                 {hasStarred ? "⭐ Starred" : "☆ Star this idea"}
@@ -489,7 +489,7 @@ export default async function ProjectDetail({
               {pending.map((m) => (
                 <li
                   key={m.user_id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-300 px-4 py-3 dark:border-slate-600"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
                 >
                   <span className="text-sm">
                     <span className="font-medium">
@@ -517,7 +517,7 @@ export default async function ProjectDetail({
                       <input type="hidden" name="decision" value="decline" />
                       <button
                         type="submit"
-                        className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                        className="rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                       >
                         Decline
                       </button>
@@ -533,7 +533,7 @@ export default async function ProjectDetail({
         <div className="mt-7">
           <h2 className="mb-2 text-sm font-semibold">The team</h2>
           <ul className="flex flex-col gap-2">
-            <li className="flex items-center justify-between gap-3 rounded-xl border border-slate-300 px-4 py-3 dark:border-slate-600">
+            <li className="flex items-center justify-between gap-3 rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500">
               <span className="text-sm font-medium">{founderName}</span>
               <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
                 Founder
@@ -542,7 +542,7 @@ export default async function ProjectDetail({
             {accepted.map((m) => (
               <li
                 key={m.user_id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-slate-300 px-4 py-3 dark:border-slate-600"
+                className="flex items-center justify-between gap-3 rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
               >
                 <span className="flex flex-wrap items-center gap-2 text-sm">
                   {m.profile?.display_name ?? "Someone"}
@@ -640,7 +640,7 @@ export default async function ProjectDetail({
               {updates.map((u) => (
                 <li
                   key={u.id}
-                  className="rounded-xl border border-slate-300 px-4 py-3 dark:border-slate-600"
+                  className="rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
                 >
                   <p className="text-xs text-black/45 dark:text-white/45">
                     📣 {u.author?.display_name ?? "The team"} ·{" "}
@@ -652,7 +652,7 @@ export default async function ProjectDetail({
                   {u.photo_url ? (
                     <div
                       aria-hidden
-                      className="mt-2 h-48 w-full rounded-xl border border-slate-200 bg-cover bg-center dark:border-slate-700"
+                      className="mt-2 h-48 w-full rounded-xl border border-slate-300 bg-cover bg-center dark:border-slate-600"
                       style={{ backgroundImage: `url(${u.photo_url})` }}
                     />
                   ) : null}
@@ -685,7 +685,7 @@ export default async function ProjectDetail({
         {/* The story so far — the history timeline is the hero of the page */}
         <div className="mt-7">
           <h2 className="mb-3 text-sm font-semibold">The story so far</h2>
-          <ol className="relative ml-2 flex flex-col gap-4 border-l border-slate-300 pl-5 dark:border-slate-600">
+          <ol className="relative ml-2 flex flex-col gap-4 border-l border-slate-400 pl-5 dark:border-slate-500">
             {timeline.map((entry, i) => (
               <li key={`${entry.at}-${i}`} className="relative">
                 <span
@@ -730,8 +730,8 @@ export default async function ProjectDetail({
                     key={e.id}
                     className={`rounded-xl border px-4 py-3 ${
                       upcoming
-                        ? "border-slate-300 dark:border-slate-600"
-                        : "border-slate-200 opacity-60 dark:border-slate-700"
+                        ? "border-slate-400 dark:border-slate-500"
+                        : "border-slate-300 opacity-60 dark:border-slate-600"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -784,7 +784,7 @@ export default async function ProjectDetail({
                             className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
                               iAmIn
                                 ? "border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
-                                : "border-slate-300 hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                                : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                             }`}
                           >
                             {iAmIn ? "✓ You're in — tap to change plans" : "🙋 I'm in"}
@@ -829,7 +829,7 @@ export default async function ProjectDetail({
           {isSteward ? (
             <form
               action={createEvent}
-              className="mt-4 rounded-2xl border border-slate-300 p-4 dark:border-slate-600"
+              className="mt-4 rounded-2xl border border-slate-400 p-4 dark:border-slate-500"
             >
               <input type="hidden" name="projectId" value={project.id} />
               <h3 className="text-sm font-semibold">Plan an event</h3>
@@ -843,21 +843,21 @@ export default async function ProjectDetail({
                 required
                 maxLength={140}
                 placeholder='e.g. "Planting day — bring gloves!"'
-                className="mt-3 w-full rounded-xl border border-slate-300 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
+                className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
               />
               <div className="mt-2 flex flex-wrap gap-2">
                 <input
                   type="datetime-local"
                   name="startsAt"
                   required
-                  className="rounded-xl border border-slate-300 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-500 dark:[color-scheme:dark]"
+                  className="rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400 dark:[color-scheme:dark]"
                 />
                 <input
                   type="text"
                   name="place"
                   maxLength={200}
                   placeholder="Where? e.g. the Oak Street lot"
-                  className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
+                  className="min-w-0 flex-1 rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
                 />
               </div>
               <button
@@ -896,7 +896,7 @@ export default async function ProjectDetail({
                 return (
                   <li
                     key={c.id}
-                    className="rounded-xl border border-slate-300 px-4 py-3 dark:border-slate-600"
+                    className="rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
                   >
                     <p className="text-sm">
                       <span className="mr-1" aria-hidden>
@@ -972,7 +972,7 @@ export default async function ProjectDetail({
                               />
                               <ConfirmSubmit
                                 message="Quietly remove this entry? Do this only if it doesn't reflect what happened."
-                                className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                                className="rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                               >
                                 Not this one
                               </ConfirmSubmit>
@@ -1016,7 +1016,7 @@ export default async function ProjectDetail({
                             />
                             <button
                               type="submit"
-                              className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                              className="rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                             >
                               Withdraw
                             </button>
@@ -1034,7 +1034,7 @@ export default async function ProjectDetail({
           {isTeammate ? (
             <form
               action={logContribution}
-              className="mt-4 rounded-2xl border border-slate-300 p-4 dark:border-slate-600"
+              className="mt-4 rounded-2xl border border-slate-400 p-4 dark:border-slate-500"
             >
               <input type="hidden" name="projectId" value={project.id} />
               <h3 className="text-sm font-semibold">Log a contribution</h3>
@@ -1051,7 +1051,7 @@ export default async function ProjectDetail({
                     <label
                       key={t}
                       title={m.hint}
-                      className="cursor-pointer rounded-full border border-slate-300 px-3.5 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:text-emerald-800 dark:border-slate-500 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40 dark:has-[:checked]:text-emerald-300"
+                      className="cursor-pointer rounded-full border border-slate-400 px-3.5 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:text-emerald-800 dark:border-slate-400 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40 dark:has-[:checked]:text-emerald-300"
                     >
                       <input
                         type="radio"
@@ -1072,7 +1072,7 @@ export default async function ProjectDetail({
                 maxLength={1000}
                 rows={3}
                 placeholder="What did you do, and how did it move the project forward?"
-                className="mt-3 w-full rounded-xl border border-slate-300 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
+                className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
               />
 
               <button
@@ -1096,7 +1096,7 @@ export default async function ProjectDetail({
                   <input type="hidden" name="state" value={s} />
                   <button
                     type="submit"
-                    className="rounded-full border border-slate-300 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
+                    className="rounded-full border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                   >
                     Mark as {STATE_META[s].label.toLowerCase()}
                   </button>
@@ -1120,7 +1120,7 @@ export default async function ProjectDetail({
 
         {/* Community moderation — quiet by design; not shown on your own. */}
         {!isOwner ? (
-          <div className="mt-10 border-t border-slate-200 pt-4 dark:border-slate-700">
+          <div className="mt-10 border-t border-slate-300 pt-4 dark:border-slate-600">
             <FlagButton
               projectId={project.id}
               alreadyFlagged={Boolean(myFlag)}
