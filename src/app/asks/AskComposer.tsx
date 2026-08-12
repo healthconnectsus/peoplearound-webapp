@@ -64,7 +64,7 @@ export function AskComposer({
   return (
     <form
       action={postAsk}
-      className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+      className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900"
     >
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
       <input type="hidden" name="lat" value={spot?.lat ?? ""} />
@@ -89,7 +89,7 @@ export function AskComposer({
             key={e}
             type="button"
             onClick={() => setTitle(e)}
-            className="rounded-full border border-black/10 px-3 py-1 text-xs text-black/55 transition-colors hover:border-emerald-600 hover:text-emerald-700 dark:border-white/15 dark:text-white/55 dark:hover:text-emerald-400"
+            className="rounded-full border border-black/15 px-3 py-1 text-xs text-black/55 transition-colors hover:border-emerald-600 hover:text-emerald-700 dark:border-white/15 dark:text-white/55 dark:hover:text-emerald-400"
           >
             {e}
           </button>

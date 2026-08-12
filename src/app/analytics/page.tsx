@@ -34,7 +34,7 @@ function Stat({
   hint?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-black/5 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+    <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-900">
       <p className="text-2xl font-extrabold tracking-tight">{value}</p>
       <p className="mt-0.5 text-xs font-medium text-black/60 dark:text-white/60">
         {label}
@@ -187,7 +187,7 @@ export default async function AnalyticsPage() {
 
   return (
     <AppShell>
-      <main className="w-full max-w-4xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+      <main className="w-full max-w-4xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">Your analytics</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
           How your ideas are doing — private to you, never shown to neighbors
@@ -219,7 +219,7 @@ export default async function AnalyticsPage() {
             The journey each neighbor takes on your ideas. A wide gap between
             two steps is where to focus.
           </p>
-          <ul className="flex flex-col gap-2 rounded-2xl border border-black/5 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+          <ul className="flex flex-col gap-2 rounded-2xl border border-black/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-900">
             <FunnelBar
               label="👁 Viewed"
               value={totalViews}
@@ -258,7 +258,7 @@ export default async function AnalyticsPage() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
             Views · last 30 days
           </h2>
-          <div className="rounded-2xl border border-black/5 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+          <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-900">
             {totalViews === 0 ? (
               <p className="py-6 text-center text-sm text-black/45 dark:text-white/45">
                 No views yet. Share your idea&apos;s link with a neighbor —
@@ -306,10 +306,10 @@ export default async function AnalyticsPage() {
               .
             </p>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900">
+            <div className="overflow-x-auto rounded-2xl border border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900">
               <table className="w-full min-w-[36rem] text-sm">
                 <thead>
-                  <tr className="border-b border-black/5 text-left text-xs uppercase tracking-wide text-black/45 dark:border-white/5 dark:text-white/45">
+                  <tr className="border-b border-black/10 text-left text-xs uppercase tracking-wide text-black/45 dark:border-white/10 dark:text-white/45">
                     <th className="px-4 py-3 font-semibold">Idea</th>
                     <th className="px-3 py-3 font-semibold">👁</th>
                     <th className="px-3 py-3 font-semibold">⭐</th>
@@ -322,7 +322,7 @@ export default async function AnalyticsPage() {
                   {rows.map((r) => (
                     <tr
                       key={r.id}
-                      className="border-b border-black/5 last:border-0 dark:border-white/5"
+                      className="border-b border-black/10 last:border-0 dark:border-white/10"
                     >
                       <td className="px-4 py-3">
                         <Link

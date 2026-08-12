@@ -55,7 +55,7 @@ function PersonCard({
 }) {
   const name = person.display_name ?? "A neighbor";
   return (
-    <li className="flex items-center gap-3 rounded-2xl border border-black/5 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+    <li className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-900">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
         {initials(name)}
       </span>
@@ -234,7 +234,7 @@ export default async function PeoplePage({
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
           <FeedComposer />
 
           {error ? (
@@ -338,7 +338,7 @@ export default async function PeoplePage({
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     !filtersActive
                       ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                      : "border-black/15 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
                   }`}
                 >
                   All
@@ -350,7 +350,7 @@ export default async function PeoplePage({
                     className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                       cat === c
                         ? "border-emerald-600 bg-emerald-600 text-white"
-                        : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                        : "border-black/15 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
                     }`}
                   >
                     {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
@@ -362,7 +362,7 @@ export default async function PeoplePage({
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     helpFilter === "local"
                       ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                      : "border-black/15 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
                   }`}
                 >
                   🏠 Hands nearby
@@ -372,7 +372,7 @@ export default async function PeoplePage({
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     helpFilter === "remote"
                       ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-black/10 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
+                      : "border-black/15 bg-white text-black/60 hover:bg-black/5 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60"
                   }`}
                 >
                   💻 Online help
@@ -419,7 +419,7 @@ export default async function PeoplePage({
                 {mine.map((c) => (
                   <li
                     key={c.id}
-                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/5 bg-white px-4 py-3 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-zinc-900"
                   >
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-center gap-2">
@@ -471,7 +471,7 @@ export default async function PeoplePage({
                   {discover.map((c) => (
                     <li
                       key={c.id}
-                      className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/5 bg-white px-4 py-3 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                      className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-zinc-900"
                     >
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
@@ -505,7 +505,7 @@ export default async function PeoplePage({
               </h3>
               <form
                 action={createCommunity}
-                className="flex flex-col gap-3 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900"
               >
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <input

@@ -964,7 +964,7 @@ export function IdeaForm({
       {/* ---- Step 5: review & share ---- */}
       {step === 4 ? (
         <div className="flex flex-col gap-5">
-          <div className="overflow-hidden rounded-2xl border border-black/10 dark:border-white/10">
+          <div className="overflow-hidden rounded-2xl border border-black/15 dark:border-white/15">
             {photoUrl ? (
               <div
                 aria-hidden
@@ -1076,7 +1076,7 @@ export function IdeaForm({
               <button
                 type="button"
                 onClick={() => setRawIdea(ex.desc)}
-                className="w-full rounded-xl border border-black/5 bg-white px-4 py-2.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-md dark:border-white/5 dark:bg-zinc-900"
+                className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
               >
                 <span className="block text-sm font-semibold">{ex.title}</span>
                 <span className="mt-0.5 block text-xs leading-snug text-black/55 dark:text-white/55">

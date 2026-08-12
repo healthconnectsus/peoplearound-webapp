@@ -93,7 +93,7 @@ export async function AsksSection({
               return (
                 <li
                   key={a.id}
-                  className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                  className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900"
                 >
                   {a.photo_url ? (
                     <div
@@ -177,7 +177,7 @@ export async function AsksSection({
               return (
                 <li
                   key={a.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-black/5 bg-white px-4 py-3 text-sm shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm shadow-sm dark:border-white/10 dark:bg-zinc-900"
                 >
                   <span>
                     <span className="mr-1" aria-hidden>

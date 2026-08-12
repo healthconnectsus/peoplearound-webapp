@@ -75,7 +75,7 @@ export async function TopBar() {
     <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]">
       {/* The search column mirrors the home feed column (both left-aligned)
           so the input's left edge lines up with the content beneath it. */}
-      <div className="w-full max-w-2xl px-4 lg:pl-24 lg:pr-8">
+      <div className="w-full max-w-2xl px-4 lg:pl-28 lg:pr-8">
         <form action="/">
           <label className="relative block max-w-xl">
             <Search
@@ -87,7 +87,7 @@ export async function TopBar() {
               type="search"
               name="q"
               placeholder="Search projects around you"
-              className="w-full rounded-full border border-black/10 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-white/15 dark:bg-zinc-900 dark:placeholder:text-white/40"
+              className="w-full rounded-full border border-black/15 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-white/15 dark:bg-zinc-900 dark:placeholder:text-white/40"
             />
           </label>
         </form>

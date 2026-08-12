@@ -47,7 +47,7 @@ export default async function AdminPage({
   if (!admin) {
     return (
       <AppShell>
-        <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+        <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
           <p className="mt-4 text-sm text-red-600">
             SUPABASE_SERVICE_ROLE_KEY is not configured.
@@ -116,7 +116,7 @@ export default async function AdminPage({
 
   return (
     <AppShell>
-      <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+      <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
           Ops console — only admins see this. Every decision here is a human
@@ -138,7 +138,7 @@ export default async function AdminPage({
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-2xl border border-black/5 bg-white p-4 text-center shadow-sm dark:border-white/5 dark:bg-zinc-900"
+              className="rounded-2xl border border-black/10 bg-white p-4 text-center shadow-sm dark:border-white/10 dark:bg-zinc-900"
             >
               <p className="text-2xl font-extrabold">{s.value}</p>
               <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
@@ -164,7 +164,7 @@ export default async function AdminPage({
                 return (
                   <li
                     key={projectId}
-                    className="rounded-2xl border border-black/5 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                    className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-900"
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <Link
@@ -233,7 +233,7 @@ export default async function AdminPage({
               return (
                 <li
                   key={h.id}
-                  className="rounded-2xl border border-black/5 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                  className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-900"
                 >
                   <form
                     action={renameCommunity}

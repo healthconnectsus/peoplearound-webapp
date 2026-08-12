@@ -62,12 +62,12 @@ export default async function SettingsPage({
 
   return (
     <AppShell>
-      <main className="w-full max-w-xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+      <main className="w-full max-w-xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
         <div className="mb-4 flex items-center gap-3">
           <Link
             href="/profile"
             aria-label="Back to profile"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-black/15 transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
           </Link>
@@ -85,7 +85,7 @@ export default async function SettingsPage({
           </p>
         ) : null}
 
-        <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900">
+        <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900">
           <CoverUpload userId={user.id} coverUrl={profile?.cover_url ?? null} />
           <div className="px-6 pb-6">
             <AvatarUpload
@@ -225,7 +225,7 @@ export default async function SettingsPage({
               </button>
             </form>
 
-            <div className="mt-6 border-t border-black/5 pt-5 dark:border-white/10">
+            <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/15">
               <p className="text-sm font-medium">Neighborhood</p>
               <p className="mt-1 text-sm text-black/60 dark:text-white/60">
                 {profile?.neighborhood
@@ -242,7 +242,7 @@ export default async function SettingsPage({
               </Link>
             </div>
 
-            <div className="mt-6 border-t border-black/5 pt-5 dark:border-white/10">
+            <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/15">
               <p className="text-sm font-semibold">Weekly digest</p>
               <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
                 One email a week with what moved in your neighborhood — only
@@ -267,7 +267,7 @@ export default async function SettingsPage({
               </form>
             </div>
 
-            <div className="mt-6 border-t border-black/5 pt-5 dark:border-white/10">
+            <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/15">
               <p className="text-sm font-semibold">Notifications on your phone</p>
               <p className="mt-0.5 mb-2 text-xs text-black/50 dark:text-white/50">
                 A quiet ping when someone joins your idea, confirms your help,
@@ -278,7 +278,7 @@ export default async function SettingsPage({
               />
             </div>
 
-            <div className="mt-6 border-t border-black/5 pt-5 dark:border-white/10">
+            <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/15">
               <p className="text-sm text-black/50 dark:text-white/50">
                 Signed in as {user.email}
               </p>

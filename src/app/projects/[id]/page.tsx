@@ -308,7 +308,7 @@ export default async function ProjectDetail({
           </aside>
         ) : null}
 
-      <main className="w-full max-w-2xl flex-1 p-4 lg:order-1 lg:py-6 lg:pl-24 lg:pr-8">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:order-1 lg:py-6 lg:pl-28 lg:pr-8">
         <Link
           href="/"
           className="text-sm text-black/50 hover:underline dark:text-white/50"
@@ -325,7 +325,7 @@ export default async function ProjectDetail({
         ) : project.photo_url ? (
           <div
             aria-hidden
-            className="mt-4 h-56 w-full rounded-2xl border border-black/5 bg-cover bg-center shadow-sm dark:border-white/5"
+            className="mt-4 h-56 w-full rounded-2xl border border-black/10 bg-cover bg-center shadow-sm dark:border-white/10"
             style={{ backgroundImage: `url(${project.photo_url})` }}
           />
         ) : null}
@@ -379,7 +379,7 @@ export default async function ProjectDetail({
         )}
 
         {/* Actions: join + star */}
-        <div className="mt-7 rounded-2xl border border-black/10 p-4 dark:border-white/10">
+        <div className="mt-7 rounded-2xl border border-black/15 p-4 dark:border-white/15">
           {isOwner ? (
             <p className="text-sm text-black/60 dark:text-white/60">
               This is your project. When neighbors ask to join, their requests
@@ -489,7 +489,7 @@ export default async function ProjectDetail({
               {pending.map((m) => (
                 <li
                   key={m.user_id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-4 py-3 dark:border-white/10"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-black/15 px-4 py-3 dark:border-white/15"
                 >
                   <span className="text-sm">
                     <span className="font-medium">
@@ -533,7 +533,7 @@ export default async function ProjectDetail({
         <div className="mt-7">
           <h2 className="mb-2 text-sm font-semibold">The team</h2>
           <ul className="flex flex-col gap-2">
-            <li className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-4 py-3 dark:border-white/10">
+            <li className="flex items-center justify-between gap-3 rounded-xl border border-black/15 px-4 py-3 dark:border-white/15">
               <span className="text-sm font-medium">{founderName}</span>
               <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
                 Founder
@@ -542,7 +542,7 @@ export default async function ProjectDetail({
             {accepted.map((m) => (
               <li
                 key={m.user_id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-4 py-3 dark:border-white/10"
+                className="flex items-center justify-between gap-3 rounded-xl border border-black/15 px-4 py-3 dark:border-white/15"
               >
                 <span className="flex flex-wrap items-center gap-2 text-sm">
                   {m.profile?.display_name ?? "Someone"}
@@ -640,7 +640,7 @@ export default async function ProjectDetail({
               {updates.map((u) => (
                 <li
                   key={u.id}
-                  className="rounded-xl border border-black/10 px-4 py-3 dark:border-white/10"
+                  className="rounded-xl border border-black/15 px-4 py-3 dark:border-white/15"
                 >
                   <p className="text-xs text-black/45 dark:text-white/45">
                     📣 {u.author?.display_name ?? "The team"} ·{" "}
@@ -652,7 +652,7 @@ export default async function ProjectDetail({
                   {u.photo_url ? (
                     <div
                       aria-hidden
-                      className="mt-2 h-48 w-full rounded-xl border border-black/5 bg-cover bg-center dark:border-white/5"
+                      className="mt-2 h-48 w-full rounded-xl border border-black/10 bg-cover bg-center dark:border-white/10"
                       style={{ backgroundImage: `url(${u.photo_url})` }}
                     />
                   ) : null}
@@ -685,7 +685,7 @@ export default async function ProjectDetail({
         {/* The story so far — the history timeline is the hero of the page */}
         <div className="mt-7">
           <h2 className="mb-3 text-sm font-semibold">The story so far</h2>
-          <ol className="relative ml-2 flex flex-col gap-4 border-l border-black/10 pl-5 dark:border-white/10">
+          <ol className="relative ml-2 flex flex-col gap-4 border-l border-black/15 pl-5 dark:border-white/15">
             {timeline.map((entry, i) => (
               <li key={`${entry.at}-${i}`} className="relative">
                 <span
@@ -730,8 +730,8 @@ export default async function ProjectDetail({
                     key={e.id}
                     className={`rounded-xl border px-4 py-3 ${
                       upcoming
-                        ? "border-black/10 dark:border-white/10"
-                        : "border-black/5 opacity-60 dark:border-white/5"
+                        ? "border-black/15 dark:border-white/15"
+                        : "border-black/10 opacity-60 dark:border-white/10"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -829,7 +829,7 @@ export default async function ProjectDetail({
           {isSteward ? (
             <form
               action={createEvent}
-              className="mt-4 rounded-2xl border border-black/10 p-4 dark:border-white/10"
+              className="mt-4 rounded-2xl border border-black/15 p-4 dark:border-white/15"
             >
               <input type="hidden" name="projectId" value={project.id} />
               <h3 className="text-sm font-semibold">Plan an event</h3>
@@ -896,7 +896,7 @@ export default async function ProjectDetail({
                 return (
                   <li
                     key={c.id}
-                    className="rounded-xl border border-black/10 px-4 py-3 dark:border-white/10"
+                    className="rounded-xl border border-black/15 px-4 py-3 dark:border-white/15"
                   >
                     <p className="text-sm">
                       <span className="mr-1" aria-hidden>
@@ -1034,7 +1034,7 @@ export default async function ProjectDetail({
           {isTeammate ? (
             <form
               action={logContribution}
-              className="mt-4 rounded-2xl border border-black/10 p-4 dark:border-white/10"
+              className="mt-4 rounded-2xl border border-black/15 p-4 dark:border-white/15"
             >
               <input type="hidden" name="projectId" value={project.id} />
               <h3 className="text-sm font-semibold">Log a contribution</h3>
@@ -1120,7 +1120,7 @@ export default async function ProjectDetail({
 
         {/* Community moderation — quiet by design; not shown on your own. */}
         {!isOwner ? (
-          <div className="mt-10 border-t border-black/5 pt-4 dark:border-white/5">
+          <div className="mt-10 border-t border-black/10 pt-4 dark:border-white/10">
             <FlagButton
               projectId={project.id}
               alreadyFlagged={Boolean(myFlag)}

@@ -21,7 +21,7 @@ function IdeaRow({
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className="flex items-center gap-3 rounded-2xl border border-black/5 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/5 dark:bg-zinc-900"
+        className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
       >
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">
@@ -98,7 +98,7 @@ export default async function IdeasPage() {
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">My ideas</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
             The projects you started, and the teams you joined.

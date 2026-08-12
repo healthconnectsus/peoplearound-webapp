@@ -57,7 +57,7 @@ export default async function RecapPage({
 
   return (
     <AppShell>
-      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">
           {name} in {year}
         </h1>
@@ -117,7 +117,7 @@ export default async function RecapPage({
                   {recap.topCategories.map((c) => (
                     <li
                       key={c.category}
-                      className="rounded-full border border-black/5 bg-white px-3.5 py-1.5 text-sm shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                      className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-sm shadow-sm dark:border-white/10 dark:bg-zinc-900"
                     >
                       {categoryMeta(c.category).emoji}{" "}
                       {categoryMeta(c.category).label} · {c.count}

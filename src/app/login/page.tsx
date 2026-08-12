@@ -214,7 +214,7 @@ export default async function LoginPage({
               return (
                 <li
                   key={idea.id}
-                  className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/5 dark:bg-zinc-900"
+                  className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
                 >
                   <div
                     aria-hidden
@@ -317,7 +317,7 @@ export default async function LoginPage({
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-black/5 bg-stone-100/60 dark:border-white/5 dark:bg-zinc-900/60">
+      <footer className="border-t border-black/10 bg-stone-100/60 dark:border-white/10 dark:bg-zinc-900/60">
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}

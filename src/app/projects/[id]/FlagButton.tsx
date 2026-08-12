@@ -79,7 +79,7 @@ export function FlagButton({
               {REASONS.map((r, i) => (
                 <label
                   key={r.value}
-                  className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-black/10 px-3.5 py-2.5 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-white/15 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-black/15 px-3.5 py-2.5 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-white/15 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40"
                 >
                   <input
                     type="radio"

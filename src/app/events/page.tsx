@@ -36,7 +36,7 @@ export default async function EventsPage() {
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">Events</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
             Where projects become real — show up and meet the people behind them.
@@ -59,7 +59,7 @@ export default async function EventsPage() {
                 <li key={e.id}>
                   <Link
                     href={`/projects/${e.project_id}`}
-                    className="flex flex-col gap-1 rounded-2xl border border-black/5 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/5 dark:bg-zinc-900"
+                    className="flex flex-col gap-1 rounded-2xl border border-black/10 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
                   >
                     <span className="font-medium">📅 {e.title}</span>
                     <span className="text-sm text-black/60 dark:text-white/60">

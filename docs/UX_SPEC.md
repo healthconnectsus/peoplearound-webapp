@@ -310,6 +310,15 @@ Design rules:
   rounded to ~110 m, never a doorstep.
 
 
+### Content margin and border weight
+
+Content pages sit at `lg:pl-28` from the rail (nudged from `pl-24`), and
+every neutral card/divider border went one opacity step darker in one pass
+— `border-black/5` → `/10`, `border-black/10` → `/15`, and their dark-mode
+`border-white` counterparts. Colored borders (category tints, state badges,
+warning/error banners) were untouched; this only affects the plain gray
+lines that outline cards and sections.
+
 ### The wizard is a lightbox, not a page
 
 /projects/new covers the viewport on a white background — no rail, no top

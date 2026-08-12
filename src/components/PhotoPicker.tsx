@@ -80,7 +80,7 @@ export function PhotoPicker({
         <div className="flex flex-col gap-2">
           <div
             aria-hidden
-            className="h-40 w-full rounded-xl border border-black/10 bg-cover bg-center dark:border-white/10"
+            className="h-40 w-full rounded-xl border border-black/15 bg-cover bg-center dark:border-white/15"
             style={{ backgroundImage: `url(${value})` }}
           />
           <div className="flex flex-wrap gap-3">

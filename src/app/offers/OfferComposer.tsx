@@ -25,7 +25,7 @@ export function OfferComposer({
   return (
     <form
       action={postOffer}
-      className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900"
+      className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900"
     >
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
       <input type="hidden" name="lat" value={spot?.lat ?? ""} />

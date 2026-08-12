@@ -31,7 +31,7 @@ function ProjectRow({
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className="flex items-center gap-3 rounded-2xl border border-black/5 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/5 dark:bg-zinc-900"
+        className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
       >
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">
@@ -253,9 +253,9 @@ export default async function ProfilePage({
     <AppShell>
       <BadgeCelebration badges={badges} userId={user.id} />
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-24 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
           {/* Profile header */}
-          <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/5 dark:bg-zinc-900">
+          <section className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900">
             <div
               className="h-28 bg-gradient-to-r from-emerald-100 via-sky-100 to-violet-100 bg-cover bg-center dark:from-emerald-950 dark:via-sky-950 dark:to-violet-950"
               style={
@@ -332,7 +332,7 @@ export default async function ProfilePage({
           ) : null}
 
           {/* Badges — evidence of acknowledged help, never bait */}
-          <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+          <section className="mt-4 rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900">
             <div className="flex items-baseline justify-between">
               <h2 className="font-medium">Badges</h2>
               <span className="text-xs text-black/40 dark:text-white/40">
@@ -369,7 +369,7 @@ export default async function ProfilePage({
 
           {/* Reputation — assembled from confirmed work, never declared */}
           {reputation.confirmed > 0 ? (
-            <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+            <section className="mt-4 rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900">
               <div className="flex items-baseline justify-between">
                 <h2 className="font-medium">What neighbors trust you with</h2>
                 <span className="text-xs text-black/40 dark:text-white/40">
@@ -422,7 +422,7 @@ export default async function ProfilePage({
                 {myCommunities.map((c) => (
                   <li
                     key={c.id}
-                    className="rounded-full border border-black/5 bg-white px-3.5 py-1.5 text-sm shadow-sm dark:border-white/5 dark:bg-zinc-900"
+                    className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-sm shadow-sm dark:border-white/10 dark:bg-zinc-900"
                   >
                     {c.kind && c.kind !== "neighborhood" ? "👥" : "🏘️"} {c.name}
                     {c.city ? (
@@ -464,7 +464,7 @@ export default async function ProfilePage({
                   <li key={e.id}>
                     <Link
                       href={`/projects/${e.project_id}`}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-black/5 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors hover:bg-stone-50 dark:border-white/5 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors hover:bg-stone-50 dark:border-white/10 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                     >
                       <span>
                         📅 <span className="font-medium">{e.title}</span>{" "}
@@ -490,7 +490,7 @@ export default async function ProfilePage({
           </section>
 
           {/* Dashboard — private stats */}
-          <section className="mt-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm dark:border-white/5 dark:bg-zinc-900">
+          <section className="mt-4 rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900">
             <div className="flex items-baseline justify-between">
               <h2 className="font-medium">Dashboard</h2>
               <Link
@@ -546,7 +546,7 @@ export default async function ProfilePage({
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
               Groups
             </h2>
-            <div className="rounded-2xl border border-black/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-zinc-900">
+            <div className="rounded-2xl border border-black/10 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-zinc-900">
               <p className="font-medium">No groups yet</p>
               <p className="mx-auto mt-1 max-w-sm text-sm text-black/60 dark:text-white/60">
                 Gardening club? Pickup football? Groups are coming soon — until

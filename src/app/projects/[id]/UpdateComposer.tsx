@@ -17,7 +17,7 @@ export function UpdateComposer({
   return (
     <form
       action={postUpdate}
-      className="mt-4 rounded-2xl border border-black/10 p-4 dark:border-white/10"
+      className="mt-4 rounded-2xl border border-black/15 p-4 dark:border-white/15"
     >
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
