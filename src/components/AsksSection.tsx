@@ -82,7 +82,7 @@ export async function AsksSection({
           Open · {open.length}
         </h3>
         {open.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+          <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60">
             Nobody needs a hand right now. That, or nobody&rsquo;s asked yet —
             going first makes it normal.
           </p>
@@ -93,7 +93,7 @@ export async function AsksSection({
               return (
                 <li
                   key={a.id}
-                  className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900"
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-zinc-900"
                 >
                   {a.photo_url ? (
                     <div
@@ -177,7 +177,7 @@ export async function AsksSection({
               return (
                 <li
                   key={a.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm shadow-sm dark:border-white/10 dark:bg-zinc-900"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-700 dark:bg-zinc-900"
                 >
                   <span>
                     <span className="mr-1" aria-hidden>

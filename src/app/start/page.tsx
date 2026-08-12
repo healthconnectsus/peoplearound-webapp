@@ -154,7 +154,7 @@ export default function StartClubPage() {
             {STEPS.map((step, i) => (
               <div
                 key={step.title}
-                className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-900"
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
               >
                 <div className="flex items-center gap-3">
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-sm font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
@@ -188,7 +188,7 @@ export default function StartClubPage() {
             {TEMPLATES.map((t) => (
               <div
                 key={t.name}
-                className="flex flex-col rounded-2xl border border-black/10 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
+                className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-zinc-900"
               >
                 <span
                   className={`flex h-11 w-11 items-center justify-center rounded-full ${t.accent}`}
@@ -217,7 +217,7 @@ export default function StartClubPage() {
                 </ul>
                 <Link
                   href="/projects/new"
-                  className="mt-5 rounded-full border border-black/15 px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                  className="mt-5 rounded-full border border-slate-300 px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
                 >
                   Use this plan
                 </Link>
@@ -232,7 +232,7 @@ export default function StartClubPage() {
             {ALSO_POPULAR.map((s) => (
               <span
                 key={s}
-                className="rounded-full border border-black/15 bg-white px-3 py-1 text-sm text-black/70 dark:border-white/15 dark:bg-zinc-900 dark:text-white/70"
+                className="rounded-full border border-slate-300 bg-white px-3 py-1 text-sm text-black/70 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/70"
               >
                 {s}
               </span>
@@ -283,7 +283,7 @@ export default function StartClubPage() {
         </section>
       </main>
 
-      <footer className="border-t border-black/10 bg-stone-100/60 dark:border-white/10 dark:bg-zinc-900/60">
+      <footer className="border-t border-slate-200 bg-stone-100/60 dark:border-slate-700 dark:bg-zinc-900/60">
         <p className="py-6 text-center text-xs text-black/40 dark:text-white/40">
           © Peoplearound 2026 ·{" "}
           <span title={BUILD_TIME ? `Built ${BUILD_TIME}` : undefined}>

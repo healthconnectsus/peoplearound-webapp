@@ -310,14 +310,18 @@ Design rules:
   rounded to ~110 m, never a doorstep.
 
 
-### Content margin and border weight
+### Content margin and border colour
 
-Content pages sit at `lg:pl-28` from the rail (nudged from `pl-24`), and
-every neutral card/divider border went one opacity step darker in one pass
-— `border-black/5` → `/10`, `border-black/10` → `/15`, and their dark-mode
-`border-white` counterparts. Colored borders (category tints, state badges,
-warning/error banners) were untouched; this only affects the plain gray
-lines that outline cards and sections.
+Content pages sit at `lg:pl-36` from the rail (`pl-24` → `pl-28` → `pl-36`
+across two rounds of "move it right"). Neutral card/divider borders are
+solid `slate`, not translucent black/white — `border-slate-200/300/400` in
+light mode, `border-slate-700/600/500` in dark, mapped from the old
+`border-black/10·15·20` and `dark:border-white/10·15·20` tiers respectively.
+Slate carries a blue undertone where zinc/gray read neutral and stone reads
+warm, which is what "darker blueish gray" meant here. Colored borders
+(category tints, state badges, warning/error banners, the three white
+avatar-ring borders on saturated card backgrounds) were untouched — this
+only ever touches the plain lines that outline cards and sections.
 
 ### The wizard is a lightbox, not a page
 

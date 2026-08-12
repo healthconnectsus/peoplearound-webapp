@@ -68,7 +68,7 @@ export function FeedComposer() {
 
   return (
     <>
-      <div className="mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-black/10 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-zinc-900 sm:flex-nowrap">
+      <div className="mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-zinc-900 sm:flex-nowrap">
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -119,7 +119,7 @@ export function FeedComposer() {
                     <Link
                       href={d.href}
                       onClick={() => setOpen(false)}
-                      className="flex items-center gap-4 rounded-2xl border border-black/10 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/15 dark:bg-zinc-900"
+                      className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
                     >
                       <span
                         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white ${d.tint}`}

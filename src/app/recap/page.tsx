@@ -57,7 +57,7 @@ export default async function RecapPage({
 
   return (
     <AppShell>
-      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
+      <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">
           {name} in {year}
         </h1>
@@ -67,7 +67,7 @@ export default async function RecapPage({
         </p>
 
         {quiet ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-black/15 bg-white p-8 text-center dark:border-white/15 dark:bg-zinc-900">
+          <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center dark:border-slate-600 dark:bg-zinc-900">
             <p className="text-3xl" aria-hidden>
               🌱
             </p>
@@ -117,7 +117,7 @@ export default async function RecapPage({
                   {recap.topCategories.map((c) => (
                     <li
                       key={c.category}
-                      className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-sm shadow-sm dark:border-white/10 dark:bg-zinc-900"
+                      className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm shadow-sm dark:border-slate-700 dark:bg-zinc-900"
                     >
                       {categoryMeta(c.category).emoji}{" "}
                       {categoryMeta(c.category).label} · {c.count}
@@ -132,14 +132,14 @@ export default async function RecapPage({
         <div className="mt-8 flex flex-wrap items-center gap-3 text-sm">
           <Link
             href={`/recap?year=${year - 1}`}
-            className="rounded-full border border-black/15 px-4 py-1.5 font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+            className="rounded-full border border-slate-300 px-4 py-1.5 font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
           >
             ← {year - 1}
           </Link>
           {year < new Date().getFullYear() ? (
             <Link
               href={`/recap?year=${year + 1}`}
-              className="rounded-full border border-black/15 px-4 py-1.5 font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+              className="rounded-full border border-slate-300 px-4 py-1.5 font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
             >
               {year + 1} →
             </Link>

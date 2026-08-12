@@ -80,7 +80,7 @@ export default async function OffersPage() {
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">Offers</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
             Things neighbors will give, lend, or do for each other. Nothing here
@@ -107,7 +107,7 @@ export default async function OffersPage() {
               Available · {available.length}
             </h2>
             {available.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-black/15 bg-white p-6 text-center text-sm text-black/60 dark:border-white/15 dark:bg-zinc-900 dark:text-white/60">
+              <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-600 dark:bg-zinc-900 dark:text-white/60">
                 Nothing on the board yet — post the first thing.
               </p>
             ) : (
@@ -118,7 +118,7 @@ export default async function OffersPage() {
                   return (
                     <li
                       key={o.id}
-                      className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900"
+                      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-zinc-900"
                     >
                       {o.photo_url ? (
                         <div
@@ -203,7 +203,7 @@ export default async function OffersPage() {
                   return (
                     <li
                       key={o.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm opacity-75 shadow-sm dark:border-white/10 dark:bg-zinc-900"
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm opacity-75 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
                     >
                       <span>
                         <span className="mr-1" aria-hidden>

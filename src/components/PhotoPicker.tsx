@@ -80,7 +80,7 @@ export function PhotoPicker({
         <div className="flex flex-col gap-2">
           <div
             aria-hidden
-            className="h-40 w-full rounded-xl border border-black/15 bg-cover bg-center dark:border-white/15"
+            className="h-40 w-full rounded-xl border border-slate-300 bg-cover bg-center dark:border-slate-600"
             style={{ backgroundImage: `url(${value})` }}
           />
           <div className="flex flex-wrap gap-3">
@@ -88,7 +88,7 @@ export function PhotoPicker({
               type="button"
               disabled={busy}
               onClick={() => inputRef.current?.click()}
-              className="rounded-full border border-black/15 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-white/20 dark:hover:bg-white/10"
+              className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-slate-500 dark:hover:bg-white/10"
             >
               {busy ? "Uploading…" : "Replace photo"}
             </button>
@@ -122,7 +122,7 @@ export function PhotoPicker({
           } ${
             over
               ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20"
-              : "border-black/20 dark:border-white/20"
+              : "border-slate-400 dark:border-slate-500"
           }`}
         >
           <Camera className="h-4 w-4 shrink-0" aria-hidden />

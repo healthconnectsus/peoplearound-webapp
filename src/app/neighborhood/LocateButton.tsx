@@ -47,7 +47,7 @@ export function LocateButton() {
         type="button"
         onClick={locate}
         disabled={status === "locating"}
-        className="rounded-full border border-black/15 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-white/20 dark:hover:bg-white/10"
+        className="rounded-full border border-slate-300 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-slate-500 dark:hover:bg-white/10"
       >
         {status === "locating" ? "Looking around…" : "📍 Use my location"}
       </button>

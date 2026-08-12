@@ -20,7 +20,7 @@ export function Composer({
         formRef.current?.reset();
         await sendMessage(formData);
       }}
-      className="flex items-center gap-2 border-t border-black/10 p-3 dark:border-white/15"
+      className="flex items-center gap-2 border-t border-slate-200 p-3 dark:border-slate-600"
     >
       {conversationId ? (
         <input type="hidden" name="conversationId" value={conversationId} />
@@ -35,7 +35,7 @@ export function Composer({
         maxLength={4000}
         autoComplete="off"
         placeholder="Write a message…"
-        className="flex-1 rounded-full border border-black/15 bg-stone-50 px-4 py-2 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-white/15 dark:bg-zinc-800"
+        className="flex-1 rounded-full border border-slate-300 bg-stone-50 px-4 py-2 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-600 dark:bg-zinc-800"
       />
       <button
         type="submit"

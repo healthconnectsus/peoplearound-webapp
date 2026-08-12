@@ -39,7 +39,7 @@ export default async function FavesPage() {
   return (
     <AppShell>
       <MapShell pins={pins}>
-        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-28 lg:pr-8">
+        <main className="w-full max-w-2xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">Local Faves</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
             The projects your neighbors would most love to see exist, ranked by
@@ -47,7 +47,7 @@ export default async function FavesPage() {
           </p>
 
           {faves.length === 0 ? (
-            <div className="mt-8 rounded-2xl border border-dashed border-black/15 bg-white p-10 text-center dark:border-white/15 dark:bg-zinc-900">
+            <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-600 dark:bg-zinc-900">
               <p className="text-3xl" aria-hidden>
                 ⭐
               </p>
@@ -63,7 +63,7 @@ export default async function FavesPage() {
                 <li key={p.id}>
                   <Link
                     href={`/projects/${p.id}`}
-                    className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-zinc-900"
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-zinc-900"
                   >
                     <span className="w-6 shrink-0 text-center text-sm font-semibold text-black/40 dark:text-white/40">
                       {i + 1}

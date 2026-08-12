@@ -24,7 +24,7 @@ export function LocationCard({
     (spot?.lng ?? null) !== (initial?.lng ?? null);
 
   return (
-    <section className="mt-4 rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900">
+    <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-zinc-900">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="font-medium">📍 Your spot</h2>
         <span className="text-xs text-black/40 dark:text-white/40">
@@ -78,7 +78,7 @@ export function LocationCard({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="mt-3 rounded-full border border-black/15 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+          className="mt-3 rounded-full border border-slate-300 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/10"
         >
           {initial ? "Update my spot" : "Set my spot"}
         </button>

@@ -115,7 +115,7 @@ export function MapPicker({
     <div className="flex flex-col gap-2">
       <div
         ref={holderRef}
-        className="z-0 h-52 w-full overflow-hidden rounded-xl border border-black/15 dark:border-white/20"
+        className="z-0 h-52 w-full overflow-hidden rounded-xl border border-slate-300 dark:border-slate-500"
         aria-label="Pick a location on the map"
       />
       <div className="flex flex-wrap items-center gap-2">
@@ -123,7 +123,7 @@ export function MapPicker({
           type="button"
           onClick={useMyLocation}
           disabled={locating}
-          className="rounded-full border border-black/15 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-white/20 dark:hover:bg-white/10"
+          className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-slate-500 dark:hover:bg-white/10"
         >
           {locating ? "Locating…" : "📍 Use my location"}
         </button>

@@ -196,10 +196,10 @@ export default async function ChatsPage({
           </p>
         ) : null}
 
-        <div className="grid min-h-[32rem] overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="grid min-h-[32rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-zinc-900 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           {/* Conversation list */}
           <div
-            className={`border-black/10 dark:border-white/15 lg:border-r ${showThread || composeNew ? "hidden lg:block" : ""}`}
+            className={`border-slate-200 dark:border-slate-600 lg:border-r ${showThread || composeNew ? "hidden lg:block" : ""}`}
           >
             {list.length === 0 ? (
               <p className="p-6 text-sm text-black/50 dark:text-white/50">
@@ -271,7 +271,7 @@ export default async function ChatsPage({
             ) : threadPartner && selectedId ? (
               <>
                 <MarkRead conversationId={selectedId} />
-                <div className="flex items-center gap-3 border-b border-black/10 px-4 py-3 dark:border-white/15">
+                <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-600">
                   <Avatar person={threadPartner} size="h-9 w-9" />
                   <p className="font-medium">
                     {threadPartner.display_name ?? "A neighbor"}
@@ -304,7 +304,7 @@ export default async function ChatsPage({
               </>
             ) : toPerson ? (
               <>
-                <div className="flex items-center gap-3 border-b border-black/10 px-4 py-3 dark:border-white/15">
+                <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-600">
                   <Avatar person={toPerson} size="h-9 w-9" />
                   <p className="font-medium">
                     {toPerson.display_name ?? "A neighbor"}

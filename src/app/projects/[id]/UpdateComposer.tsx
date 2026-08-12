@@ -17,7 +17,7 @@ export function UpdateComposer({
   return (
     <form
       action={postUpdate}
-      className="mt-4 rounded-2xl border border-black/15 p-4 dark:border-white/15"
+      className="mt-4 rounded-2xl border border-slate-300 p-4 dark:border-slate-600"
     >
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
@@ -31,7 +31,7 @@ export function UpdateComposer({
         rows={3}
         maxLength={2000}
         placeholder="e.g. “We got the permit — planting day is on!”"
-        className="mt-3 w-full rounded-xl border border-black/15 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+        className="mt-3 w-full rounded-xl border border-slate-300 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
       />
       <div className="mt-2">
         <PhotoPicker

@@ -145,7 +145,7 @@ export function AvatarUpload({
         disabled={busy}
         onClick={() => inputRef.current?.click()}
         aria-label="Change profile photo"
-        className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border border-black/15 bg-white text-black/70 shadow-sm transition-colors hover:bg-stone-100 disabled:opacity-60 dark:border-white/15 dark:bg-zinc-800 dark:text-white/70 dark:hover:bg-zinc-700"
+        className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-black/70 shadow-sm transition-colors hover:bg-stone-100 disabled:opacity-60 dark:border-slate-600 dark:bg-zinc-800 dark:text-white/70 dark:hover:bg-zinc-700"
       >
         <Pencil className="h-4 w-4" aria-hidden />
       </button>

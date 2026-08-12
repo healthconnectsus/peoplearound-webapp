@@ -64,7 +64,7 @@ export function AskComposer({
   return (
     <form
       action={postAsk}
-      className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900"
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
     >
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
       <input type="hidden" name="lat" value={spot?.lat ?? ""} />
@@ -80,7 +80,7 @@ export function AskComposer({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="e.g. “Move a sofa into the living room”"
-        className="mt-3 w-full rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+        className="mt-3 w-full rounded-xl border border-slate-300 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
       />
 
       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -89,7 +89,7 @@ export function AskComposer({
             key={e}
             type="button"
             onClick={() => setTitle(e)}
-            className="rounded-full border border-black/15 px-3 py-1 text-xs text-black/55 transition-colors hover:border-emerald-600 hover:text-emerald-700 dark:border-white/15 dark:text-white/55 dark:hover:text-emerald-400"
+            className="rounded-full border border-slate-300 px-3 py-1 text-xs text-black/55 transition-colors hover:border-emerald-600 hover:text-emerald-700 dark:border-slate-600 dark:text-white/55 dark:hover:text-emerald-400"
           >
             {e}
           </button>
@@ -108,7 +108,7 @@ export function AskComposer({
           {MINUTES.map((m, i) => (
             <label
               key={m.value}
-              className="cursor-pointer rounded-full border border-black/15 px-4 py-1.5 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:font-semibold has-[:checked]:text-emerald-800 dark:border-white/20 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40 dark:has-[:checked]:text-emerald-300"
+              className="cursor-pointer rounded-full border border-slate-300 px-4 py-1.5 text-sm transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:font-semibold has-[:checked]:text-emerald-800 dark:border-slate-500 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40 dark:has-[:checked]:text-emerald-300"
             >
               <input
                 type="radio"
@@ -128,21 +128,21 @@ export function AskComposer({
         name="whenText"
         maxLength={80}
         placeholder="When? e.g. “Any evening this week” (optional)"
-        className="mt-4 w-full rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+        className="mt-4 w-full rounded-xl border border-slate-300 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
       />
       <textarea
         name="description"
         rows={2}
         maxLength={2000}
         placeholder="Anything useful — how heavy, how many people, third floor no lift (optional)"
-        className="mt-2 w-full resize-y rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+        className="mt-2 w-full resize-y rounded-xl border border-slate-300 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
       />
       <input
         type="text"
         name="place"
         maxLength={120}
         placeholder="Roughly where? e.g. “5th & Oak” (optional)"
-        className="mt-2 w-full rounded-xl border border-black/15 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-white/20"
+        className="mt-2 w-full rounded-xl border border-slate-300 bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 dark:border-slate-500"
       />
 
       <div className="mt-3">

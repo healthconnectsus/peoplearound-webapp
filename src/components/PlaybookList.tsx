@@ -22,7 +22,7 @@ export function PlaybookList() {
         {PLAYBOOKS.map((pb) => (
           <li
             key={pb.slug}
-            className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900"
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-zinc-900"
           >
             <h3 className="text-lg font-bold">
               <span className="mr-1.5" aria-hidden>
@@ -46,7 +46,7 @@ export function PlaybookList() {
                 {pb.asks.map((a) => (
                   <li
                     key={a}
-                    className="rounded-full border border-black/15 px-3 py-1 text-xs text-black/60 dark:border-white/15 dark:text-white/60"
+                    className="rounded-full border border-slate-300 px-3 py-1 text-xs text-black/60 dark:border-slate-600 dark:text-white/60"
                   >
                     {a}
                   </li>
