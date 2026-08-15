@@ -40,6 +40,18 @@ export function AskComposer({
   center?: { lat: number; lng: number } | null;
 }) {
   const [open, setOpen] = useState(startOpen);
+  // useState(startOpen) only reads the prop on the very first mount. When
+  // you're already on /people and click "Ask for small help" again,
+  // Next.js re-renders this same component instance with a fresh
+  // startOpen=true instead of remounting it, so the stale `open` state
+  // never catches up and the click appears to do nothing. Adjusted during
+  // render (React's documented pattern for this), not in an effect —
+  // tracking the last-seen prop lets this fire exactly once per flip.
+  const [prevStartOpen, setPrevStartOpen] = useState(startOpen);
+  if (startOpen !== prevStartOpen) {
+    setPrevStartOpen(startOpen);
+    if (startOpen) setOpen(true);
+  }
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [spot, setSpot] = useState<{ lat: number; lng: number } | null>(null);
   const [title, setTitle] = useState("");

@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-15 — Fix: 'Ask for small help' did nothing when already on People around
+
+- `src/app/asks/AskComposer.tsx`
+
+
 ### 2026-08-12 — Wider content, bolder borders, and a fixed search bar
 
 - `docs/UX_SPEC.md`
