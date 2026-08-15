@@ -17,6 +17,7 @@ import {
 import { createProject } from "../actions";
 import { MapPicker } from "@/components/MapPicker";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { StockPhotoPicker } from "@/components/StockPhotoPicker";
 
 type Draft = {
   title: string;
@@ -802,6 +803,11 @@ export function IdeaForm({
               onChange={setPhotoUrl}
               compact
               label="Upload or drag a photo here"
+            />
+            <StockPhotoPicker
+              query={`${categoryMeta(category).label} neighborhood`}
+              selectedUrl={photoUrl}
+              onPick={(url) => setPhotoUrl(url)}
             />
           </fieldset>
 

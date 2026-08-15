@@ -407,6 +407,23 @@ something (wizard, community intent). `/projects/new?intent=` preselects a
 card and lands on "Your idea", so doors that already imply the kind skip the
 chooser step. The two most-used doors stay inline beside the prompt.
 
+### Three stock photos alongside upload
+
+"The basics" step's cover photo field offers upload *or* three real,
+keyword-searched stock photos (`components/StockPhotoPicker.tsx`, backed by
+the Unsplash API — search-by-keyword, not the discontinued "Unsplash
+Source" hotlink service) — for the idea that doesn't have a photo of itself
+yet ("community garden" has no garden to photograph until it exists). The
+search query is the category label ("Community", "Fitness"…), so what's
+offered actually relates to what's being started. Requires the free
+`UNSPLASH_ACCESS_KEY` (see ARCHITECTURE.md); the picker simply doesn't
+render if it's unset, so shipping without a key breaks nothing. Selecting a
+photo fires the download-tracking ping the Unsplash API guidelines require
+and shows photographer credit beneath the row — full compliance would also
+carry that credit onto the project page wherever the photo is redisplayed,
+which is not yet built; treat the wizard-step credit as a first pass, not
+the finished obligation.
+
 ### People around is Explore's twin
 
 People around now opens with the same feed grammar as Explore — composer,
