@@ -799,7 +799,7 @@ export function IdeaForm({
               frame. */}
           {summary ? (
             <div
-              className="relative overflow-hidden rounded-2xl bg-slate-800 bg-cover bg-center"
+              className="relative min-h-[13rem] overflow-hidden rounded-2xl bg-slate-800 bg-cover bg-center"
               style={
                 photoUrl ? { backgroundImage: `url(${photoUrl})` } : undefined
               }
@@ -807,11 +807,15 @@ export function IdeaForm({
               {/* The scrim is what makes white text legible over an unknown
                   photo — blue-grey rather than neutral black so it sits in
                   the same family as the app's slate borders. */}
+              {/* A gradient rather than a flat wash: dark enough behind the
+                  summary to keep white text legible over any photo, then
+                  clearing toward the bottom so the picture is actually
+                  visible — a uniform 70% scrim hid it entirely. */}
               <div
                 aria-hidden
                 className={`absolute inset-0 ${
                   photoUrl
-                    ? "bg-slate-900/70 backdrop-blur-sm"
+                    ? "bg-gradient-to-b from-slate-900/80 via-slate-900/35 to-slate-900/15 backdrop-blur-[2px]"
                     : "bg-slate-900/40"
                 }`}
               />
@@ -880,11 +884,19 @@ export function IdeaForm({
           </fieldset>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-base font-bold">
+            <span className="flex items-center gap-1.5 text-base font-bold">
               Small description{" "}
               <span className="font-normal text-black/40 dark:text-white/40">
                 (optional)
               </span>
+              {/* The field is borderless prose now, so it needs a visible
+                  cue that it's editable. The wrapping <label> means the
+                  icon focuses the text like any other part of it. */}
+              <Pencil
+                className="h-3.5 w-3.5 text-black/40 dark:text-white/40"
+                strokeWidth={2}
+                aria-hidden
+              />
             </span>
             {/* Grows with its content instead of scrolling inside a box —
                 the description is prose the person is reading back, not a

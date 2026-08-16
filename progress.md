@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-16 — Cover twice as tall with a gradient scrim, edit cue on the description
+
+- `src/app/projects/new/IdeaForm.tsx`
+
+
 ### 2026-08-16 — Step 3: auto-loaded blurred cover, six timing cards, prose description
 
 - `docs/UX_SPEC.md`
