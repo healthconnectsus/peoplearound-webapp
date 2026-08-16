@@ -140,6 +140,8 @@ const INTENTS: {
   /** The tags this kind of thing actually comes in — shown on The basics
       instead of the full master list. All are real `category` slugs. */
   categories: string[];
+  /** Cover-photo search when no quick pick was used (the AI-shaped path). */
+  photoQuery: string;
   placeholder: string;
   /** The title, lowercased mid-sentence: "I'd like to {short}:". */
   short: string;
@@ -170,11 +172,20 @@ const INTENTS: {
     category?: string;
     /** Completes "I'd like to …" in the summary on The basics. */
     summary: string;
+    /** What to search for a cover photo. The category label ("Social") is
+        useless here — it returned random streetscapes for a walking group.
+        These name the activity AND the people doing it — "group of adults"
+        every time, because a cover with nobody in it doesn't say "join us",
+        and Unsplash has no age or headcount filter, so the wording is the
+        only lever. Words like "family", "kids" and "school" are avoided for
+        the same reason: they are what surfaces children. */
+    photoQuery: string;
     example?: { title: string; desc: string; by: string; photo: string };
   }[];
 }[] = [
   {
     key: "meet",
+    photoQuery: "group of adults laughing together",
     icon: UsersRound,
     title: "Meet people over an activity",
     short: "meet people over an activity",
@@ -200,16 +211,17 @@ const INTENTS: {
       photo: "/faces/jonathan.webp",
     },
     options: [
-      { emoji: "🎲", label: "Play games", summary: "meet people to play games", example: { title: "Thursday chess club", desc: "Six of us at the café's back table — all levels, bring a board", by: "Marcus Reed", photo: "/faces/marcus.webp" }, hint: "board games, chess, poker…", seed: "I'd like to meet neighbors for a regular game night — board games, chess, cards, whatever people bring.", category: "games" },
-      { emoji: "🧘", label: "Exercise outdoors", summary: "meet people to exercise outdoors", example: { title: "Sunrise tai chi", desc: "Twenty easy minutes in the park before work, beginners welcome", by: "Mei Chen", photo: "/faces/mei.webp" }, hint: "walk, tai chi, yoga…", seed: "I'd like to exercise outdoors with neighbors — a walking group, tai chi, or yoga in the park, easy pace, everyone welcome.", category: "fitness" },
-      { emoji: "🎬", label: "Go out together", summary: "meet people to go out together", example: { title: "Movie night crew", desc: "Tuesday discount screenings — and the dinner debate after", by: "Dana Whitfield", photo: "/faces/dana.webp" }, hint: "movie, concert, game…", seed: "I'd like company for going out — a movie, a concert, or watching a game together instead of going alone.", category: "social" },
-      { emoji: "🍲", label: "Cook or eat together", summary: "meet people to cook and eat together", example: { title: "Sunday dinner rotation", desc: "Four houses take turns hosting one big table a month", by: "Sam Novak", photo: "/faces/sam.webp" }, hint: "potluck, dinner club…", seed: "I'd like to share meals with neighbors — a potluck or a small dinner club that rotates between houses.", category: "food" },
-      { emoji: "☕", label: "Coffee & conversation", summary: "meet people for coffee and conversation", example: { title: "Saturday coffee corner", desc: "Same café, 9am, no agenda — whoever shows up, shows up", by: "Elena Petrova", photo: "/faces/elena.webp" }, hint: "a standing chat…", seed: "I'd like a standing coffee meetup — same café, same morning each week, whoever shows up.", category: "social" },
-      { emoji: "🐕", label: "Walking buddies", summary: "find walking buddies", example: { title: "Morning loop", desc: "3 km around the reservoir before work — dogs and strollers welcome", by: "Jonathan Hammer", photo: "/faces/jonathan.webp" }, hint: "dogs, kids, or just you…", seed: "I'd like a walking buddy — with dogs, with strollers, or just for the company on a regular loop.", category: "outdoors" },
+      { emoji: "🎲", label: "Play games", photoQuery: "group of adults playing board games", summary: "meet people to play games", example: { title: "Thursday chess club", desc: "Six of us at the café's back table — all levels, bring a board", by: "Marcus Reed", photo: "/faces/marcus.webp" }, hint: "board games, chess, poker…", seed: "I'd like to meet neighbors for a regular game night — board games, chess, cards, whatever people bring.", category: "games" },
+      { emoji: "🧘", label: "Exercise outdoors", photoQuery: "group of adults exercising in a park", summary: "meet people to exercise outdoors", example: { title: "Sunrise tai chi", desc: "Twenty easy minutes in the park before work, beginners welcome", by: "Mei Chen", photo: "/faces/mei.webp" }, hint: "walk, tai chi, yoga…", seed: "I'd like to exercise outdoors with neighbors — a walking group, tai chi, or yoga in the park, easy pace, everyone welcome.", category: "fitness" },
+      { emoji: "🎬", label: "Go out together", photoQuery: "group of adults at a concert", summary: "meet people to go out together", example: { title: "Movie night crew", desc: "Tuesday discount screenings — and the dinner debate after", by: "Dana Whitfield", photo: "/faces/dana.webp" }, hint: "movie, concert, game…", seed: "I'd like company for going out — a movie, a concert, or watching a game together instead of going alone.", category: "social" },
+      { emoji: "🍲", label: "Cook or eat together", photoQuery: "group of adults sharing dinner", summary: "meet people to cook and eat together", example: { title: "Sunday dinner rotation", desc: "Four houses take turns hosting one big table a month", by: "Sam Novak", photo: "/faces/sam.webp" }, hint: "potluck, dinner club…", seed: "I'd like to share meals with neighbors — a potluck or a small dinner club that rotates between houses.", category: "food" },
+      { emoji: "☕", label: "Coffee & conversation", photoQuery: "group of adults talking over coffee", summary: "meet people for coffee and conversation", example: { title: "Saturday coffee corner", desc: "Same café, 9am, no agenda — whoever shows up, shows up", by: "Elena Petrova", photo: "/faces/elena.webp" }, hint: "a standing chat…", seed: "I'd like a standing coffee meetup — same café, same morning each week, whoever shows up.", category: "social" },
+      { emoji: "🐕", label: "Walking buddies", photoQuery: "group of adults walking in a park", summary: "find walking buddies", example: { title: "Morning loop", desc: "3 km around the reservoir before work — dogs and strollers welcome", by: "Jonathan Hammer", photo: "/faces/jonathan.webp" }, hint: "dogs, kids, or just you…", seed: "I'd like a walking buddy — with dogs, with strollers, or just for the company on a regular loop.", category: "outdoors" },
     ],
   },
   {
     key: "community",
+    photoQuery: "group of adult volunteers",
     icon: Sprout,
     title: "Start an idea for and with a community",
     short: "start an idea for and with a community",
@@ -235,16 +247,17 @@ const INTENTS: {
       photo: "/faces/rosa.webp",
     },
     options: [
-      { emoji: "🌱", label: "Green the block", summary: "start an idea to green the block", example: { title: "Community garden", desc: "Turn the empty lot on 6th into raised beds we plant together", by: "Rosa Alvarez", photo: "/faces/rosa.webp" }, hint: "garden, planting, cleanup…", seed: "I have an idea for greening our neighborhood — a shared garden, planting, or a regular cleanup of a spot we all pass.", category: "community" },
-      { emoji: "🛠", label: "Fix & share things", summary: "start an idea to fix and share things", example: { title: "Repair café", desc: "One Saturday a month we fix broken toasters, hems and bikes", by: "Miguel Torres", photo: "/faces/miguel.webp" }, hint: "repair café, tool library…", seed: "I'd like to start a fixing or sharing setup — a repair café or a tool library so we stop buying what we could borrow.", category: "community" },
-      { emoji: "🎨", label: "Make it beautiful", summary: "start an idea to make the neighborhood beautiful", example: { title: "Street mural", desc: "Paint the gray underpass with a design the kids help choose", by: "Lily Zhang", photo: "/faces/lily.webp" }, hint: "mural, benches, lights…", seed: "I have an idea to make our neighborhood more beautiful — a mural, benches, or lighting for a gray corner that deserves better.", category: "arts" },
-      { emoji: "📚", label: "Share skills", summary: "start an idea to share skills", example: { title: "Senior tech hour", desc: "Help older neighbors video-call their grandkids, one hour a week", by: "Ruth Kaplan", photo: "/faces/ruth.webp" }, hint: "classes, tutoring, tech help…", seed: "I'd like neighbors to teach each other — language practice, homework help, or tech hours for anyone stuck.", category: "learning" },
-      { emoji: "🥫", label: "Food & giving", summary: "start an idea around food and giving", example: { title: "Little free pantry", desc: "A weatherproof box on my fence anyone can give to or take from", by: "Hannah Brooks", photo: "/faces/hannah.webp" }, hint: "pantry, food drive…", seed: "I have an idea around food and giving — a little free pantry or a recurring food drive the block runs together.", category: "giving" },
-      { emoji: "🎉", label: "A neighborhood event", summary: "start a neighborhood event", example: { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak", photo: "/faces/sam.webp" }, hint: "block party, market…", seed: "I'd like to organize a neighborhood event — a block party, a street market, or a first-Friday gathering.", category: "events" },
+      { emoji: "🌱", label: "Green the block", photoQuery: "adult volunteers planting a garden", summary: "start an idea to green the block", example: { title: "Community garden", desc: "Turn the empty lot on 6th into raised beds we plant together", by: "Rosa Alvarez", photo: "/faces/rosa.webp" }, hint: "garden, planting, cleanup…", seed: "I have an idea for greening our neighborhood — a shared garden, planting, or a regular cleanup of a spot we all pass.", category: "community" },
+      { emoji: "🛠", label: "Fix & share things", photoQuery: "adults repairing tools in a workshop", summary: "start an idea to fix and share things", example: { title: "Repair café", desc: "One Saturday a month we fix broken toasters, hems and bikes", by: "Miguel Torres", photo: "/faces/miguel.webp" }, hint: "repair café, tool library…", seed: "I'd like to start a fixing or sharing setup — a repair café or a tool library so we stop buying what we could borrow.", category: "community" },
+      { emoji: "🎨", label: "Make it beautiful", photoQuery: "adults painting a mural", summary: "start an idea to make the neighborhood beautiful", example: { title: "Street mural", desc: "Paint the gray underpass with a design the kids help choose", by: "Lily Zhang", photo: "/faces/lily.webp" }, hint: "mural, benches, lights…", seed: "I have an idea to make our neighborhood more beautiful — a mural, benches, or lighting for a gray corner that deserves better.", category: "arts" },
+      { emoji: "📚", label: "Share skills", photoQuery: "adults in a workshop class", summary: "start an idea to share skills", example: { title: "Senior tech hour", desc: "Help older neighbors video-call their grandkids, one hour a week", by: "Ruth Kaplan", photo: "/faces/ruth.webp" }, hint: "classes, tutoring, tech help…", seed: "I'd like neighbors to teach each other — language practice, homework help, or tech hours for anyone stuck.", category: "learning" },
+      { emoji: "🥫", label: "Food & giving", photoQuery: "adult volunteers at a food bank", summary: "start an idea around food and giving", example: { title: "Little free pantry", desc: "A weatherproof box on my fence anyone can give to or take from", by: "Hannah Brooks", photo: "/faces/hannah.webp" }, hint: "pantry, food drive…", seed: "I have an idea around food and giving — a little free pantry or a recurring food drive the block runs together.", category: "giving" },
+      { emoji: "🎉", label: "A neighborhood event", photoQuery: "adults at a street party", summary: "start a neighborhood event", example: { title: "Block potluck", desc: "A first-Friday potluck where every house brings one dish", by: "Sam Novak", photo: "/faces/sam.webp" }, hint: "block party, market…", seed: "I'd like to organize a neighborhood event — a block party, a street market, or a first-Friday gathering.", category: "events" },
     ],
   },
   {
     key: "personal",
+    photoQuery: "group of adults working together",
     icon: Rocket,
     title: "Ask for help for a personal project",
     short: "ask for help for a personal project",
@@ -270,12 +283,12 @@ const INTENTS: {
       photo: "/faces/anna.webp",
     },
     options: [
-      { emoji: "🔨", label: "Build something", summary: "ask for help to build something", example: { title: "Backyard sauna build", desc: "Framing a small sauna this fall — pizza for a hand with the build", by: "Leo Virtanen", photo: "/faces/leo.webp" }, hint: "shed, sauna, treehouse…", seed: "I'm building something at my place and could use a hand — I'll trade food, tools, or a lesson in what I'm doing.", category: "home" },
-      { emoji: "🚀", label: "Test a venture", summary: "ask for help to test a venture", example: { title: "Tiny bakery test", desc: "I bake twenty loaves every Saturday — help me sell them at the market", by: "Anna Kowalski", photo: "/faces/anna.webp" }, hint: "bakery, stall, service…", seed: "I'm testing a small venture — help me try it for real, from a market stall to first customers.", category: "venture" },
-      { emoji: "🏃", label: "Chase a goal", summary: "ask for help to chase a goal", example: { title: "First 10K", desc: "Training for my first 10K and need someone to keep me honest", by: "Grace Adeyemi", photo: "/faces/grace.webp" }, hint: "10K, language, habit…", seed: "I'm chasing a personal goal and want someone to keep me honest — training, practice, or a weekly check-in.", category: "fitness" },
-      { emoji: "🎨", label: "Make a thing", summary: "ask for help to make a thing", example: { title: "Board-game prototype", desc: "I designed a card game and need honest playtesters monthly", by: "Tom Becker", photo: "/faces/tom.webp" }, hint: "game, album, book…", seed: "I'm making something — a game, music, writing — and need honest testers or feedback from real people.", category: "arts" },
-      { emoji: "🧑‍🏫", label: "Learn from someone", summary: "learn a skill from a neighbor", example: { title: "Welding crash course", desc: "I'll fix your bikes all year if you teach me to weld", by: "Ken Osei", photo: "/faces/ken.webp" }, hint: "a skill I'm missing…", seed: "I'm trying to learn something for my project and would love a neighbor who knows it to show me the ropes.", category: "learning" },
-      { emoji: "📦", label: "Something else", summary: "", hint: "it's my thing — hear me out…", seed: "" },
+      { emoji: "🔨", label: "Build something", photoQuery: "adults building together in a workshop", summary: "ask for help to build something", example: { title: "Backyard sauna build", desc: "Framing a small sauna this fall — pizza for a hand with the build", by: "Leo Virtanen", photo: "/faces/leo.webp" }, hint: "shed, sauna, treehouse…", seed: "I'm building something at my place and could use a hand — I'll trade food, tools, or a lesson in what I'm doing.", category: "home" },
+      { emoji: "🚀", label: "Test a venture", photoQuery: "adults at a market stall", summary: "ask for help to test a venture", example: { title: "Tiny bakery test", desc: "I bake twenty loaves every Saturday — help me sell them at the market", by: "Anna Kowalski", photo: "/faces/anna.webp" }, hint: "bakery, stall, service…", seed: "I'm testing a small venture — help me try it for real, from a market stall to first customers.", category: "venture" },
+      { emoji: "🏃", label: "Chase a goal", photoQuery: "group of adults running together", summary: "ask for help to chase a goal", example: { title: "First 10K", desc: "Training for my first 10K and need someone to keep me honest", by: "Grace Adeyemi", photo: "/faces/grace.webp" }, hint: "10K, language, habit…", seed: "I'm chasing a personal goal and want someone to keep me honest — training, practice, or a weekly check-in.", category: "fitness" },
+      { emoji: "🎨", label: "Make a thing", photoQuery: "adults playing a board game", summary: "ask for help to make a thing", example: { title: "Board-game prototype", desc: "I designed a card game and need honest playtesters monthly", by: "Tom Becker", photo: "/faces/tom.webp" }, hint: "game, album, book…", seed: "I'm making something — a game, music, writing — and need honest testers or feedback from real people.", category: "arts" },
+      { emoji: "🧑‍🏫", label: "Learn from someone", photoQuery: "adult teaching a skill in a workshop", summary: "learn a skill from a neighbor", example: { title: "Welding crash course", desc: "I'll fix your bikes all year if you teach me to weld", by: "Ken Osei", photo: "/faces/ken.webp" }, hint: "a skill I'm missing…", seed: "I'm trying to learn something for my project and would love a neighbor who knows it to show me the ropes.", category: "learning" },
+      { emoji: "📦", label: "Something else", photoQuery: "group of adults together", summary: "", hint: "it's my thing — hear me out…", seed: "" },
     ],
   },
 ];
@@ -357,9 +370,11 @@ export function IdeaForm({
   const [needIdea, setNeedIdea] = useState(false);
   /** The quick pick, kept so later steps can say what you chose. Dropped once
       the words no longer resemble it — a stale summary is worse than none. */
-  const [picked, setPicked] = useState<{ seed: string; summary: string } | null>(
-    null,
-  );
+  const [picked, setPicked] = useState<{
+    seed: string;
+    summary: string;
+    photoQuery: string;
+  } | null>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const ideaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -634,7 +649,15 @@ export function IdeaForm({
                       type="button"
                       onClick={() => {
                         setRawIdea(o.seed);
-                        setPicked(o.summary ? { seed: o.seed, summary: o.summary } : null);
+                        setPicked(
+                          o.summary
+                            ? {
+                                seed: o.seed,
+                                summary: o.summary,
+                                photoQuery: o.photoQuery,
+                              }
+                            : null,
+                        );
                         if (o.category) setCategory(o.category);
                         setNeedIdea(false);
                         if (!o.seed) ideaRef.current?.focus();
@@ -869,14 +892,16 @@ export function IdeaForm({
                 label="Upload or drag a photo here"
               />
               <StockPhotoPicker
+                // The activity you picked, not the category you landed in:
+                // "Social neighborhood" returned streetscapes for a walking
+                // group. Falls back to the intent's own search when the AI
+                // path skipped the quick picks.
                 query={
-                  // "Other neighborhood" is not a phrase anyone photographs —
-                  // it returned a single result. Fall back to a term that
-                  // actually describes the pictures we want.
-                  category === "other"
-                    ? "neighbors together"
-                    : `${categoryMeta(category).label} neighborhood`
+                  picked?.photoQuery ??
+                  activeIntent?.photoQuery ??
+                  "group of adults together"
                 }
+                fallbackQuery={activeIntent?.photoQuery ?? "group of adults together"}
                 selectedUrl={photoUrl}
                 onPick={(url) => setPhotoUrl(url)}
                 autoPick

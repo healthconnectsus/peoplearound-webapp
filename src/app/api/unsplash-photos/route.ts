@@ -61,6 +61,10 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim().slice(0, 100).toLowerCase() || "neighborhood";
+  // A broader query to fall back on when the specific activity has nothing
+  // cached and Unsplash is unavailable (rate limit, outage, no key). Better
+  // a right-register photo than an empty picker.
+  const fb = searchParams.get("fb")?.trim().slice(0, 100).toLowerCase() || "";
 
   // The asker's city decides which photos are "recently used nearby".
   const { data: profileRow } = await supabase
@@ -105,8 +109,9 @@ export async function GET(request: Request) {
 
   // 2. Cache is short — go to Unsplash (if configured) and top it up.
   if (!key) {
-    return cached.length > 0
-      ? NextResponse.json({ photos: cached.map(toClient) })
+    const photos = await withFallback(cached);
+    return photos.length > 0
+      ? NextResponse.json({ photos })
       : NextResponse.json(
           { error: "Stock photos aren't configured yet." },
           { status: 503 },
@@ -122,8 +127,9 @@ export async function GET(request: Request) {
       },
     );
     if (!res.ok) {
-      // Serve whatever the cache has rather than failing the step outright.
-      return NextResponse.json({ photos: cached.map(toClient) });
+      // Rate-limited or down — serve the cache, widening to the fallback
+      // query rather than showing an empty picker.
+      return NextResponse.json({ photos: await withFallback(cached) });
     }
     const data = (await res.json()) as {
       results?: {
@@ -167,6 +173,21 @@ export async function GET(request: Request) {
     const merged = [...cached, ...fresh.filter((f) => !cached.some((c) => c.id === f.id))];
     return NextResponse.json({ photos: merged.slice(0, WANT).map(toClient) });
   } catch {
-    return NextResponse.json({ photos: cached.map(toClient) });
+    return NextResponse.json({ photos: await withFallback(cached) });
+  }
+
+  async function withFallback(have: CachedPhoto[]) {
+    if (have.length >= WANT || !fb || fb === q) return have.map(toClient);
+    const { data: fbRows } = await supabase
+      .from("stock_photos")
+      .select(
+        "id,url,thumb,alt,download_location,photographer,photographer_url,stock_photo_queries!inner(query)",
+      )
+      .eq("stock_photo_queries.query", fb)
+      .limit(60);
+    const extra = ((fbRows ?? []) as CachedPhoto[]).filter(
+      (p) => !recentlyUsed.has(p.id) && !have.some((h) => h.id === p.id),
+    );
+    return [...have, ...extra].slice(0, WANT).map(toClient);
   }
 }

@@ -28,24 +28,33 @@ if (!UNSPLASH || !SUPABASE_URL || !SERVICE_KEY) {
   process.exit(1);
 }
 
-// Must match CATEGORY_META labels in src/lib/projects.ts — the wizard
-// searches `${label} neighborhood`.
+// Must match the photoQuery values in src/app/projects/new/IdeaForm.tsx —
+// the wizard searches by *activity*, not by category label, because
+// "Social neighborhood" returned random streetscapes for a walking group.
+// Every query names the people doing the thing, so covers show a group
+// rather than an empty street.
 const QUERIES = [
-  "Community neighborhood",
-  "Games neighborhood",
-  "Fitness neighborhood",
-  "Outdoors neighborhood",
-  "Food & drink neighborhood",
-  "Social neighborhood",
-  "Arts & music neighborhood",
-  "Learning neighborhood",
-  "Events neighborhood",
-  "Giving neighborhood",
-  "Home neighborhood",
-  "Venture neighborhood",
-  // "Other neighborhood" isn't a phrase anyone photographs — it returned a
-  // single result. IdeaForm substitutes this term for the Other category.
-  "neighbors together",
+  "group of adults laughing together",
+  "group of adult volunteers",
+  "group of adults working together",
+  "group of adults playing board games",
+  "group of adults exercising in a park",
+  "group of adults at a concert",
+  "group of adults sharing dinner",
+  "group of adults talking over coffee",
+  "group of adults walking in a park",
+  "adult volunteers planting a garden",
+  "adults repairing tools in a workshop",
+  "adults painting a mural",
+  "adults in a workshop class",
+  "adult volunteers at a food bank",
+  "adults at a street party",
+  "adults building together in a workshop",
+  "adults at a market stall",
+  "group of adults running together",
+  "adults playing a board game",
+  "adult teaching a skill in a workshop",
+  "group of adults together",
 ];
 
 let totalRows = 0;

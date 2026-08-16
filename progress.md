@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-16 — Cover photos follow the activity, show groups of adults, and never blank
+
+- `scripts/warm-stock-photos.mjs`
+- `src/app/api/unsplash-photos/route.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/StockPhotoPicker.tsx`
+
+
 ### 2026-08-16 — Cover twice as tall with a gradient scrim, edit cue on the description
 
 - `src/app/projects/new/IdeaForm.tsx`

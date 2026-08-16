@@ -21,12 +21,15 @@ type Photo = {
  */
 export function StockPhotoPicker({
   query,
+  fallbackQuery = "",
   selectedUrl,
   onPick,
   autoPick = false,
 }: {
   /** Re-searches whenever this changes — pass the category label. */
   query: string;
+  /** Broader search to widen to when `query` has nothing cached. */
+  fallbackQuery?: string;
   selectedUrl: string | null;
   onPick: (url: string, attribution: { name: string; url: string } | null) => void;
   /** Preselect the first result when nothing is chosen yet, so the preview
@@ -44,7 +47,10 @@ export function StockPhotoPicker({
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/unsplash-photos?q=${encodeURIComponent(query)}`)
+    fetch(
+      `/api/unsplash-photos?q=${encodeURIComponent(query)}` +
+        (fallbackQuery ? `&fb=${encodeURIComponent(fallbackQuery)}` : ""),
+    )
       .then((r) => (r.ok ? r.json() : { photos: [] }))
       .then((data: { photos?: Photo[] }) => {
         if (cancelled) return;
