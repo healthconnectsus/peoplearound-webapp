@@ -20,7 +20,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const RECENT_DAYS = 7;
 const WANT = 3;
-const FETCH_COUNT = 12;
+// 30 is Unsplash's per_page ceiling, and it costs the same single request as
+// asking for 3 — the rate limit counts API calls, not photos. Above 30 the
+// API silently ignores the value and returns its default of 10, so "more"
+// would quietly mean "fewer". Fetching the max fills the cache in one call
+// and leaves the city-recency filter plenty to choose from.
+const FETCH_COUNT = 30;
 
 type CachedPhoto = {
   id: string;

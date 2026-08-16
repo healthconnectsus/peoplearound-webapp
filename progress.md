@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-16 — Fetch Unsplash's max 30 photos per query instead of 12
+
+- `src/app/api/unsplash-photos/route.ts`
+
+
 ### 2026-08-16 — Stock photos: cache + per-city recency, and The basics previews the post
 
 - `docs/UX_SPEC.md`
