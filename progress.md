@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-16 — Stock photos: cache + per-city recency, and The basics previews the post
+
+- `docs/UX_SPEC.md`
+- `src/app/api/unsplash-photos/route.ts`
+- `src/app/api/unsplash-photos/track/route.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/StockPhotoPicker.tsx`
+- `supabase/migrations/0035_stock_photos.sql`
+
+
 ### 2026-08-15 — Wizard: 3 free stock photos alongside upload, via the Unsplash API
 
 - `docs/ARCHITECTURE.md`

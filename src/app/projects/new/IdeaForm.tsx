@@ -2,7 +2,14 @@
 
 import { useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { UsersRound, Sprout, Rocket, Pencil, type LucideIcon } from "lucide-react";
+import {
+  UsersRound,
+  Sprout,
+  Rocket,
+  Pencil,
+  Image as ImageIcon,
+  type LucideIcon,
+} from "lucide-react";
 import {
   CATEGORIES,
   CATEGORY_META,
@@ -324,6 +331,7 @@ export function IdeaForm({
   const [reach, setReach] = useState<ProjectReach>("neighborhood");
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoOpen, setPhotoOpen] = useState(false);
 
   function toggleMic() {
     if (listening) {
@@ -743,28 +751,82 @@ export function IdeaForm({
       {/* ---- Step 3: the basics ---- */}
       {step === 2 ? (
         <div className="flex flex-col gap-6">
-          {/* What steps 1 and 2 added up to. Stated once, in the intent's own
-              colour, so the form below can get on with the details. */}
+          {/* A live preview of the post: the cover photo sits *behind* the
+              summary under a dark blue-grey scrim, so what you're editing
+              and what neighbors will see are the same object. Without a
+              photo it degrades to a plain slate panel rather than an empty
+              frame. */}
           {summary ? (
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
-                Summary
-              </p>
-              <p
-                className={`mt-0.5 flex flex-wrap items-center gap-2 text-xl font-extrabold ${accent.headline}`}
-              >
-                I&rsquo;d like to {summary}.
+            <div
+              className="relative overflow-hidden rounded-2xl bg-slate-800 bg-cover bg-center"
+              style={
+                photoUrl ? { backgroundImage: `url(${photoUrl})` } : undefined
+              }
+            >
+              {/* The scrim is what makes white text legible over an unknown
+                  photo — blue-grey rather than neutral black so it sits in
+                  the same family as the app's slate borders. */}
+              <div
+                aria-hidden
+                className={`absolute inset-0 ${
+                  photoUrl
+                    ? "bg-slate-900/70 backdrop-blur-[1px]"
+                    : "bg-slate-900/40"
+                }`}
+              />
+              <div className="relative flex items-start justify-between gap-3 p-5">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-white/60">
+                    Summary
+                  </p>
+                  <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xl font-extrabold text-white">
+                    I&rsquo;d like to {summary}.
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      title="Change what you'd like to do"
+                      className="rounded-full p-1.5 text-white/60 transition-colors hover:bg-white/15 hover:text-white"
+                    >
+                      <Pencil className="h-4 w-4" strokeWidth={2} aria-hidden />
+                      <span className="sr-only">Edit</span>
+                    </button>
+                  </p>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
-                  title="Change what you'd like to do"
-                  className="rounded-full p-1.5 text-black/40 transition-colors hover:bg-black/5 hover:text-black/70 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white/70"
+                  onClick={() => setPhotoOpen((v) => !v)}
+                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/25"
                 >
-                  <Pencil className="h-4 w-4" strokeWidth={2} aria-hidden />
-                  <span className="sr-only">Edit</span>
+                  <ImageIcon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                  {photoUrl ? "Change photo" : "Add a photo"}
                 </button>
-              </p>
+              </div>
             </div>
+          ) : null}
+
+          {/* The picker itself stays collapsed until asked for — it's the
+              one control here that's genuinely optional. */}
+          {photoOpen ? (
+            <fieldset className="flex flex-col gap-1.5 text-sm">
+              <legend className="mb-1.5 text-base font-bold">
+                Cover photo{" "}
+                <span className="font-normal text-black/40 dark:text-white/40">
+                  (optional)
+                </span>
+              </legend>
+              <PhotoPicker
+                userId={userId}
+                value={photoUrl}
+                onChange={setPhotoUrl}
+                compact
+                label="Upload or drag a photo here"
+              />
+              <StockPhotoPicker
+                query={`${categoryMeta(category).label} neighborhood`}
+                selectedUrl={photoUrl}
+                onPick={(url) => setPhotoUrl(url)}
+              />
+            </fieldset>
           ) : null}
 
           {tip ? (
@@ -790,26 +852,6 @@ export function IdeaForm({
             />
           </label>
 
-          <fieldset className="flex flex-col gap-1.5 text-sm">
-            <legend className="mb-1.5 text-base font-bold">
-              Cover photo{" "}
-              <span className="font-normal text-black/40 dark:text-white/40">
-                (optional)
-              </span>
-            </legend>
-            <PhotoPicker
-              userId={userId}
-              value={photoUrl}
-              onChange={setPhotoUrl}
-              compact
-              label="Upload or drag a photo here"
-            />
-            <StockPhotoPicker
-              query={`${categoryMeta(category).label} neighborhood`}
-              selectedUrl={photoUrl}
-              onPick={(url) => setPhotoUrl(url)}
-            />
-          </fieldset>
 
           <fieldset className="flex flex-col gap-1.5 text-sm">
             <legend className="mb-1.5 text-base font-bold">What kind of project is it?</legend>

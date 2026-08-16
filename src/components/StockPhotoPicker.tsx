@@ -86,7 +86,10 @@ export function StockPhotoPicker({
                   fetch("/api/unsplash-photos/track", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ location: p.downloadLocation }),
+                    body: JSON.stringify({
+                      location: p.downloadLocation,
+                      photoId: p.id,
+                    }),
                   }).catch(() => {});
                 }}
                 className={`h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-cover bg-center ring-2 ring-offset-1 transition-all hover:opacity-90 ${

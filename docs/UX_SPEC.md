@@ -407,6 +407,15 @@ something (wizard, community intent). `/projects/new?intent=` preselects a
 card and lands on "Your idea", so doors that already imply the kind skip the
 chooser step. The two most-used doors stay inline beside the prompt.
 
+### The basics previews the post it's writing
+
+The summary sits on the cover photo itself, under a dark blue-grey scrim
+(`slate-900/70`), with a "Change photo" button in the corner — so what
+you're editing and what neighbors will see are the same object rather than
+a form field and a separate preview. Without a photo it degrades to a plain
+slate panel, never an empty frame. The photo picker collapses behind that
+button; it's the one genuinely optional control on the step.
+
 ### Three stock photos alongside upload
 
 "The basics" step's cover photo field offers upload *or* three real,
@@ -423,6 +432,15 @@ and shows photographer credit beneath the row — full compliance would also
 carry that credit onto the project page wherever the photo is redisplayed,
 which is not yet built; treat the wizard-step credit as a first pass, not
 the finished obligation.
+
+Results are cached in `stock_photos` (migration 0035) and reused, because
+the free tier allows 50 requests/hour and every wizard visit was spending
+one to show the same three photos. A photo chosen in a city is logged to
+`stock_photo_uses` and withheld from that city's pickers for 7 days, so one
+street doesn't end up with the same picture on three posts. We over-fetch 12
+per query precisely so the recency filter has something left to offer. Both
+tables are operator data: readable by signed-in users, written only through
+the service role in the API routes.
 
 ### People around is Explore's twin
 
