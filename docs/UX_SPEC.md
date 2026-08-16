@@ -330,6 +330,15 @@ tints, state badges, warning/error banners, the three white
 avatar-ring borders on saturated card backgrounds) were untouched — this
 only ever touches the plain lines that outline cards and sections.
 
+### Both doors open the same way
+
+The idea wizard (`/projects/new`) and the small-help composer (the ask form
+on People around) are both full-page lightboxes: white cover, giant X in
+the top-left corner, nothing else on screen. Asking for a hand gets the
+same undivided attention as starting something — a form squeezed between
+other people's asks quietly says this one matters less, which is the
+opposite of what the feature is for.
+
 ### The wizard is a lightbox, not a page
 
 /projects/new covers the viewport on a white background — no rail, no top

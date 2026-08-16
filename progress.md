@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-16 — Warm all 21 adult-group photo queries; ask composer becomes a lightbox
+
+- `docs/UX_SPEC.md`
+- `src/app/asks/AskComposer.tsx`
+
+
 ### 2026-08-16 — Cover photos follow the activity, show groups of adults, and never blank
 
 - `scripts/warm-stock-photos.mjs`

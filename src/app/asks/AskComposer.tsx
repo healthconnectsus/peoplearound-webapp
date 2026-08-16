@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { X } from "lucide-react";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { MapPicker } from "@/components/MapPicker";
 import { postAsk } from "./askActions";
@@ -8,6 +9,11 @@ import { postAsk } from "./askActions";
 /**
  * One screen, four fields, no wizard. A person who needs a hand for twenty
  * minutes will not complete a four-step flow — and shouldn't have to.
+ *
+ * It opens as a full-page lightbox, the same grammar as the idea wizard:
+ * white cover, giant X in the top-left corner. Asking for help deserves the
+ * same undivided screen as starting something — a form squeezed between
+ * other people's asks quietly says this one matters less.
  */
 
 const MINUTES = [
@@ -74,15 +80,30 @@ export function AskComposer({
   }
 
   return (
-    <form
-      action={postAsk}
-      className="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
-    >
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-white dark:bg-zinc-950">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={() => setOpen(false)}
+        className="fixed left-3 top-3 z-10 rounded-full p-3 text-black/50 transition-colors hover:bg-black/5 hover:text-black dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
+      >
+        <X className="h-12 w-12" strokeWidth={2} aria-hidden />
+      </button>
+
+      <form
+        action={postAsk}
+        className="mx-auto w-full max-w-2xl px-4 py-20"
+      >
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
       <input type="hidden" name="lat" value={spot?.lat ?? ""} />
       <input type="hidden" name="lng" value={spot?.lng ?? ""} />
 
-      <h2 className="text-lg font-bold">What do you need a hand with?</h2>
+      <h2 className="text-3xl font-extrabold tracking-tight">
+        What do you need a hand with?
+      </h2>
+      <p className="mt-1 text-sm text-black/50 dark:text-white/50">
+        Twenty minutes of someone&rsquo;s time is not a big favor.
+      </p>
 
       <input
         type="text"
@@ -174,7 +195,7 @@ export function AskComposer({
         />
       </div>
 
-      <div className="mt-4 flex items-center gap-3">
+      <div className="mt-6 flex items-center gap-3">
         <button
           type="submit"
           className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
@@ -189,6 +210,7 @@ export function AskComposer({
           Cancel
         </button>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }
