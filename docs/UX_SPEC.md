@@ -409,8 +409,26 @@ chooser step. The two most-used doors stay inline beside the prompt.
 
 ### The basics previews the post it's writing
 
+A cover photo is chosen *for* you the moment the step opens — the first
+stock result for your category — so the preview is never an empty frame and
+"pick a photo" becomes "change this one if you like" rather than a chore.
+It is only ever auto-picked into an empty field, never over an upload.
+
+### Six rhythms, not a calendar
+
+"When would this happen?" offers six flip cards — weekday mornings, weekday
+evenings, Saturday mornings, Sunday afternoons, once a month, we'll figure
+it out — with the back of each naming who that rhythm actually suits.
+Stored as free text on `projects.when_text` (migration 0037), never a
+timestamp: an event is a specific occasion with RSVPs, while "Saturday
+mornings" is the rhythm you agree on *before* there's an event to schedule.
+Clicking the chosen card again clears it. The answer rides the feed card and
+the project header, so a neighbor can tell whether an idea fits their week
+before deciding to join.
+
 The summary sits on the cover photo itself, under a dark blue-grey scrim
-(`slate-900/70`), with a "Change photo" button in the corner — so what
+(`slate-900/70` plus a slight blur, so the words stay legible over any
+photo), with a "Change the photo" button in the corner — so what
 you're editing and what neighbors will see are the same object rather than
 a form field and a separate preview. Without a photo it degrades to a plain
 slate panel, never an empty frame. The photo picker collapses behind that

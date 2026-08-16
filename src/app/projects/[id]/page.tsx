@@ -66,7 +66,7 @@ export default async function ProjectDetail({
     .select(
       // profiles is reachable via several FKs now (owner, memberships, stars),
       // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,help,reach,photo_url,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
+      "id,owner_id,title,description,category,state,help,reach,photo_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -364,6 +364,11 @@ export default async function ProjectDetail({
               {" · "}
               {REACH_META[project.reach].emoji} Open to:{" "}
               {REACH_META[project.reach].label.toLowerCase()}
+            </span>
+          ) : null}
+          {project.when_text ? (
+            <span title="The rhythm this happens on — neighbors settle the details">
+              {" · "}🗓 {project.when_text}
             </span>
           ) : null}
         </p>

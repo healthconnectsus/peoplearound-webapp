@@ -206,7 +206,7 @@ export default async function ExplorePage({
     supabase
       .from("projects")
       .select(
-        "id,owner_id,title,description,category,state,help,reach,photo_url,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name),neighborhood:neighborhoods(name,city)",
+        "id,owner_id,title,description,category,state,help,reach,photo_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name),neighborhood:neighborhoods(name,city)",
       )
       .neq("state", "archived")
       .order("created_at", { ascending: false }),

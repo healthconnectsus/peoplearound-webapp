@@ -38,6 +38,10 @@ export async function createProject(formData: FormData) {
   // Optional cover photo (uploaded client-side to the projects bucket).
   const photoUrl = String(formData.get("photoUrl") ?? "").trim().slice(0, 500);
 
+  // When this happens — free text, a rhythm rather than a schedule
+  // (migration 0037).
+  const whenText = String(formData.get("whenText") ?? "").trim().slice(0, 80);
+
   // Optional map pin from the wizard.
   const latNum = Number.parseFloat(String(formData.get("lat") ?? ""));
   const lngNum = Number.parseFloat(String(formData.get("lng") ?? ""));
@@ -73,6 +77,7 @@ export async function createProject(formData: FormData) {
       help,
       reach,
       photo_url: photoUrl || null,
+      when_text: whenText || null,
       lat: hasPin ? latNum : null,
       lng: hasPin ? lngNum : null,
     })

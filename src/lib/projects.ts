@@ -352,6 +352,8 @@ export type Project = {
   help: HelpKind;
   reach: ProjectReach;
   photo_url?: string | null;
+  /** The rhythm this happens on — free text, not a schedule (0037). */
+  when_text?: string | null;
   lat: number | null;
   lng: number | null;
   neighborhood_id: string | null;

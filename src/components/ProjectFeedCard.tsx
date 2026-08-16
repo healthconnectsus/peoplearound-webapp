@@ -93,6 +93,7 @@ export function ProjectCard({ p }: { p: CardData }) {
             {p.team.length > 1 ? ` + ${p.team.length - 1}` : ""}
           </span>
           <span title="People who'd love this to exist">⭐ {p.starCount}</span>
+          {p.when_text ? <span>🗓 {p.when_text}</span> : null}
           {p.help !== "local" ? (
             <span title={HELP_META[p.help].hint}>
               {HELP_META[p.help].emoji} {HELP_META[p.help].label}

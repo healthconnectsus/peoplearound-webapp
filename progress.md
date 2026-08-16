@@ -7,6 +7,20 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-16 — Step 3: auto-loaded blurred cover, six timing cards, prose description
+
+- `docs/UX_SPEC.md`
+- `src/app/explore/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/ProjectFeedCard.tsx`
+- `src/components/StockPhotoPicker.tsx`
+- `src/lib/feed.ts`
+- `src/lib/projects.ts`
+- `supabase/migrations/0037_project_when.sql`
+
+
 ### 2026-08-16 — Stock photos: fix the one-photo-one-query flaw, pre-warm 390 photos
 
 - `docs/ARCHITECTURE.md`

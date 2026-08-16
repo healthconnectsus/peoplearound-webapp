@@ -80,6 +80,46 @@ function cardLabelClass(checked: string): string {
   return `${CARD_LABEL_BASE} ${checked}`;
 }
 
+/**
+ * When does this happen? Six rhythms, offered as flip cards on "The basics".
+ * Free text, not a schedule (migration 0037): a neighbor needs to know
+ * whether an idea fits their week before software needs a timestamp. The
+ * back of each card says who that rhythm actually suits, because "Saturday
+ * mornings" and "weekday evenings" select for completely different people.
+ */
+const WHENS: { emoji: string; label: string; back: string }[] = [
+  {
+    emoji: "🌅",
+    label: "Weekday mornings",
+    back: "Early risers, retired neighbors, people before work.",
+  },
+  {
+    emoji: "🌆",
+    label: "Weekday evenings",
+    back: "After work and after dinner — the easiest yes for most people.",
+  },
+  {
+    emoji: "🌞",
+    label: "Saturday mornings",
+    back: "The classic. Weekend energy without eating the whole day.",
+  },
+  {
+    emoji: "☕",
+    label: "Sunday afternoons",
+    back: "Slower, unhurried — good for anything that shouldn't be rushed.",
+  },
+  {
+    emoji: "🗓",
+    label: "Once a month",
+    back: "A rhythm nobody has to feel guilty about missing.",
+  },
+  {
+    emoji: "🤝",
+    label: "We'll figure it out",
+    back: "Let whoever joins decide together. Fine — just say so.",
+  },
+];
+
 const STEPS = ["What is it", "Your idea", "The basics", "Who can help", "Share"] as const;
 
 /**
@@ -312,7 +352,7 @@ export function IdeaForm({
   const micSupported = useMicSupported();
   const [shaping, setShaping] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [tip, setTip] = useState<string | null>(playbook?.tip ?? null);
+  const [, setTip] = useState<string | null>(playbook?.tip ?? null);
   /** Set when someone tries to move on without choosing or writing anything. */
   const [needIdea, setNeedIdea] = useState(false);
   /** The quick pick, kept so later steps can say what you chose. Dropped once
@@ -332,6 +372,7 @@ export function IdeaForm({
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoOpen, setPhotoOpen] = useState(false);
+  const [whenText, setWhenText] = useState("");
 
   function toggleMic() {
     if (listening) {
@@ -770,7 +811,7 @@ export function IdeaForm({
                 aria-hidden
                 className={`absolute inset-0 ${
                   photoUrl
-                    ? "bg-slate-900/70 backdrop-blur-[1px]"
+                    ? "bg-slate-900/70 backdrop-blur-sm"
                     : "bg-slate-900/40"
                 }`}
               />
@@ -798,7 +839,7 @@ export function IdeaForm({
                   className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/25"
                 >
                   <ImageIcon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-                  {photoUrl ? "Change photo" : "Add a photo"}
+                  Change the photo
                 </button>
               </div>
             </div>
@@ -806,8 +847,10 @@ export function IdeaForm({
 
           {/* The picker itself stays collapsed until asked for — it's the
               one control here that's genuinely optional. */}
-          {photoOpen ? (
-            <fieldset className="flex flex-col gap-1.5 text-sm">
+          {/* Mounted even while collapsed: it preloads a cover so the
+              preview above is never an empty panel. `hidden` rather than
+              unmounted so opening the picker doesn't re-fetch. */}
+          <fieldset className={photoOpen ? "flex flex-col gap-1.5 text-sm" : "hidden"}>
               <legend className="mb-1.5 text-base font-bold">
                 Cover photo{" "}
                 <span className="font-normal text-black/40 dark:text-white/40">
@@ -832,15 +875,9 @@ export function IdeaForm({
                 }
                 selectedUrl={photoUrl}
                 onPick={(url) => setPhotoUrl(url)}
+                autoPick
               />
-            </fieldset>
-          ) : null}
-
-          {tip ? (
-            <p className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
-              💡 {tip}
-            </p>
-          ) : null}
+          </fieldset>
 
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-base font-bold">
@@ -849,13 +886,26 @@ export function IdeaForm({
                 (optional)
               </span>
             </span>
+            {/* Grows with its content instead of scrolling inside a box —
+                the description is prose the person is reading back, not a
+                field they're filling in. */}
             <textarea
-              rows={2}
+              rows={1}
               maxLength={4000}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              ref={(el) => {
+                if (el) {
+                  el.style.height = "auto";
+                  el.style.height = `${el.scrollHeight}px`;
+                }
+              }}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = `${e.target.scrollHeight}px`;
+              }}
               placeholder="What's the plan? What help do you need?"
-              className={`${inputClass} resize-y`}
+              className="resize-none overflow-hidden rounded-lg bg-transparent px-1 py-1 text-base leading-relaxed outline-none transition-colors hover:bg-black/[0.03] focus:bg-black/[0.03] dark:hover:bg-white/5 dark:focus:bg-white/5"
             />
           </label>
 
@@ -878,6 +928,54 @@ export function IdeaForm({
                   </span>
                 </label>
               ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="flex flex-col gap-1.5 text-sm">
+            <legend className="mb-1.5 text-base font-bold">
+              When would this happen?{" "}
+              <span className="font-normal text-black/40 dark:text-white/40">
+                (optional)
+              </span>
+            </legend>
+            {/* Same flip grammar as the intent and quick-pick cards: the
+                front is the rhythm, the back is who that rhythm suits.
+                Clicking again clears it — this is the one field where
+                "actually, never mind" is a normal thing to want. */}
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {WHENS.map((w) => {
+                const picked = whenText === w.label;
+                return (
+                  <button
+                    key={w.label}
+                    type="button"
+                    onClick={() => setWhenText(picked ? "" : w.label)}
+                    className={`group relative h-24 text-left [perspective:800px] ${
+                      picked
+                        ? `rounded-xl ring-2 ring-offset-2 ${accent.ring}`
+                        : ""
+                    }`}
+                  >
+                    <span className="relative block h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)]">
+                      <span
+                        className={`absolute inset-0 flex flex-col justify-center rounded-xl p-3 text-white shadow-md [backface-visibility:hidden] ${accent.solid.split(" ")[0]}`}
+                      >
+                        <span className="block text-xl leading-none" aria-hidden>
+                          {w.emoji}
+                        </span>
+                        <span className="mt-1.5 block text-sm font-bold leading-snug">
+                          {w.label}
+                        </span>
+                      </span>
+                      <span
+                        className="absolute inset-0 flex items-center rounded-xl bg-slate-800 p-3 text-[11px] leading-snug text-white/90 shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)]"
+                      >
+                        {w.back}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </fieldset>
 
@@ -1042,6 +1140,7 @@ export function IdeaForm({
             ) : null}
             <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-black/50 dark:text-white/50">
               <span>{state === "active" ? "🚀 Already started" : "💭 Just an idea"}</span>
+              {whenText ? <span>🗓 {whenText}</span> : null}
               <span>
                 {HELP_META[help].emoji} {HELP_META[help].label}
               </span>
@@ -1056,6 +1155,7 @@ export function IdeaForm({
           <form action={createProject} className="flex items-center gap-3">
             <input type="hidden" name="title" value={effectiveTitle} />
             <input type="hidden" name="description" value={description} />
+            <input type="hidden" name="whenText" value={whenText} />
             <input type="hidden" name="category" value={category} />
             <input type="hidden" name="state" value={state} />
             <input type="hidden" name="help" value={help} />

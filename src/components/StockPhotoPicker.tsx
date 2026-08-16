@@ -23,11 +23,16 @@ export function StockPhotoPicker({
   query,
   selectedUrl,
   onPick,
+  autoPick = false,
 }: {
   /** Re-searches whenever this changes — pass the category label. */
   query: string;
   selectedUrl: string | null;
   onPick: (url: string, attribution: { name: string; url: string } | null) => void;
+  /** Preselect the first result when nothing is chosen yet, so the preview
+      shows a real cover instead of an empty panel. Off by default — this
+      should never overwrite a photo someone deliberately uploaded. */
+  autoPick?: boolean;
 }) {
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   // Which query the current `photos` answers — comparing this to `query`
@@ -43,8 +48,25 @@ export function StockPhotoPicker({
       .then((r) => (r.ok ? r.json() : { photos: [] }))
       .then((data: { photos?: Photo[] }) => {
         if (cancelled) return;
-        setPhotos(data.photos ?? []);
+        const list = data.photos ?? [];
+        setPhotos(list);
         setLoadedForQuery(query);
+        // Auto-pick happens inside the fetch callback (not an effect) so it
+        // stays one render, and only when the field is genuinely empty.
+        if (autoPick && !selectedUrl && list[0]) {
+          onPick(list[0].url, {
+            name: list[0].photographer,
+            url: list[0].photographerUrl,
+          });
+          void fetch("/api/unsplash-photos/track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              location: list[0].downloadLocation,
+              photoId: list[0].id,
+            }),
+          }).catch(() => {});
+        }
       })
       .catch(() => {
         if (cancelled) return;
@@ -54,6 +76,10 @@ export function StockPhotoPicker({
     return () => {
       cancelled = true;
     };
+    // Deliberately keyed on `query` alone: re-running when `selectedUrl` or
+    // the `onPick` identity changes would re-fetch on every pick and let
+    // auto-pick fight the user's own choice.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   if (!loading && photos?.length === 0) return null;
