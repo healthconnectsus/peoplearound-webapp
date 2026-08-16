@@ -822,7 +822,14 @@ export function IdeaForm({
                 label="Upload or drag a photo here"
               />
               <StockPhotoPicker
-                query={`${categoryMeta(category).label} neighborhood`}
+                query={
+                  // "Other neighborhood" is not a phrase anyone photographs —
+                  // it returned a single result. Fall back to a term that
+                  // actually describes the pictures we want.
+                  category === "other"
+                    ? "neighbors together"
+                    : `${categoryMeta(category).label} neighborhood`
+                }
                 selectedUrl={photoUrl}
                 onPick={(url) => setPhotoUrl(url)}
               />

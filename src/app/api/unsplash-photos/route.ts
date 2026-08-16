@@ -14,8 +14,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * Recency filter: a photo already used in this city within the last 7 days
  * is withheld, so a street doesn't end up with the same picture on three
- * posts. We over-fetch (12) and cache all of them precisely so there's
- * something left to offer once the recent ones are excluded.
+ * posts. We fetch Unsplash's max (30) and cache all of them precisely so
+ * there's something left to offer once the recent ones are excluded.
  */
 
 const RECENT_DAYS = 7;
@@ -85,12 +85,16 @@ export async function GET(request: Request) {
     }
   }
 
-  // 1. Try the cache first.
+  // 1. Try the cache first. The junction table (migration 0036) is what
+  // lets one photo answer several searches — with `query` as a column on
+  // stock_photos, overlapping results silently stole photos from each
+  // other's cache.
   const { data: cachedRows } = await supabase
     .from("stock_photos")
-    .select("id,url,thumb,alt,download_location,photographer,photographer_url")
-    .eq("query", q)
-    .order("fetched_at", { ascending: false })
+    .select(
+      "id,url,thumb,alt,download_location,photographer,photographer_url,stock_photo_queries!inner(query)",
+    )
+    .eq("stock_photo_queries.query", q)
     .limit(60);
   const cached = ((cachedRows ?? []) as CachedPhoto[]).filter(
     (p) => !recentlyUsed.has(p.id),
@@ -147,11 +151,14 @@ export async function GET(request: Request) {
     // the key isn't configured — we just skip caching and still serve.
     const admin = rows.length > 0 ? createAdminClient() : null;
     if (admin) {
+      await admin.from("stock_photos").upsert(rows, { onConflict: "id" });
+      // Then link each to this search. A photo already cached under another
+      // query keeps that link too — that's the whole point of 0036.
       await admin
-        .from("stock_photos")
+        .from("stock_photo_queries")
         .upsert(
-          rows.map((r) => ({ ...r, query: q })),
-          { onConflict: "id", ignoreDuplicates: false },
+          rows.map((r) => ({ photo_id: r.id, query: q })),
+          { onConflict: "photo_id,query", ignoreDuplicates: true },
         );
     }
 

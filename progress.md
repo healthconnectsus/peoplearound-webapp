@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-16 — Stock photos: fix the one-photo-one-query flaw, pre-warm 390 photos
+
+- `docs/ARCHITECTURE.md`
+- `scripts/warm-stock-photos.mjs`
+- `src/app/api/unsplash-photos/route.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `supabase/migrations/0036_stock_photo_queries.sql`
+
+
 ### 2026-08-16 — Fetch Unsplash's max 30 photos per query instead of 12
 
 - `src/app/api/unsplash-photos/route.ts`
