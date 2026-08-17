@@ -3,6 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
+import {
+  TILE_ATTRIBUTION,
+  TILE_SIZE,
+  TILE_URL,
+  TILE_ZOOM_OFFSET,
+} from "@/lib/basemap";
 
 export type MapFocusOption = {
   id: string;
@@ -24,28 +30,6 @@ export type MapPin = {
   hot?: boolean;
 };
 
-/**
- * The basemap, from the environment.
- *
- * Defaults to OpenStreetMap so the app runs with no account and no key —
- * but OSM's usage policy doesn't cover real traffic, so a launch sets these.
- * For Mapbox raster tiles (works with Leaflet, unlike Mapbox GL):
- *
- *   NEXT_PUBLIC_MAP_TILE_URL=https://api.mapbox.com/styles/v1/mapbox/light-v11/tiles/512/{z}/{x}/{y}@2x?access_token=pk.…
- *   NEXT_PUBLIC_MAP_TILE_SIZE=512
- *   NEXT_PUBLIC_MAP_ATTRIBUTION=© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>
- *
- * The token ships to the browser, so it must be URL-restricted in the
- * provider's dashboard — a public token with no referrer allow-list is a
- * bill waiting to happen.
- */
-const TILE_URL =
-  process.env.NEXT_PUBLIC_MAP_TILE_URL ||
-  "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-const TILE_ATTRIBUTION =
-  process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ||
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-const TILE_SIZE = Number(process.env.NEXT_PUBLIC_MAP_TILE_SIZE) || 256;
 
 /** How far from home still counts as "around you", for framing purposes. */
 const NEARBY_KM = 40;
@@ -116,20 +100,11 @@ export function NeighborhoodMap({
 
       map = L.map(holderRef.current, { scrollWheelZoom: false });
       mapRef.current = map;
-      // Tiles are provider-swappable: OSM's public tiles are free but
-      // policy-limited (fine for a pilot, not for a real user base) and
-      // their general-purpose style draws every hospital and car park,
-      // which competes with our pins. Point NEXT_PUBLIC_MAP_TILE_URL at
-      // Mapbox/Stadia/MapTiler — no code change (see docs/SCALING.md).
-      //
-      // TILE_SIZE matters: Mapbox and most modern styles serve 512px tiles,
-      // and Leaflet assumes 256px. Left at the default, every label and
-      // road renders at half scale — a map that looks "zoomed out wrong".
-      // Providers that serve 512 need zoomOffset -1 to compensate.
+      // Provider, style and tile size all come from lib/basemap.ts.
       L.tileLayer(TILE_URL, {
         attribution: TILE_ATTRIBUTION,
         tileSize: TILE_SIZE,
-        zoomOffset: TILE_SIZE === 512 ? -1 : 0,
+        zoomOffset: TILE_ZOOM_OFFSET,
         maxZoom: 19,
       }).addTo(map);
 

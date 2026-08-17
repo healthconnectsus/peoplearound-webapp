@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Basemap config: set a Mapbox token, pick a style by name
+
+- `.env.example`
+- `src/components/MapPicker.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/lib/basemap.ts`
+
+
 ### 2026-08-17 — Make the tile layer provider-ready: tile size, retina, Mapbox docs
 
 - `.env.example`
