@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Sweep: pending states on every row-creating submit, duplicates purged
+
+- `src/app/chats/Composer.tsx`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/people/page.tsx`
+- `src/app/projects/[id]/UpdateComposer.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/components/SubmitButton.tsx`
+
+
 ### 2026-08-17 — Fix: submit buttons gave no feedback, so one click became ten projects
 
 - `src/app/asks/AskComposer.tsx`

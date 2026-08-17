@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/SubmitButton";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { NeighborhoodMap } from "@/components/NeighborhoodMap";
@@ -865,12 +866,12 @@ export default async function ProjectDetail({
                   className="min-w-0 flex-1 rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
                 />
               </div>
-              <button
-                type="submit"
+              <SubmitButton
+                pendingLabel="Creating…"
                 className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
               >
                 Create event
-              </button>
+              </SubmitButton>
             </form>
           ) : null}
         </div>
@@ -1080,12 +1081,12 @@ export default async function ProjectDetail({
                 className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
               />
 
-              <button
-                type="submit"
+              <SubmitButton
+                pendingLabel="Adding…"
                 className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
               >
                 Add to the record
-              </button>
+              </SubmitButton>
             </form>
           ) : null}
         </div>

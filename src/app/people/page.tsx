@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/SubmitButton";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { AsksSection } from "@/components/AsksSection";
@@ -542,12 +543,12 @@ export default async function PeoplePage({
                   placeholder="One line about who this is for (optional)"
                   className={INPUT}
                 />
-                <button
-                  type="submit"
+                <SubmitButton
+                  pendingLabel="Creating…"
                   className="self-start rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                 >
                   Create community
-                </button>
+                </SubmitButton>
               </form>
             </div>
           </section>

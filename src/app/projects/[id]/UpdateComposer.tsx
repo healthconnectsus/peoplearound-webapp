@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { SubmitButton } from "@/components/SubmitButton";
 import { postUpdate, setProjectPhoto } from "../updateActions";
 
 /** Post a progress note (optionally with a photo) to the project's log. */
@@ -41,12 +42,12 @@ export function UpdateComposer({
           label="Add a photo (optional)"
         />
       </div>
-      <button
-        type="submit"
+      <SubmitButton
+        pendingLabel="Posting…"
         className="mt-3 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
       >
         Post update
-      </button>
+      </SubmitButton>
     </form>
   );
 }

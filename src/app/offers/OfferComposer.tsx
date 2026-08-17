@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { SubmitButton } from "@/components/SubmitButton";
 import { MapPicker } from "@/components/MapPicker";
 import { postOffer } from "./offerActions";
 
@@ -96,12 +97,12 @@ export function OfferComposer({
           label="Add a photo (optional)"
         />
       </div>
-      <button
-        type="submit"
+      <SubmitButton
+        pendingLabel="Posting…"
         className="mt-3 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
       >
         Post it
-      </button>
+      </SubmitButton>
     </form>
   );
 }

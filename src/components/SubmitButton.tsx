@@ -19,6 +19,7 @@ export function SubmitButton({
   pendingLabel,
   className = "",
   onSubmitting,
+  "aria-label": ariaLabel,
 }: {
   children: React.ReactNode;
   /** Shown while the action runs — say what's happening, not "Loading". */
@@ -26,12 +27,14 @@ export function SubmitButton({
   className?: string;
   /** Fire-and-forget side effect at click time (analytics, tracking pings). */
   onSubmitting?: () => void;
+  "aria-label"?: string;
 }) {
   const { pending } = useFormStatus();
 
   return (
     <button
       type="submit"
+      aria-label={ariaLabel}
       disabled={pending}
       onClick={() => onSubmitting?.()}
       className={`${className} disabled:cursor-not-allowed disabled:opacity-60`}
