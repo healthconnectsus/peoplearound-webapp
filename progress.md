@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Reduced-motion support, app-wide
+
+- `src/app/globals.css`
+
+
 ### 2026-08-17 — Photographer credit travels with the photo (0039), plus the bug that ate it
 
 - `src/app/api/unsplash-photos/route.ts`

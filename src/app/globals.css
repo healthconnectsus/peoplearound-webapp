@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
+/* Respect "reduce motion" (an OS accessibility setting): the 3D card
+   flips, hover lifts, pulses and confetti all go still. Flip cards reveal
+   their backs on hover/focus via an instant swap instead of a rotation —
+   the information stays reachable, only the animation goes. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
