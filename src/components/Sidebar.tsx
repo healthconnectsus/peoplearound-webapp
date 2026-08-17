@@ -36,7 +36,7 @@ const NAV_ITEMS: {
   // logo above is a second, always-visible way home.
   {
     href: "/people",
-    label: "People around",
+    label: "People around (me)",
     icon: HeartHandshake,
     count: "people",
     title: "Neighbors in your community",
@@ -76,7 +76,7 @@ const NAV_ITEMS: {
   },
   {
     href: "/explore",
-    label: "Explore",
+    label: "Explore Communities",
     icon: Compass,
     iconHex: "#FF3A8A",
   },

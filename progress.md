@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Rail: People around (me), Explore Communities
+
+- `src/components/Sidebar.tsx`
+
+
 ### 2026-08-17 — People lists: no frames, real avatars; community form moves behind a button
 
 - `src/app/people/NewCommunityDialog.tsx`
