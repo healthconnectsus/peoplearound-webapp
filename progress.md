@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Feed filters as Nextdoor-style buttons; drop the redundant heading
+
+- `src/app/explore/page.tsx`
+- `src/app/people/page.tsx`
+- `src/components/CommunityFilter.tsx`
+- `src/lib/chips.ts`
+
+
 ### 2026-08-17 — Explore becomes a community directory; founding banner moves to People around (me)
 
 - `src/app/explore/page.tsx`

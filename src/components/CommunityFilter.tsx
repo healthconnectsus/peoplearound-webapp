@@ -1,13 +1,16 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { CHIP, CHIP_IDLE, chip } from "@/lib/chips";
 
 /**
- * The community picker beside "What's happening in your communities" — a
- * plain <select> dressed as a link, because a real dropdown control is the
- * honest version of this interaction (keyboard, mobile, screen readers all
- * free). "All my communities" is the default; the last row jumps to the
- * create-a-community form instead of filtering.
+ * The community picker that opens the feed.
+ *
+ * It used to be a <select> beside a "What's happening in your communities"
+ * heading. The heading said what the buttons already show, and a dropdown
+ * hides every option but one — so the choices are laid out flat, the way
+ * Nextdoor's feed tabs are: one button per community, the current one
+ * outlined. Server-rendered links, so each view has its own shareable URL
+ * and the control needs no JavaScript.
  */
 export function CommunityFilter({
   communities,
@@ -16,26 +19,38 @@ export function CommunityFilter({
   communities: { id: string; label: string }[];
   selected: string;
 }) {
-  const router = useRouter();
-
   return (
-    <select
-      value={selected}
-      onChange={(e) => {
-        const v = e.target.value;
-        if (v === "__new__") router.push("/people#communities");
-        else if (v === "") router.push("/people#feed");
-        else router.push(`/people?community=${v}#feed`);
-      }}
-      className="max-w-56 cursor-pointer truncate rounded-full border border-slate-400 bg-white px-2.5 py-1 text-xs font-medium normal-case tracking-normal text-emerald-700 outline-none transition-colors hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-emerald-400 dark:hover:bg-white/10"
+    <nav
+      aria-label="Filter the feed by community"
+      className="flex flex-wrap items-center gap-2"
     >
-      <option value="">All my communities</option>
+      <Link
+        href="/people#feed"
+        aria-current={selected === "" ? "page" : undefined}
+        className={chip(selected === "")}
+      >
+        All my communities
+      </Link>
+
       {communities.map((c) => (
-        <option key={c.id} value={c.id}>
+        <Link
+          key={c.id}
+          href={`/people?community=${c.id}#feed`}
+          aria-current={selected === c.id ? "page" : undefined}
+          className={`${chip(selected === c.id)} max-w-56 truncate`}
+        >
           {c.label}
-        </option>
+        </Link>
       ))}
-      <option value="__new__">➕ Add a new community</option>
-    </select>
+
+      <Link
+        href="/explore"
+        title="Find and join another community"
+        className={`${CHIP} ${CHIP_IDLE} flex items-center gap-1.5 border-dashed`}
+      >
+        <Plus className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+        Add a community
+      </Link>
+    </nav>
   );
 }

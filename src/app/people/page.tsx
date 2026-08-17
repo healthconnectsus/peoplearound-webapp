@@ -8,6 +8,7 @@ import { AsksSection } from "@/components/AsksSection";
 import { FeedComposer } from "@/components/FeedComposer";
 import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { CommunityFilter } from "@/components/CommunityFilter";
+import { chip } from "@/lib/chips";
 import { NewCommunityDialog } from "./NewCommunityDialog";
 import { ProjectCard } from "@/components/ProjectFeedCard";
 import { loadFeedCards } from "@/lib/feed";
@@ -349,10 +350,7 @@ export default async function PeoplePage({
           ) : null}
 
           <section id="feed" className="mt-6 scroll-mt-6">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                What&rsquo;s happening in your communities
-              </h2>
+            <div className="mb-3">
               <CommunityFilter
                 communities={mine.map((c) => ({
                   id: c.id,
@@ -415,11 +413,7 @@ export default async function PeoplePage({
               <div className="mb-4 flex flex-wrap items-center gap-1.5">
                 <Link
                   href={filterHref({ cat: undefined, help: undefined })}
-                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    !filtersActive
-                      ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                  }`}
+                  className={chip(!filtersActive)}
                 >
                   All
                 </Link>
@@ -427,11 +421,7 @@ export default async function PeoplePage({
                   <Link
                     key={c}
                     href={filterHref({ cat: cat === c ? undefined : c })}
-                    className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                      cat === c
-                        ? "border-emerald-600 bg-emerald-600 text-white"
-                        : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                    }`}
+                    className={chip(cat === c)}
                   >
                     {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
                   </Link>
@@ -439,21 +429,13 @@ export default async function PeoplePage({
                 <span className="mx-1 h-4 w-px bg-black/10 dark:bg-white/15" aria-hidden />
                 <Link
                   href={filterHref({ help: helpFilter === "local" ? undefined : "local" })}
-                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    helpFilter === "local"
-                      ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                  }`}
+                  className={chip(helpFilter === "local")}
                 >
                   🏠 Hands nearby
                 </Link>
                 <Link
                   href={filterHref({ help: helpFilter === "remote" ? undefined : "remote" })}
-                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    helpFilter === "remote"
-                      ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                  }`}
+                  className={chip(helpFilter === "remote")}
                 >
                   💻 Online help
                 </Link>

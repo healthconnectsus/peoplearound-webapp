@@ -12,6 +12,7 @@ import { MapShell } from "@/components/MapShell";
 import { ProjectCard, type CardData } from "@/components/ProjectFeedCard";
 import { NewCommunityDialog } from "@/app/people/NewCommunityDialog";
 import { kindMeta } from "@/lib/communities";
+import { chip } from "@/lib/chips";
 import {
   joinCommunity,
   leaveCommunity,
@@ -644,11 +645,7 @@ export default async function ExplorePage({
             <div className="mb-4 flex flex-wrap items-center gap-1.5">
               <Link
                 href={filterHref({ kind: undefined })}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  !kind
-                    ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                }`}
+                className={chip(!kind)}
               >
                 All
               </Link>
@@ -656,11 +653,7 @@ export default async function ExplorePage({
                 <Link
                   key={k}
                   href={filterHref({ kind: kind === k ? undefined : k })}
-                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    kind === k
-                      ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                  }`}
+                  className={chip(kind === k)}
                 >
                   {kindMeta(k).label}
                 </Link>
