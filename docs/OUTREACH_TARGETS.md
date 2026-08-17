@@ -185,6 +185,78 @@ neighborhood association say yes.
 | **National PTA** + metro council PTAs | Parent organizers; strong overlap with the flag-football persona. | ⚠️ |
 | City neighborhood-engagement offices (Austin, Denver CPD, Minneapolis NCR) | The single conversation that unlocks each metro's whole neighborhood list. | ⚠️ |
 
+## Tier 4b — HOAs and community associations (the layer above the boards)
+
+*Added 2026-08-10.* ~373,000 community associations in the US, ~78M residents,
+~2.5M volunteer board members giving ~98M unpaid hours a year — one in four
+Americans lives under an HOA/condo board and most of them never talk to a
+neighbor. Colorado has ~8,500 registered associations, Texas ~49,500 (6M
+homeowners), Minnesota ~7,950 (~3,800 in the Twin Cities metro).
+
+**The rule that makes this tier work: never sell to individual HOAs, and never
+compete with the HOA's official app.** Boards are volunteer, slow, and
+risk-averse; TownSq / FrontSteps / management-company portals already own
+"official HOA business" (dues, violations, ARC requests, votes) and we should
+never want it. Our layer is the one they all fail at — the *social* life of the
+community: the block party, the playground rebuild, the tool library, the run
+club — with named, credited volunteers. Pitch it as **complementary**, in the
+exact words their own industry uses ("resident engagement," "sense of
+community," "recruiting the next board"). Go **one layer up**: the networks
+that already reach thousands of boards.
+
+| Network | Reach | Door / what to extract | Ask | Status |
+|---|---|---|---|---|
+| **CAI — Community Associations Institute** (national) | ~40,000 members, 64–65 chapters, the HOA industry's education + advocacy body | Business Partner membership (~$625–685/yr, handled by national, unlocks the local chapter). Then: chapter education sessions, *Common Ground* magazine, the annual conference exhibitor list, board-education programs. `caionline.org/become-a-member/` · `caionline.org/find-a-chapter/` | Speak/education-session slot ("Beyond the newsletter: getting residents to *do* things together") · listing in chapter resource directories · a CAI Foundation research tie-in (they publish the Fact Book; a "resident engagement" study is on-brand for both sides) | ✅ |
+| **CAI Rocky Mountain Chapter** (Denver/Aurora) | 1,000+ members, since 1976 | 501 S Cherry St Ste 1100, Denver 80246 · (303) 585-0367 · `cai-rmc.org` / `hoa-colorado.org`. Also **CAI Southern Colorado** (`caisoco.org`) for Colorado Springs later. | Business Partner join + one chapter luncheon talk; ask for 3 board-member introductions in Aurora | ✅ |
+| **CAI Austin** | 300+ members, Cedar Park TX | `caiaustin.org` (also runs TCAA, the Texas legislative coalition) | Same playbook; the Texas metro control group | ✅ |
+| **CAI Minnesota** | Twin Cities, since 1993 | St. Paul · (651) 290-6274 · `cai-mn.com` | Same playbook | ✅ |
+| **State HOA registries — the launch lists** | Every registered association, public record | **Colorado:** DORA Division of Real Estate HOA Center roster, downloadable — `dre.colorado.gov/hoa-center` (303-894-2166). **Aurora:** the city publishes an HOA GIS layer on its open-data portal (`data-auroraco.opendata.arcgis.com`) — an actual map of every Aurora HOA. **Texas:** TREC management-certificate database at `hoa.texas.gov` (open dataset on `data.texas.gov`). **Minnesota:** no state registry — go through CAI-MN and the management companies. | Mine for the *largest* associations in the flagship neighborhood (bigger = more amenities = more projects); contact via the management company of record, not the board | ✅ |
+| **Management companies (the aggregators)** | FirstService Residential (largest in N. America), **Associa** (300+ branches, 7.5M residents), RealManage (#3); plus metro locals from `hoamanagement.com/city/aurora/` | Regional VP of community management, or the "lifestyle / community engagement director" that master-planned communities employ | The single highest-leverage HOA relationship: one management company runs *hundreds* of boards in a metro. Ask for a 3-community pilot in Aurora/Denver; their **lifestyle directors** are the buyer — resident engagement is literally their KPI | ⚠️ |
+| **Neighborhoods USA (NUSA)** | National nonprofit since 1975; the neighborhood-*association* (non-HOA, civic) umbrella; annual Conference on Neighborhood Concerns (50th in 2025) with hundreds of neighborhood leaders and city staff | `nusa.org` — affiliate membership, conference workshop proposals, their neighborhood-project awards | Workshop slot at the next conference; enter a completed flagship project for their awards | ✅ |
+| **Denver Inter-Neighborhood Cooperation (INC)** | Alliance of Denver RNOs since 1975; each member RNO sends 2 delegates to monthly meetings | `denverinc.org` — organization membership | One INC meeting = the whole RNO layer in the room; ask for 10 minutes on the agenda instead of 200 cold emails | ✅ |
+| **Master-planned communities (MPCs)** | Large HOAs with staff, budgets, and *lifestyle programming* mandates | Via management companies above; JBREC's top-MPC list is the shortlist | The ideal HOA-side design partner: they already fund community programming and measure engagement — we make it attributable | ⚠️ |
+
+**Doors we already knock on that also reach HOAs:** Aurora Neighborhood Liaison
+Program (Tier 3 — the liaisons support HOAs *and* neighborhood groups),
+Arapahoe County's HOA & neighborhood-association page, Denver CPD's RNO list.
+
+### What to actually propose (partnership shapes)
+
+Ranked by how much they help *us* per unit of their effort:
+
+1. **Programming partner** — the HOA/MPC (or its management company) points
+   residents at Peoplearound for the *social* layer: block parties, playground
+   rebuilds, gardens, clubs, "small help" asks. Free forever for residents (a
+   guardrail — see `BUSINESS.md`); the board gets a monthly "here's what
+   neighbors built" summary for its newsletter. This is the pilot ask.
+2. **Newsletter + welcome-packet distribution** — every HOA has a newsletter
+   and a new-homeowner packet; a paragraph in either is worth 100 flyers.
+   Ask for it as part of shape 1, never as a standalone.
+3. **Volunteer pipeline** — the industry's chronic pain is recruiting board and
+   committee members. Confirmed contributions on Peoplearound *are* a
+   volunteer track record: propose it as the place boards go to find the
+   people who already show up. Strong pitch with CAI education staff.
+4. **Education / thought leadership** — CAI chapter talks and NUSA workshops
+   on "resident engagement that produces things," using completed projects as
+   case studies. Costs a Business Partner fee and a slide deck; buys
+   credibility with every board in the chapter.
+5. **B2B seat later, not now** — per `BUSINESS.md` §1d, management companies
+   and MPCs are a natural paid tier (branded space, engagement dashboard,
+   moderation) at $100–1,000/mo per org. Do **not** lead with it: earn the
+   pilot free, price the dashboard once lifestyle directors ask for it.
+
+**Never:** dues, votes, violations, ARC, records, or anything an HOA is
+legally required to do — that's their vendor's job and their liability.
+Peoplearound stays the place neighbors *choose* to show up, not the place they
+have to.
+
+**Sequencing:** join CAI-RMC as a Business Partner the same week you register
+the Aurora group (Tier 3, week 0); pull the DORA roster and the Aurora HOA GIS
+layer in week 1 and pick the 5 largest associations touching the flagship
+neighborhood; approach their management company for a pilot in week 2–3;
+Denver INC and CAI-RMC luncheon slot once the flagship project has something to
+show (week 6+). Austin/Minneapolis CAI chapters follow whichever metro converts.
+
 ## Tier 5 — Media
 
 Do **not** pitch media before a real completed project exists. The story is
@@ -229,8 +301,8 @@ flagship project needs to be somewhere you can see it through.
 
 | Week | Focus |
 |---|---|
-| 0 | **Register your group with the City of Aurora.** Free, 3+ people, unlocks grant eligibility and free library/fire-station meeting rooms. Everything downstream is easier as a registered local group. |
-| 1 | Aurora: call the Neighborhood Liaison / Community Engagement Coordinators (303.739.7280) and ask for the current registered-groups list. Get on the Aurora PROS pickleball email list. Mine Aurora disc golf clubs from Disc Golf Scene + UDisc. |
+| 0 | **Register your group with the City of Aurora.** Free, 3+ people, unlocks grant eligibility and free library/fire-station meeting rooms. Everything downstream is easier as a registered local group. Same week: join **CAI Rocky Mountain Chapter** as a Business Partner (Tier 4b). |
+| 1 | Aurora: call the Neighborhood Liaison / Community Engagement Coordinators (303.739.7280) and ask for the current registered-groups list. Get on the Aurora PROS pickleball email list. Mine Aurora disc golf clubs from Disc Golf Scene + UDisc. Pull the DORA HOA roster + Aurora's HOA GIS layer; shortlist the 5 largest associations touching the flagship neighborhood (Tier 4b). |
 | 2 | Aurora: 10× template A to disc golf clubs and pickleball ambassadors in Aurora ZIPs. Email Aurora PROS (template B). **Pick and start the flagship project** — a disc golf course improvement or a court conversion, documented start to finish. |
 | 3 | Denver: CPD community engagement first (unlocks the ~200-RNO list), then 10 RNOs. Send template B to USA Pickleball, USA Padel, NFL FLAG, RRCA in parallel — national replies are slow, start the clock. |
 | 4 | Austin: mine Tier 2 directories, 10× template A to pickleball ambassadors + run clubs, email the AMPA board, template C to Austin Pickle Ranch / Urban Pickleball Club. |

@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — docs: Tier 4b HOA/community-association partnership targets (CAI, registries, management companies, NUSA, Denver INC) + partnership shapes
+
+- `docs/OUTREACH_TARGETS.md`
+
+
 ### 2026-08-17 — Fix login outage (NULL auth tokens from the demo seed); map falls back to the neighborhood
 
 - `scripts/demo-seed-large.sql`
