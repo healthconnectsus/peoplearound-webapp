@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MessageCircle, Star as StarIcon } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SubmitButton } from "@/components/SubmitButton";
@@ -8,8 +9,9 @@ import { NeighborhoodMap } from "@/components/NeighborhoodMap";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { FlagButton } from "./FlagButton";
-import { UpdateComposer, ProjectPhotoEditor } from "./UpdateComposer";
-import { CoverPhotoTool, StewardSection } from "./OwnerTools";
+import { UpdateComposer, ProjectEditor } from "./UpdateComposer";
+import { EditProjectTool, StewardSection } from "./OwnerTools";
+import { StateTag } from "./StateTag";
 import { ProjectHero } from "@/components/ProjectHero";
 import { deleteUpdate, dismissNudge } from "../updateActions";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
@@ -24,6 +26,7 @@ import {
   categoryShadow,
   categoryTint,
   formatEventTime,
+  initials,
   isUpcomingEvent,
   isWithinDays,
   timeAgo,
@@ -47,11 +50,38 @@ import {
   requestJoin,
   respondToMembership,
   setMemberRole,
-  setProjectState,
   toggleRsvp,
   toggleStar,
   withdrawContribution,
 } from "../actions";
+
+/** A team member's face in the roster — their upload, or their initials. */
+function TeamAvatar({
+  name,
+  avatarUrl,
+}: {
+  name: string;
+  avatarUrl: string | null;
+}) {
+  if (avatarUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URL, unoptimized is fine
+      <img
+        src={avatarUrl}
+        alt=""
+        className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-black/10"
+      />
+    );
+  }
+  return (
+    <span
+      aria-hidden
+      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[9px] font-semibold text-emerald-800 ring-1 ring-black/10 dark:bg-emerald-900 dark:text-emerald-200"
+    >
+      {initials(name)}
+    </span>
+  );
+}
 
 export default async function ProjectDetail({
   params,
@@ -99,7 +129,7 @@ export default async function ProjectDetail({
   // Memberships — requests and accepted collaborators.
   const { data: memberRows } = await supabase
     .from("memberships")
-    .select("user_id,status,role,created_at,profile:profiles(display_name)")
+    .select("user_id,status,role,created_at,profile:profiles(display_name,avatar_url)")
     .eq("project_id", id)
     .order("created_at", { ascending: true });
   const members = (memberRows ?? []) as unknown as Membership[];
@@ -385,6 +415,13 @@ export default async function ProjectDetail({
             ownerAvatarUrl={project.owner?.avatar_url ?? null}
             place={project.neighborhood?.name ?? null}
             createdAt={project.created_at}
+            badge={
+              <StateTag
+                projectId={project.id}
+                state={project.state}
+                nextStates={isOwner ? nextStates : []}
+              />
+            }
             heading="h1"
             titleClass="text-2xl font-bold"
           />
@@ -418,38 +455,48 @@ export default async function ProjectDetail({
 
         {/* Founder only — nobody else sees an edit affordance. */}
         {isOwner ? (
-          <CoverPhotoTool>
-            <ProjectPhotoEditor
+          <EditProjectTool>
+            <ProjectEditor
               projectId={project.id}
               userId={user.id}
+              title={project.title}
+              description={project.description ?? null}
+              whenText={project.when_text ?? null}
               photoUrl={project.photo_url ?? null}
             />
-          </CoverPhotoTool>
+          </EditProjectTool>
         ) : null}
 
-        <p className="mt-4 text-sm text-black/50 dark:text-white/50">
-          {cat.label} · 🤝 {teamSize} {teamSize === 1 ? "person" : "people"}{" "}
-          building · ⭐ {starCount} {starCount === 1 ? "star" : "stars"}
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-black/50 dark:text-white/50">
+          <span className="rounded-full bg-black/5 px-2.5 py-0.5 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70">
+            {cat.emoji} {cat.label}
+          </span>
           {project.help ? (
-            <span title={HELP_META[project.help].hint}>
-              {" · "}
-              {HELP_META[project.help].emoji} Looking for:{" "}
-              {HELP_META[project.help].label.toLowerCase()}
+            <span
+              title={HELP_META[project.help].hint}
+              className="rounded-full bg-black/5 px-2.5 py-0.5 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70"
+            >
+              {HELP_META[project.help].emoji} {project.help}
             </span>
           ) : null}
           {project.reach && project.reach !== "neighborhood" ? (
-            <span title={REACH_META[project.reach].hint}>
-              {" · "}
-              {REACH_META[project.reach].emoji} Open to:{" "}
+            <span
+              title={REACH_META[project.reach].hint}
+              className="rounded-full bg-black/5 px-2.5 py-0.5 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70"
+            >
+              {REACH_META[project.reach].emoji}{" "}
               {REACH_META[project.reach].label.toLowerCase()}
             </span>
           ) : null}
+          <span>
+            🤝 {teamSize} {teamSize === 1 ? "person" : "people"} building
+          </span>
           {project.when_text ? (
             <span title="The rhythm this happens on — neighbors settle the details">
-              {" · "}🗓 {project.when_text}
+              🗓 {project.when_text}
             </span>
           ) : null}
-        </p>
+        </div>
 
         {project.description ? (
           <p className="mt-5 whitespace-pre-wrap text-[15px] leading-relaxed">
@@ -461,82 +508,86 @@ export default async function ProjectDetail({
           </p>
         )}
 
-        {/* Actions: join + star */}
-        <div className="mt-7 rounded-2xl border border-slate-400 p-4 dark:border-slate-500">
-          {isOwner ? (
-            <p className="text-sm text-black/60 dark:text-white/60">
-              This is your project. When neighbors ask to join, their requests
-              show up right here.
-            </p>
-          ) : !myMembership ? (
-            <p className="text-sm text-black/60 dark:text-white/60">
-              Want to help build this? Ask to join — {founderName} will review
-              your request.
-            </p>
-          ) : myMembership.status === "pending" ? (
-            <p className="text-sm text-black/60 dark:text-white/60">
-              ⏳ Your request is with {founderName}. You&apos;ll be on the team
-              once they accept.
-            </p>
-          ) : (
-            <p className="text-sm text-black/60 dark:text-white/60">
-              🎉 You&apos;re on the team — you and {founderName} are building
-              this together.
-            </p>
-          )}
+        {/* The same two affordances the feed card carries — star it, or
+            say something to the person who started it. */}
+        <div className="mt-6 flex flex-wrap items-center gap-1 border-y border-slate-200 py-1.5 dark:border-slate-700">
+          <form action={toggleStar}>
+            <input type="hidden" name="projectId" value={project.id} />
+            <input type="hidden" name="returnTo" value={`/projects/${project.id}`} />
+            <SubmitButton
+              aria-label={
+                hasStarred
+                  ? "Remove your star"
+                  : "Star this — you'd love it to exist"
+              }
+              pendingLabel={
+                <>
+                  <StarIcon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                  <span>{starCount}</span>
+                </>
+              }
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-black/60 transition-colors hover:bg-black/5 dark:text-white/60 dark:hover:bg-white/10"
+            >
+              <StarIcon
+                className={`h-4 w-4 ${hasStarred ? "fill-amber-400 text-amber-500" : ""}`}
+                strokeWidth={1.75}
+                aria-hidden
+              />
+              <span className={hasStarred ? "font-medium" : ""}>
+                {starCount}
+              </span>
+            </SubmitButton>
+          </form>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {!isOwner && !myMembership ? (
-              <form action={requestJoin}>
-                <input type="hidden" name="projectId" value={project.id} />
-                <button
-                  type="submit"
-                  className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-                >
-                  🤝 Ask to join
-                </button>
-              </form>
-            ) : null}
+          {!isOwner ? (
+            <Link
+              href={`/chats?to=${project.owner_id}`}
+              aria-label={`Message ${founderName} about ${project.title}`}
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-black/60 transition-colors hover:bg-black/5 dark:text-white/60 dark:hover:bg-white/10"
+            >
+              <MessageCircle className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              <span>Message</span>
+            </Link>
+          ) : null}
 
-            {!isOwner && myMembership?.status === "pending" ? (
-              <form action={leaveProject}>
-                <input type="hidden" name="projectId" value={project.id} />
-                <button
-                  type="submit"
-                  className="rounded-full border border-slate-400 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
-                >
-                  Cancel my request
-                </button>
-              </form>
-            ) : null}
-
-            {!isOwner && myMembership?.status === "accepted" ? (
-              <form action={leaveProject}>
-                <input type="hidden" name="projectId" value={project.id} />
-                <ConfirmSubmit
-                  message="Leave this project?"
-                  className="rounded-full border border-slate-400 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
-                >
-                  Leave project
-                </ConfirmSubmit>
-              </form>
-            ) : null}
-
-            <form action={toggleStar}>
+          {/* Joining stays here: it's the third thing you can do from the
+              feed's grammar, and burying it would cost the project teammates. */}
+          {!isOwner && !myMembership ? (
+            <form action={requestJoin} className="ml-auto">
               <input type="hidden" name="projectId" value={project.id} />
               <button
                 type="submit"
-                title="A star tells the founder you'd love this to exist"
-                className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                  hasStarred
-                    ? "border-amber-400 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-500/50 dark:bg-amber-950/40 dark:text-amber-300"
-                    : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
-                }`}
+                className="rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
               >
-                {hasStarred ? "⭐ Starred" : "☆ Star this idea"}
+                🤝 Ask to join
               </button>
             </form>
-          </div>
+          ) : null}
+
+          {!isOwner && myMembership?.status === "pending" ? (
+            <form action={leaveProject} className="ml-auto">
+              <input type="hidden" name="projectId" value={project.id} />
+              <button
+                type="submit"
+                title={`Your request is with ${founderName}`}
+                className="rounded-full border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+              >
+                ⏳ Cancel my request
+              </button>
+            </form>
+          ) : null}
+
+          {!isOwner && myMembership?.status === "accepted" ? (
+            <form action={leaveProject} className="ml-auto">
+              <input type="hidden" name="projectId" value={project.id} />
+              <ConfirmSubmit
+                message="Leave this project?"
+                className="rounded-full border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+              >
+                🎉 On the team — leave
+              </ConfirmSubmit>
+            </form>
+          ) : null}
         </div>
 
         {/* The acknowledgment moment — your work was confirmed by real people. */}
@@ -616,8 +667,12 @@ export default async function ProjectDetail({
         <div className="mt-7">
           <h2 className="mb-2 text-sm font-semibold">The team</h2>
           <ul className="flex flex-col">
-            <li className="flex items-center justify-between gap-3 py-1.5">
-              <span className="text-sm font-medium">{founderName}</span>
+            <li className="flex items-center gap-2 py-1.5">
+              <TeamAvatar
+                name={founderName}
+                avatarUrl={project.owner?.avatar_url ?? null}
+              />
+              <span className="text-sm">{founderName}</span>
               <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
                 Founder
               </span>
@@ -628,6 +683,10 @@ export default async function ProjectDetail({
                 className="flex items-center justify-between gap-3 py-1.5"
               >
                 <span className="flex flex-wrap items-center gap-2 text-sm">
+                  <TeamAvatar
+                    name={m.profile?.display_name ?? "Someone"}
+                    avatarUrl={m.profile?.avatar_url ?? null}
+                  />
                   {m.profile?.display_name ?? "Someone"}
                   {(m as unknown as { role?: string }).role === "co_organizer" ? (
                     <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-medium text-sky-800 dark:bg-sky-950/50 dark:text-sky-300">
@@ -1126,27 +1185,6 @@ export default async function ProjectDetail({
             </form>
           ) : null}
         </div>
-
-        {/* Owner: state transitions */}
-        {isOwner && nextStates.length > 0 ? (
-          <div className="mt-7">
-            <h2 className="mb-2 text-sm font-semibold">Update status</h2>
-            <div className="flex flex-wrap gap-2">
-              {nextStates.map((s) => (
-                <form key={s} action={setProjectState}>
-                  <input type="hidden" name="projectId" value={project.id} />
-                  <input type="hidden" name="state" value={s} />
-                  <button
-                    type="submit"
-                    className="rounded-full border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
-                  >
-                    Mark as {STATE_META[s].label.toLowerCase()}
-                  </button>
-                </form>
-              ))}
-            </div>
-          </div>
-        ) : null}
 
         {isOwner ? (
           <form action={deleteProject} className="mt-10">

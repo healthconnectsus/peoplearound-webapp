@@ -107,6 +107,63 @@ export async function createProject(formData: FormData) {
   redirect(`/projects/${data.id}`);
 }
 
+/**
+ * Edit the project itself — what it says and what it looks like.
+ *
+ * Everything else on the page edits a *part* of the project (its state, its
+ * events, its updates). This is the one that edits the thing you wrote, and
+ * it's what the "Edit project" button opens. Owner-only, and RLS enforces
+ * that independently of this check.
+ */
+export async function updateProjectDetails(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  if (!projectId) redirect("/");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const title = String(formData.get("title") ?? "").trim().slice(0, 140);
+  const description = String(formData.get("description") ?? "")
+    .trim()
+    .slice(0, 4000);
+  const whenText = String(formData.get("whenText") ?? "").trim().slice(0, 80);
+  const photoUrl = String(formData.get("photoUrl") ?? "").trim().slice(0, 500);
+
+  // A project with no title would be unreachable in every list on the site.
+  if (!title) redirect(`/projects/${projectId}`);
+
+  // The photographer's credit belongs to one specific photo (0039). Swapping
+  // the cover for an upload must take the old credit with it, or we'd be
+  // attributing a neighbor's snapshot to an Unsplash photographer.
+  const { data: current } = await supabase
+    .from("projects")
+    .select("photo_url")
+    .eq("id", projectId)
+    .maybeSingle();
+  const photoChanged = (current?.photo_url ?? "") !== photoUrl;
+
+  await supabase
+    .from("projects")
+    .update({
+      title,
+      description,
+      when_text: whenText || null,
+      photo_url: photoUrl || null,
+      ...(photoChanged
+        ? { photo_credit_name: null, photo_credit_url: null }
+        : {}),
+    })
+    .eq("id", projectId)
+    .eq("owner_id", user.id);
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath("/");
+  redirect(`/projects/${projectId}`);
+}
+
 export async function setProjectState(formData: FormData) {
   const projectId = String(formData.get("projectId") ?? "");
   const next = String(formData.get("state") ?? "") as ProjectState;

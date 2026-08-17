@@ -86,6 +86,7 @@ export function ProjectHero({
   ownerAvatarUrl,
   place,
   createdAt,
+  badge: badgeOverride,
   heading = "h3",
   titleClass = "text-lg font-semibold",
 }: {
@@ -98,6 +99,8 @@ export function ProjectHero({
   ownerAvatarUrl: string | null;
   place: string | null;
   createdAt: string;
+  /** Replaces the plain state tag — the project page passes an editable one. */
+  badge?: React.ReactNode;
   /** h1 on the project page, h3 in the feed. */
   heading?: "h1" | "h3";
   titleClass?: string;
@@ -106,7 +109,7 @@ export function ProjectHero({
   // "Meadowood · 23 hr ago" — where it's happening and how fresh it is.
   const line = [place, timeAgo(createdAt)].filter(Boolean).join(" · ");
 
-  const badge = (
+  const badge = badgeOverride ?? (
     <span
       className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${stateBadge}`}
     >

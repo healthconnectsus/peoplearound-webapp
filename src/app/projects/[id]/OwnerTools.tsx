@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarPlus, ImageUp, Megaphone } from "lucide-react";
+import { CalendarPlus, Megaphone, Pencil } from "lucide-react";
 
 /**
  * Stewards' tools, folded away beside the thing they act on.
@@ -17,12 +17,12 @@ import { CalendarPlus, ImageUp, Megaphone } from "lucide-react";
  * one is on screen.
  */
 
-type Tool = "event" | "update" | "photo";
+type Tool = "event" | "update" | "edit";
 
 const TOOL_META: Record<Tool, { label: string; Icon: typeof CalendarPlus }> = {
   event: { label: "Plan an event", Icon: CalendarPlus },
   update: { label: "Post an update", Icon: Megaphone },
-  photo: { label: "Change cover photo", Icon: ImageUp },
+  edit: { label: "Edit project", Icon: Pencil },
 };
 
 function ToolButton({
@@ -85,17 +85,13 @@ export function StewardSection({
   );
 }
 
-/** The cover-photo editor, folded under the hero. Founder only. */
-export function CoverPhotoTool({ children }: { children: React.ReactNode }) {
+/** The project editor, folded under the hero. Founder only. */
+export function EditProjectTool({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="mt-3">
-      <ToolButton
-        tool="photo"
-        open={open}
-        onToggle={() => setOpen((v) => !v)}
-      />
+      <ToolButton tool="edit" open={open} onToggle={() => setOpen((v) => !v)} />
       {open ? <div className="mt-3">{children}</div> : null}
     </div>
   );
