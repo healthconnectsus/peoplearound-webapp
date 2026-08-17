@@ -193,13 +193,20 @@ begin
   for i in 1..array_length(ids, 1) loop
     insert into auth.users (
       instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+      -- GoTrue scans these into Go strings and cannot read a NULL: leaving
+      -- them unset takes down *every* login with "Database error querying
+      -- schema", not just the seeded accounts. Empty string, always.
+      confirmation_token, recovery_token, email_change, email_change_token_new,
+      email_change_token_current, reauthentication_token, phone_change,
+      phone_change_token
     ) values (
       '00000000-0000-0000-0000-000000000000', ids[i], 'authenticated', 'authenticated',
       emails[i], extensions.crypt('neighbors123', extensions.gen_salt('bf')), now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
       jsonb_build_object('display_name', names[i]),
-      now() - interval '60 days', now()
+      now() - interval '60 days', now(),
+      '', '', '', '', '', '', '', ''
     ) on conflict (id) do nothing;
 
     insert into auth.identities (

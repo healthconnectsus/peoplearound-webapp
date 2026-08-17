@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Fix login outage (NULL auth tokens from the demo seed); map falls back to the neighborhood
+
+- `scripts/demo-seed-large.sql`
+- `scripts/demo-seed.sql`
+- `scripts/generate-demo-seed.mjs`
+- `src/app/projects/[id]/page.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `supabase/migrations/0041_auth_null_tokens.sql`
+
+
 ### 2026-08-17 — Drop the rules around the project page's star row
 
 - `src/app/projects/[id]/page.tsx`

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SubmitButton } from "@/components/SubmitButton";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
-import { NeighborhoodMap } from "@/components/NeighborhoodMap";
+import { NeighborhoodMap, type MapPin } from "@/components/NeighborhoodMap";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { FlagButton } from "./FlagButton";
@@ -101,7 +101,7 @@ export default async function ProjectDetail({
     .select(
       // profiles is reachable via several FKs now (owner, memberships, stars),
       // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,help,reach,photo_url,photo_credit_name,photo_credit_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name,avatar_url),neighborhood:neighborhoods(name,city)",
+      "id,owner_id,title,description,category,state,help,reach,photo_url,photo_credit_name,photo_credit_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name,avatar_url),neighborhood:neighborhoods(name,city,center_lat,center_lng)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -114,6 +114,42 @@ export default async function ProjectDetail({
   const nextStates = TRANSITIONS[project.state];
   const founderName = project.owner?.display_name ?? "Someone";
   const hasPin = project.lat != null && project.lng != null;
+
+  // Where to frame the map. Projects created without a location used to get
+  // no map at all — a blank column beside the story. Fall back to the
+  // neighborhood's centre, so the page still answers "where is this?".
+  const hood = project.neighborhood as unknown as {
+    name: string;
+    city: string | null;
+    center_lat: number | null;
+    center_lng: number | null;
+  } | null;
+  const mapCenter = hasPin
+    ? { lat: project.lat!, lng: project.lng! }
+    : hood?.center_lat != null && hood?.center_lng != null
+      ? { lat: hood.center_lat, lng: hood.center_lng }
+      : null;
+
+  // An unlocated project borrows its neighborhood's map: the other things
+  // being built nearby, so the column is a place rather than a blank.
+  let nearbyPins: MapPin[] = [];
+  if (!hasPin && mapCenter && project.neighborhood_id) {
+    const { data: nearbyRows } = await supabase
+      .from("projects")
+      .select("id,title,category,state,lat,lng")
+      .eq("neighborhood_id", project.neighborhood_id)
+      .not("lat", "is", null)
+      .limit(40);
+    nearbyPins = ((nearbyRows ?? []) as unknown as Project[]).map((n) => ({
+      id: n.id,
+      title: n.title,
+      emoji: categoryMeta(n.category).emoji,
+      href: `/projects/${n.id}`,
+      lat: n.lat!,
+      lng: n.lng!,
+      subtitle: STATE_META[n.state].label,
+    }));
+  }
 
   // Stars — count, whether the current user has starred, and who/when for
   // the history timeline.
@@ -364,7 +400,7 @@ export default async function ProjectDetail({
       />
       <div
         className={
-          hasPin
+          mapCenter
             ? // Same split as MapShell (used by every other "around me"
               // page) — this page predated it and kept the old wider
               // columns, so its map read as a different app.
@@ -373,21 +409,26 @@ export default async function ProjectDetail({
         }
       >
         {/* Where it's happening — sticky beside the story, like the feed. */}
-        {hasPin ? (
+        {mapCenter ? (
           <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-0 lg:h-screen lg:p-4">
             <NeighborhoodMap
               className="h-64 lg:h-full"
-              pins={[
-                {
-                  id: project.id,
-                  title: project.title,
-                  emoji: cat.emoji,
-                  href: `/projects/${project.id}`,
-                  lat: project.lat!,
-                  lng: project.lng!,
-                  subtitle: `${meta.label} · ${founderName}`,
-                },
-              ]}
+              center={mapCenter}
+              pins={
+                hasPin
+                  ? [
+                      {
+                        id: project.id,
+                        title: project.title,
+                        emoji: cat.emoji,
+                        href: `/projects/${project.id}`,
+                        lat: project.lat!,
+                        lng: project.lng!,
+                        subtitle: `${meta.label} · ${founderName}`,
+                      },
+                    ]
+                  : nearbyPins
+              }
             />
           </aside>
         ) : null}

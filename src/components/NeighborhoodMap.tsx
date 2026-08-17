@@ -80,7 +80,10 @@ export function NeighborhoodMap({
   }, [router]);
 
   useEffect(() => {
-    if (!holderRef.current || pins.length === 0) return;
+    // A map with no pins is still worth drawing when we know where "here"
+    // is — an empty street map of your neighborhood says "nothing located
+    // yet", where a blank white column just looks broken.
+    if (!holderRef.current || (pins.length === 0 && !center)) return;
     let disposed = false;
     let map: import("leaflet").Map | null = null;
 
@@ -153,7 +156,7 @@ export function NeighborhoodMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(pins), center?.lat, center?.lng]);
 
-  if (pins.length === 0) return null;
+  if (pins.length === 0 && !center) return null;
 
   return (
     <div className={`relative ${className}`}>
