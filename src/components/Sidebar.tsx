@@ -131,13 +131,18 @@ export function Sidebar({
             <Link
               key={item.href}
               href={item.href}
-              /* Weight is the whole signal: hovering bolds, the page
-                 you're on stays bold. No fill, no colour — the rail never
-                 competes with the content beside it. */
-              className={`group flex items-center gap-4 rounded-lg px-3 py-2.5 text-[16px] ${
+              data-active={active}
+              /* Weight and colour are the whole signal: hovering thickens
+                 the label and darkens it, the page you're on stays that
+                 way. No fill — the rail never competes with the content
+                 beside it. The weight *eases* rather than snapping; see
+                 .rail-label in globals.css for why that needs a variable
+                 font. Slate rather than black: grey-blue sits quieter
+                 next to the wordmark's colours. */
+              className={`rail-item group flex items-center gap-4 rounded-lg px-3 py-2.5 text-[16px] transition-colors ${
                 active
-                  ? "font-bold text-black dark:text-white"
-                  : "font-normal text-black/75 hover:font-bold hover:text-black dark:text-white/75 dark:hover:text-white"
+                  ? "text-slate-900 dark:text-white"
+                  : "text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white"
               }`}
             >
               {/* The icon wears the wordmark's hue — on hover and while
@@ -147,7 +152,7 @@ export function Sidebar({
                 className={`h-[22px] w-[22px] shrink-0 transition-colors ${
                   active
                     ? ""
-                    : "text-black/60 group-hover:[color:var(--icon)] dark:text-white/60"
+                    : "text-slate-500 group-hover:[color:var(--icon)] dark:text-white/60"
                 }`}
                 style={
                   active
@@ -157,14 +162,16 @@ export function Sidebar({
                 strokeWidth={active ? 2.25 : 1.75}
                 aria-hidden
               />
-              <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              <span className="rail-label min-w-0 flex-1 truncate">
+                {item.label}
+              </span>
               {n > 0 ? (
                 <span
                   title={item.title}
-                  className={`shrink-0 text-xs font-semibold tabular-nums ${
+                  className={`shrink-0 text-xs font-semibold tabular-nums transition-colors ${
                     active
-                      ? "text-black/70 dark:text-white/70"
-                      : "text-black/40 dark:text-white/40"
+                      ? "text-slate-700 dark:text-white/70"
+                      : "text-slate-400 group-hover:text-slate-600 dark:text-white/40"
                   }`}
                 >
                   {n}
@@ -201,26 +208,28 @@ export function Sidebar({
         {isAdmin ? (
           <Link
             href="/admin"
-            className={`rounded-lg px-3 py-1.5 text-[14px] transition-colors ${
+            data-active={pathname.startsWith("/admin")}
+            className={`rail-item rounded-lg px-3 py-1.5 text-[14px] transition-colors ${
               pathname.startsWith("/admin")
-                ? "font-bold text-black dark:text-white"
-                : "font-normal text-black/55 hover:font-bold hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
+                ? "text-slate-900 dark:text-white"
+                : "text-slate-500 hover:text-slate-800 dark:text-white/55 dark:hover:text-white/80"
             }`}
           >
-            🛡️ Admin
+            <span className="rail-label">🛡️ Admin</span>
           </Link>
         ) : null}
         {UTILITY_ITEMS.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`rounded-lg px-3 py-1.5 text-[14px] transition-colors ${
+            data-active={pathname.startsWith(item.href)}
+            className={`rail-item rounded-lg px-3 py-1.5 text-[14px] transition-colors ${
               pathname.startsWith(item.href)
-                ? "font-bold text-black dark:text-white"
-                : "font-normal text-black/55 hover:font-bold hover:text-black/80 dark:text-white/55 dark:hover:text-white/80"
+                ? "text-slate-900 dark:text-white"
+                : "text-slate-500 hover:text-slate-800 dark:text-white/55 dark:hover:text-white/80"
             }`}
           >
-            {item.label}
+            <span className="rail-label">{item.label}</span>
           </Link>
         ))}
       </div>

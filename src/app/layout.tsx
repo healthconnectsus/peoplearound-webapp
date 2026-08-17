@@ -4,10 +4,13 @@ import "./globals.css";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import { InstallPrompt } from "@/components/InstallPrompt";
 
+// No `weight` array on purpose: that pins three static faces, and a browser
+// cannot interpolate between separate faces. Omitting it loads Roboto's
+// variable version, which makes "wght" a real animatable axis — that's what
+// lets the rail's labels ease between normal and bold instead of snapping.
 const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
 });
 
 const geistMono = Geist_Mono({

@@ -25,6 +25,32 @@ body {
   font-family: var(--font-sans);
 }
 
+/* ------------------------------------------------------------------
+   The rail's labels ease between weights.
+
+   `font-weight` cannot be animated between two static faces — the browser
+   has nothing to interpolate, so it snaps. Roboto is loaded as a variable
+   font (see app/layout.tsx), which exposes a real "wght" axis, and *that*
+   is animatable. Colour rides along on the same curve so the row lightens
+   and thickens as one movement.
+
+   The reduce-motion block below zeroes these durations too, so the states
+   still change — they just stop travelling.
+   ------------------------------------------------------------------ */
+.rail-label {
+  font-variation-settings: "wght" 400;
+  transition:
+    font-variation-settings 180ms ease,
+    color 180ms ease;
+}
+.rail-item:hover .rail-label,
+.rail-item:focus-visible .rail-label {
+  font-variation-settings: "wght" 700;
+}
+.rail-item[data-active="true"] .rail-label {
+  font-variation-settings: "wght" 700;
+}
+
 /* Respect "reduce motion" (an OS accessibility setting): the 3D card
    flips, hover lifts, pulses and confetti all go still. Flip cards reveal
    their backs on hover/focus via an instant swap instead of a rotation —
