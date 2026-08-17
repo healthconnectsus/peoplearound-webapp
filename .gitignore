@@ -49,3 +49,6 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Source collages for avatars — kept locally, never published.
+/public/people*.webp
