@@ -25,6 +25,7 @@ import {
 import { createProject } from "../actions";
 import { MapPicker } from "@/components/MapPicker";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { SubmitButton } from "@/components/SubmitButton";
 import { useStockPhotos, trackStockPhotoUse } from "@/components/useStockPhotos";
 
 type Draft = {
@@ -1220,17 +1221,7 @@ export function IdeaForm({
             </div>
           </div>
 
-          <form
-            action={createProject}
-            onSubmit={() => {
-              // Unsplash counts a "download" when a photo is actually used.
-              // Firing this while someone flips through covers would spend
-              // the hourly quota on photos they never posted.
-              const chosen = stockPhotos.find((p) => p.url === photoUrl);
-              if (chosen) trackStockPhotoUse(chosen);
-            }}
-            className="flex items-center gap-3"
-          >
+          <form action={createProject} className="flex items-center gap-3">
             <input type="hidden" name="title" value={effectiveTitle} />
             <input type="hidden" name="description" value={description} />
             <input type="hidden" name="whenText" value={whenText} />
@@ -1248,12 +1239,19 @@ export function IdeaForm({
             >
               ← Back
             </button>
-            <button
-              type="submit"
+            <SubmitButton
+              pendingLabel="Sharing…"
+              onSubmitting={() => {
+                // Unsplash counts a "download" when a photo is actually
+                // used. Firing this while someone flips through covers
+                // would spend the hourly quota on photos never posted.
+                const chosen = stockPhotos.find((p) => p.url === photoUrl);
+                if (chosen) trackStockPhotoUse(chosen);
+              }}
               className={`rounded-full px-7 py-3 text-base font-medium text-white transition-colors ${accent.solid}`}
             >
               Share it 🎉
-            </button>
+            </SubmitButton>
             <Link
               href="/"
               className="text-sm text-black/50 hover:underline dark:text-white/50"

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { MapPicker } from "@/components/MapPicker";
+import { SubmitButton } from "@/components/SubmitButton";
 import { postAsk } from "./askActions";
 
 /**
@@ -458,12 +459,12 @@ export function AskComposer({
                   >
                     ← Back
                   </button>
-                  <button
-                    type="submit"
+                  <SubmitButton
+                    pendingLabel="Posting…"
                     className="rounded-full bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400"
                   >
                     Post the ask 🙋
-                  </button>
+                  </SubmitButton>
                   <button
                     type="button"
                     onClick={reset}
