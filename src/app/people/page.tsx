@@ -2,12 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { SubmitButton } from "@/components/SubmitButton";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { AsksSection } from "@/components/AsksSection";
 import { FeedComposer } from "@/components/FeedComposer";
 import { CommunityFilter } from "@/components/CommunityFilter";
+import { NewCommunityDialog } from "./NewCommunityDialog";
 import { ProjectCard } from "@/components/ProjectFeedCard";
 import { loadFeedCards } from "@/lib/feed";
 import { openAsks, formatMinutes } from "@/lib/asks";
@@ -18,10 +18,9 @@ import {
   CATEGORIES,
   CATEGORY_META,
 } from "@/lib/projects";
-import { KIND_META, communityLabel, kindMeta, type Community } from "@/lib/communities";
+import { communityLabel, kindMeta, type Community } from "@/lib/communities";
 import { LocateButton } from "@/app/neighborhood/LocateButton";
 import {
-  createCommunity,
   joinCommunity,
   leaveCommunity,
   setPrimaryCommunity,
@@ -38,12 +37,11 @@ import {
 
 const PILL_BTN =
   "rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10";
-const INPUT =
-  "rounded-lg border border-slate-400 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400";
 
 type PersonRow = {
   id: string;
   display_name: string | null;
+  avatar_url?: string | null;
   created_at: string;
 };
 
@@ -56,10 +54,19 @@ function PersonCard({
 }) {
   const name = person.display_name ?? "A neighbor";
   return (
-    <li className="flex items-center gap-3 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-zinc-900">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
-        {initials(name)}
-      </span>
+    <li className="flex items-center gap-3 py-2">
+      {person.avatar_url ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URL, unoptimized is fine
+        <img
+          src={person.avatar_url}
+          alt=""
+          className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-black/10"
+        />
+      ) : (
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-800 ring-1 ring-black/10 dark:bg-emerald-900 dark:text-emerald-200">
+          {initials(name)}
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{name}</p>
         {badge ? (
@@ -138,7 +145,7 @@ export default async function PeoplePage({
     supabase
       .from("projects")
       .select(
-        "owner_id,help,owner:profiles!projects_owner_id_fkey(id,display_name,created_at)",
+        "owner_id,help,owner:profiles!projects_owner_id_fkey(id,display_name,avatar_url,created_at)",
       )
       .in("help", ["remote", "both"])
       .neq("state", "archived"),
@@ -154,7 +161,7 @@ export default async function PeoplePage({
   const { data: neighborRows } = primaryId
     ? await supabase
         .from("profiles")
-        .select("id,display_name,created_at")
+        .select("id,display_name,avatar_url,created_at")
         .eq("neighborhood_id", primaryId)
         .order("created_at", { ascending: true })
         .limit(100)
@@ -500,57 +507,7 @@ export default async function PeoplePage({
               </div>
             ) : null}
 
-            <div className="mt-6">
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-black/45 dark:text-white/45">
-                Start a community
-              </h3>
-              <form
-                action={createCommunity}
-                className="flex flex-col gap-3 rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    maxLength={80}
-                    placeholder="Chess players of Manhattan"
-                    className={`${INPUT} flex-1`}
-                  />
-                  <select
-                    name="kind"
-                    className={`${INPUT} sm:w-44`}
-                    defaultValue="interest"
-                  >
-                    {Object.entries(KIND_META).map(([value, meta]) => (
-                      <option key={value} value={value}>
-                        {meta.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <input
-                  type="text"
-                  name="city"
-                  maxLength={80}
-                  placeholder="City (optional)"
-                  className={INPUT}
-                />
-                <input
-                  type="text"
-                  name="description"
-                  maxLength={300}
-                  placeholder="One line about who this is for (optional)"
-                  className={INPUT}
-                />
-                <SubmitButton
-                  pendingLabel="Creating…"
-                  className="self-start rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-                >
-                  Create community
-                </SubmitButton>
-              </form>
-            </div>
+            <NewCommunityDialog />
           </section>
 
           {primaryId ? (

@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — People lists: no frames, real avatars; community form moves behind a button
+
+- `src/app/people/NewCommunityDialog.tsx`
+- `src/app/people/page.tsx`
+
+
 ### 2026-08-17 — Draw an avatar for every demo neighbor
 
 - `public/avatars/demo/u1.svg`
