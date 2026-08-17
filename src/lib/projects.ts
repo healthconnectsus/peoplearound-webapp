@@ -141,6 +141,35 @@ export const CATEGORY_TINT: Record<(typeof CATEGORIES)[number], string> = {
   other: "border-l-zinc-300 dark:border-l-zinc-600",
 };
 
+/**
+ * Shadow tint per category, for feed cards — the same hue as the left
+ * border, so a card's colour reads as "what kind of thing this is" from
+ * both its edge and the light it casts. Literal classes: Tailwind's
+ * scanner reads source text, so these can't be built by interpolation.
+ */
+export const CATEGORY_SHADOW: Record<(typeof CATEGORIES)[number], string> = {
+  community: "shadow-emerald-500/25 hover:shadow-emerald-500/40",
+  games: "shadow-blue-500/25 hover:shadow-blue-500/40",
+  fitness: "shadow-orange-500/25 hover:shadow-orange-500/40",
+  outdoors: "shadow-green-600/25 hover:shadow-green-600/40",
+  food: "shadow-red-500/25 hover:shadow-red-500/40",
+  social: "shadow-teal-500/25 hover:shadow-teal-500/40",
+  arts: "shadow-pink-500/25 hover:shadow-pink-500/40",
+  learning: "shadow-sky-500/25 hover:shadow-sky-500/40",
+  events: "shadow-fuchsia-500/25 hover:shadow-fuchsia-500/40",
+  giving: "shadow-rose-500/25 hover:shadow-rose-500/40",
+  home: "shadow-amber-500/25 hover:shadow-amber-500/40",
+  venture: "shadow-violet-500/25 hover:shadow-violet-500/40",
+  other: "shadow-zinc-500/25 hover:shadow-zinc-500/40",
+};
+
+export function categoryShadow(category: string): string {
+  return (
+    CATEGORY_SHADOW[category as (typeof CATEGORIES)[number]] ??
+    CATEGORY_SHADOW.other
+  );
+}
+
 export function categoryTint(category: string): string {
   return (
     CATEGORY_TINT[category as (typeof CATEGORIES)[number]] ??
@@ -362,7 +391,7 @@ export type Project = {
   neighborhood_id: string | null;
   created_at: string;
   updated_at: string;
-  owner?: { display_name: string | null } | null;
+  owner?: { display_name: string | null; avatar_url?: string | null } | null;
   neighborhood?: { name: string; city: string | null } | null;
 };
 

@@ -23,6 +23,8 @@ type Client = SupabaseClient<any, any, any>;
 export async function loadFeedCards(
   supabase: Client,
   projectIds?: string[],
+  /** Whose star state to report on each card — the signed-in viewer. */
+  viewerId?: string,
 ): Promise<{ cards: CardData[]; events: ProjectEvent[]; confirmedThisMonth: number }> {
   const monthAgo = isoDaysAgo(30);
   const scoped = projectIds != null;
@@ -34,7 +36,7 @@ export async function loadFeedCards(
   let projectQuery = supabase
     .from("projects")
     .select(
-      "id,owner_id,title,description,category,state,help,reach,photo_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name),neighborhood:neighborhoods(name,city)",
+      "id,owner_id,title,description,category,state,help,reach,photo_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name,avatar_url),neighborhood:neighborhoods(name,city)",
     )
     .neq("state", "archived")
     .order("created_at", { ascending: false });
@@ -50,7 +52,10 @@ export async function loadFeedCards(
 
   const [{ data: starRows }, { data: memberRows }, { data: eventRows }, { data: confirmedRows }] =
     await Promise.all([
-      supabase.from("stars").select("project_id,created_at").in("project_id", ids),
+      supabase
+        .from("stars")
+        .select("project_id,created_at,user_id")
+        .in("project_id", ids),
       supabase
         .from("memberships")
         .select("project_id,status,created_at,profile:profiles(display_name)")
@@ -120,7 +125,16 @@ export async function loadFeedCards(
       beat = `✨ Fresh — shared ${timeAgo(p.created_at)}`;
     }
 
-    return { ...p, starCount: myStars.length, team, beat, hot };
+    return {
+      ...p,
+      starCount: myStars.length,
+      starred: viewerId
+        ? myStars.some((x) => (x as { user_id?: string }).user_id === viewerId)
+        : false,
+      team,
+      beat,
+      hot,
+    };
   });
 
   return { cards, events, confirmedThisMonth: confirmed.length };

@@ -203,7 +203,7 @@ export default async function PeoplePage({
         .neq("state", "archived")
     : { data: [] };
   const communityProjectIds = (idRows ?? []).map((r) => r.id as string);
-  const { cards, events } = await loadFeedCards(supabase, communityProjectIds);
+  const { cards, events } = await loadFeedCards(supabase, communityProjectIds, user.id);
   const asks = await openAsks(supabase, 4);
 
   const visible = cards.filter(
@@ -400,7 +400,7 @@ export default async function PeoplePage({
             ) : (
               <ul className="flex flex-col gap-3">
                 {visible.map((p) => (
-                  <ProjectCard key={p.id} p={p} />
+                  <ProjectCard key={p.id} p={p} returnTo="/people" />
                 ))}
               </ul>
             )}

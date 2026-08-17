@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Feed card: title and starter on the photo, star + message actions, category-tinted shadow
+
+- `src/app/explore/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/components/ProjectFeedCard.tsx`
+- `src/components/SubmitButton.tsx`
+- `src/lib/feed.ts`
+- `src/lib/projects.ts`
+
+
 ### 2026-08-17 — Admins are exempt from the abuse caps; project map matches every other page
 
 - `docs/ARCHITECTURE.md`

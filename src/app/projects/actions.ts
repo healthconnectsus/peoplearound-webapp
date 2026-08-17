@@ -162,6 +162,10 @@ export async function deleteProject(formData: FormData) {
 // ------------------------------------------------------------------
 export async function toggleStar(formData: FormData) {
   const projectId = String(formData.get("projectId") ?? "");
+  // Starring from a feed card shouldn't yank you onto the project page —
+  // pass the path you're on and we re-render it in place instead.
+  const returnTo = String(formData.get("returnTo") ?? "").trim();
+  const stayPut = returnTo.startsWith("/") && !returnTo.startsWith("//");
   if (!projectId) redirect("/");
 
   const supabase = await createClient();
@@ -191,6 +195,10 @@ export async function toggleStar(formData: FormData) {
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/");
+  if (stayPut) {
+    revalidatePath(returnTo);
+    return;
+  }
   redirect(`/projects/${projectId}`);
 }
 

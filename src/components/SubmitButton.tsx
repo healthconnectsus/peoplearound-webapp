@@ -23,7 +23,7 @@ export function SubmitButton({
 }: {
   children: React.ReactNode;
   /** Shown while the action runs — say what's happening, not "Loading". */
-  pendingLabel: string;
+  pendingLabel: React.ReactNode;
   className?: string;
   /** Fire-and-forget side effect at click time (analytics, tracking pings). */
   onSubmitting?: () => void;
