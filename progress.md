@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Private impact score (closes Phase 1) + cap notices at the wizard doors
+
+- `src/app/analytics/page.tsx`
+- `src/app/asks/AskComposer.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/components/AsksSection.tsx`
+- `src/lib/impact.ts`
+- `supabase/migrations/0038_action_count.sql`
+
+
 ### 2026-08-17 — Sweep: pending states on every row-creating submit, duplicates purged
 
 - `src/app/chats/Composer.tsx`

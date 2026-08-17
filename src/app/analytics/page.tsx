@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { categoryMeta, recentDayKeys, STATE_META, timeAgo } from "@/lib/projects";
+import { computeImpact } from "@/lib/impact";
 
 /**
  * Your ideas, honestly measured — private to you. Views → stars → join
@@ -101,6 +102,8 @@ export default async function AnalyticsPage() {
     created_at: string;
   }[];
   const ids = own.map((p) => p.id);
+
+  const impact = await computeImpact(supabase, user.id);
 
   const [
     viewCounts,
@@ -209,6 +212,56 @@ export default async function AnalyticsPage() {
           <Stat label="Messages sent" value={messagesSent ?? 0} />
           <Stat label="Neighbors brought" value={brought ?? 0} />
         </div>
+
+        {/* The private impact score — the last piece of PRD §3.10. The
+            formula is printed in full because a number you can't explain
+            reads as a slot machine, and this one only ever moves when
+            other people confirm your work. */}
+        <section className="mt-6 rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-zinc-900">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+              Your impact score
+            </h2>
+            <span className="text-xs text-black/40 dark:text-white/40">
+              Private — only you see this
+            </span>
+          </div>
+          <p className="mt-2 text-4xl font-extrabold tracking-tight">
+            {impact.total}
+          </p>
+          {impact.confirmed === 0 ? (
+            <p className="mt-2 text-sm text-black/55 dark:text-white/55">
+              This number moves only when neighbors confirm your help on a
+              project — nothing you can do alone changes it. Join something,
+              pitch in, and it starts.
+            </p>
+          ) : (
+            <ul className="mt-3 flex flex-col gap-1 text-sm text-black/60 dark:text-white/60">
+              <li>
+                🤝 {impact.confirmed} confirmed{" "}
+                {impact.confirmed === 1 ? "contribution" : "contributions"} ·{" "}
+                {impact.parts.base} pts
+              </li>
+              {impact.parts.attested > 0 ? (
+                <li>
+                  ✅ Attested by extra neighbors · {impact.parts.attested} pts
+                </li>
+              ) : null}
+              {impact.parts.completed > 0 ? (
+                <li>
+                  🏁 On projects that reached completion ·{" "}
+                  {impact.parts.completed} pts
+                </li>
+              ) : null}
+              {impact.parts.early > 0 ? (
+                <li>
+                  🌱 Early help, when it mattered most · {impact.parts.early}{" "}
+                  pts
+                </li>
+              ) : null}
+            </ul>
+          )}
+        </section>
 
         {/* The funnel that matters */}
         <section className="mt-8">

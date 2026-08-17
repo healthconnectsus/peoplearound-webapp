@@ -42,7 +42,9 @@ export async function AsksSection({
 }) {
   const supabase = await createClient();
 
-  const [{ data: rows, error }, center] = await Promise.all([
+  // Asks ride the offers cap (0027: 10/24h). Checked here so the wizard can
+  // say so at the door instead of after four steps (0038; fails open).
+  const [{ data: rows, error }, center, { data: offersUsed }] = await Promise.all([
     supabase
       .from("offers")
       .select(
@@ -52,7 +54,9 @@ export async function AsksSection({
       .order("created_at", { ascending: false })
       .limit(60),
     myMapCenter(supabase, userId),
+    supabase.rpc("my_action_count", { p_action: "offer" }),
   ]);
+  const capReached = typeof offersUsed === "number" && offersUsed >= 10;
 
   const asks = (rows ?? []) as unknown as AskRow[];
   const open = asks.filter((a) => !a.claimed_by);
@@ -75,7 +79,12 @@ export async function AsksSection({
         </p>
       ) : null}
 
-      <AskComposer userId={userId} startOpen={startOpen} center={center} />
+      <AskComposer
+        userId={userId}
+        startOpen={startOpen}
+        center={center}
+        capReached={capReached}
+      />
 
       <div className="mt-6">
         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-black/45 dark:text-white/45">

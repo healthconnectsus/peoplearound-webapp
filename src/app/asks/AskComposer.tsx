@@ -102,12 +102,16 @@ export function AskComposer({
   userId,
   startOpen = false,
   center = null,
+  capReached = false,
 }: {
   userId: string;
   /** The sidebar's "Ask for small help" lands here with the form already up. */
   startOpen?: boolean;
   /** Opens the pin map on your neighborhood rather than the whole planet. */
   center?: { lat: number; lng: number } | null;
+  /** Today's ask allowance is spent (offers cap, 0027) — say so at the
+      door instead of after four steps. */
+  capReached?: boolean;
 }) {
   const [open, setOpen] = useState(startOpen);
   // useState(startOpen) only reads the prop on the very first mount. When
@@ -167,6 +171,20 @@ export function AskComposer({
         <h1 className="mb-6 text-3xl font-extrabold tracking-tight lg:pl-14">
           Ask for small help 🙋
         </h1>
+
+        {capReached ? (
+          <div className="mx-auto mt-16 max-w-md rounded-2xl border border-amber-300 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950/40">
+            <p className="text-3xl" aria-hidden>
+              🙌
+            </p>
+            <p className="mt-3 font-semibold">That&rsquo;s a full day of asks</p>
+            <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+              Asks and offers are capped at 10 a day so the board stays
+              human. The ones you posted are still up — come back tomorrow
+              for the next one.
+            </p>
+          </div>
+        ) : (
 
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:items-start lg:gap-10">
           <form
@@ -505,6 +523,7 @@ export function AskComposer({
             </ol>
           </aside>
         </div>
+        )}
       </div>
     </div>
   );
