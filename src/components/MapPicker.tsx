@@ -123,7 +123,7 @@ export function MapPicker({
           type="button"
           onClick={useMyLocation}
           disabled={locating}
-          className="rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-slate-400 dark:hover:bg-white/10"
+          className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-slate-400 dark:hover:bg-white/10"
         >
           {locating ? "Locating…" : "📍 Use my location"}
         </button>

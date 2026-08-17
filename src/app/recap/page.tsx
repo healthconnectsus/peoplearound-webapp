@@ -132,14 +132,14 @@ export default async function RecapPage({
         <div className="mt-8 flex flex-wrap items-center gap-3 text-sm">
           <Link
             href={`/recap?year=${year - 1}`}
-            className="rounded-full border border-slate-400 px-4 py-1.5 font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+            className="rounded-lg border border-slate-400 px-4 py-1.5 font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
           >
             ← {year - 1}
           </Link>
           {year < new Date().getFullYear() ? (
             <Link
               href={`/recap?year=${year + 1}`}
-              className="rounded-full border border-slate-400 px-4 py-1.5 font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+              className="rounded-lg border border-slate-400 px-4 py-1.5 font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
             >
               {year + 1} →
             </Link>

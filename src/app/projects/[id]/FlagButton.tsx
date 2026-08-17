@@ -105,7 +105,7 @@ export function FlagButton({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                className="rounded-lg border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 Cancel
               </button>

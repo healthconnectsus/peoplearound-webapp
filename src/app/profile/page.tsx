@@ -317,7 +317,7 @@ export default async function ProfilePage({
                 </Link>
                 <Link
                   href="/projects/new"
-                  className="rounded-full border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                  className="rounded-lg border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 >
                   Share an idea
                 </Link>
@@ -554,7 +554,7 @@ export default async function ProfilePage({
               </p>
               <Link
                 href="/people#groups"
-                className="mt-4 inline-block rounded-full border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                className="mt-4 inline-block rounded-lg border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 👥 Explore groups
               </Link>

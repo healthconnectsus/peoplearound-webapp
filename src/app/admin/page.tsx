@@ -22,7 +22,7 @@ import {
 const INPUT =
   "rounded-lg border border-slate-400 bg-transparent px-3 py-1.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400";
 const PILL =
-  "rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10";
+  "rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10";
 
 export default async function AdminPage({
   searchParams,

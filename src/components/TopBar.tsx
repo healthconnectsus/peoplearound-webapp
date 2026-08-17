@@ -92,7 +92,7 @@ export async function TopBar() {
               type="search"
               name="q"
               placeholder="Search people, events, offers, projects around you"
-              className="w-full rounded-full border border-slate-400 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-slate-500 dark:bg-zinc-900 dark:placeholder:text-white/40"
+              className="w-full rounded-lg border border-slate-400 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-slate-500 dark:bg-zinc-900 dark:placeholder:text-white/40"
             />
           </label>
         </form>

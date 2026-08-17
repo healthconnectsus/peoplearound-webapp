@@ -46,7 +46,7 @@ export function PlaybookList() {
                 {pb.asks.map((a) => (
                   <li
                     key={a}
-                    className="rounded-full border border-slate-400 px-3 py-1 text-xs text-black/60 dark:border-slate-500 dark:text-white/60"
+                    className="rounded-lg border border-slate-400 px-3 py-1 text-xs text-black/60 dark:border-slate-500 dark:text-white/60"
                   >
                     {a}
                   </li>
@@ -57,7 +57,7 @@ export function PlaybookList() {
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <Link
                 href={`/projects/new?playbook=${pb.slug}`}
-                className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
               >
                 Start from this
               </Link>

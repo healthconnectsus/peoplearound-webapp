@@ -801,7 +801,7 @@ export function IdeaForm({
               <button
                 type="button"
                 onClick={() => setStep(0)}
-                className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                className="rounded-lg border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 ← Back
               </button>
@@ -809,7 +809,7 @@ export function IdeaForm({
                 <button
                   type="button"
                   onClick={toggleMic}
-                  className={`rounded-full border px-5 py-2.5 text-base font-medium transition-colors ${
+                  className={`rounded-lg border px-5 py-2.5 text-base font-medium transition-colors ${
                     listening
                       ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-300"
                       : "border-slate-400 bg-white hover:bg-black/5 dark:border-slate-400 dark:bg-black/20 dark:hover:bg-white/10"
@@ -832,7 +832,7 @@ export function IdeaForm({
               <button
                 type="button"
                 onClick={skipShaping}
-                className="rounded-full border border-slate-400 px-6 py-3 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                className="rounded-lg border border-slate-400 px-6 py-3 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 Next →
               </button>
@@ -1003,7 +1003,7 @@ export function IdeaForm({
                     className="peer sr-only"
                   />
                   <span
-                    className={`inline-block rounded-full border border-slate-400 px-3.5 py-1.5 transition-colors peer-checked:text-white peer-focus-visible:ring-2 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10 ${accent.chip}`}
+                    className={`inline-block rounded-lg border border-slate-400 px-3.5 py-1.5 transition-colors peer-checked:text-white peer-focus-visible:ring-2 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10 ${accent.chip}`}
                   >
                     {categoryMeta(c).emoji} {categoryMeta(c).label}
                   </span>
@@ -1094,7 +1094,7 @@ export function IdeaForm({
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+              className="rounded-lg border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
             >
               ← Back
             </button>
@@ -1180,7 +1180,7 @@ export function IdeaForm({
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+              className="rounded-lg border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
             >
               ← Back
             </button>
@@ -1260,7 +1260,7 @@ export function IdeaForm({
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+              className="rounded-lg border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
             >
               ← Back
             </button>

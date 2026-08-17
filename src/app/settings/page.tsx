@@ -19,7 +19,7 @@ const GENDER_OPTIONS = [
 const PRONOUN_OPTIONS = ["She/her", "He/him", "They/them", "Other"];
 
 const SAVE_BTN =
-  "self-end rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700";
+  "self-end rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700";
 const INPUT =
   "rounded-lg border border-slate-400 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400";
 
@@ -236,7 +236,7 @@ export default async function SettingsPage({
               </p>
               <Link
                 href="/neighborhood"
-                className="mt-3 inline-block rounded-full border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                className="mt-3 inline-block rounded-lg border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 Update neighborhood
               </Link>
@@ -260,7 +260,7 @@ export default async function SettingsPage({
                 </label>
                 <button
                   type="submit"
-                  className="rounded-full border border-slate-400 px-4 py-1 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                  className="rounded-lg border border-slate-400 px-4 py-1 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 >
                   Save
                 </button>
@@ -285,7 +285,7 @@ export default async function SettingsPage({
               <form action={signOut} className="mt-3">
                 <button
                   type="submit"
-                  className="rounded-full border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                  className="rounded-lg border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 >
                   Sign out
                 </button>

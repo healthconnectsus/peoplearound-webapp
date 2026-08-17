@@ -115,7 +115,7 @@ export default async function ConnectionsPage() {
             </p>
             <Link
               href="/"
-              className="mt-5 inline-block rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="mt-5 inline-block rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Browse projects
             </Link>
@@ -140,7 +140,7 @@ export default async function ConnectionsPage() {
                 </div>
                 <Link
                   href={`/chats?to=${c.id}`}
-                  className="shrink-0 rounded-full border border-slate-400 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                  className="shrink-0 rounded-lg border border-slate-400 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 >
                   Message
                 </Link>

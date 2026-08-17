@@ -40,7 +40,7 @@ function ToolButton({
       type="button"
       aria-expanded={open}
       onClick={onToggle}
-      className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
+      className={`flex shrink-0 items-center gap-2 rounded-lg border px-4 py-1.5 text-xs font-medium transition-colors ${
         open
           ? "border-emerald-600 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
           : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"

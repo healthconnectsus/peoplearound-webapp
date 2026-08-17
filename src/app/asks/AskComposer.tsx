@@ -316,7 +316,7 @@ export function AskComposer({
                   <button
                     type="button"
                     onClick={() => setStep(0)}
-                    className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+                    className="rounded-lg border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                   >
                     ← Back
                   </button>
@@ -324,7 +324,7 @@ export function AskComposer({
                     type="button"
                     disabled={!title.trim()}
                     onClick={() => setStep(2)}
-                    className="rounded-full bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-lg bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Continue →
                   </button>
@@ -414,14 +414,14 @@ export function AskComposer({
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+                    className="rounded-lg border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                   >
                     ← Back
                   </button>
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="rounded-full bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400"
+                    className="rounded-lg bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400"
                   >
                     Continue →
                   </button>
@@ -473,13 +473,13 @@ export function AskComposer({
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="rounded-full border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+                    className="rounded-lg border border-slate-400 px-5 py-2.5 text-base font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                   >
                     ← Back
                   </button>
                   <SubmitButton
                     pendingLabel="Posting…"
-                    className="rounded-full bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400"
+                    className="rounded-lg bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400"
                   >
                     Post the ask 🙋
                   </SubmitButton>

@@ -26,7 +26,7 @@ export function NewCommunityDialog() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-4 flex items-center gap-2 rounded-full border border-slate-400 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+        className="mt-4 flex items-center gap-2 rounded-lg border border-slate-400 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
       >
         <Users className="h-4 w-4" strokeWidth={1.75} aria-hidden />
         Start a community
@@ -93,7 +93,7 @@ export function NewCommunityDialog() {
           />
           <SubmitButton
             pendingLabel="Creating…"
-            className="mt-2 self-start rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            className="mt-2 self-start rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
           >
             Create community
           </SubmitButton>

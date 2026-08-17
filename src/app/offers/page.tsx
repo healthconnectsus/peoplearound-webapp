@@ -176,7 +176,7 @@ export default async function OffersPage() {
                               <input type="hidden" name="offerId" value={o.id} />
                               <button
                                 type="submit"
-                                className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                                className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                               >
                                 🙋 I&apos;d like this
                               </button>

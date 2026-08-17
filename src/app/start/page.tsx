@@ -111,7 +111,7 @@ export default function StartClubPage() {
             </Link>
             <Link
               href="/login"
-              className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Sign up
             </Link>
@@ -130,7 +130,7 @@ export default function StartClubPage() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/projects/new"
-              className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="rounded-lg bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Start your club — it&apos;s free
             </Link>
@@ -217,7 +217,7 @@ export default function StartClubPage() {
                 </ul>
                 <Link
                   href="/projects/new"
-                  className="mt-5 rounded-full border border-slate-400 px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                  className="mt-5 rounded-lg border border-slate-400 px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                 >
                   Use this plan
                 </Link>
@@ -275,7 +275,7 @@ export default function StartClubPage() {
           </h2>
           <Link
             href="/projects/new"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
           >
             <HeartHandshake className="h-4 w-4" aria-hidden />
             Start your club

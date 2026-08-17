@@ -27,7 +27,7 @@ export function CopyLinkButton({ userId }: { userId?: string }) {
     <button
       type="button"
       onClick={copy}
-      className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+      className="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
     >
       {copied ? "✓ Link copied" : "Copy invite link"}
     </button>

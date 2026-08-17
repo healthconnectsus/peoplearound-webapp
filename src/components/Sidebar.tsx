@@ -190,14 +190,14 @@ export function Sidebar({
       <div className="mt-5 flex flex-col gap-2">
         <Link
           href="/projects/new"
-          className="flex items-center gap-2.5 rounded-full bg-emerald-600 px-4 py-2.5 text-[15px] font-medium text-white transition-colors hover:bg-emerald-700"
+          className="flex items-center gap-2.5 rounded-lg bg-emerald-600 px-4 py-2.5 text-[15px] font-medium text-white transition-colors hover:bg-emerald-700"
         >
           <UsersRound className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
           Start something with people
         </Link>
         <Link
           href="/people?compose=1#asks"
-          className="flex items-center gap-2.5 rounded-full bg-amber-400 px-4 py-2.5 text-[15px] font-medium text-amber-950 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
+          className="flex items-center gap-2.5 rounded-lg bg-amber-400 px-4 py-2.5 text-[15px] font-medium text-amber-950 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
         >
           <HandHelping className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
           Ask for small help

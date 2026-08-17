@@ -95,7 +95,7 @@ export default async function LoginPage({
             </a>
             <a
               href="#join"
-              className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Sign up
             </a>
@@ -148,13 +148,13 @@ export default async function LoginPage({
                   ) : null}
                   <button
                     formAction={signIn}
-                    className="rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                    className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                   >
                     Continue
                   </button>
                   <button
                     formAction={signUp}
-                    className="rounded-full border border-slate-400 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                    className="rounded-lg border border-slate-400 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                   >
                     Create account
                   </button>
@@ -187,7 +187,7 @@ export default async function LoginPage({
                   ) : null}
                   <button
                     type="submit"
-                    className="rounded-full border border-slate-400 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                    className="rounded-lg border border-slate-400 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                   >
                     Email me a sign-in link
                   </button>
@@ -257,7 +257,7 @@ export default async function LoginPage({
           <div className="mt-6 text-center">
             <a
               href="#join"
-              className="inline-block rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="inline-block rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Join and share yours
             </a>
@@ -308,7 +308,7 @@ export default async function LoginPage({
           </h2>
           <a
             href="#join"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
           >
             <HeartHandshake className="h-4 w-4" aria-hidden />
             Join Peoplearound

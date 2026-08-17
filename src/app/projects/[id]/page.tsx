@@ -378,7 +378,7 @@ export default async function ProjectDetail({
       </div>
       <SubmitButton
         pendingLabel="Creating…"
-        className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+        className="mt-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
       >
         Create event
       </SubmitButton>
@@ -598,7 +598,7 @@ export default async function ProjectDetail({
               <input type="hidden" name="projectId" value={project.id} />
               <button
                 type="submit"
-                className="rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                className="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
               >
                 🤝 Ask to join
               </button>
@@ -611,7 +611,7 @@ export default async function ProjectDetail({
               <button
                 type="submit"
                 title={`Your request is with ${founderName}`}
-                className="rounded-full border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                className="rounded-lg border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 ⏳ Cancel my request
               </button>
@@ -623,7 +623,7 @@ export default async function ProjectDetail({
               <input type="hidden" name="projectId" value={project.id} />
               <ConfirmSubmit
                 message="Leave this project?"
-                className="rounded-full border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                className="rounded-lg border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
               >
                 🎉 On the team — leave
               </ConfirmSubmit>
@@ -681,7 +681,7 @@ export default async function ProjectDetail({
                       <input type="hidden" name="decision" value="accept" />
                       <button
                         type="submit"
-                        className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                        className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
                       >
                         ✓ Accept
                       </button>
@@ -692,7 +692,7 @@ export default async function ProjectDetail({
                       <input type="hidden" name="decision" value="decline" />
                       <button
                         type="submit"
-                        className="rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                        className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                       >
                         Decline
                       </button>
@@ -966,7 +966,7 @@ export default async function ProjectDetail({
                           <input type="hidden" name="eventId" value={e.id} />
                           <button
                             type="submit"
-                            className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
+                            className={`rounded-lg border px-4 py-1.5 text-xs font-medium transition-colors ${
                               iAmIn
                                 ? "border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
                                 : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
@@ -1096,7 +1096,7 @@ export default async function ProjectDetail({
                               />
                               <button
                                 type="submit"
-                                className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                                className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
                               >
                                 ✓ Yes, this helped
                               </button>
@@ -1114,7 +1114,7 @@ export default async function ProjectDetail({
                               />
                               <ConfirmSubmit
                                 message="Quietly remove this entry? Do this only if it doesn't reflect what happened."
-                                className="rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                                className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                               >
                                 Not this one
                               </ConfirmSubmit>
@@ -1137,7 +1137,7 @@ export default async function ProjectDetail({
                             <button
                               type="submit"
                               title="Attest that this really happened"
-                              className="rounded-full border border-emerald-600/40 px-4 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+                              className="rounded-lg border border-emerald-600/40 px-4 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
                             >
                               🙌 I saw this happen
                             </button>
@@ -1158,7 +1158,7 @@ export default async function ProjectDetail({
                             />
                             <button
                               type="submit"
-                              className="rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                              className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
                             >
                               Withdraw
                             </button>
@@ -1193,7 +1193,7 @@ export default async function ProjectDetail({
                     <label
                       key={t}
                       title={m.hint}
-                      className="cursor-pointer rounded-full border border-slate-400 px-3.5 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:text-emerald-800 dark:border-slate-400 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40 dark:has-[:checked]:text-emerald-300"
+                      className="cursor-pointer rounded-lg border border-slate-400 px-3.5 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:text-emerald-800 dark:border-slate-400 dark:hover:bg-white/10 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40 dark:has-[:checked]:text-emerald-300"
                     >
                       <input
                         type="radio"
@@ -1219,7 +1219,7 @@ export default async function ProjectDetail({
 
               <SubmitButton
                 pendingLabel="Adding…"
-                className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                className="mt-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
               >
                 Add to the record
               </SubmitButton>

@@ -14,14 +14,14 @@ export function SiteHeader() {
       <nav className="flex items-center gap-2">
         <Link
           href="/projects/new"
-          className="rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+          className="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
         >
           + Start something with people
         </Link>
         <form action={signOut}>
           <button
             type="submit"
-            className="rounded-full border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+            className="rounded-lg border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
           >
             Sign out
           </button>

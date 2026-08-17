@@ -7,6 +7,46 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Buttons stop being pills; louder composer prompt; nothing in the chips goes black
+
+- `src/app/admin/page.tsx`
+- `src/app/asks/AskComposer.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/explore/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/CopyLinkButton.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/login/page.tsx`
+- `src/app/neighborhood/LocateButton.tsx`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/people/NewCommunityDialog.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/DeleteAccountButton.tsx`
+- `src/app/profile/LocationCard.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/FlagButton.tsx`
+- `src/app/projects/[id]/OwnerTools.tsx`
+- `src/app/projects/[id]/UpdateComposer.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/recap/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/app/start/page.tsx`
+- `src/components/AsksSection.tsx`
+- `src/components/BadgeCelebration.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/InstallPrompt.tsx`
+- `src/components/MapPicker.tsx`
+- `src/components/PhotoPicker.tsx`
+- `src/components/PlaybookList.tsx`
+- `src/components/PushToggle.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+- `src/components/TopBar.tsx`
+- `src/lib/chips.ts`
+
+
 ### 2026-08-17 — Filters sits beside the community dropdown
 
 - `src/app/people/page.tsx`
