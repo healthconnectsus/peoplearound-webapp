@@ -88,10 +88,24 @@ imagery; consider a CDN in front of Storage.
 `tile.openstreetmap.org` and public Nominatim are free but policy-limited:
 fine for a pilot, throttled/blocked for a real user base.
 
-Now: both map components read `NEXT_PUBLIC_MAP_TILE_URL` and
-`NEXT_PUBLIC_MAP_ATTRIBUTION`, defaulting to OSM. Moving to Stadia/MapTiler
-is an env var, not a deploy-blocking refactor. Geocoding volume stays tiny
-(only new-location registration, already DB-capped at 25/day globally).
+Now: both map components read `NEXT_PUBLIC_MAP_TILE_URL`,
+`NEXT_PUBLIC_MAP_ATTRIBUTION` and `NEXT_PUBLIC_MAP_TILE_SIZE`, defaulting to
+OSM. Moving to Mapbox/Stadia/MapTiler is env vars, not a refactor — see
+`.env.example` for the Mapbox raster URL.
+
+The tile *size* is the one non-obvious part: Mapbox and most modern styles
+serve 512px tiles while Leaflet assumes 256px, so without
+`NEXT_PUBLIC_MAP_TILE_SIZE=512` (and the `zoomOffset: -1` it triggers) every
+label and road renders at half scale. Any public token must be URL-restricted
+in the provider's dashboard — it ships to the browser.
+
+Note this is a *look* decision as well as a cost one: OSM's standard style is
+a general-purpose reference map (hospitals, car parks, churches), which
+competes with our project pins. Mapbox Light / Stadia Alidade Smooth are
+designed as app backgrounds and let the pins carry the meaning.
+
+Geocoding volume stays tiny (only new-location registration, already
+DB-capped at 25/day globally).
 
 ### 4. AI — a rounding error, by design ✅ kept that way
 

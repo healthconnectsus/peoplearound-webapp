@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Make the tile layer provider-ready: tile size, retina, Mapbox docs
+
+- `.env.example`
+- `docs/SCALING.md`
+- `src/components/MapPicker.tsx`
+- `src/components/NeighborhoodMap.tsx`
+
+
 ### 2026-08-17 — Buttons stop being pills; louder composer prompt; nothing in the chips goes black
 
 - `src/app/admin/page.tsx`
