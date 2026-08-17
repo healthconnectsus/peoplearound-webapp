@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Small help becomes a wizard; cover photo steps instead of showing a gallery
+
+- `docs/UX_SPEC.md`
+- `src/app/asks/AskComposer.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/StockPhotoPicker.tsx`
+- `src/components/useStockPhotos.ts`
+
+
 ### 2026-08-16 — Warm all 21 adult-group photo queries; ask composer becomes a lightbox
 
 - `docs/UX_SPEC.md`

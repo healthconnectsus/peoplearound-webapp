@@ -8,6 +8,7 @@ import {
   Rocket,
   Pencil,
   Image as ImageIcon,
+  ChevronLeft,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -24,7 +25,7 @@ import {
 import { createProject } from "../actions";
 import { MapPicker } from "@/components/MapPicker";
 import { PhotoPicker } from "@/components/PhotoPicker";
-import { StockPhotoPicker } from "@/components/StockPhotoPicker";
+import { useStockPhotos, trackStockPhotoUse } from "@/components/useStockPhotos";
 
 type Draft = {
   title: string;
@@ -387,6 +388,8 @@ export function IdeaForm({
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoOpen, setPhotoOpen] = useState(false);
+  /** Index into the stock pool. -1 means "not one of them" — an upload. */
+  const [photoIndex, setPhotoIndex] = useState(0);
   const [whenText, setWhenText] = useState("");
 
   function toggleMic() {
@@ -469,6 +472,32 @@ export function IdeaForm({
     if (!description.trim()) setDescription(raw);
     setAiError(null);
     setStep(2);
+  }
+
+  // The cover pool follows the activity you picked, falling back to the
+  // intent's own search when the AI path skipped the quick picks.
+  const photoQuery =
+    picked?.photoQuery ?? activeIntent?.photoQuery ?? "group of adults together";
+  const { photos: stockPhotos } = useStockPhotos(
+    photoQuery,
+    activeIntent?.photoQuery ?? "group of adults together",
+  );
+  // Adjusted during render rather than in an effect: the first photo becomes
+  // the cover as soon as the pool arrives, but never over an upload.
+  const [pooledFor, setPooledFor] = useState<string | null>(null);
+  if (stockPhotos.length > 0 && pooledFor !== photoQuery) {
+    setPooledFor(photoQuery);
+    if (!photoUrl) {
+      setPhotoUrl(stockPhotos[0].url);
+      setPhotoIndex(0);
+    }
+  }
+
+  function stepPhoto(delta: number) {
+    if (stockPhotos.length === 0) return;
+    const next = (photoIndex + delta + stockPhotos.length) % stockPhotos.length;
+    setPhotoIndex(next);
+    setPhotoUrl(stockPhotos[next].url);
   }
 
   /** "I'd like to meet people to play games." — what steps 1 and 2 add up
@@ -860,53 +889,55 @@ export function IdeaForm({
                     </button>
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setPhotoOpen((v) => !v)}
-                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/25"
-                >
-                  <ImageIcon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-                  Change the photo
-                </button>
+                {/* Next/previous rather than a strip of thumbnails: a
+                    gallery to shop turns writing a post into browsing
+                    stock. "Previous" only appears once there is one. */}
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {photoIndex > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => stepPhoto(-1)}
+                      className="flex items-center gap-1 whitespace-nowrap rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/25"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                      Previous photo
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => stepPhoto(1)}
+                    className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/25"
+                  >
+                    <ImageIcon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                    Change the photo
+                  </button>
+                </div>
               </div>
             </div>
           ) : null}
 
-          {/* The picker itself stays collapsed until asked for — it's the
-              one control here that's genuinely optional. */}
-          {/* Mounted even while collapsed: it preloads a cover so the
-              preview above is never an empty panel. `hidden` rather than
-              unmounted so opening the picker doesn't re-fetch. */}
-          <fieldset className={photoOpen ? "flex flex-col gap-1.5 text-sm" : "hidden"}>
-              <legend className="mb-1.5 text-base font-bold">
-                Cover photo{" "}
-                <span className="font-normal text-black/40 dark:text-white/40">
-                  (optional)
-                </span>
-              </legend>
-              <PhotoPicker
-                userId={userId}
-                value={photoUrl}
-                onChange={setPhotoUrl}
-                compact
-                label="Upload or drag a photo here"
-              />
-              <StockPhotoPicker
-                // The activity you picked, not the category you landed in:
-                // "Social neighborhood" returned streetscapes for a walking
-                // group. Falls back to the intent's own search when the AI
-                // path skipped the quick picks.
-                query={
-                  picked?.photoQuery ??
-                  activeIntent?.photoQuery ??
-                  "group of adults together"
-                }
-                fallbackQuery={activeIntent?.photoQuery ?? "group of adults together"}
-                selectedUrl={photoUrl}
-                onPick={(url) => setPhotoUrl(url)}
-                autoPick
-              />
-          </fieldset>
+          {/* Your own photo is always better than stock, but it's the rarer
+              case — one quiet line, expanding only when asked for. */}
+          {photoOpen ? (
+            <PhotoPicker
+              userId={userId}
+              value={photoUrl}
+              onChange={(url) => {
+                setPhotoUrl(url);
+                setPhotoIndex(-1); // an upload isn't in the pool
+              }}
+              compact
+              label="Upload or drag a photo here"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setPhotoOpen(true)}
+              className="self-start text-sm text-black/45 underline underline-offset-2 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
+            >
+              Or upload your own photo
+            </button>
+          )}
 
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="flex items-center gap-1.5 text-base font-bold">
@@ -1189,7 +1220,17 @@ export function IdeaForm({
             </div>
           </div>
 
-          <form action={createProject} className="flex items-center gap-3">
+          <form
+            action={createProject}
+            onSubmit={() => {
+              // Unsplash counts a "download" when a photo is actually used.
+              // Firing this while someone flips through covers would spend
+              // the hourly quota on photos they never posted.
+              const chosen = stockPhotos.find((p) => p.url === photoUrl);
+              if (chosen) trackStockPhotoUse(chosen);
+            }}
+            className="flex items-center gap-3"
+          >
             <input type="hidden" name="title" value={effectiveTitle} />
             <input type="hidden" name="description" value={description} />
             <input type="hidden" name="whenText" value={whenText} />

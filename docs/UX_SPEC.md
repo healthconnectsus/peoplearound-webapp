@@ -332,12 +332,33 @@ only ever touches the plain lines that outline cards and sections.
 
 ### Both doors open the same way
 
-The idea wizard (`/projects/new`) and the small-help composer (the ask form
-on People around) are both full-page lightboxes: white cover, giant X in
-the top-left corner, nothing else on screen. Asking for a hand gets the
-same undivided attention as starting something — a form squeezed between
-other people's asks quietly says this one matters less, which is the
-opposite of what the feature is for.
+The idea wizard (`/projects/new`) and the small-help composer are both
+full-page lightboxes *and* both wizards: white cover, giant X top-left,
+flip cards, a step rail on the right. Small help runs four steps — what you
+need, how long, when & where, post it — in amber rather than the intent
+colours.
+
+The steps aren't ceremony. What decides whether an ask gets answered is
+whether a neighbor can picture it: *what*, for *how long*, *when*, roughly
+*where*. One long form asks all four at once and gets vague answers to all
+four; one question at a time gets specific ones. Nothing past the first step
+is required, because someone who needs twenty minutes of help will not
+complete a ten-field form.
+
+### The cover photo steps, it doesn't shop
+
+"Change the photo" swaps straight to the next photo in the pool; "Previous
+photo" appears beside it once there is one to go back to. There is no
+thumbnail strip — a row of choices turned writing a post into browsing
+stock. Uploading your own is one quiet line below, expanding only when
+asked for.
+
+The Unsplash download ping fires on submit, not on each flip. Their
+guidelines ask for it when a photo is *used*, and since every ping costs one
+of the 50 hourly API calls, firing it per preview would spend the quota on
+photos nobody posted.
+
+
 
 ### The wizard is a lightbox, not a page
 
