@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Feed tags become one checkable multi-select dropdown
+
+- `src/app/people/page.tsx`
+- `src/components/TagFilter.tsx`
+
+
 ### 2026-08-17 — Feed filters as Nextdoor-style buttons; drop the redundant heading
 
 - `src/app/explore/page.tsx`

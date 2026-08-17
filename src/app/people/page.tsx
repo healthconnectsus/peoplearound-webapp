@@ -8,7 +8,7 @@ import { AsksSection } from "@/components/AsksSection";
 import { FeedComposer } from "@/components/FeedComposer";
 import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { CommunityFilter } from "@/components/CommunityFilter";
-import { chip } from "@/lib/chips";
+import { TagFilter } from "@/components/TagFilter";
 import { NewCommunityDialog } from "./NewCommunityDialog";
 import { ProjectCard } from "@/components/ProjectFeedCard";
 import { loadFeedCards } from "@/lib/feed";
@@ -244,19 +244,21 @@ export default async function PeoplePage({
   const { cards, events } = await loadFeedCards(supabase, communityProjectIds, user.id);
   const asks = await openAsks(supabase, 4);
 
+  // Tags are multi-select now — "games AND food & drink" is a reasonable
+  // thing to want, and the old single-value chips made it impossible.
+  const csv = (v: string | undefined) =>
+    (v ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+  const cats = csv(cat);
+  const helps = csv(helpFilter);
+
   const visible = cards.filter(
     (p) =>
-      (!cat || p.category === cat) &&
-      (!helpFilter || p.help === helpFilter || p.help === "both"),
+      (cats.length === 0 || cats.includes(p.category)) &&
+      (helps.length === 0 ||
+        helps.includes(p.help) ||
+        // "Both" answers either kind of help, so it belongs in both filters.
+        p.help === "both"),
   );
-  const filterHref = (patch: Record<string, string | undefined>) => {
-    const params = new URLSearchParams();
-    const merged = { community: picked || undefined, cat, help: helpFilter, ...patch };
-    for (const [k, v] of Object.entries(merged)) if (v) params.set(k, v);
-    const qs = params.toString();
-    return qs ? `/people?${qs}#feed` : "/people#feed";
-  };
-  const filtersActive = Boolean(cat || helpFilter);
 
   // People are pinned as COMMUNITY clusters with headcounts — never at
   // anyone's home (see lib/mapPins.ts). Groups live here too: a group IS
@@ -410,35 +412,31 @@ export default async function PeoplePage({
             ) : null}
 
             {cards.length > 0 ? (
-              <div className="mb-4 flex flex-wrap items-center gap-1.5">
-                <Link
-                  href={filterHref({ cat: undefined, help: undefined })}
-                  className={chip(!filtersActive)}
-                >
-                  All
-                </Link>
-                {CATEGORIES.map((c) => (
-                  <Link
-                    key={c}
-                    href={filterHref({ cat: cat === c ? undefined : c })}
-                    className={chip(cat === c)}
-                  >
-                    {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
-                  </Link>
-                ))}
-                <span className="mx-1 h-4 w-px bg-black/10 dark:bg-white/15" aria-hidden />
-                <Link
-                  href={filterHref({ help: helpFilter === "local" ? undefined : "local" })}
-                  className={chip(helpFilter === "local")}
-                >
-                  🏠 Hands nearby
-                </Link>
-                <Link
-                  href={filterHref({ help: helpFilter === "remote" ? undefined : "remote" })}
-                  className={chip(helpFilter === "remote")}
-                >
-                  💻 Online help
-                </Link>
+              <div className="mb-4">
+                <TagFilter
+                  basePath="/people"
+                  extraParams={{ community: picked || undefined }}
+                  selected={{ cat: cats, help: helps }}
+                  groups={[
+                    {
+                      param: "cat",
+                      label: "Category",
+                      options: CATEGORIES.map((c) => ({
+                        value: c,
+                        label: CATEGORY_META[c].label,
+                        emoji: CATEGORY_META[c].emoji,
+                      })),
+                    },
+                    {
+                      param: "help",
+                      label: "Looking for",
+                      options: [
+                        { value: "local", label: "Hands nearby", emoji: "🏠" },
+                        { value: "remote", label: "Online help", emoji: "💻" },
+                      ],
+                    },
+                  ]}
+                />
               </div>
             ) : null}
 
