@@ -9,7 +9,7 @@ import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { FlagButton } from "./FlagButton";
 import { UpdateComposer, ProjectPhotoEditor } from "./UpdateComposer";
-import { OwnerTools } from "./OwnerTools";
+import { CoverPhotoTool, StewardSection } from "./OwnerTools";
 import { ProjectHero } from "@/components/ProjectHero";
 import { deleteUpdate, dismissNudge } from "../updateActions";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
@@ -279,7 +279,7 @@ export default async function ProjectDetail({
   const eventForm = (
     <form
       action={createEvent}
-      className="border border-slate-400 p-4 dark:border-slate-500"
+      className="rounded-2xl border border-slate-400 p-4 dark:border-slate-500"
     >
       <input type="hidden" name="projectId" value={project.id} />
       <h3 className="text-sm font-semibold">Plan an event</h3>
@@ -293,21 +293,21 @@ export default async function ProjectDetail({
         required
         maxLength={140}
         placeholder='e.g. "Planting day — bring gloves!"'
-        className="mt-3 w-full border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
+        className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
       />
       <div className="mt-2 flex flex-wrap gap-2">
         <input
           type="datetime-local"
           name="startsAt"
           required
-          className="border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400 dark:[color-scheme:dark]"
+          className="rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400 dark:[color-scheme:dark]"
         />
         <input
           type="text"
           name="place"
           maxLength={200}
           placeholder="Where? e.g. the Oak Street lot"
-          className="min-w-0 flex-1 border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
+          className="min-w-0 flex-1 rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
         />
       </div>
       <SubmitButton
@@ -373,7 +373,7 @@ export default async function ProjectDetail({
         {/* The same header the feed card uses — title, starter and
             "Aurora · 9 days ago" all riding on the photo. */}
         <div
-          className={`mt-4 overflow-hidden border border-slate-300 border-l-4 bg-white shadow-md dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(project.category)} ${categoryShadow(project.category)}`}
+          className={`mt-4 overflow-hidden rounded-2xl border border-slate-300 border-l-4 bg-white shadow-md dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(project.category)} ${categoryShadow(project.category)}`}
         >
           <ProjectHero
             title={project.title}
@@ -416,24 +416,16 @@ export default async function ProjectDetail({
           </p>
         ) : null}
 
-        {/* Founder and co-organizers only — nobody else sees an edit affordance. */}
-        <OwnerTools
-          eventForm={isSteward ? eventForm : undefined}
-          updateForm={
-            isOwner || isTeammate ? (
-              <UpdateComposer projectId={project.id} userId={user.id} />
-            ) : undefined
-          }
-          photoEditor={
-            isOwner ? (
-              <ProjectPhotoEditor
-                projectId={project.id}
-                userId={user.id}
-                photoUrl={project.photo_url ?? null}
-              />
-            ) : undefined
-          }
-        />
+        {/* Founder only — nobody else sees an edit affordance. */}
+        {isOwner ? (
+          <CoverPhotoTool>
+            <ProjectPhotoEditor
+              projectId={project.id}
+              userId={user.id}
+              photoUrl={project.photo_url ?? null}
+            />
+          </CoverPhotoTool>
+        ) : null}
 
         <p className="mt-4 text-sm text-black/50 dark:text-white/50">
           {cat.label} · 🤝 {teamSize} {teamSize === 1 ? "person" : "people"}{" "}
@@ -470,7 +462,7 @@ export default async function ProjectDetail({
         )}
 
         {/* Actions: join + star */}
-        <div className="mt-7 border border-slate-400 p-4 dark:border-slate-500">
+        <div className="mt-7 rounded-2xl border border-slate-400 p-4 dark:border-slate-500">
           {isOwner ? (
             <p className="text-sm text-black/60 dark:text-white/60">
               This is your project. When neighbors ask to join, their requests
@@ -549,7 +541,7 @@ export default async function ProjectDetail({
 
         {/* The acknowledgment moment — your work was confirmed by real people. */}
         {myFreshlyConfirmed.length > 0 ? (
-          <div className="mt-7 border border-emerald-300 bg-emerald-50 p-5 dark:border-emerald-700/60 dark:bg-emerald-950/40">
+          <div className="mt-7 rounded-2xl border border-emerald-300 bg-emerald-50 p-5 dark:border-emerald-700/60 dark:bg-emerald-950/40">
             <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">
               🎉 {founderName} confirmed your help on this project.
             </p>
@@ -580,7 +572,7 @@ export default async function ProjectDetail({
               {pending.map((m) => (
                 <li
                   key={m.user_id}
-                  className="flex items-center justify-between gap-3 border border-slate-400 px-4 py-3 dark:border-slate-500"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
                 >
                   <span className="text-sm">
                     <span className="font-medium">
@@ -623,8 +615,8 @@ export default async function ProjectDetail({
         {/* The team */}
         <div className="mt-7">
           <h2 className="mb-2 text-sm font-semibold">The team</h2>
-          <ul className="flex flex-col gap-2">
-            <li className="flex items-center justify-between gap-3 border border-slate-400 px-4 py-3 dark:border-slate-500">
+          <ul className="flex flex-col">
+            <li className="flex items-center justify-between gap-3 py-1.5">
               <span className="text-sm font-medium">{founderName}</span>
               <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
                 Founder
@@ -633,7 +625,7 @@ export default async function ProjectDetail({
             {accepted.map((m) => (
               <li
                 key={m.user_id}
-                className="flex items-center justify-between gap-3 border border-slate-400 px-4 py-3 dark:border-slate-500"
+                className="flex items-center justify-between gap-3 py-1.5"
               >
                 <span className="flex flex-wrap items-center gap-2 text-sm">
                   {m.profile?.display_name ?? "Someone"}
@@ -697,7 +689,7 @@ export default async function ProjectDetail({
         {/* The gardener's private nudge — founder only, dismissible, and
             deliberately quiet: scaffolding that fades (UX_SPEC §4.16). */}
         {nudge && isOwner ? (
-          <div className="mt-7 border border-amber-300/50 bg-amber-50/60 p-4 dark:border-amber-700/40 dark:bg-amber-950/20">
+          <div className="mt-7 rounded-2xl border border-amber-300/50 bg-amber-50/60 p-4 dark:border-amber-700/40 dark:bg-amber-950/20">
             <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
               🌱 A thought, just for you
             </p>
@@ -717,8 +709,11 @@ export default async function ProjectDetail({
         ) : null}
 
         {/* Updates — the build log (founder + teammates) */}
-        <div className="mt-7">
-          <h2 className="mb-2 text-sm font-semibold">Updates</h2>
+        <StewardSection
+          title="Updates"
+          tool={isOwner || isTeammate ? "update" : null}
+          form={<UpdateComposer projectId={project.id} userId={user.id} />}
+        >
 
           {updates.length === 0 ? (
             <p className="text-sm text-black/40 dark:text-white/40">
@@ -731,7 +726,7 @@ export default async function ProjectDetail({
               {updates.map((u) => (
                 <li
                   key={u.id}
-                  className="border border-slate-400 px-4 py-3 dark:border-slate-500"
+                  className="rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
                 >
                   <p className="text-xs text-black/45 dark:text-white/45">
                     📣 {u.author?.display_name ?? "The team"} ·{" "}
@@ -743,7 +738,7 @@ export default async function ProjectDetail({
                   {u.photo_url ? (
                     <div
                       aria-hidden
-                      className="mt-2 h-48 w-full border border-slate-300 bg-cover bg-center dark:border-slate-600"
+                      className="mt-2 h-48 w-full rounded-xl border border-slate-300 bg-cover bg-center dark:border-slate-600"
                       style={{ backgroundImage: `url(${u.photo_url})` }}
                     />
                   ) : null}
@@ -767,7 +762,7 @@ export default async function ProjectDetail({
               ))}
             </ul>
           )}
-        </div>
+        </StewardSection>
 
         {/* The story so far — the history timeline is the hero of the page */}
         <div className="mt-7">
@@ -797,8 +792,11 @@ export default async function ProjectDetail({
         </div>
 
         {/* Events — where it becomes physical */}
-        <div className="mt-7">
-          <h2 className="mb-2 text-sm font-semibold">Events</h2>
+        <StewardSection
+          title="Events"
+          tool={isSteward ? "event" : null}
+          form={eventForm}
+        >
 
           {events.length === 0 ? (
             <p className="text-sm text-black/40 dark:text-white/40">
@@ -815,7 +813,7 @@ export default async function ProjectDetail({
                 return (
                   <li
                     key={e.id}
-                    className={`border px-4 py-3 ${
+                    className={`rounded-xl border px-4 py-3 ${
                       upcoming
                         ? "border-slate-400 dark:border-slate-500"
                         : "border-slate-300 opacity-60 dark:border-slate-600"
@@ -912,8 +910,7 @@ export default async function ProjectDetail({
               })}
             </ul>
           )}
-
-        </div>
+        </StewardSection>
 
         {/* Contributions — the trust layer */}
         <div className="mt-7">
@@ -941,7 +938,7 @@ export default async function ProjectDetail({
                 return (
                   <li
                     key={c.id}
-                    className="border border-slate-400 px-4 py-3 dark:border-slate-500"
+                    className="rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
                   >
                     <p className="text-sm">
                       <span className="mr-1" aria-hidden>
@@ -1079,7 +1076,7 @@ export default async function ProjectDetail({
           {isTeammate ? (
             <form
               action={logContribution}
-              className="mt-4 border border-slate-400 p-4 dark:border-slate-500"
+              className="mt-4 rounded-2xl border border-slate-400 p-4 dark:border-slate-500"
             >
               <input type="hidden" name="projectId" value={project.id} />
               <h3 className="text-sm font-semibold">Log a contribution</h3>
@@ -1117,7 +1114,7 @@ export default async function ProjectDetail({
                 maxLength={1000}
                 rows={3}
                 placeholder="What did you do, and how did it move the project forward?"
-                className="mt-3 w-full border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
+                className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
               />
 
               <SubmitButton

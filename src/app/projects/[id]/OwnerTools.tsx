@@ -4,17 +4,17 @@ import { useState } from "react";
 import { CalendarPlus, ImageUp, Megaphone } from "lucide-react";
 
 /**
- * Stewards' tools, folded away.
+ * Stewards' tools, folded away beside the thing they act on.
  *
  * The project page used to render the photo editor, the event form and the
  * update composer inline, always open — so opening your own project looked
- * like an edit screen rather than the thing you made. Everyone sees the
- * story; only the founder (or a co-organizer) sees these buttons, and the
- * form appears only once they ask for it.
+ * like an edit screen rather than the thing you made. Now each form opens
+ * from a button next to its own section heading ("Plan an event" beside
+ * Events, "Post an update" beside Updates), and only stewards see them.
  *
- * The forms themselves are passed in as children rendered on the server, so
- * their server actions keep working — this component only decides which one
- * is on screen.
+ * The forms themselves are passed in as nodes rendered on the server, so
+ * their server actions keep working — these components only decide whether
+ * one is on screen.
  */
 
 type Tool = "event" | "update" | "photo";
@@ -25,51 +25,78 @@ const TOOL_META: Record<Tool, { label: string; Icon: typeof CalendarPlus }> = {
   photo: { label: "Change cover photo", Icon: ImageUp },
 };
 
-export function OwnerTools({
-  eventForm,
-  updateForm,
-  photoEditor,
+function ToolButton({
+  tool,
+  open,
+  onToggle,
 }: {
-  eventForm?: React.ReactNode;
-  updateForm?: React.ReactNode;
-  photoEditor?: React.ReactNode;
+  tool: Tool;
+  open: boolean;
+  onToggle: () => void;
 }) {
-  const [open, setOpen] = useState<Tool | null>(null);
+  const { label, Icon } = TOOL_META[tool];
+  return (
+    <button
+      type="button"
+      aria-expanded={open}
+      onClick={onToggle}
+      className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
+        open
+          ? "border-emerald-600 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
+          : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+      }`}
+    >
+      <Icon className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+      {label}
+    </button>
+  );
+}
 
-  const panels: Record<Tool, React.ReactNode | undefined> = {
-    event: eventForm,
-    update: updateForm,
-    photo: photoEditor,
-  };
-  const tools = (Object.keys(panels) as Tool[]).filter((t) => panels[t]);
-  if (tools.length === 0) return null;
+/** A page section whose steward form opens from a button beside its heading. */
+export function StewardSection({
+  title,
+  tool,
+  form,
+  children,
+}: {
+  title: string;
+  /** null for anyone without permission — then it's a plain section. */
+  tool: Tool | null;
+  form?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="mt-4">
-      <div className="flex flex-wrap gap-2">
-        {tools.map((t) => {
-          const { label, Icon } = TOOL_META[t];
-          const active = open === t;
-          return (
-            <button
-              key={t}
-              type="button"
-              aria-expanded={active}
-              onClick={() => setOpen(active ? null : t)}
-              className={`flex items-center gap-2 border px-4 py-2 text-sm font-medium transition-colors ${
-                active
-                  ? "border-emerald-600 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
-                  : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
-              }`}
-            >
-              <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
-              {label}
-            </button>
-          );
-        })}
+    <div className="mt-7">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold">{title}</h2>
+        {tool && form ? (
+          <ToolButton
+            tool={tool}
+            open={open}
+            onToggle={() => setOpen((v) => !v)}
+          />
+        ) : null}
       </div>
+      {open && form ? <div className="mb-3">{form}</div> : null}
+      {children}
+    </div>
+  );
+}
 
-      {open ? <div className="mt-3">{panels[open]}</div> : null}
+/** The cover-photo editor, folded under the hero. Founder only. */
+export function CoverPhotoTool({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mt-3">
+      <ToolButton
+        tool="photo"
+        open={open}
+        onToggle={() => setOpen((v) => !v)}
+      />
+      {open ? <div className="mt-3">{children}</div> : null}
     </div>
   );
 }

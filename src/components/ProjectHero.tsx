@@ -9,7 +9,8 @@ import { initials, timeAgo } from "@/lib/projects";
  * surfaces identical — the last time the card and the page each owned their
  * own markup, they drifted into looking like different products.
  *
- * Square corners on purpose: no rounded frames anywhere in this grammar.
+ * The rounding lives on the container that wraps it, so the photo's
+ * corners follow whatever frame it's put in.
  */
 
 /** The starter's face — their upload, or their initials. */

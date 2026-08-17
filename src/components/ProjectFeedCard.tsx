@@ -66,7 +66,7 @@ export function ProjectCard({
   return (
     <li>
       <div
-        className={`overflow-hidden border border-slate-300 border-l-4 bg-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(p.category)} ${categoryShadow(p.category)}`}
+        className={`overflow-hidden rounded-2xl border border-slate-300 border-l-4 bg-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(p.category)} ${categoryShadow(p.category)}`}
       >
         <Link href={`/projects/${p.id}`} className="block">
           <ProjectHero
@@ -167,7 +167,7 @@ export function CompactRow({ p }: { p: CardData }) {
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className="flex items-center justify-between gap-3 border border-slate-300 bg-white px-4 py-2.5 shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+        className="flex items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
       >
         <span className="min-w-0 truncate text-sm">
           <span className="mr-1" aria-hidden>
