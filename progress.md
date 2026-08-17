@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Search now returns people, events, offers AND projects
+
+- `docs/UX_SPEC.md`
+- `src/app/explore/page.tsx`
+
+
 ### 2026-08-17 — Reduced-motion support, app-wide
 
 - `src/app/globals.css`

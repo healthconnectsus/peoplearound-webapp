@@ -370,6 +370,45 @@ export default async function ExplorePage({
       )
     : cards;
 
+  // The placeholder promises people, events, offers AND projects — so a
+  // search returns all four, not just a quieter project list. Events are
+  // already loaded; offers/asks and neighbors are two extra scoped reads
+  // that only run when there's a query. RLS scopes each to what this user
+  // could see anyway.
+  const matchedEvents = query
+    ? events.filter((e) =>
+        `${e.title} ${e.place ?? ""} ${e.project?.title ?? ""}`
+          .toLowerCase()
+          .includes(query),
+      )
+    : [];
+  let matchedOffers: {
+    id: string;
+    kind: string;
+    title: string;
+    claimed_by: string | null;
+  }[] = [];
+  let matchedPeople: { id: string; display_name: string | null }[] = [];
+  if (query) {
+    const [{ data: offerRows }, { data: peopleRows }] = await Promise.all([
+      supabase
+        .from("offers")
+        .select("id,kind,title,claimed_by")
+        .ilike("title", `%${query.replace(/[%_]/g, "")}%`)
+        .is("claimed_by", null)
+        .limit(6),
+      supabase
+        .from("profiles")
+        .select("id,display_name")
+        .eq("neighborhood_id", myHood)
+        .ilike("display_name", `%${query.replace(/[%_]/g, "")}%`)
+        .neq("id", user.id)
+        .limit(6),
+    ]);
+    matchedOffers = (offerRows ?? []) as typeof matchedOffers;
+    matchedPeople = (peopleRows ?? []) as typeof matchedPeople;
+  }
+
   // Filter chips (server-rendered, shareable URLs): category, help kind,
   // and "has an event soon".
   const projectsWithSoonEvent = new Set(events.map((e) => e.project_id));
@@ -490,13 +529,107 @@ export default async function ExplorePage({
 
             {query ? (
               <p className="mb-5 rounded-xl border border-emerald-600/20 bg-emerald-50/70 px-4 py-2.5 text-sm dark:border-emerald-500/25 dark:bg-emerald-950/20">
-                {visible.length}{" "}
-                {visible.length === 1 ? "project matches" : "projects match"}{" "}
+                {visible.length +
+                  matchedEvents.length +
+                  matchedOffers.length +
+                  matchedPeople.length}{" "}
+                {visible.length +
+                  matchedEvents.length +
+                  matchedOffers.length +
+                  matchedPeople.length ===
+                1
+                  ? "result matches"
+                  : "results match"}{" "}
                 <span className="font-medium">“{q}”</span> ·{" "}
                 <Link href="/explore" className="underline">
                   Clear search
                 </Link>
               </p>
+            ) : null}
+
+            {/* People, events and offers that match — compact rows above the
+                project results, each linking into the surface that owns it. */}
+            {matchedPeople.length > 0 ? (
+              <div className="mb-5">
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                  People
+                </h2>
+                <ul className="flex flex-col gap-2">
+                  {matchedPeople.map((n) => (
+                    <li key={n.id}>
+                      <Link
+                        href={`/chats?to=${n.id}`}
+                        className="flex items-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                      >
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                          {initials(n.display_name)}
+                        </span>
+                        <span className="font-medium">
+                          {n.display_name ?? "A neighbor"}
+                        </span>
+                        <span className="ml-auto text-xs text-black/40 dark:text-white/40">
+                          Message →
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {matchedEvents.length > 0 ? (
+              <div className="mb-5">
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                  Events
+                </h2>
+                <ul className="flex flex-col gap-2">
+                  {matchedEvents.map((e) => (
+                    <li key={e.id}>
+                      <Link
+                        href={`/projects/${e.project_id}`}
+                        className="flex items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                      >
+                        <span className="min-w-0 truncate">
+                          📅 <span className="font-medium">{e.title}</span>{" "}
+                          <span className="text-black/40 dark:text-white/40">
+                            · {formatEventTime(e.starts_at)}
+                            {e.place ? ` · ${e.place}` : ""}
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-xs text-black/45 dark:text-white/45">
+                          🙋 {e.rsvps.length} going
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {matchedOffers.length > 0 ? (
+              <div className="mb-5">
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                  Offers &amp; asks
+                </h2>
+                <ul className="flex flex-col gap-2">
+                  {matchedOffers.map((o) => (
+                    <li key={o.id}>
+                      <Link
+                        href={o.kind === "need" ? "/people#asks" : "/offers"}
+                        className="flex items-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                      >
+                        <span aria-hidden>{o.kind === "need" ? "🙋" : "🎁"}</span>
+                        <span className="min-w-0 truncate font-medium">
+                          {o.title}
+                        </span>
+                        <span className="ml-auto shrink-0 text-xs text-black/40 dark:text-white/40">
+                          {o.kind === "need" ? "Small help" : "Offer"} →
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : null}
 
             {asks.length > 0 && !query ? (

@@ -412,6 +412,15 @@ childish, and tinting just its first letter read as a typo. The icon is the
 element built to carry a single accent without competing with the text
 weight that does the "you are here" signalling.
 
+### Search returns what the placeholder promises
+
+The top bar says "Search people, events, offers, projects around you" and
+now means it: /explore's ?q= matches project titles/descriptions, event
+titles/places, open offers and asks, and neighbors' names — each group as
+compact rows linking into the surface that owns it, with the result count
+totalling all four. The people and offers lookups only run when there's a
+query, and RLS scopes every one to what the searcher could already see.
+
 ### peoplearound.com opens on People around, not Explore
 
 The root route (`src/app/page.tsx`) no longer renders a feed — it's a thin
