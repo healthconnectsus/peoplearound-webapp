@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { AsksSection } from "@/components/AsksSection";
 import { FeedComposer } from "@/components/FeedComposer";
+import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { CommunityFilter } from "@/components/CommunityFilter";
 import { NewCommunityDialog } from "./NewCommunityDialog";
 import { ProjectCard } from "@/components/ProjectFeedCard";
@@ -156,6 +157,35 @@ export default async function PeoplePage({
     neighborhood?: { name: string } | null;
   } | null;
   const primaryId = profile?.neighborhood_id ?? null;
+
+  // Founding neighbors: the first 10 members of a place, by join order — a
+  // permanent, derived fact (no points, no gaming surface). It belongs on
+  // this page because it is about the community that is *yours*.
+  const [{ data: hoodMemberRows }, { count: neighborCount }, { count: broughtCount }] =
+    primaryId
+      ? await Promise.all([
+          supabase
+            .from("community_members")
+            .select("user_id,created_at")
+            .eq("community_id", primaryId)
+            .order("created_at", { ascending: true })
+            .limit(10),
+          supabase
+            .from("community_members")
+            .select("user_id", { count: "exact", head: true })
+            .eq("community_id", primaryId),
+          supabase
+            .from("profiles")
+            .select("id", { count: "exact", head: true })
+            .eq("invited_by", user.id),
+        ])
+      : [{ data: [] }, { count: 0 }, { count: 0 }];
+
+  const foundingMembers = (hoodMemberRows ?? []) as { user_id: string }[];
+  const myFoundingRank =
+    foundingMembers.findIndex((m) => m.user_id === user.id) + 1; // 0 = not founding
+  const hoodSize = neighborCount ?? foundingMembers.length;
+  const isFoundingEra = primaryId != null && hoodSize < 10;
   const hoodName = profile?.neighborhood?.name ?? "your neighborhood";
 
   const { data: neighborRows } = primaryId
@@ -244,6 +274,48 @@ export default async function PeoplePage({
       <MapShell pins={pins}>
         <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <FeedComposer />
+
+          {/* Founding era: the first 10 neighbors of a place are its founding
+              neighbors, permanently — real scarcity, no points. */}
+          {isFoundingEra ? (
+            <div className="mb-6 rounded-2xl border border-emerald-600/25 bg-gradient-to-br from-emerald-50 to-amber-50/60 p-5 shadow-sm dark:border-emerald-500/25 dark:from-emerald-950/40 dark:to-amber-950/20">
+              <p className="font-medium">
+                🌱 {hoodName} is just getting started
+              </p>
+              <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+                {myFoundingRank > 0 ? (
+                  <>
+                    You&apos;re{" "}
+                    <strong>Founding Neighbor #{myFoundingRank}</strong> —
+                    that&apos;s permanent, and only the first 10 ever get it.{" "}
+                  </>
+                ) : null}
+                {hoodSize} of 10 founding spots taken.
+                {broughtCount && broughtCount > 0 ? (
+                  <>
+                    {" "}
+                    You&apos;ve brought{" "}
+                    <strong>
+                      {broughtCount}{" "}
+                      {broughtCount === 1 ? "neighbor" : "neighbors"}
+                    </strong>{" "}
+                    here already.
+                  </>
+                ) : (
+                  " Every neighbor you bring is credited to you, permanently."
+                )}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <CopyLinkButton userId={user.id} />
+                <Link
+                  href="/invite"
+                  className="text-sm text-black/50 underline underline-offset-2 hover:text-black dark:text-white/50 dark:hover:text-white"
+                >
+                  More ways to invite
+                </Link>
+              </div>
+            </div>
+          ) : null}
 
           {error ? (
             <p className="mt-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">

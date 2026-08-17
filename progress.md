@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Explore becomes a community directory; founding banner moves to People around (me)
+
+- `src/app/explore/page.tsx`
+- `src/app/neighborhood/communityActions.ts`
+- `src/app/people/page.tsx`
+
+
 ### 2026-08-17 — Rail: People around (me), Explore Communities
 
 - `src/components/Sidebar.tsx`

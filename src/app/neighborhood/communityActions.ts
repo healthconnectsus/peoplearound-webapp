@@ -27,6 +27,21 @@ function fail(message: string): never {
   redirect(`/people?error=${encodeURIComponent(message)}#communities`);
 }
 
+/**
+ * Where to land after joining or leaving.
+ *
+ * These actions were written when /people was the only place you could join
+ * a community, so they hard-redirected there. Joining from the Explore
+ * directory would throw you onto a different page mid-browse — pass the path
+ * you're on and you stay put.
+ */
+function landing(formData: FormData, fallback: string): string {
+  const returnTo = String(formData.get("returnTo") ?? "").trim();
+  return returnTo.startsWith("/") && !returnTo.startsWith("//")
+    ? returnTo
+    : fallback;
+}
+
 export async function joinCommunity(formData: FormData) {
   const communityId = String(formData.get("communityId") ?? "");
   if (!communityId) redirect("/people#communities");
@@ -75,7 +90,7 @@ export async function joinCommunity(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/people?message=Joined#communities");
+  redirect(landing(formData, "/people?message=Joined#communities"));
 }
 
 export async function leaveCommunity(formData: FormData) {
@@ -100,7 +115,7 @@ export async function leaveCommunity(formData: FormData) {
   if (error) fail(migrationHint(error.message));
 
   revalidatePath("/", "layout");
-  redirect("/people?message=Left the community#communities");
+  redirect(landing(formData, "/people?message=Left the community#communities"));
 }
 
 export async function setPrimaryCommunity(formData: FormData) {

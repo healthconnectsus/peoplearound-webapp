@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { communityMilestone } from "@/lib/milestones";
@@ -10,16 +9,15 @@ import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { type MapPin } from "@/components/NeighborhoodMap";
 import { MapShell } from "@/components/MapShell";
-import { FeedComposer } from "@/components/FeedComposer";
+import { ProjectCard, type CardData } from "@/components/ProjectFeedCard";
+import { NewCommunityDialog } from "@/app/people/NewCommunityDialog";
+import { kindMeta } from "@/lib/communities";
 import {
-  CompactRow,
-  ProjectCard,
-  type CardData,
-} from "@/components/ProjectFeedCard";
+  joinCommunity,
+  leaveCommunity,
+} from "@/app/neighborhood/communityActions";
 import {
   STATE_META,
-  CATEGORIES,
-  CATEGORY_META,
   categoryMeta,
   formatEventTime,
   initials,
@@ -43,9 +41,15 @@ import { versionLabel } from "@/lib/version";
 export default async function ExplorePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; cat?: string; help?: string; ev?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    cat?: string;
+    help?: string;
+    ev?: string;
+    kind?: string;
+  }>;
 }) {
-  const { q, cat, help: helpFilter, ev } = await searchParams;
+  const { q, cat, help: helpFilter, ev, kind } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -84,7 +88,6 @@ export default async function ExplorePage({
     { data: memberRows },
     { data: eventRows },
     { data: confirmedRows },
-    { count: neighborCount },
     membershipResult,
   ] = await Promise.all([
     supabase
@@ -112,10 +115,6 @@ export default async function ExplorePage({
       .eq("status", "confirmed")
       .gte("confirmed_at", monthAgo),
     supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("neighborhood_id", myHood),
-    supabase
       .from("community_members")
       .select("community_id")
       .eq("user_id", user.id),
@@ -129,24 +128,7 @@ export default async function ExplorePage({
       : membershipResult.data.map((m) => m.community_id),
   );
 
-  // Founding neighbors: the first 10 members of a location, by join order —
-  // a permanent, derived fact (no points, no gaming surface).
-  const [
-    { data: hoodMemberRows },
-    { count: broughtCount },
-    { count: myStarsGiven },
-    { count: myRsvpCount },
-  ] = await Promise.all([
-    supabase
-      .from("community_members")
-      .select("user_id,created_at")
-      .eq("community_id", myHood)
-      .order("created_at", { ascending: true })
-      .limit(10),
-    supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("invited_by", user.id),
+  const [{ count: myStarsGiven }, { count: myRsvpCount }] = await Promise.all([
     supabase
       .from("stars")
       .select("project_id", { count: "exact", head: true })
@@ -156,11 +138,6 @@ export default async function ExplorePage({
       .select("event_id", { count: "exact", head: true })
       .eq("user_id", user.id),
   ]);
-  const foundingMembers = hoodMemberRows ?? [];
-  const myFoundingRank =
-    foundingMembers.findIndex((m) => m.user_id === user.id) + 1; // 0 = not founding
-  const hoodSize = neighborCount ?? foundingMembers.length;
-  const isFoundingEra = hoodSize < 10;
 
   // A collective beat when the neighborhood crosses a threshold — about the
   // place, never a person (see lib/milestones.ts).
@@ -180,6 +157,25 @@ export default async function ExplorePage({
     profile?.created_at != null &&
     isWithinDays(profile.created_at, 30) &&
     (!starredOnce || !rsvpedOnce);
+
+  // The directory. Explore is about finding a community to belong to, so it
+  // loads all of them plus the two numbers that say whether a community is
+  // alive: how many people are in it, and how much is being built there.
+  const [{ data: allCommunityRows }, { data: allMemberRows }] =
+    await Promise.all([
+      supabase
+        .from("neighborhoods")
+        .select("id,name,city,kind,description")
+        .order("name", { ascending: true }),
+      supabase.from("community_members").select("community_id"),
+    ]);
+
+  // Membership comes from the query above — myCommunityIds already knows
+  // which of these you're in.
+  const memberTally = new Map<string, number>();
+  for (const m of (allMemberRows ?? []) as { community_id: string }[]) {
+    memberTally.set(m.community_id, (memberTally.get(m.community_id) ?? 0) + 1);
+  }
 
   // Badges here too, so a fresh badge (e.g. 🌱 on first login after
   // founding a place) celebrates immediately — not only on the profile page.
@@ -250,13 +246,69 @@ export default async function ExplorePage({
     };
   });
 
-  // Community counters for the page title: (city/yours/all) in your hood.
-  const hoodAll = cards.filter((p) => p.neighborhood_id === myHood);
-  const hoodTotal = hoodAll.length;
-  const hoodMine = hoodAll.filter((p) => p.owner_id === user.id).length;
-
   // Top-bar search: a simple contains-match over title and description.
   const query = q?.trim().toLowerCase() ?? "";
+
+  // One row per community: its numbers, a glimpse of what's happening inside,
+  // and whether you're already in. Filtered by kind and by the search box —
+  // a community you can't find is a community you can't join.
+  type DirectoryRow = {
+    id: string;
+    name: string;
+    city: string | null;
+    kind: string | null;
+    description: string | null;
+    members: number;
+    projects: number;
+    glimpse: string[];
+    joined: boolean;
+  };
+  const directory: DirectoryRow[] = (
+    (allCommunityRows ?? []) as unknown as {
+      id: string;
+      name: string;
+      city: string | null;
+      kind: string | null;
+      description: string | null;
+    }[]
+  )
+    .map((c) => {
+      const inHere = cards.filter((pr) => pr.neighborhood_id === c.id);
+      return {
+        ...c,
+        members: memberTally.get(c.id) ?? 0,
+        projects: inHere.length,
+        glimpse: inHere.slice(0, 2).map((pr) => pr.title),
+        joined: myCommunityIds.has(c.id),
+      };
+    })
+    .filter((c) => (kind ? (c.kind ?? "other") === kind : true))
+    .filter((c) =>
+      query
+        ? `${c.name} ${c.city ?? ""} ${c.description ?? ""}`
+            .toLowerCase()
+            .includes(query)
+        : true,
+    )
+    // Busiest first — sorted alphabetically, the places worth joining hide
+    // behind whatever happens to start with "A".
+    .sort(
+      (a, b) =>
+        b.projects - a.projects ||
+        b.members - a.members ||
+        a.name.localeCompare(b.name),
+    );
+
+  /** Kinds that actually exist here, so the filter never offers an empty set. */
+  const kindsPresent = Array.from(
+    new Set(
+      ((allCommunityRows ?? []) as unknown as { kind: string | null }[]).map(
+        (c) => c.kind ?? "other",
+      ),
+    ),
+  );
+
+
   const searched = query
     ? cards.filter((p) =>
         `${p.title} ${p.description ?? ""}`.toLowerCase().includes(query),
@@ -318,7 +370,6 @@ export default async function ExplorePage({
     const qs = params.toString();
     return qs ? `/explore?${qs}` : "/explore";
   };
-  const filtersActive = Boolean(cat || helpFilter || ev);
 
   // Zones: your communities first, then your city, then the wide world.
   const local = visible.filter(
@@ -329,9 +380,6 @@ export default async function ExplorePage({
       (p.neighborhood_id == null || !myCommunityIds.has(p.neighborhood_id)) &&
       myCity != null &&
       p.neighborhood?.city === myCity,
-  );
-  const anywhere = visible.filter(
-    (p) => !local.includes(p) && !city.includes(p),
   );
 
   // Map pins for every visible, located project.
@@ -365,60 +413,16 @@ export default async function ExplorePage({
           <div className="w-full max-w-3xl p-4 lg:py-6 lg:pl-36 lg:pr-8">
             <div className="mb-5">
               <h1 className="text-3xl font-extrabold tracking-tight">
-                Explore{" "}
+                Explore communities{" "}
                 <span className="font-normal text-black/50 dark:text-white/50">
-                  ({myCity ?? neighborhoodName}/{hoodMine}/{hoodTotal})
+                  ({directory.length})
                 </span>
               </h1>
-              <Link
-                href="/neighborhood"
-                className="mt-1 inline-block text-xs text-black/40 underline decoration-black/20 underline-offset-2 hover:decoration-current dark:text-white/40 dark:decoration-white/20"
-              >
-                Change
-              </Link>
+              <p className="mt-1 text-sm text-black/55 dark:text-white/55">
+                A neighborhood, a building, a hobby, a cause — join the ones
+                you belong to, and see what they&rsquo;re building.
+              </p>
             </div>
-
-            <FeedComposer />
-
-            {/* Founding era: the first 10 neighbors of a location are its
-                founding neighbors, permanently — real scarcity, no points. */}
-            {isFoundingEra ? (
-              <div className="mb-6 rounded-2xl border border-emerald-600/25 bg-gradient-to-br from-emerald-50 to-amber-50/60 p-5 shadow-sm dark:border-emerald-500/25 dark:from-emerald-950/40 dark:to-amber-950/20">
-                <p className="font-medium">
-                  🌱 {neighborhoodName} is just getting started
-                </p>
-                <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-                  {myFoundingRank > 0 ? (
-                    <>
-                      You&apos;re <strong>Founding Neighbor #{myFoundingRank}</strong> —
-                      that&apos;s permanent, and only the first 10 ever get it.{" "}
-                    </>
-                  ) : null}
-                  {hoodSize} of 10 founding spots taken.
-                  {broughtCount && broughtCount > 0 ? (
-                    <>
-                      {" "}
-                      You&apos;ve brought{" "}
-                      <strong>
-                        {broughtCount} {broughtCount === 1 ? "neighbor" : "neighbors"}
-                      </strong>{" "}
-                      here already.
-                    </>
-                  ) : (
-                    " Every neighbor you bring is credited to you, permanently."
-                  )}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <CopyLinkButton userId={user.id} />
-                  <Link
-                    href="/invite"
-                    className="text-sm text-black/50 underline underline-offset-2 hover:text-black dark:text-white/50 dark:hover:text-white"
-                  >
-                    More ways to invite
-                  </Link>
-                </div>
-              </div>
-            ) : null}
 
             {query ? (
               <p className="mb-5 rounded-xl border border-emerald-600/20 bg-emerald-50/70 px-4 py-2.5 text-sm dark:border-emerald-500/25 dark:bg-emerald-950/20">
@@ -614,130 +618,150 @@ export default async function ExplorePage({
               </div>
             ) : null}
 
-            {/* Filter chips — server-rendered links, shareable URLs */}
-            <div className="mb-6 flex flex-wrap items-center gap-1.5">
+            {/* Projects matching the search. Browsing is about communities
+                now, but the top bar still promises projects — so a query
+                answers with them, right below the other matches. */}
+            {query && visible.length > 0 ? (
+              <div className="mb-6">
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                  Projects
+                </h2>
+                <ul className="flex flex-col gap-3">
+                  {visible.map((pr) => (
+                    <ProjectCard key={pr.id} p={pr} returnTo="/explore" />
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {query ? (
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+                Communities
+              </h2>
+            ) : null}
+
+            {/* Kind filter — server-rendered links, shareable URLs */}
+            <div className="mb-4 flex flex-wrap items-center gap-1.5">
               <Link
-                href={filterHref({ cat: undefined, help: undefined, ev: undefined })}
+                href={filterHref({ kind: undefined })}
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  !filtersActive
+                  !kind
                     ? "border-emerald-600 bg-emerald-600 text-white"
                     : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                 }`}
               >
                 All
               </Link>
-              {CATEGORIES.map((c) => (
+              {kindsPresent.map((k) => (
                 <Link
-                  key={c}
-                  href={filterHref({ cat: cat === c ? undefined : c })}
+                  key={k}
+                  href={filterHref({ kind: kind === k ? undefined : k })}
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    cat === c
+                    kind === k
                       ? "border-emerald-600 bg-emerald-600 text-white"
                       : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
                   }`}
                 >
-                  {CATEGORY_META[c].emoji} {CATEGORY_META[c].label}
+                  {kindMeta(k).label}
                 </Link>
               ))}
-              <span className="mx-1 h-4 w-px bg-black/10 dark:bg-white/15" aria-hidden />
-              <Link
-                href={filterHref({ help: helpFilter === "local" ? undefined : "local" })}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  helpFilter === "local"
-                    ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                }`}
-              >
-                🏠 Hands nearby
-              </Link>
-              <Link
-                href={filterHref({ help: helpFilter === "remote" ? undefined : "remote" })}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  helpFilter === "remote"
-                    ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                }`}
-              >
-                💻 Online help
-              </Link>
-              <Link
-                href={filterHref({ ev: ev === "soon" ? undefined : "soon" })}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  ev === "soon"
-                    ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-400 bg-white text-black/60 hover:bg-black/5 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60"
-                }`}
-              >
-                📅 Event soon
-              </Link>
             </div>
 
-            {cards.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">
+            <NewCommunityDialog />
+
+            {directory.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">
                 <p className="text-3xl" aria-hidden>
-                  🌱
+                  🧭
                 </p>
-                <p className="mt-3 font-medium">Nothing here yet</p>
+                <p className="mt-3 font-medium">No communities here yet</p>
                 <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-                  Got an idea for your neighborhood? Big or small, this is the
-                  place to share it.
+                  {query || kind
+                    ? "Nothing matches that — try a different filter."
+                    : "Start the first one and invite the people who belong in it."}
                 </p>
-                <Link
-                  href="/projects/new"
-                  className="mt-5 inline-block rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-                >
-                  Share your idea
-                </Link>
               </div>
             ) : (
-              <div className="flex flex-col gap-8">
-                <section>
-                  <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                    In your communities
-                  </h2>
-                  {local.length > 0 ? (
-                    <ul className="flex flex-col gap-3">
-                      {local.map((p) => (
-                        <ProjectCard key={p.id} p={p} returnTo="/explore" />
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="rounded-2xl border border-dashed border-slate-400 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60">
-                      Nothing in your communities yet —{" "}
-                      <Link href="/projects/new" className="underline">
-                        yours could be the first
-                      </Link>
-                      .
-                    </p>
-                  )}
-                </section>
+              <ul className="mt-5 flex flex-col gap-3">
+                {directory.map((c) => (
+                  <li
+                    key={c.id}
+                    className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h2 className="flex flex-wrap items-center gap-2 font-medium">
+                          {c.name}
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${kindMeta(c.kind).badge}`}
+                          >
+                            {kindMeta(c.kind).label}
+                          </span>
+                          {c.joined ? (
+                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+                              You&rsquo;re in
+                            </span>
+                          ) : null}
+                        </h2>
+                        <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+                          {c.city ? `${c.city} · ` : ""}
+                          {c.members} {c.members === 1 ? "member" : "members"} ·{" "}
+                          {c.projects} {c.projects === 1 ? "project" : "projects"}
+                        </p>
+                      </div>
 
-                {city.length > 0 ? (
-                  <section>
-                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                      Around {myCity ?? "your city"}
-                    </h2>
-                    <ul className="flex flex-col gap-3">
-                      {city.map((p) => (
-                        <ProjectCard key={p.id} p={p} returnTo="/explore" />
-                      ))}
-                    </ul>
-                  </section>
-                ) : null}
+                      {c.joined ? (
+                        <form action={leaveCommunity} className="shrink-0">
+                          <input type="hidden" name="communityId" value={c.id} />
+                          <input type="hidden" name="returnTo" value="/explore" />
+                          <button
+                            type="submit"
+                            className="rounded-full border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                          >
+                            Leave
+                          </button>
+                        </form>
+                      ) : (
+                        <form action={joinCommunity} className="shrink-0">
+                          <input type="hidden" name="communityId" value={c.id} />
+                          <input type="hidden" name="returnTo" value="/explore" />
+                          <button
+                            type="submit"
+                            className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                          >
+                            Join
+                          </button>
+                        </form>
+                      )}
+                    </div>
 
-                {anywhere.length > 0 ? (
-                  <section>
-                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                      🌍 From anywhere
-                    </h2>
-                    <ul className="flex flex-col gap-2">
-                      {anywhere.map((p) => (
-                        <CompactRow key={p.id} p={p} />
-                      ))}
-                    </ul>
-                  </section>
-                ) : null}
-              </div>
+                    {c.description ? (
+                      <p className="mt-2 text-sm text-black/60 dark:text-white/60">
+                        {c.description}
+                      </p>
+                    ) : null}
+
+                    {/* A glimpse of what is actually happening in there — the
+                        difference between joining a name and joining a place. */}
+                    {c.glimpse.length > 0 ? (
+                      <ul className="mt-2.5 flex flex-col gap-1">
+                        {c.glimpse.map((t) => (
+                          <li
+                            key={t}
+                            className="truncate text-xs text-black/45 dark:text-white/45"
+                          >
+                            · {t}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-2.5 text-xs italic text-black/35 dark:text-white/35">
+                        Nothing being built here yet.
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
             )}
 
             <footer className="py-8 text-center text-xs text-black/30 dark:text-white/30">
