@@ -360,6 +360,33 @@ export default async function PeoplePage({
                 }))}
                 selected={picked}
               />
+
+              {cards.length > 0 ? (
+                <TagFilter
+                  basePath="/people"
+                  extraParams={{ community: picked || undefined }}
+                  selected={{ cat: cats, help: helps }}
+                  groups={[
+                    {
+                      param: "cat",
+                      label: "Category",
+                      options: CATEGORIES.map((c) => ({
+                        value: c,
+                        label: CATEGORY_META[c].label,
+                        emoji: CATEGORY_META[c].emoji,
+                      })),
+                    },
+                    {
+                      param: "help",
+                      label: "Looking for",
+                      options: [
+                        { value: "local", label: "Hands nearby", emoji: "🏠" },
+                        { value: "remote", label: "Online help", emoji: "💻" },
+                      ],
+                    },
+                  ]}
+                />
+              ) : null}
             </div>
 
             {asks.length > 0 ? (
@@ -408,35 +435,6 @@ export default async function PeoplePage({
                     </li>
                   ))}
                 </ul>
-              </div>
-            ) : null}
-
-            {cards.length > 0 ? (
-              <div className="mb-4">
-                <TagFilter
-                  basePath="/people"
-                  extraParams={{ community: picked || undefined }}
-                  selected={{ cat: cats, help: helps }}
-                  groups={[
-                    {
-                      param: "cat",
-                      label: "Category",
-                      options: CATEGORIES.map((c) => ({
-                        value: c,
-                        label: CATEGORY_META[c].label,
-                        emoji: CATEGORY_META[c].emoji,
-                      })),
-                    },
-                    {
-                      param: "help",
-                      label: "Looking for",
-                      options: [
-                        { value: "local", label: "Hands nearby", emoji: "🏠" },
-                        { value: "remote", label: "Online help", emoji: "💻" },
-                      ],
-                    },
-                  ]}
-                />
               </div>
             ) : null}
 

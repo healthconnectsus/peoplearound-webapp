@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Filters sits beside the community dropdown
+
+- `src/app/people/page.tsx`
+
+
 ### 2026-08-17 — Rail: weight eases on hover via variable Roboto, slate palette
 
 - `src/app/globals.css`
