@@ -71,8 +71,10 @@ export async function TopBar() {
     pendingCount = unread ?? 0;
   }
 
+  // Columns mirror MapShell's split so the search bar sits over the content
+  // column, not under the map.
   return (
-    <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]">
+    <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_40%] xl:grid-cols-[minmax(0,1fr)_42%]">
       {/* The search column mirrors the home feed column (both left-aligned)
           so the input's left edge lines up with the content beneath it. */}
       <div className="w-full max-w-3xl px-4 lg:pl-36 lg:pr-8">

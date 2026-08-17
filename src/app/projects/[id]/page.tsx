@@ -285,7 +285,10 @@ export default async function ProjectDetail({
       <div
         className={
           hasPin
-            ? "lg:grid lg:grid-cols-[minmax(0,1fr)_50%] xl:grid-cols-[minmax(0,1fr)_53%]"
+            ? // Same split as MapShell (used by every other "around me"
+              // page) — this page predated it and kept the old wider
+              // columns, so its map read as a different app.
+              "lg:grid lg:grid-cols-[minmax(0,1fr)_40%] xl:grid-cols-[minmax(0,1fr)_42%]"
             : ""
         }
       >

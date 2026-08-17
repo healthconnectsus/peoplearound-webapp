@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Admins are exempt from the abuse caps; project map matches every other page
+
+- `docs/ARCHITECTURE.md`
+- `src/app/projects/[id]/page.tsx`
+- `src/components/TopBar.tsx`
+- `supabase/migrations/0040_admins_uncapped.sql`
+
+
 ### 2026-08-17 — Search now returns people, events, offers AND projects
 
 - `docs/UX_SPEC.md`
