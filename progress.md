@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Drop the rules around the project page's star row
+
+- `src/app/projects/[id]/page.tsx`
+
+
 ### 2026-08-17 — Project page: edit panel, feed-style star/message row, tag-based status and meta
 
 - `src/app/projects/[id]/OwnerTools.tsx`

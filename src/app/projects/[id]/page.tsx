@@ -510,7 +510,7 @@ export default async function ProjectDetail({
 
         {/* The same two affordances the feed card carries — star it, or
             say something to the person who started it. */}
-        <div className="mt-6 flex flex-wrap items-center gap-1 border-y border-slate-200 py-1.5 dark:border-slate-700">
+        <div className="mt-6 flex flex-wrap items-center gap-1">
           <form action={toggleStar}>
             <input type="hidden" name="projectId" value={project.id} />
             <input type="hidden" name="returnTo" value={`/projects/${project.id}`} />
