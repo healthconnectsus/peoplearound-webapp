@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Thicker slate filter buttons; community picker back to a dropdown
+
+- `src/app/people/page.tsx`
+- `src/components/CommunityFilter.tsx`
+- `src/lib/chips.ts`
+
+
 ### 2026-08-17 — Feed tags become one checkable multi-select dropdown
 
 - `src/app/people/page.tsx`

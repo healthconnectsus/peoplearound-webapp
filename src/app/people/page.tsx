@@ -352,7 +352,7 @@ export default async function PeoplePage({
           ) : null}
 
           <section id="feed" className="mt-6 scroll-mt-6">
-            <div className="mb-3">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
               <CommunityFilter
                 communities={mine.map((c) => ({
                   id: c.id,
