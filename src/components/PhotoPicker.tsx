@@ -80,7 +80,7 @@ export function PhotoPicker({
         <div className="flex flex-col gap-2">
           <div
             aria-hidden
-            className="h-40 w-full rounded-xl border border-slate-400 bg-cover bg-center dark:border-slate-500"
+            className="h-40 w-full border border-slate-400 bg-cover bg-center dark:border-slate-500"
             style={{ backgroundImage: `url(${value})` }}
           />
           <div className="flex flex-wrap gap-3">
@@ -117,7 +117,7 @@ export function PhotoPicker({
             const f = e.dataTransfer.files?.[0];
             if (f) void upload(f);
           }}
-          className={`flex w-full items-center gap-2 rounded-xl border border-dashed px-4 text-sm font-medium text-black/60 transition-colors hover:border-emerald-500 hover:bg-emerald-50/50 disabled:opacity-50 dark:text-white/60 dark:hover:bg-emerald-950/20 ${
+          className={`flex w-full items-center gap-2 border border-dashed px-4 text-sm font-medium text-black/60 transition-colors hover:border-emerald-500 hover:bg-emerald-50/50 disabled:opacity-50 dark:text-white/60 dark:hover:bg-emerald-950/20 ${
             compact ? "justify-start py-3" : "justify-center py-6"
           } ${
             over

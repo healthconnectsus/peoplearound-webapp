@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Project page: view mode by default, shared photo header, square frames
+
+- `src/app/projects/[id]/OwnerTools.tsx`
+- `src/app/projects/[id]/UpdateComposer.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/components/PhotoPicker.tsx`
+- `src/components/ProjectFeedCard.tsx`
+- `src/components/ProjectHero.tsx`
+
+
 ### 2026-08-17 — Feed card: title and starter on the photo, star + message actions, category-tinted shadow
 
 - `src/app/explore/page.tsx`

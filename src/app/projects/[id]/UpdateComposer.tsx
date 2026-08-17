@@ -18,7 +18,7 @@ export function UpdateComposer({
   return (
     <form
       action={postUpdate}
-      className="mt-4 rounded-2xl border border-slate-400 p-4 dark:border-slate-500"
+      className="border border-slate-400 p-4 dark:border-slate-500"
     >
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
@@ -32,7 +32,7 @@ export function UpdateComposer({
         rows={3}
         maxLength={2000}
         placeholder="e.g. “We got the permit — planting day is on!”"
-        className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
+        className="mt-3 w-full border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
       />
       <div className="mt-2">
         <PhotoPicker
@@ -66,7 +66,7 @@ export function ProjectPhotoEditor({
   const changed = (url ?? "") !== (photoUrl ?? "");
 
   return (
-    <form action={setProjectPhoto} className="mt-4">
+    <form action={setProjectPhoto}>
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="photoUrl" value={url ?? ""} />
       <PhotoPicker

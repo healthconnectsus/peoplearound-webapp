@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MessageCircle, Star } from "lucide-react";
 import { toggleStar } from "@/app/projects/actions";
+import { ProjectHero } from "./ProjectHero";
 import { SubmitButton } from "./SubmitButton";
 import {
   HELP_META,
@@ -50,41 +51,6 @@ export function Avatars({ names }: { names: string[] }) {
   );
 }
 
-/** The starter's face — their upload, or their initials. */
-function OwnerAvatar({
-  name,
-  avatarUrl,
-  onPhoto,
-}: {
-  name: string;
-  avatarUrl: string | null;
-  onPhoto: boolean;
-}) {
-  const ring = onPhoto ? "ring-1 ring-white/60" : "ring-1 ring-black/10";
-  if (avatarUrl) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URL, unoptimized is fine
-      <img
-        src={avatarUrl}
-        alt=""
-        className={`h-7 w-7 shrink-0 rounded-full object-cover ${ring}`}
-      />
-    );
-  }
-  return (
-    <span
-      aria-hidden
-      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${ring} ${
-        onPhoto
-          ? "bg-white/25 text-white backdrop-blur-sm"
-          : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
-      }`}
-    >
-      {initials(name)}
-    </span>
-  );
-}
-
 export function ProjectCard({
   p,
   returnTo,
@@ -96,85 +62,24 @@ export function ProjectCard({
   const meta = STATE_META[p.state];
   const cat = categoryMeta(p.category);
   const starter = p.team[0] ?? p.owner?.display_name ?? "A neighbor";
-  const place = p.neighborhood?.name ?? null;
-  // "Meadowood · 23 hr ago" — where it's happening and how fresh it is.
-  const line = [place, timeAgo(p.created_at)].filter(Boolean).join(" · ");
 
   return (
     <li>
       <div
-        className={`overflow-hidden rounded-2xl border border-slate-300 border-l-4 bg-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(p.category)} ${categoryShadow(p.category)}`}
+        className={`overflow-hidden border border-slate-300 border-l-4 bg-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(p.category)} ${categoryShadow(p.category)}`}
       >
         <Link href={`/projects/${p.id}`} className="block">
-          {p.photo_url ? (
-            <div
-              className="relative h-56 w-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${p.photo_url})` }}
-            >
-              {/* Dark scrim so white type stays legible over any photo. */}
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/35 to-slate-900/5"
-              />
-              <span
-                className={`absolute right-3 top-3 rounded-full px-2 py-0.5 text-xs font-medium ${meta.badge}`}
-              >
-                {meta.label}
-              </span>
-              <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                <h3 className="text-lg font-semibold leading-snug drop-shadow-sm">
-                  <span className="mr-1.5" aria-hidden>
-                    {cat.emoji}
-                  </span>
-                  {p.title}
-                </h3>
-                <div className="mt-2 flex items-center gap-2">
-                  <OwnerAvatar
-                    name={starter}
-                    avatarUrl={p.owner?.avatar_url ?? null}
-                    onPhoto
-                  />
-                  <span className="min-w-0 text-xs leading-tight">
-                    <span className="block truncate font-medium">
-                      {starter}
-                    </span>
-                    <span className="block truncate text-white/75">{line}</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-start justify-between gap-3 px-4 pt-4">
-              <div className="min-w-0">
-                <h3 className="text-lg font-semibold leading-snug">
-                  <span className="mr-1.5" aria-hidden>
-                    {cat.emoji}
-                  </span>
-                  {p.title}
-                </h3>
-                <div className="mt-2 flex items-center gap-2">
-                  <OwnerAvatar
-                    name={starter}
-                    avatarUrl={p.owner?.avatar_url ?? null}
-                    onPhoto={false}
-                  />
-                  <span className="min-w-0 text-xs leading-tight">
-                    <span className="block truncate font-medium">
-                      {starter}
-                    </span>
-                    <span className="block truncate text-black/45 dark:text-white/45">
-                      {line}
-                    </span>
-                  </span>
-                </div>
-              </div>
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${meta.badge}`}
-              >
-                {meta.label}
-              </span>
-            </div>
-          )}
+          <ProjectHero
+            title={p.title}
+            emoji={cat.emoji}
+            photoUrl={p.photo_url ?? null}
+            stateLabel={meta.label}
+            stateBadge={meta.badge}
+            ownerName={starter}
+            ownerAvatarUrl={p.owner?.avatar_url ?? null}
+            place={p.neighborhood?.name ?? null}
+            createdAt={p.created_at}
+          />
 
           <div className="px-4 pb-3 pt-3">
             {p.beat ? (
@@ -262,7 +167,7 @@ export function CompactRow({ p }: { p: CardData }) {
     <li>
       <Link
         href={`/projects/${p.id}`}
-        className="flex items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+        className="flex items-center justify-between gap-3 border border-slate-300 bg-white px-4 py-2.5 shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
       >
         <span className="min-w-0 truncate text-sm">
           <span className="mr-1" aria-hidden>

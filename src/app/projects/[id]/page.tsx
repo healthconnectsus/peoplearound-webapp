@@ -9,6 +9,8 @@ import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { FlagButton } from "./FlagButton";
 import { UpdateComposer, ProjectPhotoEditor } from "./UpdateComposer";
+import { OwnerTools } from "./OwnerTools";
+import { ProjectHero } from "@/components/ProjectHero";
 import { deleteUpdate, dismissNudge } from "../updateActions";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import {
@@ -19,6 +21,8 @@ import {
   STATE_META,
   TRANSITIONS,
   categoryMeta,
+  categoryShadow,
+  categoryTint,
   formatEventTime,
   isUpcomingEvent,
   isWithinDays,
@@ -67,7 +71,7 @@ export default async function ProjectDetail({
     .select(
       // profiles is reachable via several FKs now (owner, memberships, stars),
       // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,help,reach,photo_url,photo_credit_name,photo_credit_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
+      "id,owner_id,title,description,category,state,help,reach,photo_url,photo_credit_name,photo_credit_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name,avatar_url),neighborhood:neighborhoods(name,city)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -269,6 +273,52 @@ export default async function ProjectDetail({
 
   timeline.sort((a, b) => a.at.localeCompare(b.at));
 
+  // Stewards' forms. They're built here but handed to OwnerTools, which keeps
+  // them closed until asked for — opening your own project should show you
+  // the project, not an edit screen.
+  const eventForm = (
+    <form
+      action={createEvent}
+      className="border border-slate-400 p-4 dark:border-slate-500"
+    >
+      <input type="hidden" name="projectId" value={project.id} />
+      <h3 className="text-sm font-semibold">Plan an event</h3>
+      <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+        A concrete time and place — the gentlest way for a neighbor to get
+        involved. Joining is a signal, not a promise.
+      </p>
+      <input
+        type="text"
+        name="title"
+        required
+        maxLength={140}
+        placeholder='e.g. "Planting day — bring gloves!"'
+        className="mt-3 w-full border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
+      />
+      <div className="mt-2 flex flex-wrap gap-2">
+        <input
+          type="datetime-local"
+          name="startsAt"
+          required
+          className="border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400 dark:[color-scheme:dark]"
+        />
+        <input
+          type="text"
+          name="place"
+          maxLength={200}
+          placeholder="Where? e.g. the Oak Street lot"
+          className="min-w-0 flex-1 border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
+        />
+      </div>
+      <SubmitButton
+        pendingLabel="Creating…"
+        className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+      >
+        Create event
+      </SubmitButton>
+    </form>
+  );
+
   return (
     <AppShell>
       <BadgeCelebration badges={badges} userId={user.id} />
@@ -320,19 +370,25 @@ export default async function ProjectDetail({
           ← All projects
         </Link>
 
-        {isOwner ? (
-          <ProjectPhotoEditor
-            projectId={project.id}
-            userId={user.id}
+        {/* The same header the feed card uses — title, starter and
+            "Aurora · 9 days ago" all riding on the photo. */}
+        <div
+          className={`mt-4 overflow-hidden border border-slate-300 border-l-4 bg-white shadow-md dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(project.category)} ${categoryShadow(project.category)}`}
+        >
+          <ProjectHero
+            title={project.title}
+            emoji={cat.emoji}
             photoUrl={project.photo_url ?? null}
+            stateLabel={meta.label}
+            stateBadge={meta.badge}
+            ownerName={founderName}
+            ownerAvatarUrl={project.owner?.avatar_url ?? null}
+            place={project.neighborhood?.name ?? null}
+            createdAt={project.created_at}
+            heading="h1"
+            titleClass="text-2xl font-bold"
           />
-        ) : project.photo_url ? (
-          <div
-            aria-hidden
-            className="mt-4 h-56 w-full rounded-2xl border border-slate-300 bg-cover bg-center shadow-sm dark:border-slate-600"
-            style={{ backgroundImage: `url(${project.photo_url})` }}
-          />
-        ) : null}
+        </div>
 
         {/* The photographer's name travels with the photo (0039) — the
             Unsplash guidelines require credit wherever it's displayed,
@@ -360,28 +416,28 @@ export default async function ProjectDetail({
           </p>
         ) : null}
 
-        <div className="mt-4 flex items-start justify-between gap-3">
-          <h1 className="text-3xl font-extrabold leading-snug tracking-tight">
-            <span className="mr-2" aria-hidden>
-              {cat.emoji}
-            </span>
-            {project.title}
-          </h1>
-          <span
-            className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${meta.badge}`}
-          >
-            {meta.label}
-          </span>
-        </div>
+        {/* Founder and co-organizers only — nobody else sees an edit affordance. */}
+        <OwnerTools
+          eventForm={isSteward ? eventForm : undefined}
+          updateForm={
+            isOwner || isTeammate ? (
+              <UpdateComposer projectId={project.id} userId={user.id} />
+            ) : undefined
+          }
+          photoEditor={
+            isOwner ? (
+              <ProjectPhotoEditor
+                projectId={project.id}
+                userId={user.id}
+                photoUrl={project.photo_url ?? null}
+              />
+            ) : undefined
+          }
+        />
 
-        <p className="mt-1.5 text-sm text-black/50 dark:text-white/50">
-          Started by <span className="font-medium">{founderName}</span>{" "}
-          {timeAgo(project.created_at)} · {cat.label}
-        </p>
-
-        <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-          🤝 {teamSize} {teamSize === 1 ? "person" : "people"} building · ⭐{" "}
-          {starCount} {starCount === 1 ? "star" : "stars"}
+        <p className="mt-4 text-sm text-black/50 dark:text-white/50">
+          {cat.label} · 🤝 {teamSize} {teamSize === 1 ? "person" : "people"}{" "}
+          building · ⭐ {starCount} {starCount === 1 ? "star" : "stars"}
           {project.help ? (
             <span title={HELP_META[project.help].hint}>
               {" · "}
@@ -414,7 +470,7 @@ export default async function ProjectDetail({
         )}
 
         {/* Actions: join + star */}
-        <div className="mt-7 rounded-2xl border border-slate-400 p-4 dark:border-slate-500">
+        <div className="mt-7 border border-slate-400 p-4 dark:border-slate-500">
           {isOwner ? (
             <p className="text-sm text-black/60 dark:text-white/60">
               This is your project. When neighbors ask to join, their requests
@@ -493,7 +549,7 @@ export default async function ProjectDetail({
 
         {/* The acknowledgment moment — your work was confirmed by real people. */}
         {myFreshlyConfirmed.length > 0 ? (
-          <div className="mt-7 rounded-2xl border border-emerald-300 bg-emerald-50 p-5 dark:border-emerald-700/60 dark:bg-emerald-950/40">
+          <div className="mt-7 border border-emerald-300 bg-emerald-50 p-5 dark:border-emerald-700/60 dark:bg-emerald-950/40">
             <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">
               🎉 {founderName} confirmed your help on this project.
             </p>
@@ -524,7 +580,7 @@ export default async function ProjectDetail({
               {pending.map((m) => (
                 <li
                   key={m.user_id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
+                  className="flex items-center justify-between gap-3 border border-slate-400 px-4 py-3 dark:border-slate-500"
                 >
                   <span className="text-sm">
                     <span className="font-medium">
@@ -568,7 +624,7 @@ export default async function ProjectDetail({
         <div className="mt-7">
           <h2 className="mb-2 text-sm font-semibold">The team</h2>
           <ul className="flex flex-col gap-2">
-            <li className="flex items-center justify-between gap-3 rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500">
+            <li className="flex items-center justify-between gap-3 border border-slate-400 px-4 py-3 dark:border-slate-500">
               <span className="text-sm font-medium">{founderName}</span>
               <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
                 Founder
@@ -577,7 +633,7 @@ export default async function ProjectDetail({
             {accepted.map((m) => (
               <li
                 key={m.user_id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
+                className="flex items-center justify-between gap-3 border border-slate-400 px-4 py-3 dark:border-slate-500"
               >
                 <span className="flex flex-wrap items-center gap-2 text-sm">
                   {m.profile?.display_name ?? "Someone"}
@@ -641,7 +697,7 @@ export default async function ProjectDetail({
         {/* The gardener's private nudge — founder only, dismissible, and
             deliberately quiet: scaffolding that fades (UX_SPEC §4.16). */}
         {nudge && isOwner ? (
-          <div className="mt-7 rounded-2xl border border-amber-300/50 bg-amber-50/60 p-4 dark:border-amber-700/40 dark:bg-amber-950/20">
+          <div className="mt-7 border border-amber-300/50 bg-amber-50/60 p-4 dark:border-amber-700/40 dark:bg-amber-950/20">
             <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
               🌱 A thought, just for you
             </p>
@@ -675,7 +731,7 @@ export default async function ProjectDetail({
               {updates.map((u) => (
                 <li
                   key={u.id}
-                  className="rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
+                  className="border border-slate-400 px-4 py-3 dark:border-slate-500"
                 >
                   <p className="text-xs text-black/45 dark:text-white/45">
                     📣 {u.author?.display_name ?? "The team"} ·{" "}
@@ -687,7 +743,7 @@ export default async function ProjectDetail({
                   {u.photo_url ? (
                     <div
                       aria-hidden
-                      className="mt-2 h-48 w-full rounded-xl border border-slate-300 bg-cover bg-center dark:border-slate-600"
+                      className="mt-2 h-48 w-full border border-slate-300 bg-cover bg-center dark:border-slate-600"
                       style={{ backgroundImage: `url(${u.photo_url})` }}
                     />
                   ) : null}
@@ -711,10 +767,6 @@ export default async function ProjectDetail({
               ))}
             </ul>
           )}
-
-          {isOwner || isTeammate ? (
-            <UpdateComposer projectId={project.id} userId={user.id} />
-          ) : null}
         </div>
 
         {/* The story so far — the history timeline is the hero of the page */}
@@ -763,7 +815,7 @@ export default async function ProjectDetail({
                 return (
                   <li
                     key={e.id}
-                    className={`rounded-xl border px-4 py-3 ${
+                    className={`border px-4 py-3 ${
                       upcoming
                         ? "border-slate-400 dark:border-slate-500"
                         : "border-slate-300 opacity-60 dark:border-slate-600"
@@ -861,48 +913,6 @@ export default async function ProjectDetail({
             </ul>
           )}
 
-          {isSteward ? (
-            <form
-              action={createEvent}
-              className="mt-4 rounded-2xl border border-slate-400 p-4 dark:border-slate-500"
-            >
-              <input type="hidden" name="projectId" value={project.id} />
-              <h3 className="text-sm font-semibold">Plan an event</h3>
-              <p className="mt-1 text-xs text-black/50 dark:text-white/50">
-                A concrete time and place — the gentlest way for a neighbor to
-                get involved. Joining is a signal, not a promise.
-              </p>
-              <input
-                type="text"
-                name="title"
-                required
-                maxLength={140}
-                placeholder='e.g. "Planting day — bring gloves!"'
-                className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
-              />
-              <div className="mt-2 flex flex-wrap gap-2">
-                <input
-                  type="datetime-local"
-                  name="startsAt"
-                  required
-                  className="rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400 dark:[color-scheme:dark]"
-                />
-                <input
-                  type="text"
-                  name="place"
-                  maxLength={200}
-                  placeholder="Where? e.g. the Oak Street lot"
-                  className="min-w-0 flex-1 rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
-                />
-              </div>
-              <SubmitButton
-                pendingLabel="Creating…"
-                className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-              >
-                Create event
-              </SubmitButton>
-            </form>
-          ) : null}
         </div>
 
         {/* Contributions — the trust layer */}
@@ -931,7 +941,7 @@ export default async function ProjectDetail({
                 return (
                   <li
                     key={c.id}
-                    className="rounded-xl border border-slate-400 px-4 py-3 dark:border-slate-500"
+                    className="border border-slate-400 px-4 py-3 dark:border-slate-500"
                   >
                     <p className="text-sm">
                       <span className="mr-1" aria-hidden>
@@ -1069,7 +1079,7 @@ export default async function ProjectDetail({
           {isTeammate ? (
             <form
               action={logContribution}
-              className="mt-4 rounded-2xl border border-slate-400 p-4 dark:border-slate-500"
+              className="mt-4 border border-slate-400 p-4 dark:border-slate-500"
             >
               <input type="hidden" name="projectId" value={project.id} />
               <h3 className="text-sm font-semibold">Log a contribution</h3>
@@ -1107,7 +1117,7 @@ export default async function ProjectDetail({
                 maxLength={1000}
                 rows={3}
                 placeholder="What did you do, and how did it move the project forward?"
-                className="mt-3 w-full rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
+                className="mt-3 w-full border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
               />
 
               <SubmitButton
