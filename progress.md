@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-08-17 — Photographer credit travels with the photo (0039), plus the bug that ate it
+
+- `src/app/api/unsplash-photos/route.ts`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/lib/projects.ts`
+- `supabase/migrations/0039_photo_credit.sql`
+
+
 ### 2026-08-17 — Private impact score (closes Phase 1) + cap notices at the wizard doors
 
 - `src/app/analytics/page.tsx`

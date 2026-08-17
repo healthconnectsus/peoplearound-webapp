@@ -99,6 +99,10 @@ export async function GET(request: Request) {
       "id,url,thumb,alt,download_location,photographer,photographer_url,stock_photo_queries!inner(query)",
     )
     .eq("stock_photo_queries.query", q)
+    // Stable order matters: without it Postgres returns rows arbitrarily,
+    // two fetches of the same query offer different top-3s, and anything
+    // the client picked from the first pool can vanish from the second.
+    .order("id")
     .limit(60);
   const cached = ((cachedRows ?? []) as CachedPhoto[]).filter(
     (p) => !recentlyUsed.has(p.id),
@@ -184,6 +188,7 @@ export async function GET(request: Request) {
         "id,url,thumb,alt,download_location,photographer,photographer_url,stock_photo_queries!inner(query)",
       )
       .eq("stock_photo_queries.query", fb)
+      .order("id")
       .limit(60);
     const extra = ((fbRows ?? []) as CachedPhoto[]).filter(
       (p) => !recentlyUsed.has(p.id) && !have.some((h) => h.id === p.id),

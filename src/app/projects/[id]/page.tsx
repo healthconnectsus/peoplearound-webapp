@@ -67,7 +67,7 @@ export default async function ProjectDetail({
     .select(
       // profiles is reachable via several FKs now (owner, memberships, stars),
       // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,help,reach,photo_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
+      "id,owner_id,title,description,category,state,help,reach,photo_url,photo_credit_name,photo_credit_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -329,6 +329,32 @@ export default async function ProjectDetail({
             className="mt-4 h-56 w-full rounded-2xl border border-slate-300 bg-cover bg-center shadow-sm dark:border-slate-600"
             style={{ backgroundImage: `url(${project.photo_url})` }}
           />
+        ) : null}
+
+        {/* The photographer's name travels with the photo (0039) — the
+            Unsplash guidelines require credit wherever it's displayed,
+            and this page is where it's displayed biggest. */}
+        {project.photo_url && project.photo_credit_name ? (
+          <p className="mt-1 text-right text-[11px] text-black/35 dark:text-white/35">
+            Photo by{" "}
+            <a
+              href={project.photo_credit_url ?? "https://unsplash.com/?utm_source=peoplearound&utm_medium=referral"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-black/55 dark:hover:text-white/55"
+            >
+              {project.photo_credit_name}
+            </a>{" "}
+            on{" "}
+            <a
+              href="https://unsplash.com/?utm_source=peoplearound&utm_medium=referral"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-black/55 dark:hover:text-white/55"
+            >
+              Unsplash
+            </a>
+          </p>
         ) : null}
 
         <div className="mt-4 flex items-start justify-between gap-3">

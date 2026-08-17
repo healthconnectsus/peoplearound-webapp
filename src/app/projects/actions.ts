@@ -38,6 +38,19 @@ export async function createProject(formData: FormData) {
   // Optional cover photo (uploaded client-side to the projects bucket).
   const photoUrl = String(formData.get("photoUrl") ?? "").trim().slice(0, 500);
 
+  // Stock-photo credit (0039) — required by the Unsplash guidelines wherever
+  // the photo is displayed. Empty for uploads.
+  const photoCreditName = String(formData.get("photoCreditName") ?? "")
+    .trim()
+    .slice(0, 120);
+  const photoCreditUrl = String(formData.get("photoCreditUrl") ?? "")
+    .trim()
+    .slice(0, 500);
+  // Never store a credit link pointing anywhere but Unsplash.
+  const creditOk =
+    photoCreditName.length > 0 &&
+    photoCreditUrl.startsWith("https://unsplash.com/");
+
   // When this happens — free text, a rhythm rather than a schedule
   // (migration 0037).
   const whenText = String(formData.get("whenText") ?? "").trim().slice(0, 80);
@@ -77,6 +90,8 @@ export async function createProject(formData: FormData) {
       help,
       reach,
       photo_url: photoUrl || null,
+      photo_credit_name: creditOk ? photoCreditName : null,
+      photo_credit_url: creditOk ? photoCreditUrl : null,
       when_text: whenText || null,
       lat: hasPin ? latNum : null,
       lng: hasPin ? lngNum : null,

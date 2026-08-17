@@ -26,7 +26,11 @@ import { createProject } from "../actions";
 import { MapPicker } from "@/components/MapPicker";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { SubmitButton } from "@/components/SubmitButton";
-import { useStockPhotos, trackStockPhotoUse } from "@/components/useStockPhotos";
+import {
+  useStockPhotos,
+  trackStockPhotoUse,
+  type StockPhoto,
+} from "@/components/useStockPhotos";
 
 type Draft = {
   title: string;
@@ -391,6 +395,11 @@ export function IdeaForm({
   const [photoOpen, setPhotoOpen] = useState(false);
   /** Index into the stock pool. -1 means "not one of them" — an upload. */
   const [photoIndex, setPhotoIndex] = useState(0);
+  /** The picked stock photo, captured whole at pick time — the pool can
+      reshuffle between renders (cache order plus the city-recency filter),
+      so anything derived at submit via `stockPhotos.find(...)` silently
+      came up empty. Null for uploads. */
+  const [pickedStock, setPickedStock] = useState<StockPhoto | null>(null);
   const [whenText, setWhenText] = useState("");
 
   function toggleMic() {
@@ -491,6 +500,7 @@ export function IdeaForm({
     if (!photoUrl) {
       setPhotoUrl(stockPhotos[0].url);
       setPhotoIndex(0);
+      setPickedStock(stockPhotos[0]);
     }
   }
 
@@ -499,6 +509,7 @@ export function IdeaForm({
     const next = (photoIndex + delta + stockPhotos.length) % stockPhotos.length;
     setPhotoIndex(next);
     setPhotoUrl(stockPhotos[next].url);
+    setPickedStock(stockPhotos[next]);
   }
 
   /** "I'd like to meet people to play games." — what steps 1 and 2 add up
@@ -926,6 +937,7 @@ export function IdeaForm({
               onChange={(url) => {
                 setPhotoUrl(url);
                 setPhotoIndex(-1); // an upload isn't in the pool
+                setPickedStock(null); // your own photo needs no credit line
               }}
               compact
               label="Upload or drag a photo here"
@@ -1230,6 +1242,19 @@ export function IdeaForm({
             <input type="hidden" name="help" value={help} />
             <input type="hidden" name="reach" value={reach} />
             <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
+            {/* Unsplash requires photographer credit wherever the photo is
+                displayed — the credit rides with the post (0039). Empty for
+                uploads: your own picture needs no credit line. */}
+            <input
+              type="hidden"
+              name="photoCreditName"
+              value={pickedStock?.photographer ?? ""}
+            />
+            <input
+              type="hidden"
+              name="photoCreditUrl"
+              value={pickedStock?.photographerUrl ?? ""}
+            />
             <input type="hidden" name="lat" value={loc?.lat ?? ""} />
             <input type="hidden" name="lng" value={loc?.lng ?? ""} />
             <button
@@ -1244,9 +1269,12 @@ export function IdeaForm({
               onSubmitting={() => {
                 // Unsplash counts a "download" when a photo is actually
                 // used. Firing this while someone flips through covers
-                // would spend the hourly quota on photos never posted.
-                const chosen = stockPhotos.find((p) => p.url === photoUrl);
-                if (chosen) trackStockPhotoUse(chosen);
+                // would spend the hourly quota on photos never posted —
+                // and pickedStock (not a pool lookup) survives the pool
+                // reshuffling underneath us.
+                if (pickedStock && photoUrl === pickedStock.url) {
+                  trackStockPhotoUse(pickedStock);
+                }
               }}
               className={`rounded-full px-7 py-3 text-base font-medium text-white transition-colors ${accent.solid}`}
             >
