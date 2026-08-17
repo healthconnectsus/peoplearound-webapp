@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Demo neighbor avatar">
+  <defs><clipPath id="c"><circle cx="32" cy="32" r="32"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <rect width="64" height="64" fill="#fce7f3"/>
+    <path d="M32 44c12 0 22 9 22 20v4H10v-4c0-11 10-20 22-20z" fill="#b91c1c"/>
+    <rect x="27" y="37" width="10" height="10" rx="4" fill="#e0ac69"/>
+    <ellipse cx="32" cy="26" rx="15" ry="17" fill="#e0ac69"/>
+    
+    <path d="M17 26c0-10 6-17 15-17s15 7 15 17c0 0-4-7-15-7s-15 7-15 7z" fill="#4b2e1e"/>
+    <circle cx="26.5" cy="26" r="2" fill="#1f2937"/>
+    <circle cx="37.5" cy="26" r="2" fill="#1f2937"/>
+    <path d="M27 33c1.8 2.2 8.2 2.2 10 0" stroke="#1f2937" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>
