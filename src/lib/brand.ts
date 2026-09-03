@@ -20,7 +20,7 @@
  * tried first and read as "close to the logo" rather than as the logo. What
  * changes instead is the label: white on #3b7fda is only 4.01:1, so these
  * buttons carry near-black text of their own hue, the way the amber "I need
- * a favor" button already does. That lands at 4.95:1 (teal) and 5.23:1
+ * a favor" button already does. That lands at 4.53:1 (blue) and 5.23:1
  * (fuchsia), both clear of WCAG AA.
  *
  * Hover therefore goes *lighter*, not darker: with dark text, a darker fill
@@ -42,8 +42,8 @@ export const BRAND_MARK = {
 export const BRAND_BUTTON = {
   people: "bg-[#c50000] text-white hover:bg-[#d81212]",
   events: "bg-[#ffa406] text-[#3a2300] hover:bg-[#ffb733]",
-  offers: "bg-[#87d400] text-[#1f3100] hover:bg-[#9ae01f]",
-  projects: "bg-[#00a2ca] text-[#032c36] hover:bg-[#1ab5dc]",
+  offers: "bg-[#04b495] text-[#013f34] hover:bg-[#0dd9b5]",
+  projects: "bg-[#3b7fda] text-[#0a1625] hover:bg-[#4c9bff]",
   faves: "bg-[#af00f8] text-white hover:bg-[#bd26ff]",
   community: "bg-[#ff00ae] text-[#2b001d] hover:bg-[#ff33be]",
 } as const;
