@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Logo v7.1: unify light-mode neutrals - PA mark and 'around' both #5e6a6f (was #435055 / #929fa4, the latter only 2.7:1 on white); favicon + PWA icons regenerated; dark mode unchanged
+
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-09-03 — Signed-out logo: bigger again
 
 - `src/app/login/page.tsx`
