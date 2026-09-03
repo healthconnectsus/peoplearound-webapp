@@ -8,7 +8,7 @@
  *
  *   p  People around      #c50000
  *   e  Events             #ffa406
- *   o  Offers             #04b495   ← teal
+ *   o  Offers             #87d400   ← lime
  *   p  Projects           #3b7fda   ← blue
  *   l  Local Faves        #af00f8
  *   e  Explore/community  #ff00ae   ← fuchsia
@@ -35,7 +35,7 @@
 export const BRAND_MARK = {
   people: "#c50000",
   events: "#ffa406",
-  offers: "#04b495",
+  offers: "#87d400",
   projects: "#3b7fda",
   faves: "#af00f8",
   community: "#ff00ae",
@@ -44,7 +44,7 @@ export const BRAND_MARK = {
 export const BRAND_BUTTON = {
   people: "bg-[#c50000] text-white hover:bg-[#a80000]",
   events: "bg-[#ffa406] text-[#3a2300] hover:bg-[#ffb733]",
-  offers: "bg-[#04b495] text-[#013f34] hover:bg-[#0dd9b5]",
+  offers: "bg-[#87d400] text-[#1f3100] hover:bg-[#9ae01f]",
   projects: "bg-[#3b7fda] text-white hover:bg-[#3573c9]",
   faves: "bg-[#af00f8] text-white hover:bg-[#9500d4]",
   community: "bg-[#ff00ae] text-[#2b001d] hover:bg-[#ff33be]",

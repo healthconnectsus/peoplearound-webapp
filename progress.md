@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Palette v7.6: 'o' back to lime #87d400 (Offers) by request; Projects stays blue #3b7fda; brand.ts mark, button and doc follow
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/lib/brand.ts`
+
+
 ### 2026-09-03 — White label on the project blue; favors and small help take #12967f
 
 - `src/components/FeedComposer.tsx`
