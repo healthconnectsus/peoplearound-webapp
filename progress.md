@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Drop the tagline under the logo; bigger logo on the signed-out page and footer
+
+- `src/app/login/page.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-09-03 — Logo v7: adopt the hand-designed PA heart lockup - traced the raster P to vector (98.7% IoU, no bitmap left), rebuilt light/dark/adaptive SVGs, new favicon + PWA icons from the mark, header sizes bumped for the stacked two-line lockup; old generator marked superseded
 
 - `public/apple-icon.png`

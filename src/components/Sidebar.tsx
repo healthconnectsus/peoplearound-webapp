@@ -109,14 +109,6 @@ export function Sidebar({
       <Link href="/" className="block px-1 py-1">
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
         <img src="/logo.svg" alt="Peoplearound" className="h-auto w-full" />
-        {/* The brand promise in five words: warm, plural, action-first
-            (MARKETING.md). It sits under the wordmark, not inside it, so the
-            logo stays a logo. */}
-        {/* Sized to sit on one line under the wordmark: a tagline that
-            wraps stops being a tagline. */}
-        <span className="mt-1 block whitespace-nowrap px-0.5 text-[12px] font-semibold tracking-tight text-black/45 dark:text-white/45">
-          Do something with people around you.
-        </span>
       </Link>
 
       <div className="relative flex min-h-0 flex-1 flex-col">
