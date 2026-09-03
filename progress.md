@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Signed-out logo: bigger again
+
+- `src/app/login/page.tsx`
+
+
 ### 2026-09-03 — Drop the tagline under the logo; bigger logo on the signed-out page and footer
 
 - `src/app/login/page.tsx`
