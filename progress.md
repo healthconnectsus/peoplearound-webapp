@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Logo v8.2: scale the heart to the height of the two words measured without the 'l' ascender (187 to 164 units, 88%), vertically centred on that band and the wordmark pulled in to close the gap
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+
+
 ### 2026-09-03 — Logo v8.1: fourth letter back to blue #3b7fda so the two p's sit 45 degrees apart instead of 23; brand.ts People rail synced to the wordmark's teal #04b495 with a dark same-hue label at AA
 
 - `public/logo-dark.svg`
