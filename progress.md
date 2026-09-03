@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — White label on the project blue; favors and small help take #12967f
+
+- `src/components/FeedComposer.tsx`
+- `src/components/Sidebar.tsx`
+- `src/lib/brand.ts`
+
+
 ### 2026-09-03 — Palette v7.5: 'o' to brand teal #04b495 (Offers) and 'p' to blue #3b7fda (Projects) - keeps a 45-degree hue gap between the adjacent rails; brand.ts marks, dark-label buttons and doc updated to match
 
 - `public/logo-dark.svg`

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BRAND_BUTTON } from "@/lib/brand";
+import { BRAND_BUTTON, HELP_BUTTON } from "@/lib/brand";
 import {
   UsersRound,
   HandHelping,
@@ -86,7 +86,7 @@ export function FeedComposer() {
         </Link>
         <Link
           href="/people?compose=1#asks"
-          className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
+          className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${HELP_BUTTON}`}
         >
           <HandHelping className="h-4 w-4" strokeWidth={2} aria-hidden />
           I need a favor
