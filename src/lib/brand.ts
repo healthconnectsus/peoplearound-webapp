@@ -8,8 +8,8 @@
  *
  *   p  People around      #c50000
  *   e  Events             #ffa406
- *   o  Offers             #87d400
- *   p  Projects           #00a2ca   ← teal
+ *   o  Offers             #04b495   ← teal
+ *   p  Projects           #3b7fda   ← blue
  *   l  Local Faves        #af00f8
  *   e  Explore/community  #ff00ae   ← fuchsia
  *
@@ -18,7 +18,7 @@
  *
  * BUTTON fills use that same exact colour — a darkened approximation was
  * tried first and read as "close to the logo" rather than as the logo. What
- * changes instead is the label: white on #00a2ca is only 2.99:1, so these
+ * changes instead is the label: white on #3b7fda is only 4.01:1, so these
  * buttons carry near-black text of their own hue, the way the amber "I need
  * a favor" button already does. That lands at 4.95:1 (teal) and 5.23:1
  * (fuchsia), both clear of WCAG AA.
@@ -33,8 +33,8 @@
 export const BRAND_MARK = {
   people: "#c50000",
   events: "#ffa406",
-  offers: "#87d400",
-  projects: "#00a2ca",
+  offers: "#04b495",
+  projects: "#3b7fda",
   faves: "#af00f8",
   community: "#ff00ae",
 } as const;
