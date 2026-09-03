@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Help buttons join the wordmark green
+
+- `src/lib/brand.ts`
+
+
 ### 2026-09-03 — Green buttons take the wordmark's o: one token, dark ink, deep shade where white is needed
 
 - `src/app/analytics/page.tsx`

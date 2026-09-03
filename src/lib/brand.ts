@@ -51,9 +51,14 @@ export const BRAND_BUTTON = {
 } as const;
 
 /**
- * Asking for a hand is its own act, not a lesser project — so it carries its
- * own colour rather than a dimmer version of the project teal.
+ * Asking for a hand takes the wordmark's green — the same one every other
+ * green button carries, defined as tokens in globals.css so the letter and
+ * the buttons can never drift apart.
+ *
+ * Dark ink, not white: white on this green is 1.83:1 and unreadable, while
+ * #1f3100 lands at 7.64:1.
  */
-export const HELP_BUTTON = "bg-[#12967f] text-white hover:bg-[#0f7f6b]";
+export const HELP_BUTTON =
+  "bg-pa-green text-pa-green-ink hover:bg-pa-green-hover";
 
 export type BrandKey = keyof typeof BRAND_MARK;
