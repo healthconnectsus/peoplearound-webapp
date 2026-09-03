@@ -44,7 +44,7 @@ export const BRAND_MARK = {
 export const BRAND_BUTTON = {
   people: "bg-[#c50000] text-white hover:bg-[#a80000]",
   events: "bg-[#ffa406] text-[#3a2300] hover:bg-[#ffb733]",
-  offers: "bg-[#87d400] text-[#1f3100] hover:bg-[#9ae01f]",
+  offers: "bg-pa-green text-pa-green-ink hover:bg-pa-green-hover",
   projects: "bg-[#3b7fda] text-white hover:bg-[#3573c9]",
   faves: "bg-[#af00f8] text-white hover:bg-[#9500d4]",
   community: "bg-[#ff00ae] text-[#2b001d] hover:bg-[#ff33be]",

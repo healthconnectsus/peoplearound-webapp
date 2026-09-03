@@ -236,15 +236,15 @@ const INTENTS: {
     categories: ["community", "outdoors", "arts", "learning", "giving", "events", "other"],
     placeholder: "e.g. “the empty lot near the bakery could be a garden…”",
     tint: {
-      front: "bg-gradient-to-br from-[#5c9200] to-[#3d5f00]",
+      front: "bg-gradient-to-br from-[#4f7d00] to-[#3d5f00]",
       iconBox: "bg-white/20",
       icon: "text-white",
       back: "bg-pa-green-deeper",
       headline: "text-emerald-600 dark:text-emerald-400",
-      solid: "bg-pa-green-deep hover:bg-pa-green-deeper",
+      solid: "bg-pa-green hover:bg-pa-green-hover",
       ring: "ring-emerald-500",
       checked: "has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-950/40",
-      chip: "peer-checked:border-pa-green-deep peer-checked:bg-pa-green-deep peer-focus-visible:ring-emerald-500/50",
+      chip: "peer-checked:border-pa-green peer-checked:bg-pa-green peer-focus-visible:ring-emerald-500/50",
     },
     example: {
       title: "Community garden",

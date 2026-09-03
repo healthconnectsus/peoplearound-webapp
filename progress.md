@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Darken the green so its label can be white
+
+- `src/app/globals.css`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/TagFilter.tsx`
+- `src/lib/brand.ts`
+
+
 ### 2026-09-03 — Help buttons join the wordmark green
 
 - `src/lib/brand.ts`
