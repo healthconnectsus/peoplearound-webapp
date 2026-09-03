@@ -484,7 +484,7 @@ export default async function PeoplePage({
                         <span className="font-medium">{communityLabel(c)}</span>
                         <KindBadge kind={c.kind} />
                         {c.id === primaryId ? (
-                          <span className="flex items-center gap-1 rounded-lg bg-emerald-600 px-2 py-0.5 text-[11px] font-medium text-white">
+                          <span className="flex items-center gap-1 rounded-lg bg-pa-green px-2 py-0.5 text-[11px] font-medium text-pa-green-ink">
                             <Star className="h-3 w-3" aria-hidden /> Primary
                           </span>
                         ) : null}
@@ -546,7 +546,7 @@ export default async function PeoplePage({
                         <input type="hidden" name="communityId" value={c.id} />
                         <button
                           type="submit"
-                          className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                          className="rounded-lg bg-pa-green px-4 py-1.5 text-xs font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
                         >
                           Join
                         </button>

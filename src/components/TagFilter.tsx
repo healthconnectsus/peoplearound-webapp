@@ -109,7 +109,7 @@ export function TagFilter({
                         aria-hidden
                         className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                           checked
-                            ? "border-emerald-600 bg-emerald-600 text-white"
+                            ? "border-pa-green-deep bg-pa-green text-pa-green-ink"
                             : "border-slate-400 dark:border-slate-500"
                         }`}
                       >

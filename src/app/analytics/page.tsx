@@ -295,7 +295,7 @@ export default async function AnalyticsPage() {
               label="👥 On the team"
               value={totalTeam}
               max={totalViews}
-              color="bg-emerald-600"
+              color="bg-pa-green"
             />
             <FunnelBar
               label="🙌 Helped (confirmed)"
@@ -328,7 +328,7 @@ export default async function AnalyticsPage() {
                     <span
                       key={d.label}
                       title={`${d.label}: ${d.value} view${d.value === 1 ? "" : "s"}`}
-                      className="flex-1 rounded-t bg-emerald-500/80 transition-colors hover:bg-emerald-600"
+                      className="flex-1 rounded-t bg-emerald-500/80 transition-colors hover:bg-pa-green"
                       style={{
                         height: `${Math.max((d.value / peak) * 100, d.value > 0 ? 8 : 2)}%`,
                       }}

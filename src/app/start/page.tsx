@@ -111,7 +111,7 @@ export default function StartClubPage() {
             </Link>
             <Link
               href="/login"
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="rounded-lg bg-pa-green px-4 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
             >
               Sign up
             </Link>
@@ -130,7 +130,7 @@ export default function StartClubPage() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/projects/new"
-              className="rounded-lg bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="rounded-lg bg-pa-green px-6 py-3 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
             >
               Start your club — it&apos;s free
             </Link>
@@ -209,7 +209,7 @@ export default function StartClubPage() {
                     >
                       <span
                         aria-hidden
-                        className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600"
+                        className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pa-green"
                       />
                       {item}
                     </li>
@@ -275,7 +275,7 @@ export default function StartClubPage() {
           </h2>
           <Link
             href="/projects/new"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-pa-green px-7 py-3 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
           >
             <HeartHandshake className="h-4 w-4" aria-hidden />
             Start your club

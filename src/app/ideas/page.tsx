@@ -130,7 +130,7 @@ export default async function IdeasPage() {
                 </p>
                 <Link
                   href="/projects/new"
-                  className="mt-4 inline-block rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                  className="mt-4 inline-block rounded-lg bg-pa-green px-6 py-2.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
                 >
                   Share your first idea
                 </Link>

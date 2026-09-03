@@ -7,6 +7,36 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Green buttons take the wordmark's o: one token, dark ink, deep shade where white is needed
+
+- `src/app/analytics/page.tsx`
+- `src/app/chats/Composer.tsx`
+- `src/app/chats/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/explore/page.tsx`
+- `src/app/globals.css`
+- `src/app/ideas/page.tsx`
+- `src/app/login/page.tsx`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/people/NewCommunityDialog.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/LocationCard.tsx`
+- `src/app/projects/[id]/UpdateComposer.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/settings/page.tsx`
+- `src/app/start/page.tsx`
+- `src/components/AsksSection.tsx`
+- `src/components/BadgeCelebration.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/InstallPrompt.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/components/PlaybookList.tsx`
+- `src/components/PushToggle.tsx`
+- `src/components/TagFilter.tsx`
+
+
 ### 2026-09-03 — Palette v7.6: 'o' back to lime #87d400 (Offers) by request; Projects stays blue #3b7fda; brand.ts mark, button and doc follow
 
 - `public/logo-dark.svg`

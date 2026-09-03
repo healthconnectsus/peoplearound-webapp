@@ -95,7 +95,7 @@ export default async function LoginPage({
             </a>
             <a
               href="#join"
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="rounded-lg bg-pa-green px-4 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
             >
               Sign up
             </a>
@@ -148,7 +148,7 @@ export default async function LoginPage({
                   ) : null}
                   <button
                     formAction={signIn}
-                    className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                    className="rounded-lg bg-pa-green px-4 py-2.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
                   >
                     Continue
                   </button>
@@ -257,7 +257,7 @@ export default async function LoginPage({
           <div className="mt-6 text-center">
             <a
               href="#join"
-              className="inline-block rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="inline-block rounded-lg bg-pa-green px-6 py-2.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
             >
               Join and share yours
             </a>
@@ -308,7 +308,7 @@ export default async function LoginPage({
           </h2>
           <a
             href="#join"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-pa-green px-7 py-3 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
           >
             <HeartHandshake className="h-4 w-4" aria-hidden />
             Join Peoplearound

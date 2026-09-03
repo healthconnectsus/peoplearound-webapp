@@ -47,7 +47,7 @@ export function LocationCard({
               <button
                 type="submit"
                 disabled={!spot || !changed}
-                className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                className="rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover disabled:opacity-50"
               >
                 Save my spot
               </button>

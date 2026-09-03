@@ -115,7 +115,7 @@ export default async function ConnectionsPage() {
             </p>
             <Link
               href="/"
-              className="mt-5 inline-block rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              className="mt-5 inline-block rounded-lg bg-pa-green px-6 py-2.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
             >
               Browse projects
             </Link>

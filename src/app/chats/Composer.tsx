@@ -41,7 +41,7 @@ export function Composer({
       <SubmitButton
         aria-label="Send"
         pendingLabel="…"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white transition-colors hover:bg-emerald-700"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pa-green text-pa-green-ink transition-colors hover:bg-pa-green-hover"
       >
         <SendHorizontal className="h-4 w-4" aria-hidden />
       </SubmitButton>

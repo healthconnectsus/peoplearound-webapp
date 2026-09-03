@@ -720,7 +720,7 @@ export default async function ExplorePage({
                           <input type="hidden" name="returnTo" value="/explore" />
                           <button
                             type="submit"
-                            className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                            className="rounded-lg bg-pa-green px-4 py-1.5 text-xs font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
                           >
                             Join
                           </button>

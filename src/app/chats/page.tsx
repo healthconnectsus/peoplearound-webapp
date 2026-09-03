@@ -236,7 +236,7 @@ export default async function ChatsPage({
                         ) : null}
                       </span>
                       {c.unread ? (
-                        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-600" />
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-pa-green" />
                       ) : null}
                     </Link>
                   </li>
@@ -283,7 +283,7 @@ export default async function ChatsPage({
                       key={m.id}
                       className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
                         m.sender_id === user.id
-                          ? "self-end rounded-br-md bg-emerald-600 text-white"
+                          ? "self-end rounded-br-md bg-pa-green text-pa-green-ink"
                           : "self-start rounded-bl-md bg-stone-100 dark:bg-zinc-800"
                       }`}
                     >

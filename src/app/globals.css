@@ -10,6 +10,20 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-roboto);
   --font-mono: var(--font-geist-mono);
+
+  /* The wordmark's "o" — the app's primary green, defined once so that
+     changing the logo changes every solid green button with it. The ink is
+     dark rather than white on purpose: white on this green measures 1.83:1
+     and is unreadable, while #1f3100 lands at 7.64:1. */
+  --color-pa-green: #87d400;
+  --color-pa-green-hover: #9ae01f;
+  --color-pa-green-ink: #1f3100;
+
+  /* Same hue, dark enough for white text (5.61:1) — used where a surface
+     carries a white icon or label it can't darken, like the composer's
+     icon tiles and the wizard's accent. */
+  --color-pa-green-deep: #4a7300;
+  --color-pa-green-deeper: #3d5f00;
 }
 
 @media (prefers-color-scheme: dark) {

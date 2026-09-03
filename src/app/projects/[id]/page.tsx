@@ -378,7 +378,7 @@ export default async function ProjectDetail({
       </div>
       <SubmitButton
         pendingLabel="Creating…"
-        className="mt-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+        className="mt-2 rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
       >
         Create event
       </SubmitButton>
@@ -598,7 +598,7 @@ export default async function ProjectDetail({
               <input type="hidden" name="projectId" value={project.id} />
               <button
                 type="submit"
-                className="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                className="rounded-lg bg-pa-green px-4 py-1.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
               >
                 🤝 Ask to join
               </button>
@@ -681,7 +681,7 @@ export default async function ProjectDetail({
                       <input type="hidden" name="decision" value="accept" />
                       <button
                         type="submit"
-                        className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                        className="rounded-lg bg-pa-green px-4 py-1.5 text-xs font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
                       >
                         ✓ Accept
                       </button>
@@ -1096,7 +1096,7 @@ export default async function ProjectDetail({
                               />
                               <button
                                 type="submit"
-                                className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                                className="rounded-lg bg-pa-green px-4 py-1.5 text-xs font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
                               >
                                 ✓ Yes, this helped
                               </button>
@@ -1219,7 +1219,7 @@ export default async function ProjectDetail({
 
               <SubmitButton
                 pendingLabel="Adding…"
-                className="mt-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                className="mt-2 rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
               >
                 Add to the record
               </SubmitButton>

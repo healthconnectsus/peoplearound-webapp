@@ -150,7 +150,7 @@ export function BadgeCelebration({
         <button
           type="button"
           onClick={dismiss}
-          className="mt-6 w-full rounded-lg bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+          className="mt-6 w-full rounded-lg bg-pa-green px-6 py-3 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
         >
           {idx + 1 < queue.length ? "Next badge →" : "Continue"}
         </button>
