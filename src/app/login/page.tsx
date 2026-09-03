@@ -85,7 +85,7 @@ export default async function LoginPage({
 
         <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
-          <img src="/logo-dark.svg" alt="Peoplearound" className="h-7 w-auto" />
+          <img src="/logo-dark.svg" alt="Peoplearound" className="h-10 w-auto" />
           <nav className="flex items-center gap-2">
             <a
               href="#join"
@@ -321,7 +321,7 @@ export default async function LoginPage({
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
-            <img src="/logo.svg" alt="Peoplearound" className="h-6 w-auto" />
+            <img src="/logo.svg" alt="Peoplearound" className="h-8 w-auto" />
             <p className="mt-2 max-w-xs text-sm italic text-black/50 dark:text-white/50">
               Do something with people around you.
             </p>

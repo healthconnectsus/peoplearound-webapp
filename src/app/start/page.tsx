@@ -100,7 +100,7 @@ export default function StartClubPage() {
         <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
           <Link href="/">
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
-            <img src="/logo-dark.svg" alt="Peoplearound" className="h-7 w-auto" />
+            <img src="/logo-dark.svg" alt="Peoplearound" className="h-10 w-auto" />
           </Link>
           <nav className="flex items-center gap-2">
             <Link

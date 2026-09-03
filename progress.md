@@ -7,6 +7,21 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Logo v7: adopt the hand-designed PA heart lockup - traced the raster P to vector (98.7% IoU, no bitmap left), rebuilt light/dark/adaptive SVGs, new favicon + PWA icons from the mark, header sizes bumped for the stacked two-line lockup; old generator marked superseded
+
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `scripts/gen-logo.mjs`
+- `src/app/icon.svg`
+- `src/app/login/page.tsx`
+- `src/app/start/page.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-08-17 — Basemap config: set a Mapbox token, pick a style by name
 
 - `.env.example`
