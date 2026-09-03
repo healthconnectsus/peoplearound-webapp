@@ -6,7 +6,7 @@
  * hue of the rail they belong to, so "start a project" and the Projects
  * letter are visibly the same idea.
  *
- *   p  People around      #c50000
+ *   p  People around      #04b495   ← teal
  *   e  Events             #ffa406
  *   o  Offers             #87d400   ← lime
  *   p  Projects           #3b7fda   ← blue
@@ -33,7 +33,7 @@
  */
 
 export const BRAND_MARK = {
-  people: "#c50000",
+  people: "#04b495",
   events: "#ffa406",
   offers: "#87d400",
   projects: "#3b7fda",
@@ -42,7 +42,7 @@ export const BRAND_MARK = {
 } as const;
 
 export const BRAND_BUTTON = {
-  people: "bg-[#c50000] text-white hover:bg-[#a80000]",
+  people: "bg-[#04b495] text-[#013f34] hover:bg-[#0dd9b5]",
   events: "bg-[#ffa406] text-[#3a2300] hover:bg-[#ffb733]",
   offers: "bg-pa-green text-pa-green-ink hover:bg-pa-green-hover",
   projects: "bg-[#3b7fda] text-white hover:bg-[#3573c9]",

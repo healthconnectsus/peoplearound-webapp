@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Logo v8.1: fourth letter back to blue #3b7fda so the two p's sit 45 degrees apart instead of 23; brand.ts People rail synced to the wordmark's teal #04b495 with a dark same-hue label at AA
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/lib/brand.ts`
+
+
 ### 2026-09-03 — Logo v8: new hand-designed export - red heart mark (now fully vector, no raster P), teal first 'p' with a long descender that connects into 'around', grey #5e6a6f wordline; icon is a white heart on a red tile; PWA icons regenerated
 
 - `public/apple-icon.png`
