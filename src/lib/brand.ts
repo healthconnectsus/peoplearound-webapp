@@ -16,12 +16,17 @@
  * MARK is the exact letter colour, for icons and small marks that carry no
  * text.
  *
- * BUTTON fills are that hue darkened until white text on them clears WCAG AA
- * (4.5:1). The raw letters don't: white on #00a2ca measures 2.99:1 and on
- * #ff00ae 3.58:1 — unreadable as button fills. The darkened versions measure
- * 4.95:1 and 5.11:1 while staying recognisably the same colour.
+ * BUTTON fills use that same exact colour — a darkened approximation was
+ * tried first and read as "close to the logo" rather than as the logo. What
+ * changes instead is the label: white on #00a2ca is only 2.99:1, so these
+ * buttons carry near-black text of their own hue, the way the amber "I need
+ * a favor" button already does. That lands at 4.95:1 (teal) and 5.23:1
+ * (fuchsia), both clear of WCAG AA.
  *
- * Both are literal strings: Tailwind's scanner reads source text, so a class
+ * Hover therefore goes *lighter*, not darker: with dark text, a darker fill
+ * would squeeze the contrast rather than open it.
+ *
+ * All literal strings: Tailwind's scanner reads source text, so a class
  * assembled at runtime never reaches the stylesheet.
  */
 
@@ -35,12 +40,12 @@ export const BRAND_MARK = {
 } as const;
 
 export const BRAND_BUTTON = {
-  people: "bg-[#a80000] hover:bg-[#8d0000]",
-  events: "bg-[#8a5600] hover:bg-[#734700]",
-  offers: "bg-[#4a7300] hover:bg-[#3d5f00]",
-  projects: "bg-[#007a99] hover:bg-[#00647f]",
-  faves: "bg-[#8f00cb] hover:bg-[#7800aa]",
-  community: "bg-[#d1008f] hover:bg-[#b0007a]",
+  people: "bg-[#c50000] text-white hover:bg-[#d81212]",
+  events: "bg-[#ffa406] text-[#3a2300] hover:bg-[#ffb733]",
+  offers: "bg-[#87d400] text-[#1f3100] hover:bg-[#9ae01f]",
+  projects: "bg-[#00a2ca] text-[#032c36] hover:bg-[#1ab5dc]",
+  faves: "bg-[#af00f8] text-white hover:bg-[#bd26ff]",
+  community: "bg-[#ff00ae] text-[#2b001d] hover:bg-[#ff33be]",
 } as const;
 
 export type BrandKey = keyof typeof BRAND_MARK;

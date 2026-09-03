@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Use the wordmark's exact teal and fuchsia; dark labels keep them legible
+
+- `src/app/invite/CopyLinkButton.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+- `src/lib/brand.ts`
+
+
 ### 2026-09-03 — Brand hues: project actions take the wordmark's teal P, invite takes the fuchsia E
 
 - `src/app/invite/CopyLinkButton.tsx`

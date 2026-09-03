@@ -12,7 +12,7 @@ export function SiteHeader() {
       <nav className="flex items-center gap-2">
         <Link
           href="/projects/new"
-          className={`rounded-lg px-4 py-1.5 text-sm font-medium text-white transition-colors ${BRAND_BUTTON.projects}`}
+          className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${BRAND_BUTTON.projects}`}
         >
           + Start something with people
         </Link>
