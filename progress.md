@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Favicon v7.4: mark enlarged to 115% of the tile, bleeding off the edges (clipped to the rounded tile); PWA icons regenerated
+
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `src/app/icon.svg`
+- `src/lib/brand.ts`
+
+
 ### 2026-09-03 — Logo v7.3: one brand neutral - PA mark and 'around' both #4c575c in light mode (matches the favicon tile); dark mode unchanged
 
 - `public/logo-light.svg`
