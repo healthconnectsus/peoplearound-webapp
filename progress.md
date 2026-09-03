@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Logo v8: new hand-designed export - red heart mark (now fully vector, no raster P), teal first 'p' with a long descender that connects into 'around', grey #5e6a6f wordline; icon is a white heart on a red tile; PWA icons regenerated
+
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-09-03 — Darken the green so its label can be white
 
 - `src/app/globals.css`
