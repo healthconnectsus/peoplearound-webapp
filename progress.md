@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Logo v7.3: one brand neutral - PA mark and 'around' both #4c575c in light mode (matches the favicon tile); dark mode unchanged
+
+- `public/logo-light.svg`
+- `public/logo.svg`
+
+
 ### 2026-09-03 — Logo v7.2: two-tone neutrals - PA mark darker (#4c575c), 'around' lighter (#6a767b, kept >=4.5:1); favicon rebuilt as filled slate tile with white heart at 78% (white tile was invisible on light tab bars); PWA icons regenerated
 
 - `public/apple-icon.png`
