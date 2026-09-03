@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BRAND_BUTTON } from "@/lib/brand";
 import type { CSSProperties } from "react";
 import {
   Compass,
@@ -182,7 +183,7 @@ export function Sidebar({
       <div className="mt-5 flex flex-col gap-2">
         <Link
           href="/projects/new"
-          className="flex items-center gap-2.5 rounded-lg bg-emerald-600 px-4 py-2.5 text-[15px] font-medium text-white transition-colors hover:bg-emerald-700"
+          className={`flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[15px] font-medium text-white transition-colors ${BRAND_BUTTON.projects}`}
         >
           <UsersRound className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
           Start something with people

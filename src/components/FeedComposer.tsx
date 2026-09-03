@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { BRAND_BUTTON } from "@/lib/brand";
 import {
   UsersRound,
   HandHelping,
@@ -78,7 +79,7 @@ export function FeedComposer() {
         </button>
         <Link
           href="/projects/new"
-          className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+          className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors ${BRAND_BUTTON.projects}`}
         >
           <UsersRound className="h-4 w-4" strokeWidth={2} aria-hidden />
           Let&rsquo;s do something

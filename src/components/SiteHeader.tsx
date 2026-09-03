@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signOut } from "@/app/login/actions";
+import { BRAND_BUTTON } from "@/lib/brand";
 
 export function SiteHeader() {
   return (
@@ -11,7 +12,7 @@ export function SiteHeader() {
       <nav className="flex items-center gap-2">
         <Link
           href="/projects/new"
-          className="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+          className={`rounded-lg px-4 py-1.5 text-sm font-medium text-white transition-colors ${BRAND_BUTTON.projects}`}
         >
           + Start something with people
         </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BRAND_BUTTON } from "@/lib/brand";
 
 /**
  * Copies the user's PERSONAL invite link (?via=<id>) — sign-ups through it
@@ -27,7 +28,7 @@ export function CopyLinkButton({ userId }: { userId?: string }) {
     <button
       type="button"
       onClick={copy}
-      className="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+      className={`rounded-lg px-6 py-2.5 text-sm font-medium text-white transition-colors ${BRAND_BUTTON.community}`}
     >
       {copied ? "✓ Link copied" : "Copy invite link"}
     </button>

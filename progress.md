@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-03 — Brand hues: project actions take the wordmark's teal P, invite takes the fuchsia E
+
+- `src/app/invite/CopyLinkButton.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+
+
 ### 2026-09-03 — Favicon v7.4: mark enlarged to 115% of the tile, bleeding off the edges (clipped to the rounded tile); PWA icons regenerated
 
 - `public/apple-icon.png`
