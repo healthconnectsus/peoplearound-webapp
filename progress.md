@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-04 — Accessibility: skip link and a visible focus ring everywhere
+
+- `.claude/launch.json`
+- `src/app/globals.css`
+- `src/components/AppShell.tsx`
+
+
 ### 2026-09-04 — Download-my-data endpoint and a privacy page that matches the code
 
 - `src/app/api/export-my-data/route.ts`

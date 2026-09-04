@@ -27,11 +27,21 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen lg:flex lg:pl-3 xl:pl-6">
+      {/* First thing in the tab order: without it, reaching the feed by
+          keyboard means tabbing through all eleven rail links, on every
+          page load. */}
+      <a href="#content" className="skip-link">
+        Skip to content
+      </a>
       <Sidebar counts={counts} isAdmin={isAdmin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader />
         <TopBar />
-        {children}
+        {/* Layout-neutral: it inherits the flex behaviour the pages
+            already relied on as direct children. */}
+        <div id="content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col">
+          {children}
+        </div>
       </div>
     </div>
   );

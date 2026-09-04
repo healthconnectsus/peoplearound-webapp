@@ -39,6 +39,51 @@ body {
 }
 
 /* ------------------------------------------------------------------
+   Keyboard focus, once, for everything.
+
+   Nothing in the app strips the default outline, but the browser default
+   is a thin ring that disappears against a coloured button — and on a
+   product whose primary actions are saturated green and blue, "where am I"
+   was a guess. This draws the same two-tone ring on every focusable thing:
+   a dark line with a white halo, so it survives on light backgrounds, dark
+   backgrounds, photos and brand fills alike.
+
+   :focus-visible, not :focus — mouse clicks stay quiet, keyboard and
+   assistive navigation get the ring.
+   ------------------------------------------------------------------ */
+:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 2px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :focus-visible {
+    outline-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* The skip link: off-screen until focused, then pinned top-left. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 2000;
+}
+.skip-link:focus-visible {
+  left: 0.75rem;
+  top: 0.75rem;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* ------------------------------------------------------------------
    The rail's labels ease between weights.
 
    `font-weight` cannot be animated between two static faces — the browser
