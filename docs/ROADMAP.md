@@ -61,8 +61,10 @@ Enrich the proven loop and broaden within the same neighborhood.
 
 **Shipped so far (Tier 2 of [FEATURE_IDEAS](FEATURE_IDEAS.md), 2026-08):** offers
 board · AI Gardener phase 2 · reputation & skills · co-organizer role ·
-playbooks · neighborhood milestones + `/recap` · PWA install + Web Push.
-Remaining in Phase 1: the private impact score.
+playbooks · neighborhood milestones + `/recap` · PWA install + Web Push ·
+the private impact score (`lib/impact.ts`, shown on `/analytics`).
+
+**Phase 1 software is complete.** What remains is the pilot itself.
 
 ## Phase 2 — Template and expand
 

@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-04 — Docs: roadmap and backlog reflect what actually shipped
+
+- `docs/FEATURE_IDEAS.md`
+- `docs/ROADMAP.md`
+
+
 ### 2026-09-04 — Accessibility: skip link and a visible focus ring everywhere
 
 - `.claude/launch.json`

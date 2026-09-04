@@ -100,10 +100,20 @@ ones at the bottom so they stay rejected.*
     landing page teaser, city-sized. *(M)*
 18. **Embeddable widget** — "ideas near you" iframe for library/city/school
     sites; every embed is a frontier funnel. *(M)*
-19. **Data export & privacy page** — download-my-data, clear ToS/privacy
-    (needed before any press moment). *(S)*
-20. **Accessibility pass** — keyboard flows, focus states, contrast audit,
-    reduced-motion for confetti. *(M)*
+19. ~~**Data export & privacy page**~~ ✅ *shipped 2026-09* —
+    `/api/export-my-data` returns every row the account owns as one JSON
+    file, read through the caller's own session so RLS decides what comes
+    out; `/privacy` is public (readable before you sign up) and describes
+    what the code actually does, including where it *doesn't* protect you.
+    Both linked from the profile page, the rail and the public footer.
+    *(Remaining: formal terms of service — a lawyer's job, not a
+    developer's.)*
+20. **Accessibility pass** — *partly shipped 2026-09*: a skip-to-content
+    link (the rail was eleven tabs deep on every page), one visible
+    `:focus-visible` ring app-wide (dark line + white halo, so it survives
+    on brand fills and photos), and reduced-motion honoured. *(Remaining:
+    a full screen-reader pass over the wizard and the map, and colour
+    contrast on the pale status badges.)*
 
 ## Rejected (recorded so they stay rejected)
 
