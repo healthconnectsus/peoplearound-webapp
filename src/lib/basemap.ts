@@ -30,7 +30,24 @@ export const MAP_STYLES = {
   "satellite-streets-v12": "Aerial imagery with street labels over it",
 } as const;
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
+/**
+ * Accept a token however it was pasted.
+ *
+ * This variable has twice been set to the whole tile URL instead of the
+ * token — an easy mistake, and a silent one: the composed URL ends
+ * `?access_token=https://api.mapbox.com/...`, Mapbox answers 401, and the
+ * map goes blank with nothing in the console explaining why. If the value
+ * looks like a URL, take the token out of it rather than shipping a map
+ * that cannot load.
+ */
+function readToken(raw: string): string {
+  const v = raw.trim();
+  if (v.startsWith("pk.")) return v;
+  const inUrl = v.match(/access_token=(pk\.[A-Za-z0-9._-]+)/);
+  return inUrl ? inUrl[1] : "";
+}
+
+const MAPBOX_TOKEN = readToken(process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "");
 const MAPBOX_STYLE = process.env.NEXT_PUBLIC_MAP_STYLE || "streets-v12";
 
 const MAPBOX_ATTRIBUTION =
@@ -39,8 +56,12 @@ const OSM_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
+/** A bare token here is the same mistake, mirrored — ignore it. */
+const RAW_TILE_URL = (process.env.NEXT_PUBLIC_MAP_TILE_URL ?? "").trim();
+const TILE_URL_OVERRIDE = RAW_TILE_URL.startsWith("http") ? RAW_TILE_URL : "";
+
 export const TILE_URL =
-  process.env.NEXT_PUBLIC_MAP_TILE_URL ||
+  TILE_URL_OVERRIDE ||
   (MAPBOX_TOKEN
     ? `https://api.mapbox.com/styles/v1/mapbox/${MAPBOX_STYLE}/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`
     : OSM_URL);

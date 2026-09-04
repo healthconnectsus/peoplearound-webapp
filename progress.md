@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-04 — Accept a Mapbox token pasted as a full URL rather than failing silently
+
+- `src/lib/basemap.ts`
+
+
 ### 2026-09-03 — Logo v8.2: scale the heart to the height of the two words measured without the 'l' ascender (187 to 164 units, 88%), vertically centred on that band and the wordmark pulled in to close the gap
 
 - `public/logo-dark.svg`
