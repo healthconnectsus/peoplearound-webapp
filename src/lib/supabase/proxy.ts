@@ -52,6 +52,9 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/auth") ||
     // Marketing landing pages (e.g. "start a club") — shareable while logged out.
     path.startsWith("/start") ||
+    // Privacy has to be readable by the people deciding whether to join —
+    // a privacy page behind a sign-up wall is worth nothing.
+    path === "/privacy" ||
     // Logged-out landing page calls this to register uncovered locations;
     // it validates its own input and only ever touches anon-safe RPCs.
     path === "/api/register-location" ||

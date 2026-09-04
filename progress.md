@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-04 — Download-my-data endpoint and a privacy page that matches the code
+
+- `src/app/api/export-my-data/route.ts`
+- `src/app/login/page.tsx`
+- `src/app/privacy/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/components/Sidebar.tsx`
+- `src/lib/supabase/proxy.ts`
+
+
 ### 2026-09-04 — Accept a Mapbox token pasted as a full URL rather than failing silently
 
 - `src/lib/basemap.ts`

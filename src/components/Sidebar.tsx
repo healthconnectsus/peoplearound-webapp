@@ -89,6 +89,7 @@ const UTILITY_ITEMS = [
   { href: "/settings", label: "Settings" },
   { href: "/help", label: "Help Center" },
   { href: "/invite", label: "Invite neighbors" },
+  { href: "/privacy", label: "Privacy" },
 ];
 
 /**

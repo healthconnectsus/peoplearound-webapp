@@ -596,8 +596,33 @@ export default async function ProfilePage({
             )}
           </section>
 
+          {/* Your data — the other half of the delete button's promise:
+              you can take it as well as destroy it. */}
+          <section className="mt-10 rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-zinc-900">
+            <h2 className="text-sm font-semibold">Your data</h2>
+            <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+              Everything you&apos;ve written here — projects, posts, offers,
+              messages, and the record of what you built with neighbors — in
+              one file, whenever you want it.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <a
+                href="/api/export-my-data"
+                className="rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+              >
+                Download my data
+              </a>
+              <Link
+                href="/privacy"
+                className="text-sm text-black/55 underline underline-offset-2 hover:text-black dark:text-white/55 dark:hover:text-white"
+              >
+                What we store, and what we don&apos;t
+              </Link>
+            </div>
+          </section>
+
           {/* Danger zone */}
-          <section className="mt-10 rounded-2xl border border-red-200 bg-red-50/40 p-5 dark:border-red-900/50 dark:bg-red-950/20">
+          <section className="mt-6 rounded-2xl border border-red-200 bg-red-50/40 p-5 dark:border-red-900/50 dark:bg-red-950/20">
             <h2 className="text-sm font-semibold text-red-700 dark:text-red-400">
               Danger zone
             </h2>

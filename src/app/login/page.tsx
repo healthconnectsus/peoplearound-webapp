@@ -337,6 +337,11 @@ export default async function LoginPage({
                 </Link>
               </li>
               <li>
+                <Link href="/privacy" className="hover:underline">
+                  Privacy
+                </Link>
+              </li>
+              <li>
                 <Link href="/invite" className="hover:underline">
                   Invite neighbors
                 </Link>
