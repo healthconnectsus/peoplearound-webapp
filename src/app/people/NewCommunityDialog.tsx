@@ -93,7 +93,7 @@ export function NewCommunityDialog() {
           />
           <SubmitButton
             pendingLabel="Creating…"
-            className="mt-2 self-start rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+            className="mt-2 self-start rounded-lg bg-pa-brand px-5 py-2 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
           >
             Create community
           </SubmitButton>

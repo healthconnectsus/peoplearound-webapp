@@ -19,7 +19,7 @@ const GENDER_OPTIONS = [
 const PRONOUN_OPTIONS = ["She/her", "He/him", "They/them", "Other"];
 
 const SAVE_BTN =
-  "self-end rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover";
+  "self-end rounded-lg bg-pa-brand px-5 py-2 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover";
 const INPUT =
   "rounded-lg border border-slate-400 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400";
 

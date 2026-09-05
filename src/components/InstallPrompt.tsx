@@ -58,7 +58,7 @@ export function InstallPrompt() {
           localStorage.setItem(DISMISS_KEY, "1");
           await e.prompt();
         }}
-        className="shrink-0 rounded-lg bg-pa-green px-4 py-1.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+        className="shrink-0 rounded-lg bg-pa-brand px-4 py-1.5 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
       >
         Install
       </button>

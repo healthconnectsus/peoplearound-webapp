@@ -105,7 +105,7 @@ export default async function LoginPage({
             </a>
             <a
               href="#join"
-              className="rounded-lg bg-pa-green px-4 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+              className="rounded-lg bg-pa-brand px-4 py-2 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
             >
               Sign up
             </a>
@@ -158,7 +158,7 @@ export default async function LoginPage({
                   ) : null}
                   <button
                     formAction={signIn}
-                    className="rounded-lg bg-pa-green px-4 py-2.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+                    className="rounded-lg bg-pa-brand px-4 py-2.5 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
                   >
                     Continue
                   </button>
@@ -279,7 +279,7 @@ export default async function LoginPage({
           <div className="mt-6 text-center">
             <a
               href="#join"
-              className="inline-block rounded-lg bg-pa-green px-6 py-2.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+              className="inline-block rounded-lg bg-pa-brand px-6 py-2.5 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
             >
               Join and share yours
             </a>
@@ -330,7 +330,7 @@ export default async function LoginPage({
           </h2>
           <a
             href="#join"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-pa-green px-7 py-3 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-pa-brand px-7 py-3 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
           >
             <HeartHandshake className="h-4 w-4" aria-hidden />
             Join Peoplearound

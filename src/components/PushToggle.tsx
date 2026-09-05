@@ -129,7 +129,7 @@ export function PushToggle({ vapidKey }: { vapidKey: string }) {
         className={
           on
             ? "rounded-lg border border-slate-400 px-5 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-slate-400 dark:hover:bg-white/10"
-            : "rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover disabled:opacity-50"
+            : "rounded-lg bg-pa-brand px-5 py-2 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover disabled:opacity-50"
         }
       >
         {state === "working" ? "…" : on ? "Turn off" : "Turn on"}

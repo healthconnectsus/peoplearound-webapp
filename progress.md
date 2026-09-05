@@ -7,6 +7,41 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-05 — Adapt the palette to the two-tone mark: rails are stops between teal and violet
+
+- `src/app/analytics/page.tsx`
+- `src/app/chats/Composer.tsx`
+- `src/app/chats/page.tsx`
+- `src/app/city/[slug]/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/explore/page.tsx`
+- `src/app/globals.css`
+- `src/app/ideas/page.tsx`
+- `src/app/login/page.tsx`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/people/NewCommunityDialog.tsx`
+- `src/app/people/page.tsx`
+- `src/app/privacy/page.tsx`
+- `src/app/profile/LocationCard.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/UpdateComposer.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/app/settings/page.tsx`
+- `src/app/start/page.tsx`
+- `src/components/AsksSection.tsx`
+- `src/components/BadgeCelebration.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/InstallPrompt.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/components/PlaybookList.tsx`
+- `src/components/PushToggle.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/TagFilter.tsx`
+- `src/lib/brand.ts`
+
+
 ### 2026-09-05 — Backlog: city pages shipped; badge contrast audited and already passing
 
 - `docs/FEATURE_IDEAS.md`

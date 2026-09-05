@@ -141,7 +141,7 @@ export default async function CityPage({
                     {meta?.emoji ?? "•"} {meta?.label ?? c.category}
                   </span>
                   <span
-                    className="h-2.5 rounded-full bg-pa-green"
+                    className="h-2.5 rounded-full bg-pa-brand"
                     style={{ width: `${Math.max(share, 4)}%` }}
                     aria-hidden
                   />
@@ -200,7 +200,7 @@ export default async function CityPage({
         </p>
         <Link
           href="/login#join"
-          className="mt-4 inline-block rounded-lg bg-pa-green px-6 py-2.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+          className="mt-4 inline-block rounded-lg bg-pa-brand px-6 py-2.5 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
         >
           Join Peoplearound
         </Link>

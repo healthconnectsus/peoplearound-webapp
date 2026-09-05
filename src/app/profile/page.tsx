@@ -608,7 +608,7 @@ export default async function ProfilePage({
             <div className="mt-3 flex flex-wrap items-center gap-4">
               <a
                 href="/api/export-my-data"
-                className="rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+                className="rounded-lg bg-pa-brand px-5 py-2 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
               >
                 Download my data
               </a>

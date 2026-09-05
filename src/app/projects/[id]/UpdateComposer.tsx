@@ -45,7 +45,7 @@ export function UpdateComposer({
       </div>
       <SubmitButton
         pendingLabel="Posting…"
-        className="mt-3 rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+        className="mt-3 rounded-lg bg-pa-brand px-5 py-2 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
       >
         Post update
       </SubmitButton>
@@ -126,7 +126,7 @@ export function ProjectEditor({
 
       <SubmitButton
         pendingLabel="Saving…"
-        className="mt-3 rounded-lg bg-pa-green px-5 py-2 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+        className="mt-3 rounded-lg bg-pa-brand px-5 py-2 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
       >
         Save changes
       </SubmitButton>

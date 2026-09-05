@@ -119,7 +119,7 @@ export default function PrivacyPage() {
           You can{" "}
           <a
             href="/api/export-my-data"
-            className="font-medium text-pa-green underline underline-offset-2"
+            className="font-medium text-pa-brand underline underline-offset-2"
           >
             download everything you&rsquo;ve written
           </a>{" "}

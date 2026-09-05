@@ -186,8 +186,8 @@ export function NeighborhoodMap({
                 }}
                 className={`rounded-full px-3 py-1 text-xs font-medium shadow transition-colors ${
                   active
-                    ? "bg-pa-green text-pa-green-ink"
-                    : "bg-white/90 text-black/70 hover:bg-white dark:bg-zinc-900/90 dark:text-pa-green-ink/70 dark:hover:bg-zinc-900"
+                    ? "bg-pa-brand text-pa-brand-ink"
+                    : "bg-white/90 text-black/70 hover:bg-white dark:bg-zinc-900/90 dark:text-pa-brand-ink/70 dark:hover:bg-zinc-900"
                 }`}
               >
                 {f.label}

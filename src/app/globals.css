@@ -11,18 +11,16 @@
   --font-sans: var(--font-roboto);
   --font-mono: var(--font-geist-mono);
 
-  /* The wordmark's "o", darkened until white sits on it cleanly — defined
-     once so that changing the logo changes every green button with it.
-     The letter itself is #87d400; that exact value carries white at only
-     1.83:1, so buttons take this deeper member of the same hue (4.92:1)
-     and the label stays white. Hover goes darker still, so pointing at a
-     button opens its contrast rather than closing it. */
-  --color-pa-green: #4f7d00;
-  --color-pa-green-hover: #446a00;
-  --color-pa-green-ink: #ffffff;
+  /* The brand's primary fill: the teal lobe of the mark, darkened only as
+     far as white text needs (4.67:1). It was a green taken from the old
+     wordmark's "o" — v9 has no green in it at all, so the name and the
+     value both moved. Defined once; every primary button follows. */
+  --color-pa-brand: #008468;
+  --color-pa-brand-hover: #007156;
+  --color-pa-brand-ink: #ffffff;
 
   /* The darkest step, for flip-card backs and gradient ends. */
-  --color-pa-green-deeper: #3d5f00;
+  --color-pa-brand-deeper: #005f48;
 }
 
 @media (prefers-color-scheme: dark) {

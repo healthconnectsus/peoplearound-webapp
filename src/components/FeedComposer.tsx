@@ -32,7 +32,7 @@ const DOORS: {
     icon: UsersRound,
     title: "Let's do something",
     desc: "Meet people, start an idea, or get help with your project.",
-    tint: "bg-pa-green",
+    tint: "bg-pa-brand",
   },
   {
     href: "/people?compose=1#asks",

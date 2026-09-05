@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BRAND_BUTTON, HELP_BUTTON } from "@/lib/brand";
+import { BRAND_BUTTON, BRAND_MARK, HELP_BUTTON } from "@/lib/brand";
 import type { CSSProperties } from "react";
 import {
   Compass,
@@ -27,9 +27,11 @@ const NAV_ITEMS: {
   count?: CountKey;
   /** What the number means, on hover. */
   title?: string;
-  /** This rail's hue from the wordmark — the ICON wears it, on hover and
-      when current. The label stays plain text; colouring the whole row
-      read as childish, and colouring a single letter read as a typo. */
+  /** This rail's hue, from lib/brand.ts — the ICON wears it, on hover and
+      when current. The label stays plain text; colouring the whole row read
+      as childish, and colouring a single letter read as a typo.
+      These were hardcoded copies of the v1 logo and had drifted several
+      logo versions out of date; they now come from the one palette. */
   iconHex: string;
 }[] = [
   // Top to bottom, the first letters spell the product: P·E·O·P·L·E.
@@ -41,7 +43,7 @@ const NAV_ITEMS: {
     icon: HeartHandshake,
     count: "people",
     title: "Neighbors in your community",
-    iconHex: "#FF4033",
+    iconHex: BRAND_MARK.people,
   },
   {
     href: "/events",
@@ -49,7 +51,7 @@ const NAV_ITEMS: {
     icon: CalendarDays,
     count: "events",
     title: "Events you said you're coming to",
-    iconHex: "#FFA30F",
+    iconHex: BRAND_MARK.events,
   },
   {
     href: "/offers",
@@ -57,7 +59,7 @@ const NAV_ITEMS: {
     icon: Gift,
     count: "offers",
     title: "Things you've offered",
-    iconHex: "#08C08C",
+    iconHex: BRAND_MARK.offers,
   },
   {
     href: "/ideas",
@@ -65,7 +67,7 @@ const NAV_ITEMS: {
     icon: Lightbulb,
     count: "ideas",
     title: "Ideas you started, plus teams you joined",
-    iconHex: "#2A6BEF",
+    iconHex: BRAND_MARK.projects,
   },
   {
     href: "/faves",
@@ -73,13 +75,13 @@ const NAV_ITEMS: {
     icon: Star,
     count: "faves",
     title: "Ideas your neighbors have starred",
-    iconHex: "#8133E1",
+    iconHex: BRAND_MARK.faves,
   },
   {
     href: "/explore",
     label: "Explore Communities",
     icon: Compass,
-    iconHex: "#FF3A8A",
+    iconHex: BRAND_MARK.community,
   },
 ];
 

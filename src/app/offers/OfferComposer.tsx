@@ -99,7 +99,7 @@ export function OfferComposer({
       </div>
       <SubmitButton
         pendingLabel="Posting…"
-        className="mt-3 rounded-lg bg-pa-green px-6 py-2.5 text-sm font-medium text-pa-green-ink transition-colors hover:bg-pa-green-hover"
+        className="mt-3 rounded-lg bg-pa-brand px-6 py-2.5 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
       >
         Post it
       </SubmitButton>
