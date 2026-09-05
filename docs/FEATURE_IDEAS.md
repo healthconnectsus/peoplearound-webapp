@@ -95,9 +95,13 @@ ones at the bottom so they stay rejected.*
     language; localize the UI (start with Spanish for Aurora). *(L)*
 16. **Neighborhood verification** — phone + address when scale demands it
     (already in ARCHITECTURE as the later phase). *(L)*
-17. **City pages** — a public, read-only "what's being built in Aurora"
-    page (aggregate, no personal data) for city partners and press; the
-    landing page teaser, city-sized. *(M)*
+17. ~~**City pages**~~ ✅ *shipped 2026-09* — `/city/[slug]` (e.g.
+    `/city/aurora`): project / community / neighbor counts, a category
+    breakdown, and the projects whose founders chose "open to anywhere".
+    Readable signed out, because a page a council officer must log in to
+    read is no use to them. Backed by anon-safe views (migration 0043) that
+    can only ever return counts plus global-reach titles.
+    *(Remaining: an index of cities — today you share the URL directly.)*
 18. **Embeddable widget** — "ideas near you" iframe for library/city/school
     sites; every embed is a frontier funnel. *(M)*
 19. ~~**Data export & privacy page**~~ ✅ *shipped 2026-09* —
@@ -111,9 +115,10 @@ ones at the bottom so they stay rejected.*
 20. **Accessibility pass** — *partly shipped 2026-09*: a skip-to-content
     link (the rail was eleven tabs deep on every page), one visible
     `:focus-visible` ring app-wide (dark line + white halo, so it survives
-    on brand fills and photos), and reduced-motion honoured. *(Remaining:
-    a full screen-reader pass over the wizard and the map, and colour
-    contrast on the pale status badges.)*
+    on brand fills and photos), and reduced-motion honoured. The status
+    badges were audited and all four pass AA in both themes (5.81–10.39),
+    so no change was needed there. *(Remaining: a screen-reader pass over
+    the wizard and the map.)*
 
 ## Rejected (recorded so they stay rejected)
 

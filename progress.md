@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-05 — Backlog: city pages shipped; badge contrast audited and already passing
+
+- `docs/FEATURE_IDEAS.md`
+
+
 ### 2026-09-05 — Public city pages: counts for partners and press, names for nobody
 
 - `src/app/city/[slug]/page.tsx`
