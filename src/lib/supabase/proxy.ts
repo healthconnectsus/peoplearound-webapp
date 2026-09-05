@@ -55,6 +55,9 @@ export async function updateSession(request: NextRequest) {
     // Privacy has to be readable by the people deciding whether to join —
     // a privacy page behind a sign-up wall is worth nothing.
     path === "/privacy" ||
+    // City pages exist to be handed to partners and press; they publish
+    // counts only (migration 0043) and name nobody.
+    path.startsWith("/city/") ||
     // Logged-out landing page calls this to register uncovered locations;
     // it validates its own input and only ever touches anon-safe RPCs.
     path === "/api/register-location" ||

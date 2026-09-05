@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-05 — Public city pages: counts for partners and press, names for nobody
+
+- `src/app/city/[slug]/page.tsx`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0043_public_city_pages.sql`
+
+
 ### 2026-09-05 — Close a real leak: the public teaser exposed neighborhood-scoped titles
 
 - `src/app/login/page.tsx`
