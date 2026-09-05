@@ -52,12 +52,22 @@ export default async function LoginPage({
   // when the site key is configured; Supabase verifies the token server-side.
   const turnstileKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
-  // Live teaser of what's being built (anon-readable view, migration 0012).
+  // Live teaser of what's being built. The view shows only projects whose
+  // author chose "open to anywhere" (migration 0042) — a neighborhood-scoped
+  // idea is nobody's business until you're a neighbor. The pulse carries the
+  // rest as numbers, so the page can be honest about scale without quoting
+  // anyone.
   const supabase = await createClient();
-  const { data: ideaRows, error: ideasError } = await supabase
-    .from("public_ideas")
-    .select("*")
-    .limit(9);
+  const [{ data: ideaRows, error: ideasError }, { data: pulseRow }] =
+    await Promise.all([
+      supabase.from("public_ideas").select("*").limit(9),
+      supabase.from("public_pulse").select("*").maybeSingle(),
+    ]);
+  const pulse = pulseRow as {
+    projects: number;
+    communities: number;
+    neighbors: number;
+  } | null;
   const ideas: PublicIdea[] =
     ideasError || !ideaRows?.length
       ? SAMPLE_IDEAS
@@ -208,6 +218,18 @@ export default async function LoginPage({
             Real projects from real communities. Join to star them, meet the
             team, or add your own.
           </p>
+          {/* The ones shown are the ones open to anywhere. Everything else is
+              counted here rather than quoted — the scale is real, the
+              content stays with the neighborhood that made it. */}
+          {pulse && pulse.projects > 0 ? (
+            <p className="mt-3 text-center text-sm text-black/60 dark:text-white/60">
+              <strong>{pulse.projects}</strong>{" "}
+              {pulse.projects === 1 ? "project" : "projects"} under way across{" "}
+              <strong>{pulse.communities}</strong>{" "}
+              {pulse.communities === 1 ? "community" : "communities"} —{" "}
+              most of them visible only to the neighbors they belong to.
+            </p>
+          ) : null}
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {ideas.map((idea, i) => {
               const meta = STATE_META[idea.state] ?? STATE_META.idea;

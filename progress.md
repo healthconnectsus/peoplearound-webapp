@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-05 — Close a real leak: the public teaser exposed neighborhood-scoped titles
+
+- `src/app/login/page.tsx`
+- `supabase/migrations/0042_public_ideas_respect_reach.sql`
+
+
 ### 2026-09-05 — Logo v9.1: lighten the wordmark from #2f3138 to #3c404a (12.98:1 to 10.37:1 on white); dark-mode wordmark and the icon tile unchanged
 
 - `public/logo-light.svg`
