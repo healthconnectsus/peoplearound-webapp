@@ -57,15 +57,18 @@ export function StewardSection({
   title,
   tool,
   form,
+  startOpen = false,
   children,
 }: {
   title: string;
   /** null for anyone without permission — then it's a plain section. */
   tool: Tool | null;
   form?: React.ReactNode;
+  /** Arrive with the form already open, e.g. from "Plan an event". */
+  startOpen?: boolean;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
 
   return (
     <div className="mt-7">

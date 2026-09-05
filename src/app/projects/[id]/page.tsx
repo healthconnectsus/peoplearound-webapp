@@ -85,10 +85,15 @@ function TeamAvatar({
 
 export default async function ProjectDetail({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ plan?: string }>;
 }) {
   const { id } = await params;
+  // "Plan an event" on /events links here with the form already open, so the
+  // button lands you on the thing you pressed it for.
+  const { plan } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -896,6 +901,7 @@ export default async function ProjectDetail({
           title="Events"
           tool={isSteward ? "event" : null}
           form={eventForm}
+          startOpen={plan === "1" && isSteward}
         >
 
           {events.length === 0 ? (

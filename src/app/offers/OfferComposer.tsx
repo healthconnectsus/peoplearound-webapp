@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Plus, X } from "lucide-react";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { SubmitButton } from "@/components/SubmitButton";
 import { MapPicker } from "@/components/MapPicker";
@@ -22,6 +23,22 @@ export function OfferComposer({
 }) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [spot, setSpot] = useState<{ lat: number; lng: number } | null>(null);
+  const [open, setOpen] = useState(false);
+
+  // Closed by default: the board is what people came to read, and a form
+  // sitting on top of it pushed the actual offers below the fold.
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-2 rounded-lg bg-pa-brand px-5 py-2.5 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
+      >
+        <Plus className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+        Share something
+      </button>
+    );
+  }
 
   return (
     <form
@@ -31,7 +48,17 @@ export function OfferComposer({
       <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
       <input type="hidden" name="lat" value={spot?.lat ?? ""} />
       <input type="hidden" name="lng" value={spot?.lng ?? ""} />
-      <h2 className="text-lg font-bold">Share something</h2>
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="text-lg font-bold">Share something</h2>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Close"
+          className="-mr-1 -mt-1 rounded-lg p-1.5 text-black/45 transition-colors hover:bg-black/5 hover:text-black dark:text-white/45 dark:hover:bg-white/10 dark:hover:text-white"
+        >
+          <X className="h-5 w-5" strokeWidth={2} aria-hidden />
+        </button>
+      </div>
       <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
         A tool, a truck for a day, soil, an hour of help. No money — just
         neighbors.

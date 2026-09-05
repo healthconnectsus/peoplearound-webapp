@@ -7,6 +7,19 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-05 — Feed tabs on Projects and People around; plan an event from /events; offers board before the form
+
+- `src/app/events/PlanEventButton.tsx`
+- `src/app/events/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/offers/OfferComposer.tsx`
+- `src/app/people/page.tsx`
+- `src/app/projects/[id]/OwnerTools.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/components/FeedTabs.tsx`
+- `src/lib/feedSort.ts`
+
+
 ### 2026-09-05 — Adapt the palette to the two-tone mark: rails are stops between teal and violet
 
 - `src/app/analytics/page.tsx`

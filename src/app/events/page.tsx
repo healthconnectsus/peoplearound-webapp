@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { projectPinsByIds } from "@/lib/mapPins";
+import { PlanEventButton } from "./PlanEventButton";
+import { categoryMeta } from "@/lib/projects";
 import {
   formatEventTime,
   isUpcomingEvent,
@@ -33,14 +35,52 @@ export default async function EventsPage() {
     supabase,
     events.map((e) => e.project_id),
   );
+
+  // Events hang off projects, so "plan an event" needs to know which one.
+  // Founders and co-organizers are the people allowed to run them.
+  const [{ data: ownRows }, { data: coOrgRows }] = await Promise.all([
+    supabase
+      .from("projects")
+      .select("id,title,category")
+      .eq("owner_id", user.id)
+      .neq("state", "archived"),
+    supabase
+      .from("memberships")
+      .select("role,status,project:projects(id,title,category,state)")
+      .eq("user_id", user.id)
+      .eq("status", "accepted")
+      .eq("role", "co_organizer"),
+  ]);
+
+  type Steward = { id: string; title: string; category: string };
+  const stewarded = new Map<string, Steward>();
+  for (const r of (ownRows ?? []) as Steward[]) stewarded.set(r.id, r);
+  for (const m of (coOrgRows ?? []) as unknown as {
+    project?: (Steward & { state: string }) | null;
+  }[]) {
+    if (m.project && m.project.state !== "archived") {
+      stewarded.set(m.project.id, m.project);
+    }
+  }
+  const stewardedProjects = [...stewarded.values()].map((p) => ({
+    id: p.id,
+    title: p.title,
+    emoji: categoryMeta(p.category).emoji,
+  }));
   return (
     <AppShell>
       <MapShell pins={pins}>
         <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
-          <h1 className="text-3xl font-extrabold tracking-tight">Events</h1>
-          <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-            Where projects become real — show up and meet the people behind them.
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h1 className="text-3xl font-extrabold tracking-tight">Events</h1>
+              <p className="mt-1 text-sm text-black/50 dark:text-white/50">
+                Where projects become real — show up and meet the people behind
+                them.
+              </p>
+            </div>
+            <PlanEventButton projects={stewardedProjects} />
+          </div>
 
           {events.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">

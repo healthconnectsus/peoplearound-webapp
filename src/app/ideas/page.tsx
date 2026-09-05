@@ -4,68 +4,31 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { projectPinsByIds } from "@/lib/mapPins";
-import { categoryMeta, STATE_META, type Project } from "@/lib/projects";
+import { type Project } from "@/lib/projects";
 import { PlaybookList } from "@/components/PlaybookList";
+import { ProjectCard } from "@/components/ProjectFeedCard";
+import { FeedTabs, readTab } from "@/components/FeedTabs";
+import { loadFeedCards } from "@/lib/feed";
+import { sortForTab } from "@/lib/feedSort";
 
-function IdeaRow({
-  p,
-  stars,
-  note,
+export default async function IdeasPage({
+  searchParams,
 }: {
-  p: Project;
-  stars: number;
-  note?: string;
+  searchParams: Promise<{ tab?: string }>;
 }) {
-  const meta = STATE_META[p.state];
-  return (
-    <li>
-      <Link
-        href={`/projects/${p.id}`}
-        className="flex items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
-      >
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium">
-            <span className="mr-1.5" aria-hidden>
-              {categoryMeta(p.category).emoji}
-            </span>
-            {p.title}
-          </span>
-          {note ? (
-            <span className="block truncate text-xs text-black/45 dark:text-white/45">
-              {note}
-            </span>
-          ) : null}
-        </span>
-        <span className="shrink-0 text-xs text-black/45 dark:text-white/45">
-          ⭐ {stars}
-        </span>
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${meta.badge}`}
-        >
-          {meta.label}
-        </span>
-      </Link>
-    </li>
-  );
-}
+  const { tab: rawTab } = await searchParams;
+  const tab = readTab(rawTab);
 
-export default async function IdeasPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: ownRows }, { data: memberRows }, { data: starRows }] =
+  // Which teams you're on — the only thing the "Mine" tab needs beyond
+  // ownership, which the cards already carry.
+  const [{ data: memberRows }] =
     await Promise.all([
-      supabase
-        .from("projects")
-        .select(
-          "id,title,description,category,state,created_at,neighborhood:neighborhoods(name)"
-        )
-        .eq("owner_id", user.id)
-        .neq("state", "archived")
-        .order("created_at", { ascending: false }),
       supabase
         .from("memberships")
         .select(
@@ -73,10 +36,8 @@ export default async function IdeasPage() {
         )
         .eq("user_id", user.id)
         .eq("status", "accepted"),
-      supabase.from("stars").select("project_id"),
     ]);
 
-  const own = (ownRows ?? []) as unknown as Project[];
   const joined = (
     (memberRows ?? []) as unknown as {
       project?: Project | null;
@@ -84,84 +45,82 @@ export default async function IdeasPage() {
   )
     .map((m) => m.project)
     .filter((p): p is Project => Boolean(p) && p!.state !== "archived");
-  const stars = starRows ?? [];
-  const starCount = (id: string) =>
-    stars.filter((s) => s.project_id === id).length;
 
-  // Your own corner of the map: the ideas you started and the teams you're
-  // on, wherever they are.
-  const pins = await projectPinsByIds(supabase, [
-    ...own.map((p) => p.id),
-    ...joined.map((p) => p.id),
-  ]);
+  // The browsable feed. Every project RLS lets this account see — the tabs
+  // are five ways of arranging that one set, not five different queries.
+  const { cards } = await loadFeedCards(supabase, undefined, user.id);
+  const joinedIds = new Set(joined.map((p) => p.id));
+
+  // "Nearby" is measured from your own community's centre.
+  const { data: hood } = await supabase
+    .from("profiles")
+    .select("neighborhood:neighborhoods!profiles_neighborhood_id_fkey(center_lat,center_lng)")
+    .eq("id", user.id)
+    .maybeSingle();
+  const centre = (hood as unknown as {
+    neighborhood?: { center_lat: number | null; center_lng: number | null } | null;
+  } | null)?.neighborhood;
+  const center =
+    centre?.center_lat != null && centre?.center_lng != null
+      ? { lat: centre.center_lat, lng: centre.center_lng }
+      : null;
+
+  const visible = sortForTab(cards, tab, {
+    userId: user.id,
+    center,
+    joinedIds,
+  });
+
+  // The map follows the tab, so what you see listed is what you see pinned.
+  const pins = await projectPinsByIds(
+    supabase,
+    visible.slice(0, 40).map((p) => p.id),
+  );
 
   return (
     <AppShell>
       <MapShell pins={pins}>
         <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
-          <h1 className="text-3xl font-extrabold tracking-tight">My ideas</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Projects</h1>
           <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-            The projects you started, and the teams you joined.
+            What the people around you are building — and what you started.
           </p>
 
-          <section className="mt-6">
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-              Started by you · {own.length}
-            </h2>
-            {own.length > 0 ? (
-              <ul className="flex flex-col gap-2">
-                {own.map((p) => (
-                  <IdeaRow
-                    key={p.id}
-                    p={p}
-                    stars={starCount(p.id)}
-                    note={p.neighborhood?.name}
-                  />
-                ))}
-              </ul>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-400 bg-white p-8 text-center dark:border-slate-500 dark:bg-zinc-900">
+          <div className="mt-4">
+            <FeedTabs active={tab} basePath="/ideas" />
+          </div>
+
+          <section id="feed" className="mt-5 scroll-mt-6">
+            {visible.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">
                 <p className="text-3xl" aria-hidden>
-                  💡
+                  {tab === "mine" ? "💡" : "🌱"}
                 </p>
-                <p className="mt-3 text-sm text-black/60 dark:text-white/60">
-                  You haven&apos;t shared an idea yet. Big or small — the people
-                  around you can&apos;t help with what they can&apos;t see.
+                <p className="mt-3 font-medium">
+                  {tab === "mine"
+                    ? "You haven't started or joined anything yet"
+                    : "Nothing here yet"}
+                </p>
+                <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+                  {tab === "mine"
+                    ? "Big or small — the people around you can't help with what they can't see."
+                    : "Be the first to put something on the board."}
                 </p>
                 <Link
                   href="/projects/new"
-                  className="mt-4 inline-block rounded-lg bg-pa-brand px-6 py-2.5 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
+                  className="mt-5 inline-block rounded-lg bg-pa-brand px-6 py-2.5 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
                 >
-                  Share your first idea
+                  Start something with people
                 </Link>
-                <p className="mt-3 text-xs text-black/45 dark:text-white/45">
-                  Not sure what?{" "}
-                  <a href="#playbooks" className="underline">
-                    Start from a playbook
-                  </a>{" "}
-                  below.
-                </p>
               </div>
-            )}
-          </section>
-
-          {joined.length > 0 ? (
-            <section className="mt-8">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                Teams you joined · {joined.length}
-              </h2>
-              <ul className="flex flex-col gap-2">
-                {joined.map((p) => (
-                  <IdeaRow
-                    key={p.id}
-                    p={p}
-                    stars={starCount(p.id)}
-                    note={`Started by ${p.owner?.display_name ?? "a neighbor"}`}
-                  />
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {visible.map((p) => (
+                  <ProjectCard key={p.id} p={p} returnTo="/ideas" />
                 ))}
               </ul>
-            </section>
-          ) : null}
+            )}
+          </section>
 
           <PlaybookList />
         </main>

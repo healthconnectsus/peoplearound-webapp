@@ -9,6 +9,8 @@ import { FeedComposer } from "@/components/FeedComposer";
 import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { CommunityFilter } from "@/components/CommunityFilter";
 import { TagFilter } from "@/components/TagFilter";
+import { FeedTabs, readTab } from "@/components/FeedTabs";
+import { sortForTab } from "@/lib/feedSort";
 import { NewCommunityDialog } from "./NewCommunityDialog";
 import { ProjectCard } from "@/components/ProjectFeedCard";
 import { loadFeedCards } from "@/lib/feed";
@@ -108,6 +110,7 @@ export default async function PeoplePage({
     cat?: string;
     help?: string;
     community?: string;
+    tab?: string;
   }>;
 }) {
   const {
@@ -117,7 +120,9 @@ export default async function PeoplePage({
     cat,
     help: helpFilter,
     community,
+    tab: rawTab,
   } = await searchParams;
+  const tab = readTab(rawTab);
   const supabase = await createClient();
   const {
     data: { user },
@@ -133,7 +138,7 @@ export default async function PeoplePage({
     supabase
       .from("profiles")
       .select(
-        "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name)",
+        "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,center_lat,center_lng)",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -251,7 +256,7 @@ export default async function PeoplePage({
   const cats = csv(cat);
   const helps = csv(helpFilter);
 
-  const visible = cards.filter(
+  const filtered = cards.filter(
     (p) =>
       (cats.length === 0 || cats.includes(p.category)) &&
       (helps.length === 0 ||
@@ -259,6 +264,31 @@ export default async function PeoplePage({
         // "Both" answers either kind of help, so it belongs in both filters.
         p.help === "both"),
   );
+
+  // Which teams you're actually on. Inferring it from "this project has
+  // more than one member" would put every busy project under "Mine".
+  const { data: myMemberships } = await supabase
+    .from("memberships")
+    .select("project_id")
+    .eq("user_id", user.id)
+    .eq("status", "accepted");
+  const joinedIds = new Set(
+    ((myMemberships ?? []) as { project_id: string }[]).map((m) => m.project_id),
+  );
+
+  // Tabs arrange; the Filters dropdown narrows. They compose, and both live
+  // in the URL so any combination is a link you can send someone.
+  const myCentre = (profile as unknown as {
+    neighborhood?: { center_lat?: number | null; center_lng?: number | null } | null;
+  } | null)?.neighborhood;
+  const visible = sortForTab(filtered, tab, {
+    userId: user.id,
+    center:
+      myCentre?.center_lat != null && myCentre?.center_lng != null
+        ? { lat: myCentre.center_lat, lng: myCentre.center_lng }
+        : null,
+    joinedIds,
+  });
 
   // People are pinned as COMMUNITY clusters with headcounts — never at
   // anyone's home (see lib/mapPins.ts). Groups live here too: a group IS
@@ -352,6 +382,14 @@ export default async function PeoplePage({
           ) : null}
 
           <section id="feed" className="mt-6 scroll-mt-6">
+            <div className="mb-3">
+              <FeedTabs
+                active={tab}
+                basePath="/people"
+                extraParams={{ community: picked || undefined }}
+              />
+            </div>
+
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <CommunityFilter
                 communities={mine.map((c) => ({
