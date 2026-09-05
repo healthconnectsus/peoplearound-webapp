@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-05 — Logo v9.1: lighten the wordmark from #2f3138 to #3c404a (12.98:1 to 10.37:1 on white); dark-mode wordmark and the icon tile unchanged
+
+- `public/logo-light.svg`
+- `public/logo.svg`
+
+
 ### 2026-09-05 — Logo v9: adopt the two-tone heart concept - teal P #04b495 + violet a #af00f8 with the overlap darkening to #9a16ec at 0.88 opacity, single dark wordmark #2f3138 (#e7e9ee in dark mode); app icon is the two-tone heart on a dark tile so both colours survive on light browser chrome; PWA icons regenerated
 
 - `public/apple-icon.png`
