@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-05 — Logo v9: adopt the two-tone heart concept - teal P #04b495 + violet a #af00f8 with the overlap darkening to #9a16ec at 0.88 opacity, single dark wordmark #2f3138 (#e7e9ee in dark mode); app icon is the two-tone heart on a dark tile so both colours survive on light browser chrome; PWA icons regenerated
+
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-09-04 — Docs: roadmap and backlog reflect what actually shipped
 
 - `docs/FEATURE_IDEAS.md`
