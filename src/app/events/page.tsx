@@ -12,6 +12,8 @@ import {
   type ProjectEvent,
 } from "@/lib/projects";
 
+export const metadata = { title: "Events" };
+
 export default async function EventsPage() {
   const supabase = await createClient();
   const {

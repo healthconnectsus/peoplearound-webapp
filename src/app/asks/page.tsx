@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Small help" };
+
 /**
  * Small help lives inside "People around" — a need for a hand is a thing you
  * bring to the people near you. The compose flag rides along so the

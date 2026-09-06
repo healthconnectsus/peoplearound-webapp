@@ -30,6 +30,8 @@ import {
   setPrimaryCommunity,
 } from "@/app/neighborhood/communityActions";
 
+export const metadata = { title: "People around" };
+
 /**
  * People around — the P that opens the rail's acrostic. Explore's twin: the
  * same feed grammar (composer, asks/events highlights, filter chips, project

@@ -11,6 +11,8 @@ import { FeedTabs, readTab } from "@/components/FeedTabs";
 import { loadFeedCards } from "@/lib/feed";
 import { sortForTab } from "@/lib/feedSort";
 
+export const metadata = { title: "Projects" };
+
 export default async function IdeasPage({
   searchParams,
 }: {

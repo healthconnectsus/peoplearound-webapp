@@ -17,6 +17,8 @@ import {
 } from "@/lib/projects";
 import { DeleteAccountButton } from "./DeleteAccountButton";
 
+export const metadata = { title: "Your profile" };
+
 function ProjectRow({
   p,
   stars,

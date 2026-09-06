@@ -5,6 +5,8 @@ import { AppShell } from "@/components/AppShell";
 import { categoryMeta, recentDayKeys, STATE_META, timeAgo } from "@/lib/projects";
 import { computeImpact } from "@/lib/impact";
 
+export const metadata = { title: "Your analytics" };
+
 /**
  * Your ideas, honestly measured — private to you. Views → stars → join
  * requests → teammates is the funnel that matters: it answers "is my idea

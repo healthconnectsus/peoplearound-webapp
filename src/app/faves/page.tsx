@@ -6,6 +6,8 @@ import { MapShell } from "@/components/MapShell";
 import { projectPinsByIds } from "@/lib/mapPins";
 import { categoryMeta, STATE_META, type Project } from "@/lib/projects";
 
+export const metadata = { title: "Local Faves" };
+
 /** Local Faves — the L in the rail's P·E·O·P·L·E. */
 export default async function FavesPage() {
   const supabase = await createClient();

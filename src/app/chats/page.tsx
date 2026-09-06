@@ -8,6 +8,8 @@ import { initials, timeAgo } from "@/lib/projects";
 import { Composer } from "./Composer";
 import { MarkRead } from "./MarkRead";
 
+export const metadata = { title: "Messages" };
+
 type PersonLite = {
   id: string;
   display_name: string | null;

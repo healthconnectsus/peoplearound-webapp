@@ -9,6 +9,8 @@ import { setDigestOptOut } from "@/app/notificationActions";
 import { AvatarUpload, CoverUpload } from "./PhotoUploads";
 import { PushToggle } from "@/components/PushToggle";
 
+export const metadata = { title: "Settings" };
+
 const GENDER_OPTIONS = [
   "Woman",
   "Man",

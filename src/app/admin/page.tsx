@@ -12,6 +12,8 @@ import {
   renameCommunity,
 } from "./adminActions";
 
+export const metadata = { title: "Admin" };
+
 /**
  * Ops console — visible only to profiles.is_admin. Replaces SQL-editor
  * moderation: the flag review queue, community cleanup (frontier renames),

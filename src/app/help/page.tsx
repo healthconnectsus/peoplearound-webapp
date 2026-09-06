@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 
+export const metadata = { title: "Help Center" };
+
 const FAQ: { q: string; a: string }[] = [
   {
     q: "What is Peoplearound?",

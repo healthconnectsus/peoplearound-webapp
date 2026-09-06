@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Groups" };
+
 /**
  * Groups now live inside "People around" — a group *is* people, and a
  * separate rail item was a distinction the user had to hold rather than one

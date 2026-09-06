@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+export const metadata = { title: "Your communities" };
+
 /**
  * "My Communities" now lives inside "People around" — a community IS people,
  * and the rail spells P·E·O·P·L·E with People around carrying both. The

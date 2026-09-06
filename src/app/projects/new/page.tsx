@@ -5,6 +5,8 @@ import { CloseWizard } from "./CloseWizard";
 import { playbookBySlug } from "@/lib/playbooks";
 import { myMapCenter } from "@/lib/mapPins";
 
+export const metadata = { title: "Start something with people" };
+
 /**
  * The wizard is a lightbox, not a page in the shell: no rail, no top bar,
  * nothing to click but the work in front of you and the X that leaves. It

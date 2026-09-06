@@ -7,6 +7,39 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-06 — Security: private conversations were readable by any signed-in stranger; add headers; 404/error/loading states and per-page titles
+
+- `next.config.ts`
+- `src/app/admin/page.tsx`
+- `src/app/analytics/page.tsx`
+- `src/app/asks/page.tsx`
+- `src/app/auth/auth-code-error/page.tsx`
+- `src/app/chats/actions.ts`
+- `src/app/chats/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/error.tsx`
+- `src/app/events/page.tsx`
+- `src/app/explore/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/groups/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/layout.tsx`
+- `src/app/loading.tsx`
+- `src/app/neighborhood/page.tsx`
+- `src/app/not-found.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/offline/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/playbooks/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/app/recap/page.tsx`
+- `src/app/settings/page.tsx`
+- `supabase/migrations/0044_private_conversations.sql`
+
+
 ### 2026-09-05 — Feed tabs on Projects and People around; plan an event from /events; offers board before the form
 
 - `src/app/events/PlanEventButton.tsx`

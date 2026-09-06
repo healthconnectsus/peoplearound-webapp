@@ -16,11 +16,39 @@ function commitSha(): string {
 
 const appVersion = process.env.npm_package_version ?? "0.1.0";
 
+/**
+ * Security headers. The site shipped with only HSTS (from Vercel), which
+ * left three cheap protections on the table.
+ *
+ * Referrer-Policy is the one that matters most here. Private conversations
+ * are addressed by id in the URL (`/chats?c=<uuid>`), and every page loads
+ * third-party resources — map tiles, photos. Without a policy the browser
+ * sends the FULL url as the Referer to those third parties, handing them
+ * conversation ids. `strict-origin-when-cross-origin` sends only the origin
+ * off-site, which is also exactly what Mapbox's URL restrictions need, so
+ * this tightens privacy without breaking the map.
+ */
+const securityHeaders = [
+  // The app is not meant to be framed; this is the clickjacking guard.
+  // Revisit if the embeddable "ideas near you" widget is ever built.
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  // "Locate me" needs geolocation; nothing here needs a camera or a mic.
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), payment=(), geolocation=(self)",
+  },
+];
+
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_COMMIT_SHA: commitSha(),
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
     NEXT_PUBLIC_APP_VERSION: appVersion,
+  },
+  async headers() {
+    return [{ source: "/:path*", headers: securityHeaders }];
   },
 };
 

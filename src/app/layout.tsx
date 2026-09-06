@@ -19,7 +19,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Peoplearound",
+  title: {
+    default: "Peoplearound",
+    // Each page sets only its own name; this makes the tab readable when a
+    // dozen of them are open, which is how people actually use the site.
+    template: "%s — Peoplearound",
+  },
   description: "Build ideas with your communities — a hyperlocal network where neighbors join each other's projects.",
   applicationName: "Peoplearound",
   appleWebApp: { capable: true, title: "Peoplearound", statusBarStyle: "default" },

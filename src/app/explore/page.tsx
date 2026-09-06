@@ -31,6 +31,8 @@ import {
 } from "@/lib/projects";
 import { versionLabel } from "@/lib/version";
 
+export const metadata = { title: "Explore communities" };
+
 /**
  * Explore — "what's interesting," your communities then your city then the
  * wide world. Reached from the rail (the E) or the "Change" links elsewhere;

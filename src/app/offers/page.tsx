@@ -9,6 +9,8 @@ import { initials, timeAgo } from "@/lib/projects";
 import { OfferComposer } from "./OfferComposer";
 import { claimOffer, deleteOffer, releaseOffer } from "./offerActions";
 
+export const metadata = { title: "Offers" };
+
 /**
  * Give / lend / offer — the non-monetary board (PRD §3.8). No prices, no
  * checkout: an offer is claimed by a neighbor, and the two of them sort it

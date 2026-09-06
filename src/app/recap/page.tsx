@@ -5,6 +5,8 @@ import { AppShell } from "@/components/AppShell";
 import { categoryMeta } from "@/lib/projects";
 import { communityRecap } from "@/lib/milestones";
 
+export const metadata = { title: "Year in review" };
+
 /**
  * The neighborhood's year, collectively. Deliberately about the *place*:
  * no person is named, ranked, or thanked more than another — the recap

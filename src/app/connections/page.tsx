@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { initials } from "@/lib/projects";
 
+export const metadata = { title: "Connections" };
+
 type Connection = {
   id: string;
   name: string;

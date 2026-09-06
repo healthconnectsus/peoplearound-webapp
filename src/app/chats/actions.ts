@@ -44,25 +44,19 @@ export async function sendMessage(formData: FormData) {
       cid = theirRows?.[0]?.conversation_id ?? "";
     }
     if (!cid) {
-      const { data: conv, error: convErr } = await supabase
-        .from("conversations")
-        .insert({})
-        .select("id")
-        .single();
-      if (convErr || !conv) {
-        redirect(`/chats?error=${encodeURIComponent(convErr?.message ?? "Could not start the chat")}`);
+      // One call, server-side: creating the row and enrolling both people
+      // has to be atomic, because a conversation you are not yet in is a
+      // conversation you cannot read back (migration 0044).
+      const { data: newId, error: rpcErr } = await supabase.rpc(
+        "start_conversation",
+        { p_other: toUserId },
+      );
+      if (rpcErr || !newId) {
+        redirect(
+          `/chats?error=${encodeURIComponent(rpcErr?.message ?? "Could not start the chat")}`,
+        );
       }
-      // Order matters for RLS: add yourself first, then the other person.
-      const { error: selfErr } = await supabase
-        .from("conversation_participants")
-        .insert({ conversation_id: conv.id, user_id: user.id });
-      const { error: otherErr } = await supabase
-        .from("conversation_participants")
-        .insert({ conversation_id: conv.id, user_id: toUserId });
-      if (selfErr || otherErr) {
-        redirect(`/chats?error=${encodeURIComponent((selfErr ?? otherErr)!.message)}`);
-      }
-      cid = conv.id;
+      cid = newId as string;
     }
   }
 
