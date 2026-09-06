@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-06 — Small help: brand teal instead of amber; closing the wizard drops ?compose=1 so the rail link reopens it
+
+- `src/app/asks/AskComposer.tsx`
+- `src/components/AsksSection.tsx`
+- `src/components/FeedComposer.tsx`
+
+
 ### 2026-09-06 — Security: private conversations were readable by any signed-in stranger; add headers; 404/error/loading states and per-page titles
 
 - `next.config.ts`

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   X,
   Sofa,
@@ -18,7 +19,7 @@ import { postAsk } from "./askActions";
 
 /**
  * Asking for a hand, as a wizard — the same shape as the idea wizard, in
- * amber rather than the intent colours, because it is the same kind of act:
+ * the brand teal like every other primary action, because it is the same kind of act:
  * turning a half-formed thought into something a neighbor can say yes to.
  *
  * The steps exist for one reason. What decides whether an ask gets answered
@@ -126,6 +127,14 @@ export function AskComposer({
     if (startOpen) setOpen(true);
   }
 
+  // The other half of that bug. Closing the wizard used to leave
+  // `?compose=1` in the address bar, so the next click on "Ask for small
+  // help" navigated to the URL we were already on: startOpen stayed true,
+  // nothing changed, the click did nothing. Closing now also drops the
+  // parameter, so the next click is a real false→true transition.
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [step, setStep] = useState(0);
   const [title, setTitle] = useState("");
   const [minutes, setMinutes] = useState(30);
@@ -139,6 +148,7 @@ export function AskComposer({
   function reset() {
     setOpen(false);
     setStep(0);
+    if (startOpen) router.replace(`${pathname}#asks`, { scroll: false });
   }
 
   if (!open) {
@@ -146,7 +156,7 @@ export function AskComposer({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full rounded-2xl border border-dashed border-amber-500/50 bg-amber-50/60 px-5 py-4 text-left transition-colors hover:bg-amber-50 dark:border-amber-500/30 dark:bg-amber-950/20 dark:hover:bg-amber-950/40"
+        className="w-full rounded-2xl border border-dashed border-pa-brand/50 bg-pa-brand/5 px-5 py-4 text-left transition-colors hover:bg-pa-brand/10 dark:border-pa-brand/40 dark:bg-pa-brand/10 dark:hover:bg-pa-brand/20"
       >
         <span className="text-base font-semibold">🙋 Ask for a hand</span>
         <span className="mt-0.5 block text-sm text-black/55 dark:text-white/55">
@@ -173,7 +183,7 @@ export function AskComposer({
         </h1>
 
         {capReached ? (
-          <div className="mx-auto mt-16 max-w-md rounded-2xl border border-amber-300 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950/40">
+          <div className="mx-auto mt-16 max-w-md rounded-2xl border border-pa-brand/40 bg-pa-brand/5 p-6 text-center dark:border-pa-brand/50 dark:bg-pa-brand/15">
             <p className="text-3xl" aria-hidden>
               🙌
             </p>
@@ -232,16 +242,16 @@ export function AskComposer({
                         className="group relative h-28 text-left [perspective:800px]"
                       >
                         <span className="relative block h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)]">
-                          <span className="absolute inset-0 flex flex-col rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 p-3 text-amber-950 shadow-md [backface-visibility:hidden]">
+                          <span className="absolute inset-0 flex flex-col rounded-xl bg-gradient-to-br from-pa-brand to-pa-brand-deeper p-3 text-white shadow-md [backface-visibility:hidden]">
                             <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
                             <span className="mt-1.5 block text-sm font-bold leading-snug">
                               {k.label}
                             </span>
-                            <span className="mt-0.5 block text-[11px] leading-snug text-amber-950/70">
+                            <span className="mt-0.5 block text-[11px] leading-snug text-white/75">
                               {k.hint}
                             </span>
                           </span>
-                          <span className="absolute inset-0 flex flex-col rounded-xl bg-amber-800 p-3 text-white shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                          <span className="absolute inset-0 flex flex-col rounded-xl bg-pa-brand-deeper p-3 text-white shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)]">
                             <span className="text-[13px] font-medium leading-snug">
                               {k.seed
                                 ? `“${k.seed}”`
@@ -277,7 +287,7 @@ export function AskComposer({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. “Move a sofa into the living room”"
-                    className="rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 dark:border-slate-400"
+                    className="rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-pa-brand dark:border-slate-400"
                   />
                 </label>
 
@@ -297,7 +307,7 @@ export function AskComposer({
                         onClick={() => setMinutes(m.value)}
                         className={`rounded-xl border px-4 py-3 text-left transition-colors ${
                           minutes === m.value
-                            ? "border-amber-500 bg-amber-50 dark:bg-amber-950/40"
+                            ? "border-pa-brand bg-pa-brand/5 dark:bg-pa-brand/15"
                             : "border-slate-400 hover:bg-black/5 dark:hover:bg-white/10"
                         }`}
                       >
@@ -324,7 +334,7 @@ export function AskComposer({
                     type="button"
                     disabled={!title.trim()}
                     onClick={() => setStep(2)}
-                    className="rounded-lg bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-lg bg-pa-brand px-7 py-3 text-base font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Continue →
                   </button>
@@ -350,7 +360,7 @@ export function AskComposer({
                     value={whenText}
                     onChange={(e) => setWhenText(e.target.value)}
                     placeholder="e.g. “Any evening this week”"
-                    className="rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 dark:border-slate-400"
+                    className="rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-pa-brand dark:border-slate-400"
                   />
                 </label>
 
@@ -367,7 +377,7 @@ export function AskComposer({
                     value={place}
                     onChange={(e) => setPlace(e.target.value)}
                     placeholder="e.g. “5th &amp; Oak”"
-                    className="rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 dark:border-slate-400"
+                    className="rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-pa-brand dark:border-slate-400"
                   />
                 </label>
 
@@ -384,7 +394,7 @@ export function AskComposer({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="How heavy, how many people, third floor no lift…"
-                    className="resize-y rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-amber-500 dark:border-slate-400"
+                    className="resize-y rounded-xl border border-slate-400 bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-pa-brand dark:border-slate-400"
                   />
                 </label>
 
@@ -421,7 +431,7 @@ export function AskComposer({
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="rounded-lg bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400"
+                    className="rounded-lg bg-pa-brand px-7 py-3 text-base font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
                   >
                     Continue →
                   </button>
@@ -452,7 +462,7 @@ export function AskComposer({
                         </span>
                         {title}
                       </h3>
-                      <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900 dark:bg-amber-950/50 dark:text-amber-300">
+                      <span className="shrink-0 rounded-full bg-pa-brand/10 px-2.5 py-0.5 text-xs font-semibold text-pa-brand-deeper dark:bg-pa-brand/20 dark:text-[#5fd6b8]">
                         ⏱ {minutesLabel(minutes)}
                       </span>
                     </div>
@@ -479,7 +489,7 @@ export function AskComposer({
                   </button>
                   <SubmitButton
                     pendingLabel="Posting…"
-                    className="rounded-lg bg-amber-500 px-7 py-3 text-base font-medium text-amber-950 transition-colors hover:bg-amber-400"
+                    className="rounded-lg bg-pa-brand px-7 py-3 text-base font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
                   >
                     Post the ask 🙋
                   </SubmitButton>
@@ -503,7 +513,7 @@ export function AskComposer({
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors ${
                       i <= step
-                        ? "bg-amber-500 text-amber-950"
+                        ? "bg-pa-brand text-pa-brand-ink"
                         : "bg-black/10 text-black/50 dark:bg-white/15 dark:text-white/50"
                     }`}
                   >
@@ -512,7 +522,7 @@ export function AskComposer({
                   <span
                     className={`text-base font-bold ${
                       i === step
-                        ? "text-amber-600 dark:text-amber-400"
+                        ? "text-pa-brand dark:text-[#5fd6b8]"
                         : "text-black/45 dark:text-white/45"
                     }`}
                   >

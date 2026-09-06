@@ -39,7 +39,7 @@ const DOORS: {
     icon: HandHelping,
     title: "I need a favor",
     desc: "Twenty minutes, a second pair of hands, someone with a dolly.",
-    tint: "bg-amber-500",
+    tint: "bg-pa-brand",
   },
   {
     href: "/projects/new?intent=meet",
