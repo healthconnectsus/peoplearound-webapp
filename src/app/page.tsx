@@ -116,10 +116,10 @@ export default async function Root() {
           { community_id: claimId, user_id: user.id },
           { onConflict: "community_id,user_id", ignoreDuplicates: true },
         );
-      redirect("/people");
+      redirect((await cookies()).get('pa-clan') ? '/clans' : '/people');
     }
     redirect("/neighborhood");
   }
 
-  redirect("/people");
+  redirect((await cookies()).get('pa-clan') ? '/clans' : '/people');
 }

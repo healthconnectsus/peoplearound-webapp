@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "./SiteHeader";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { AdminCityPicker } from './AdminCityPicker';
 import { navCounts, type NavCounts } from "@/lib/navCounts";
 
 /**
@@ -35,7 +36,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       </a>
       <Sidebar counts={counts} isAdmin={isAdmin} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <SiteHeader />
+        <SiteHeader cityPicker={isAdmin ? <AdminCityPicker id="admin-city-mobile" /> : undefined} />
         <TopBar />
         {/* Layout-neutral: it inherits the flex behaviour the pages
             already relied on as direct children. */}

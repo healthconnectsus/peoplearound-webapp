@@ -25,6 +25,10 @@ This repository is the **web application** (Next.js + Supabase, deployed on Verc
 
 ## Tech stack
 
+City event imports: weekly listing refreshes, automatic new-city discovery,
+and admin Populate controls are implemented; provider keys and migration 0045
+are required to activate them. See [City event imports](docs/CITY_EVENT_IMPORTS.md).
+
 - **Framework** — [Next.js 16](https://nextjs.org) (App Router) + React 19 + TypeScript
 - **Styling** — Tailwind CSS v4
 - **Auth & data** — [Supabase](https://supabase.com) (Auth, Postgres, RLS) via `@supabase/ssr`

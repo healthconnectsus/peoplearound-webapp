@@ -1,4 +1,6 @@
 import { Search } from "lucide-react";
+import Link from 'next/link';
+import { AdminCityPicker } from './AdminCityPicker';
 import { createClient } from "@/lib/supabase/server";
 import { timeAgo } from "@/lib/projects";
 import { ProfileMenu } from "./ProfileMenu";
@@ -19,6 +21,7 @@ export async function TopBar() {
   let avatarUrl: string | null = null;
   const notifications: Notification[] = [];
   let pendingCount = 0;
+  let isAdmin = false;
 
   if (user) {
     // select("*") so this keeps working before migration 0010 adds avatar_url
@@ -29,12 +32,14 @@ export async function TopBar() {
       .maybeSingle();
     const profile = profileRow as unknown as {
       display_name: string | null;
+      is_admin?: boolean;
       avatar_url?: string | null;
       neighborhood?: { name: string } | null;
     } | null;
     name = profile?.display_name ?? user.email?.split("@")[0] ?? "Neighbor";
     neighborhood = profile?.neighborhood?.name ?? null;
     avatarUrl = profile?.avatar_url ?? null;
+    isAdmin = Boolean(profile?.is_admin);
 
     // The persistent inbox (migration 0025): triggers fan out join
     // requests, stars, contributions, confirmations, and events into
@@ -98,6 +103,8 @@ export async function TopBar() {
         </form>
       </div>
       <div className="flex items-center justify-end gap-2 px-6">
+        {isAdmin && <AdminCityPicker />}
+        <Link href="/clans" className="text-xs underline">My clan</Link>
         <TopBarIcons notifications={notifications} badge={pendingCount} />
         <ProfileMenu
           name={name}

@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { projectPinsByIds } from "@/lib/mapPins";
 import { PlanEventButton } from "./PlanEventButton";
+import { CityEvents } from "./CityEvents";
 import { categoryMeta } from "@/lib/projects";
 import {
   formatEventTime,
@@ -26,6 +27,7 @@ export default async function EventsPage() {
     .select(
       "id,project_id,title,starts_at,place,created_at,rsvps(user_id),project:projects(title)",
     )
+    .gte("starts_at", new Date().toISOString())
     .order("starts_at", { ascending: true })
     .limit(50);
 
@@ -84,6 +86,7 @@ export default async function EventsPage() {
             <PlanEventButton projects={stewardedProjects} />
           </div>
 
+          <h2 className="mt-6 text-xl font-bold">With your project teams</h2>
           {events.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">
               <p className="text-3xl" aria-hidden>
@@ -118,6 +121,7 @@ export default async function EventsPage() {
               ))}
             </ul>
           )}
+          <CityEvents />
         </main>
       </MapShell>
     </AppShell>

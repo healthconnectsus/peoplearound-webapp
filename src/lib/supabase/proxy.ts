@@ -1,14 +1,41 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { buildCsp, cspHeaderName } from "@/lib/csp";
 
 /**
  * Refreshes the Supabase auth session on every request and enforces route
  * protection. Runs inside `src/proxy.ts` (Next.js 16's renamed middleware).
  *
  * Unauthenticated users are redirected to /login for any non-public route.
+ *
+ * This is also where the Content Security Policy is minted, because a nonce
+ * has to be generated per request and reach the renderer on the request's own
+ * headers — Next reads it from there and stamps every script it emits.
  */
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  // Unpredictable and single-use. crypto.randomUUID is available in both the
+  // edge and node runtimes.
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const csp = buildCsp(nonce, process.env.NODE_ENV === "development");
+  const cspHeader = cspHeaderName();
+
+  /**
+   * Forward the incoming request with the CSP attached.
+   *
+   * Rebuilt from `request.headers` at each call rather than snapshotted once:
+   * Supabase's setAll writes refreshed auth cookies onto the request before
+   * re-creating the response, and those live in the cookie header. A stale
+   * snapshot would forward the pre-refresh session and silently sign people
+   * out on token rotation.
+   */
+  const forward = () => {
+    const headers = new Headers(request.headers);
+    headers.set("x-nonce", nonce);
+    headers.set(cspHeader, csp);
+    return { headers };
+  };
+
+  let supabaseResponse = NextResponse.next({ request: forward() });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,7 +49,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = NextResponse.next({ request: forward() });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );
@@ -64,6 +91,16 @@ export async function updateSession(request: NextRequest) {
     // Vercel Cron hits this with its own bearer token (checked in-route).
     path === "/api/digest" ||
     path === "/api/gardener" ||
+    path === "/api/import-city-events" ||
+    path === "/api/welcome-neighbors" ||
+    path === "/api/crawl-city-events" ||
+    // The browser posts CSP violations here before any session exists, and
+    // does so for logged-out pages too. It stores nothing and answers 204.
+    path === "/api/csp-report" ||
+    // The service worker's offline fallback. It is fetched and cached with
+    // no session, and a fallback that redirects to /login is not a fallback:
+    // the one moment it exists for is the moment the network is gone.
+    path === "/offline" ||
     // Local visual galleries; the pages themselves 404 in production.
     (process.env.NODE_ENV !== "production" && path.startsWith("/dev"));
 
@@ -86,6 +123,20 @@ export async function updateSession(request: NextRequest) {
       sameSite: "lax",
     });
   }
+
+  const clan = request.nextUrl.searchParams.get('clan');
+  if (clan && /^[a-f0-9]{32}$/i.test(clan)) {
+    supabaseResponse.cookies.set('pa-clan', clan.toLowerCase(), { path:'/', maxAge:1209600, sameSite:'lax', httpOnly:true });
+  }
+
+  // The browser needs the policy on the response; the renderer needed it on
+  // the request. Same string, both places. (The redirects above return no
+  // document, so there is nothing for a policy to govern.)
+  supabaseResponse.headers.set(cspHeader, csp);
+  supabaseResponse.headers.set(
+    "Reporting-Endpoints",
+    `csp-endpoint="${request.nextUrl.origin}/api/csp-report"`,
+  );
 
   // IMPORTANT: return supabaseResponse as-is to keep cookies in sync.
   return supabaseResponse;

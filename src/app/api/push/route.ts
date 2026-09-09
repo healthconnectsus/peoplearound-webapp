@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import webpush from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { SITE_URL } from "@/lib/site";
 
 export const maxDuration = 300;
 
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, sent: 0 });
   }
 
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.peoplearound.com";
+  const base = SITE_URL;
   const dead: string[] = [];
   const delivered = new Set<string>();
 

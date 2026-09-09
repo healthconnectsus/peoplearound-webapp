@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import {
   CalendarDays,
   HeartHandshake,
@@ -52,6 +53,14 @@ export default async function LoginPage({
   // when the site key is configured; Supabase verifies the token server-side.
   const turnstileKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
+  // The Content Security Policy uses 'strict-dynamic', which makes browsers
+  // ignore host allowlists in script-src: a <script src> runs only if it
+  // carries this request's nonce. Next stamps its own scripts automatically,
+  // but this tag is ours, so it needs the nonce explicitly. Without it, bot
+  // protection silently disappears from the login form once the policy is
+  // enforced. The nonce is minted per request in the proxy.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   // Live teaser of what's being built. The view shows only projects whose
   // author chose "open to anywhere" (migration 0042) — a neighborhood-scoped
   // idea is nobody's business until you're a neighbor. The pulse carries the
@@ -78,6 +87,7 @@ export default async function LoginPage({
       {turnstileKey ? (
         <script
           src="https://challenges.cloudflare.com/turnstile/api.js"
+          nonce={nonce}
           async
           defer
         />

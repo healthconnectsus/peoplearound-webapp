@@ -258,7 +258,7 @@ export default async function SettingsPage({
                     defaultChecked={!(profile as unknown as { digest_opt_out?: boolean } | null)?.digest_opt_out}
                     className="h-4 w-4 accent-emerald-600"
                   />
-                  Send me the weekly digest
+                  Send me a welcome with local events and the weekly digest
                 </label>
                 <button
                   type="submit"

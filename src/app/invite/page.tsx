@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from 'next/link';
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { CopyLinkButton } from "./CopyLinkButton";
@@ -38,6 +39,7 @@ export default async function InvitePage() {
               : ""}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/clans" className="rounded-lg border border-slate-400 px-4 py-2 text-sm">Your clan code and invitations</Link>
             <CopyLinkButton userId={user.id} />
             <a
               href={`mailto:?subject=${encodeURIComponent("Join me on Peoplearound")}&body=${encodeURIComponent("I'm on Peoplearound — a place where neighbors share ideas and build them together. Join me!")}`}

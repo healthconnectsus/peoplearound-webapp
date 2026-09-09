@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DemoResidents } from '@/components/DemoResidents';
 import { redirect } from "next/navigation";
 import { Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -642,6 +643,7 @@ export default async function PeoplePage({
 
 
           <AsksSection userId={user.id} startOpen={compose === "1"} />
+          <DemoResidents />
         </main>
       </MapShell>
     </AppShell>

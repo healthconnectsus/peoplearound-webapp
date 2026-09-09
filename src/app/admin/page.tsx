@@ -5,6 +5,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { AppShell } from "@/components/AppShell";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { timeAgo } from "@/lib/projects";
+import { EventImports } from "./EventImports";
+import { GrowthTools } from './GrowthTools';
+import { CalendarSources } from './CalendarSources';
 import {
   archiveProject,
   deleteCommunity,
@@ -13,6 +16,7 @@ import {
 } from "./adminActions";
 
 export const metadata = { title: "Admin" };
+export const maxDuration = 180;
 
 /**
  * Ops console — visible only to profiles.is_admin. Replaces SQL-editor
@@ -29,9 +33,9 @@ const PILL =
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; message?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, message } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -130,6 +134,12 @@ export default async function AdminPage({
             {error}
           </p>
         ) : null}
+
+        {message ? <p role="status" className="mt-4 rounded-md border border-emerald-300 p-3 text-sm">{message}</p> : null}
+
+        <EventImports />
+        <GrowthTools />
+        <CalendarSources />
 
         {/* Health strip */}
         <div className="mt-6 grid grid-cols-3 gap-3">

@@ -7,6 +7,72 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-09 — City events: weekly Ticketmaster/SerpApi imports, calendar crawler, clans, admin city view and activity reports; CSP report-only; fix sw.js/manifest/robots being redirected to login
+
+- `.env.example`
+- `README.md`
+- `docs/CITY_EVENT_IMPORTS.md`
+- `package-lock.json`
+- `package.json`
+- `progress.md`
+- `scripts/configure-invite-email.mjs`
+- `scripts/test-city-database.mjs`
+- `scripts/test-city-events.mjs`
+- `src/app/admin/CalendarSources.tsx`
+- `src/app/admin/EventImports.tsx`
+- `src/app/admin/GrowthTools.tsx`
+- `src/app/admin/activity/page.tsx`
+- `src/app/admin/adminActions.ts`
+- `src/app/admin/city/page.tsx`
+- `src/app/admin/cityActions.ts`
+- `src/app/admin/page.tsx`
+- `src/app/admin/sourceActions.ts`
+- `src/app/api/crawl-city-events/route.ts`
+- `src/app/api/csp-report/route.ts`
+- `src/app/api/import-city-events/route.ts`
+- `src/app/api/push/route.ts`
+- `src/app/api/welcome-neighbors/route.ts`
+- `src/app/clans/actions.ts`
+- `src/app/clans/page.tsx`
+- `src/app/events/CityEvents.tsx`
+- `src/app/events/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/login/page.tsx`
+- `src/app/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/robots.ts`
+- `src/app/settings/page.tsx`
+- `src/app/sitemap.ts`
+- `src/components/AdminCityPicker.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/DemoResidents.tsx`
+- `src/components/SiteHeader.tsx`
+- `src/components/TopBar.tsx`
+- `src/lib/admin.ts`
+- `src/lib/city-events/crawler.ts`
+- `src/lib/city-events/importer.ts`
+- `src/lib/city-events/normalize.ts`
+- `src/lib/city-events/safe-fetch.ts`
+- `src/lib/csp.ts`
+- `src/lib/site.ts`
+- `src/lib/supabase/proxy.ts`
+- `src/lib/welcome.ts`
+- `src/proxy.ts`
+- `supabase/migrations/0045_city_event_imports.sql`
+- `supabase/migrations/0046_clans_and_city_admin.sql`
+- `supabase/migrations/0047_admin_activity.sql`
+- `supabase/migrations/0048_welcome_context.sql`
+- `supabase/migrations/0049_calendar_crawler.sql`
+- `vercel.json`
+
+
+### 2026-09-09 — City event imports (local implementation; activation pending keys)
+
+- Added city-scoped external listings, weekly refresh queue, automatic city registration, leases, and shared search budgets (migration 0045).
+- Added Ticketmaster and current SerpApi Google Search adapters; source-calendar discovery and source links on the Events page.
+- Added admin Populate-now controls, per-city settings/status, and authenticated cron worker configuration.
+- Added import regression tests and setup documentation in docs/CITY_EVENT_IMPORTS.md. Migration/deployment and live-provider validation remain pending; existing uncommitted CSP work was preserved.
+
 ### 2026-09-06 — Small help: brand teal instead of amber; closing the wizard drops ?compose=1 so the rail link reopens it
 
 - `src/app/asks/AskComposer.tsx`
