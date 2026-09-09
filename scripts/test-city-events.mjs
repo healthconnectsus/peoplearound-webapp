@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 // Compile the pure TS module in memory; no build artifacts or live APIs.
 const source = readFileSync(new URL('../src/lib/city-events/normalize.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ESNext } }).outputText;
-const { eventDate, sourceUrl, searchListings, ticketmasterListings, distinctListings, geoHash } =
+const { eventDate, sourceUrl, searchListings, ticketmasterListings, distinctListings, geoHash, text } =
   await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
 const now = new Date('2026-09-09T12:00:00Z');
 
@@ -237,4 +237,22 @@ test('cron rejects anonymous calls before invoking privileged importer', async (
     assert.equal((await GET(new Request('https://example.com/api/import-city-events', { headers: { authorization: 'Bearer fixture' } }))).status, 200);
     assert.equal(calls, 1);
   } finally { if (old === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = old; }
+});
+
+test('titles are HTML-decoded before storage, and stay safe', () => {
+  // Real calendars publish JSON-LD with escaped text; the first crawl of
+  // kcparks.org stored "KC Chief&#8217;s Red Thursday Pep Rally" verbatim.
+  assert.equal(text('KC Chief&#8217;s Red Thursday Pep Rally'), 'KC Chief’s Red Thursday Pep Rally');
+  assert.equal(text('Repair Caf&#xe9; &amp; Swap'), 'Repair Café & Swap');
+  assert.equal(text('Books &ndash; Bagels &hellip;'), 'Books – Bagels …');
+  // Whitespace from pretty-printed JSON-LD collapses.
+  assert.equal(text('Garden   Work\n  Day'), 'Garden Work Day');
+  // Unknown and unsafe escapes are left alone rather than guessed at.
+  assert.equal(text('a &bogus; b'), 'a &bogus; b');
+  assert.equal(text('lone &#55296; surrogate'), 'lone &#55296; surrogate');
+  // Decoding cannot smuggle markup past the clamp.
+  assert.equal(text('&lt;script&gt;'), '<script>');
+  assert.equal(text('&#38;#60;'), '&#60;');
+  // Non-strings stay empty.
+  for (const v of [null, undefined, 42, {}]) assert.equal(text(v), '');
 });

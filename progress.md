@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-09 — City events: decode HTML entities in imported titles, dedupe on write via the display helper, raise provider timeout to 30s
+
+- `scripts/test-city-events.mjs`
+- `src/lib/city-events/crawler.ts`
+- `src/lib/city-events/normalize.ts`
+
+
 ### 2026-09-09 — City events: weekly Ticketmaster/SerpApi imports, calendar crawler, clans, admin city view and activity reports; CSP report-only; fix sw.js/manifest/robots being redirected to login
 
 - `.env.example`

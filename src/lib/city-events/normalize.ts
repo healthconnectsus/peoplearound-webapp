@@ -17,8 +17,53 @@ export function record(value: unknown): Record<string, unknown> {
     ? value as Record<string, unknown> : {};
 }
 export function rows(value: unknown): unknown[] { return Array.isArray(value) ? value : []; }
+/**
+ * The few named entities worth spelling out. Everything else that matters is
+ * numeric and handled generically below.
+ */
+const NAMED: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  ldquo: '“', rdquo: '”', lsquo: '‘', rsquo: '’',
+  ndash: '–', mdash: '—', hellip: '…',
+};
+
+/**
+ * Decode HTML entities.
+ *
+ * Calendar pages carry their titles inside JSON-LD, already HTML-escaped, so
+ * the first real crawl produced listings reading "KC Chief&#8217;s Red
+ * Thursday Pep Rally". React escapes on render, so the raw entity would have
+ * been shown to neighbors verbatim.
+ *
+ * Written out rather than pulling in a decoder: the only entity library here
+ * is a transitive dependency of cheerio, and this file is also imported by a
+ * component, so it must stay free of anything that assumes a Node bundle.
+ * Numeric escapes are handled generically, which covers the long tail; the
+ * named map only needs the handful that actually appear in event titles.
+ */
+function decodeEntities(input: string): string {
+  if (!input.includes('&')) return input;
+  return input.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, body: string) => {
+    const token = body.toLowerCase();
+    if (token.startsWith('#x') || token.startsWith('#')) {
+      const code = token.startsWith('#x')
+        ? Number.parseInt(token.slice(2), 16)
+        : Number.parseInt(token.slice(1), 10);
+      // Reject anything outside Unicode, and the surrogate range, which
+      // String.fromCodePoint would throw on.
+      if (!Number.isFinite(code) || code < 0x20 || code > 0x10ffff) return whole;
+      if (code >= 0xd800 && code <= 0xdfff) return whole;
+      return String.fromCodePoint(code);
+    }
+    return NAMED[token] ?? whole;
+  });
+}
+
 export function text(value: unknown, max = 250): string {
-  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+  if (typeof value !== 'string') return '';
+  // Decode first, then clamp: decoding shortens the string, so slicing first
+  // could cut an entity in half and leave "&#82" in a title.
+  return decodeEntities(value).replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
 export function sourceUrl(value: unknown): string | null {

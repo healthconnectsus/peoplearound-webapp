@@ -4,7 +4,7 @@ import { load } from 'cheerio';
 import ical from 'node-ical';
 import robotsParser from 'robots-parser';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { eventDate, record, sourceUrl, text, type Listing } from './normalize';
+import { distinctListings, eventDate, record, sourceUrl, text, type Listing } from './normalize';
 import { safeGet } from './safe-fetch';
 
 export function jsonLdEvents(html:string,pageUrl:string,now:Date):Listing[] {
@@ -80,7 +80,14 @@ export async function crawlNextCalendar(){
         const detail=await safeGet(link);if(detail.status===200)listings.push(...jsonLdEvents(detail.body,link,now));
       }
     }
-    const unique=[...new Map(listings.map(e=>[e.external_id,e])).values()];
+    // Deduplicate before writing, not only when rendering.
+    // This crawler reads the listing page and then follows up to five detail
+    // pages, and sites publish the same event in both. Those copies carry
+    // different @id/url values, so external_id alone let each event through
+    // twice; the feed hid it because CityEvents deduplicates on display, but
+    // the rows were still stored twice and counted twice in the admin console.
+    // Same helper as the display path, so the two can never disagree.
+    const unique=distinctListings(listings);
     if(unique.length){const {error:writeError}=await admin.from('city_events').upsert(unique.map(e=>({...e,external_id:createHash('sha256').update(`${source.id}|${e.external_id}`).digest('hex'),city_id:source.city_id,last_seen_at:now.toISOString(),expires_at:new Date(now.getTime()+8*86400000).toISOString()})),{onConflict:'city_id,provider,external_id'});if(writeError)throw new Error('Could not save calendar events');}
     count=unique.length;
     if(!count)failure='No supported dated events found. This site may require a dedicated feed or adapter.';
