@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Speed: count Local Faves in Postgres instead of shipping every star row to the shell on every page load (migration 0054)
+
+- `src/lib/navCounts.ts`
+- `supabase/migrations/0054_faves_count.sql`
+
+
 ### 2026-09-10 — Speed: the feed and explore pages queued five and six database round trips one behind another; run them together
 
 - `src/app/explore/page.tsx`

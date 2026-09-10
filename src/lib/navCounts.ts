@@ -39,7 +39,10 @@ export async function navCounts(
     await Promise.all([
     // Local Faves lists starred, non-archived projects — count the distinct
     // projects that have a star, which is what the page will show you.
-    supabase.from("stars").select("project_id"),
+    // Counted in Postgres (migration 0054): this used to select every star
+    // row the viewer could see and count them in memory, on every page load,
+    // because the badge lives in the shell.
+    supabase.rpc("visible_faves_count"),
     // Events you said "I'm in" to. There is no creator column on events —
     // they belong to the project, not a person (migration 0006).
     supabase
@@ -70,12 +73,8 @@ export async function navCounts(
       .eq("status", "accepted"),
   ]);
 
-  const starred = new Set(
-    ((starRes.data ?? []) as { project_id: string }[]).map((s) => s.project_id),
-  );
-
   return {
-    faves: starred.size,
+    faves: (starRes.data as number | null) ?? 0,
     events: rsvpRes.count ?? 0,
     offers: offerRes.count ?? 0,
     people: peopleRes.count ?? 0,
