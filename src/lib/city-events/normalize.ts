@@ -159,6 +159,31 @@ export function distinctListings<T extends Pick<Listing, 'title' | 'event_date' 
   });
 }
 
+/**
+ * Hosts that are never a crawlable calendar, however well they rank.
+ *
+ * Discovery kept proposing Facebook and YouTube pages, which is wasted work
+ * three times over: they publish no structured event data, their robots.txt
+ * forbids this crawler, and a social post is not a calendar even when it
+ * mentions events. They also crowd genuine council and library calendars out
+ * of the admin's approval list, which is the real cost — the operator has to
+ * read past them every time.
+ */
+export const NOT_A_CALENDAR = [
+  'facebook.com', 'instagram.com', 'twitter.com', 'x.com', 'youtube.com',
+  'youtu.be', 'tiktok.com', 'pinterest.com', 'reddit.com', 'linkedin.com',
+  'yelp.com', 'tripadvisor.com', 'wikipedia.org',
+];
+
+export function isCrawlableCalendar(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '').toLowerCase();
+    return !NOT_A_CALENDAR.some(bad => host === bad || host.endsWith(`.${bad}`));
+  } catch {
+    return false;
+  }
+}
+
 /** Standard base32 geohash for Ticketmaster's geoPoint radius search. */
 export function geoHash(lat: number, lng: number): string {
   const bounds = [[-180, 180], [-90, 90]], values = [lng, lat];

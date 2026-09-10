@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — City events: qualify a bare city name from its coordinates before searching, and never accept a social page as a calendar source
+
+- `scripts/test-city-events.mjs`
+- `src/lib/city-events/importer.ts`
+- `src/lib/city-events/normalize.ts`
+
+
 ### 2026-09-10 — Docs: the eight new tables, the security posture (CSP, headers, crawler SSRF guard, cron auth), and the backlog brought up to what shipped
 
 - `docs/ARCHITECTURE.md`

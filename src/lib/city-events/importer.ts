@@ -1,7 +1,8 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { geoHash, record, rows, sourceUrl, text, searchListings, ticketmasterListings, type Listing } from './normalize';
+import { reverseGeocode } from '@/lib/frontier';
+import { geoHash, isCrawlableCalendar, record, rows, sourceUrl, text, searchListings, ticketmasterListings, type Listing } from './normalize';
 
 type Admin = NonNullable<ReturnType<typeof createAdminClient>>;
 export type EventCity = {
@@ -57,11 +58,51 @@ async function search(admin: Admin, query: string) {
   return apiJson(url);
 }
 
-async function discoverSources(admin: Admin, city: EventCity, now: Date) {
-  const payload = await search(admin, `${city.search_location} official tourism city library parks community events calendar`);
+/**
+ * Give a bare city name its state before searching with it.
+ *
+ * A new city is registered from a neighborhood, which stores only a name and
+ * a centre — there is no state column — so `search_location` starts as just
+ * "Springfield". Ticketmaster is unaffected because it searches by
+ * coordinates, but the search engine is not: "Springfield" returned calendars
+ * from Illinois, Oregon and a county in Georgia, and those became candidate
+ * crawl sources for a Missouri neighborhood.
+ *
+ * The centre coordinates already resolve this, and the app already has a
+ * reverse geocoder for the frontier flow, so one Nominatim call per city
+ * fixes it permanently: the result is written back, and every later run sees
+ * a comma and skips this entirely.
+ *
+ * The stored name is kept and the region appended, never replaced. Replacing
+ * it would silently rename a community to whatever OpenStreetMap calls that
+ * point, which is a much worse failure than an unqualified search.
+ */
+async function qualifySearchLocation(admin: Admin, city: EventCity): Promise<string> {
+  const current = city.search_location.trim();
+  if (current.includes(',') || city.lat == null || city.lng == null) return current;
+  try {
+    const { region } = await reverseGeocode(city.lat, city.lng);
+    if (!region) return current;
+    const qualified = `${current}, ${region}`;
+    await admin.from('event_cities').update({ search_location: qualified })
+      .eq('id', city.id).eq('lease_token', city.lease_token);
+    return qualified;
+  } catch {
+    // A geocoder outage must not stop the import; the unqualified name still
+    // works, just less precisely.
+    return current;
+  }
+}
+
+async function discoverSources(admin: Admin, city: EventCity, now: Date, where: string) {
+  // `where` is the qualified location, not the bare city name: discovery is
+  // exactly where an ambiguous name did damage, turning calendars from three
+  // other states into candidate crawl sources.
+  const payload = await search(admin, `${where} official tourism city library parks community events calendar`);
   const sources = rows(record(payload).organic_results).slice(0, 10).flatMap(value => {
     const r = record(value), url = sourceUrl(r.link), title = text(r.title);
-    return url && title ? [{ city_id: city.id, url, title }] : [];
+    if (!url || !title || !isCrawlableCalendar(url)) return [];
+    return [{ city_id: city.id, url, title }];
   });
   // A known calendar supplied by the owner; discovery adds other local sources.
   if (/^kansas city$/i.test(city.name)) sources.push({ city_id: city.id, url: 'https://www.visitkc.com/events/', title: 'Visit KC events calendar' });
@@ -121,6 +162,9 @@ export async function populateCity(cityId?: string): Promise<ImportResult> {
   if (!city) return { status: 'idle', imported: 0, message: 'No city is due, or an import is already running.' };
   const now = new Date(), errors: string[] = [];
   let imported = 0, successes = 0;
+  // Resolved once and reused by both the listing search and discovery, so a
+  // city costs at most one geocode ever.
+  const where = config.search ? await qualifySearchLocation(admin, city) : city.search_location;
   // Isolated providers: a search outage must not erase Ticketmaster results.
   if (config.ticketmaster) {
     try { imported += await saveListings(admin, city, await ticketmaster(city, now), now); successes++; }
@@ -128,11 +172,11 @@ export async function populateCity(cityId?: string): Promise<ImportResult> {
   }
   if (config.search) {
     try {
-      const payload = await search(admin, `community events in ${city.search_location} upcoming ${now.getUTCFullYear()}`);
+      const payload = await search(admin, `community events in ${where} upcoming ${now.getUTCFullYear()}`);
       imported += await saveListings(admin, city, searchListings(payload, now), now); successes++;
     } catch (e) { errors.push(`Search: ${e instanceof Error ? e.message : 'import failed'}`); }
     if (!city.sources_checked_at || Date.parse(city.sources_checked_at) < now.getTime() - 30 * 86400000) {
-      try { await discoverSources(admin, city, now); }
+      try { await discoverSources(admin, city, now, where); }
       catch (e) { errors.push(`Calendars: ${e instanceof Error ? e.message : 'discovery failed'}`); }
     }
   }

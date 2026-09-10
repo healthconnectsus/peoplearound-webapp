@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 // Compile the pure TS module in memory; no build artifacts or live APIs.
 const source = readFileSync(new URL('../src/lib/city-events/normalize.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ESNext } }).outputText;
-const { eventDate, sourceUrl, searchListings, ticketmasterListings, distinctListings, geoHash, text } =
+const { eventDate, sourceUrl, searchListings, ticketmasterListings, distinctListings, geoHash, text, isCrawlableCalendar } =
   await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
 const now = new Date('2026-09-09T12:00:00Z');
 
@@ -79,7 +79,8 @@ test('import orchestration: repeat writes, provider isolation, budgets, missing 
   const keys = ['TICKETMASTER_API_KEY', 'SERPAPI_API_KEY'];
   const oldEnv = keys.map(k => process.env[k]);
   const normalizers = { geoHash, record: v => v && typeof v === 'object' && !Array.isArray(v) ? v : {},
-    rows: v => Array.isArray(v) ? v : [], sourceUrl, text: (v, max = 250) => typeof v === 'string' ? v.trim().slice(0, max) : '', searchListings, ticketmasterListings };
+    rows: v => Array.isArray(v) ? v : [], sourceUrl, text: (v, max = 250) => typeof v === 'string' ? v.trim().slice(0, max) : '', searchListings, ticketmasterListings,
+    isCrawlableCalendar };
   const city = { id: 'city-1', name: 'Kansas City', search_location: 'Kansas City, Missouri', lat: 39.09, lng: -94.58,
     lease_token: 'lease-1', sources_checked_at: new Date().toISOString() };
   const writes = [], requests = [], finishes = [];
@@ -94,8 +95,10 @@ test('import orchestration: repeat writes, provider isolation, budgets, missing 
       },
     }),
   };
+  const geocodes = [];
   const { populateCity } = compileWithMocks('../src/lib/city-events/importer.ts', {
     'server-only': {}, '@/lib/supabase/admin': { createAdminClient: () => db }, './normalize': normalizers,
+    '@/lib/frontier': { reverseGeocode: async (lat, lng) => { geocodes.push([lat, lng]); return { name: 'x', city: 'Kansas City', region: 'Missouri, United States' }; } },
   });
   globalThis.fetch = async input => {
     const url = new URL(input); requests.push(url);
@@ -124,6 +127,10 @@ test('import orchestration: repeat writes, provider isolation, budgets, missing 
     available = false;
     const before = requests.length;
     assert.equal((await populateCity()).status, 'idle'); assert.equal(requests.length, before);
+    // The fixture city already reads "Kansas City, Missouri", so the one-off
+    // geocode that qualifies a bare name must never fire — a city should cost
+    // at most one Nominatim call, ever.
+    assert.equal(geocodes.length, 0);
     available = true; failTicketmaster = true; process.env.SERPAPI_API_KEY = 'fixture';
     assert.equal((await populateCity()).status, 'partial');
     assert.match(finishes.at(-1).last_error, /Ticketmaster/);
@@ -255,4 +262,77 @@ test('titles are HTML-decoded before storage, and stay safe', () => {
   assert.equal(text('&#38;#60;'), '&#60;');
   // Non-strings stay empty.
   for (const v of [null, undefined, 42, {}]) assert.equal(text(v), '');
+});
+
+test('social pages are never accepted as calendar sources', () => {
+  // Discovery kept proposing these. They publish no structured events, their
+  // robots.txt forbids this crawler, and they crowd real council and library
+  // calendars out of the admin's approval list.
+  for (const url of [
+    'https://www.facebook.com/visitaurora/posts/longer-days',
+    'https://facebook.com/x', 'https://m.facebook.com/x',
+    'https://www.youtube.com/watch?v=1', 'https://youtu.be/abc',
+    'https://twitter.com/x', 'https://x.com/x', 'https://www.instagram.com/x',
+    'https://en.wikipedia.org/wiki/Aurora', 'https://www.yelp.com/biz/x',
+    'not a url', '',
+  ]) assert.equal(isCrawlableCalendar(url), false, url);
+
+  // Genuine municipal, library and parks calendars must still pass.
+  for (const url of [
+    'https://kcparks.org/events/', 'https://kclibrary.org/calendar',
+    'https://www.kcmo.gov/talk-to-us/city-calendar',
+    'https://www.visitkc.com/events/', 'https://calendar.colorado.edu/',
+    // A lookalike hostname must not be blocked by a naive substring match.
+    'https://facebook.com.events.example.org/calendar',
+  ]) assert.equal(isCrawlableCalendar(url), true, url);
+});
+
+test('a bare city name is qualified once from its coordinates, then never again', async () => {
+  // "Springfield" alone returned calendars from Illinois, Oregon and a county
+  // in Georgia. The centre coordinates settle it, and the result is written
+  // back so the geocoder is asked once per city rather than every week.
+  const savedFetch = globalThis.fetch;
+  const oldKeys = ['TICKETMASTER_API_KEY', 'SERPAPI_API_KEY'].map(k => process.env[k]);
+  const normalizers = { geoHash, record: v => v && typeof v === 'object' && !Array.isArray(v) ? v : {},
+    rows: v => Array.isArray(v) ? v : [], sourceUrl, text: (v, max = 250) => typeof v === 'string' ? v.trim().slice(0, max) : '',
+    searchListings, ticketmasterListings, isCrawlableCalendar };
+  const city = { id: 'c', name: 'Springfield', search_location: 'Springfield', lat: 37.21, lng: -93.29,
+    lease_token: 'lease', sources_checked_at: null };
+  const updates = [], queries = [];
+  let geocodes = 0;
+  const db = {
+    rpc: async name => ({ data: name === 'claim_event_city' ? [city] : true, error: null }),
+    from: () => ({
+      upsert: async () => ({ error: null }),
+      update: value => { updates.push(value); const c = { eq: () => c, then: r => Promise.resolve({ error: null }).then(r) }; return c; },
+    }),
+  };
+  const { populateCity } = compileWithMocks('../src/lib/city-events/importer.ts', {
+    'server-only': {}, '@/lib/supabase/admin': { createAdminClient: () => db }, './normalize': normalizers,
+    '@/lib/frontier': { reverseGeocode: async () => { geocodes++; return { name: 'Springfield', city: 'Springfield', region: 'Missouri, United States' }; } },
+  });
+  globalThis.fetch = async input => {
+    const url = new URL(input);
+    if (url.hostname === 'serpapi.com') queries.push(url.searchParams.get('q'));
+    return Response.json({ events_results: [], organic_results: [] });
+  };
+  try {
+    delete process.env.TICKETMASTER_API_KEY;
+    process.env.SERPAPI_API_KEY = 'fixture';
+    await populateCity();
+    assert.equal(geocodes, 1, 'geocoded exactly once');
+    // The qualified value is persisted, so later runs short-circuit.
+    assert.ok(updates.some(u => u.search_location === 'Springfield, Missouri, United States'), JSON.stringify(updates));
+    // Both the listing search and calendar discovery use the qualified name.
+    assert.ok(queries.length >= 1, 'at least one search ran');
+    for (const q of queries) assert.match(q, /Springfield, Missouri, United States/, q);
+    // The stored name is kept, never replaced by whatever the geocoder calls
+    // that point — renaming a community silently is the worse failure.
+    for (const q of queries) assert.match(q, /^.*Springfield/);
+  } finally {
+    globalThis.fetch = savedFetch;
+    ['TICKETMASTER_API_KEY', 'SERPAPI_API_KEY'].forEach((k, i) => {
+      if (oldKeys[i] === undefined) delete process.env[k]; else process.env[k] = oldKeys[i];
+    });
+  }
 });
