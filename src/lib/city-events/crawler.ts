@@ -119,12 +119,13 @@ export function eventLinks(
       found.add(u.toString());
     } catch { /* a malformed href is not worth losing its siblings over */ }
   });
-  // Longest slug first: "/events/repair-cafe-bring-your-broken-things/" is far
-  // more likely to be one event than "/events/free/".
-  return [...found].sort((a, b) => {
-    const seg = (u: string) => new URL(u).pathname.replace(/\/+$/, '').split('/').pop() ?? '';
-    return seg(b).length - seg(a).length;
-  });
+  // Document order, deliberately. Sorting by slug length was tried first and
+  // was worse: the wordiest slugs on visitkc.com belong to months-long
+  // exhibitions that began in spring, so all five fetches went to events whose
+  // start date had already passed and the crawl returned nothing. A listing
+  // page almost always puts the soonest thing first, which is the ordering we
+  // actually want, and the filter above is what removes the navigation.
+  return [...found];
 }
 
 export async function crawlNextCalendar(){

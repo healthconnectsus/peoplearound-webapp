@@ -393,7 +393,8 @@ test('a listing page yields its iCal feed and real event links, not its navigati
 
   const links = eventLinks($, page, new URL(page), robots);
   // Only the two genuine events survive; pagination, category, tag, venue,
-  // the page itself and the off-site link are all dropped.
+  // the page itself and the off-site link are all dropped — and they keep the
+  // page's own order, which is how a listing signals what is soonest.
   assert.deepEqual(links, [
     'https://example.org/events/repair-cafe-bring-your-broken-things/',
     'https://example.org/events/garden-work-day/',

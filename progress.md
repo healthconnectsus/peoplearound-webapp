@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Crawler: follow a listing page in its own order, so the five detail pages fetched are the soonest rather than the wordiest
+
+- `scripts/test-city-events.mjs`
+- `src/lib/city-events/crawler.ts`
+
+
 ### 2026-09-10 — Crawler: compare the instant an event starts, not the text of it — an iCal feed and a page write the same moment two ways
 
 - `scripts/test-city-events.mjs`
