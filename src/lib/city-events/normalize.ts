@@ -148,7 +148,14 @@ export function distinctListings<T extends Pick<Listing, 'title' | 'event_date' 
   const seen = new Set<string>();
   const clean = (v: string) => (v ?? '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
   return list.filter(e => {
-    const when = e.starts_at ?? clean(e.date_label);
+    // Compare the instant, not the text of it. The same moment reaches us
+    // written two ways — an iCal feed emits "2026-09-12T14:00:00.000Z" where
+    // the page's markup says "2026-09-12T09:00:00-05:00" — and as strings
+    // those never match, so every event on a site that publishes both was
+    // stored twice. Postgres normalises them on write, which is exactly why
+    // the rows looked identical afterwards and the duplicates were puzzling.
+    const instant = e.starts_at ? Date.parse(e.starts_at) : NaN;
+    const when = Number.isFinite(instant) ? String(instant) : clean(e.date_label);
     const place = clean((e.venue ?? '').split(',')[0]);
     const key = `${clean(e.title)}|${e.event_date}|${when}|${place}`;
     if (seen.has(key)) return false;

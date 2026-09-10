@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Crawler: compare the instant an event starts, not the text of it — an iCal feed and a page write the same moment two ways
+
+- `scripts/test-city-events.mjs`
+- `src/lib/city-events/normalize.ts`
+
+
 ### 2026-09-10 — Crawler: one event from a feed and from a page is one row again — dedupe on the instant it starts, not on how each source spells the venue
 
 - `scripts/test-city-events.mjs`

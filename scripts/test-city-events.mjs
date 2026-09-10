@@ -57,7 +57,10 @@ test('cross-provider duplicates collapse without hiding different dates or venue
   const feed = { title: 'Military Day at KC Northern Miniature Railroad', event_date: '2026-09-12',
     starts_at: '2026-09-12T15:00:00+00:00', date_label: '2026-09-12T15:00:00.000Z',
     venue: 'Kansas City Northern Miniature Railroad, 6060 NW Waukomis Dr., Kansas City, MO, 64151, United States' };
-  const scraped = { ...feed, date_label: '2026-09-12T10:00:00-05:00',
+  // The scrape reports the same instant in local-offset form, which is the
+  // detail that defeated the first attempt at this.
+  const scraped = { ...feed, starts_at: '2026-09-12T10:00:00-05:00',
+    date_label: '2026-09-12T10:00:00-05:00',
     venue: 'Kansas City Northern Miniature Railroad' };
   assert.equal(distinctListings([feed, scraped]).length, 1, 'the same event from two sources is one row');
 
