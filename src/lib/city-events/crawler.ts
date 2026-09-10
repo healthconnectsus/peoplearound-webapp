@@ -198,8 +198,27 @@ export async function crawlNextCalendar(){
     // the rows were still stored twice and counted twice in the admin console.
     // Same helper as the display path, so the two can never disagree.
     const unique=distinctListings(listings);
-    if(unique.length){const {error:writeError}=await admin.from('city_events').upsert(unique.map(e=>({...e,external_id:createHash('sha256').update(`${source.id}|${e.external_id}`).digest('hex'),city_id:source.city_id,last_seen_at:now.toISOString(),expires_at:new Date(now.getTime()+8*86400000).toISOString()})),{onConflict:'city_id,provider,external_id'});if(writeError)throw new Error('Could not save calendar events');}
-    count=unique.length;
+
+    // distinctListings answers "is this the same event to a reader". The
+    // upsert asks a narrower question: is this the same ROW. Those can
+    // disagree — a page that lists one event twice under slightly different
+    // names yields two readable-distinct entries that hash to one external_id,
+    // and Postgres refuses a batch whose ON CONFLICT target repeats
+    // ("cannot affect row a second time"). That surfaced as visitkc.com
+    // failing with "Could not save calendar events" while parsing perfectly
+    // well. So collapse on the actual conflict key before writing, the same
+    // way the importer already does.
+    const rows=[...new Map(unique.map(e=>[
+      createHash('sha256').update(`${source.id}|${e.external_id}`).digest('hex'),
+      e,
+    ])).entries()].map(([external_id,e])=>({...e,external_id,city_id:source.city_id,
+      last_seen_at:now.toISOString(),expires_at:new Date(now.getTime()+8*86400000).toISOString()}));
+
+    if(rows.length){
+      const {error:writeError}=await admin.from('city_events').upsert(rows,{onConflict:'city_id,provider,external_id'});
+      if(writeError)throw new Error(`Could not save calendar events: ${writeError.message}`);
+    }
+    count=rows.length;
     if(!count)failure='No supported dated events found. This site may require a dedicated feed or adapter.';
   }catch(e){failure=e instanceof Error?e.message:'Calendar crawl failed';}
   await admin.from('city_event_sources').update({last_crawled_at:now.toISOString(),last_count:count,last_error:failure,lease_token:null,lease_until:null,next_crawl_at:new Date(now.getTime()+source.interval_hours*3600000).toISOString()}).eq('id',source.id).eq('lease_token',source.lease_token);

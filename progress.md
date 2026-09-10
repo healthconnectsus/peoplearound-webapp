@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Crawler: a page listing one event twice no longer fails the whole write; collapse on the upsert key and report what the database actually said
+
+- `src/lib/city-events/crawler.ts`
+
+
 ### 2026-09-10 — Crawler: follow a listing page in its own order, so the five detail pages fetched are the soonest rather than the wordiest
 
 - `scripts/test-city-events.mjs`
