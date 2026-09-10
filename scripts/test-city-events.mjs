@@ -42,8 +42,36 @@ test('current Google inline schemas supported; undated or unlinked search hits n
 
 
 test('cross-provider duplicates collapse without hiding different dates or venues', () => {
-  const base = { title: 'Park fair!', event_date: '2026-09-12', venue: 'Main Park', date_label: 'Sep 12, 10 AM' };
-  assert.equal(distinctListings([base, { ...base, title: 'Park Fair' }, { ...base, venue: 'West Park' }, { ...base, event_date: '2026-09-13' }, { ...base, date_label: 'Sep 12, 2 PM' }]).length, 4);
+  const base = { title: 'Park fair!', event_date: '2026-09-12', venue: 'Main Park', date_label: 'Sep 12, 10 AM', starts_at: null };
+  assert.equal(distinctListings([
+    base,
+    { ...base, title: 'Park Fair' },              // punctuation and case only
+    { ...base, venue: 'West Park' },              // a different place
+    { ...base, event_date: '2026-09-13' },        // a different day
+    { ...base, date_label: 'Sep 12, 2 PM' },      // a different undated showtime
+  ]).length, 4);
+
+  // The case this was rewritten for: one event read from a site's iCal feed
+  // and again from its listing markup. Same title, same day, same instant —
+  // but the feed spells out the address and each labels the time its own way.
+  const feed = { title: 'Military Day at KC Northern Miniature Railroad', event_date: '2026-09-12',
+    starts_at: '2026-09-12T15:00:00+00:00', date_label: '2026-09-12T15:00:00.000Z',
+    venue: 'Kansas City Northern Miniature Railroad, 6060 NW Waukomis Dr., Kansas City, MO, 64151, United States' };
+  const scraped = { ...feed, date_label: '2026-09-12T10:00:00-05:00',
+    venue: 'Kansas City Northern Miniature Railroad' };
+  assert.equal(distinctListings([feed, scraped]).length, 1, 'the same event from two sources is one row');
+
+  // Two real showings of the same thing on one day are still two.
+  assert.equal(distinctListings([
+    { ...feed, starts_at: '2026-09-12T15:00:00+00:00' },
+    { ...feed, starts_at: '2026-09-12T19:00:00+00:00' },
+  ]).length, 2);
+
+  // Same title and time at genuinely different places stays separate.
+  assert.equal(distinctListings([
+    { ...feed, venue: 'Central Branch, 14 W 10th St' },
+    { ...feed, venue: 'Plaza Branch, 4801 Main St' },
+  ]).length, 2);
 });
 
 

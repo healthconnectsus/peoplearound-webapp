@@ -124,12 +124,33 @@ export function searchListings(payload: unknown, now: Date): Listing[] {
   });
 }
 
-export function distinctListings<T extends Pick<Listing, 'title' | 'event_date' | 'venue' | 'date_label'>>(list: T[]): T[] {
+/**
+ * Collapse the same event described twice.
+ *
+ * This has to survive one event arriving from two places at once. A site that
+ * publishes an iCal feed *and* marks up its listing page gives us both, and
+ * they disagree on the cosmetics: the feed says the venue is "Kansas City
+ * Northern Miniature Railroad, 6060 NW Waukomis Dr., Kansas City, MO, 64151,
+ * United States" where the page says just the name, and each labels the time
+ * in its own format. Keying on those fields kept both copies, so every event
+ * on kcparks.org appeared twice.
+ *
+ * The identity that actually holds is the title, the day, and the instant it
+ * starts. `starts_at` is the authoritative moment when either source gave one,
+ * so two genuine showings of the same thing on the same day stay separate, and
+ * the same showing described twice does not.
+ *
+ * Venue is still part of the key, but only up to its first comma — enough to
+ * tell two library branches apart, not enough for a postal address to make a
+ * duplicate look unique.
+ */
+export function distinctListings<T extends Pick<Listing, 'title' | 'event_date' | 'venue' | 'date_label' | 'starts_at'>>(list: T[]): T[] {
   const seen = new Set<string>();
-  const clean = (v: string) => v.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  const clean = (v: string) => (v ?? '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
   return list.filter(e => {
-    // Be conservative: separate showtimes at the same venue are not duplicates.
-    const key = `${clean(e.title)}|${e.event_date}|${clean(e.venue)}|${clean(e.date_label)}`;
+    const when = e.starts_at ?? clean(e.date_label);
+    const place = clean((e.venue ?? '').split(',')[0]);
+    const key = `${clean(e.title)}|${e.event_date}|${when}|${place}`;
     if (seen.has(key)) return false;
     seen.add(key); return true;
   });

@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Crawler: one event from a feed and from a page is one row again — dedupe on the instant it starts, not on how each source spells the venue
+
+- `scripts/test-city-events.mjs`
+- `src/lib/city-events/normalize.ts`
+
+
 ### 2026-09-10 — Crawler: use the iCal feed a page advertises, and follow real event links instead of pagination; say plainly when a site blocks us
 
 - `scripts/test-city-events.mjs`
