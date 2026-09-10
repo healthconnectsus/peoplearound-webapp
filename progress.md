@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Events: local calendars get their own section again, and event times read as times instead of ISO strings
+
+- `scripts/test-city-events.mjs`
+- `src/app/events/LocalCalendars.tsx`
+- `src/app/events/page.tsx`
+- `src/lib/city-events/crawler.ts`
+- `src/lib/city-events/normalize.ts`
+
+
 ### 2026-09-10 — Crawler: a page listing one event twice no longer fails the whole write; collapse on the upsert key and report what the database actually said
 
 - `src/lib/city-events/crawler.ts`

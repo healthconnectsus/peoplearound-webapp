@@ -108,6 +108,44 @@ export function eventDate(value: unknown, now: Date): string | null {
   return parsed.toISOString().slice(0, 10);
 }
 
+/**
+ * When an event happens, written for a person.
+ *
+ * The label used to be whatever the source handed over, which meant a reader
+ * saw "2026-09-12T15:00:00.000Z" from an iCal feed and
+ * "2026-09-12T10:00:00-05:00" from a page's markup — the same event, twice,
+ * in two machine formats.
+ *
+ * Both branches keep the event's OWN clock rather than the reader's. A local
+ * calendar says ten in the morning because that is when to turn up; recomputing
+ * that into the viewer's timezone would be technically defensible and, for a
+ * neighborhood event two streets away, wrong.
+ *
+ * `zone` is used when the source named one (iCal usually does). Otherwise the
+ * wall-clock is read straight out of the string, which is exact and needs no
+ * timezone database: "2026-09-12T10:00:00-05:00" means ten o'clock where the
+ * event is, whatever that offset is called.
+ */
+export function humanWhen(iso: string, zone?: string | null): string {
+  const ms = Date.parse(iso);
+  if (!Number.isFinite(ms)) return '';
+  const day = (opts: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat('en-US', { timeZone: zone || 'UTC', ...opts }).format(new Date(ms));
+
+  if (zone) {
+    return `${day({ weekday: 'short', month: 'short', day: 'numeric' })}, ${day({ hour: 'numeric', minute: '2-digit' })}`;
+  }
+
+  // No named zone: take the wall-clock the string itself states.
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso);
+  if (!m) return '';
+  const [, y, mo, d, hh, mm] = m;
+  const shown = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(hh), Number(mm)));
+  const fmt = (opts: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', ...opts }).format(shown);
+  return `${fmt({ weekday: 'short', month: 'short', day: 'numeric' })}, ${fmt({ hour: 'numeric', minute: '2-digit' })}`;
+}
+
 export function searchListings(payload: unknown, now: Date): Listing[] {
   return rows(record(payload).events_results).flatMap(value => {
     const e = record(value), d = record(e.date);

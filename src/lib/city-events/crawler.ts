@@ -4,7 +4,7 @@ import { load } from 'cheerio';
 import ical from 'node-ical';
 import robotsParser from 'robots-parser';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { distinctListings, eventDate, record, sourceUrl, text, type Listing } from './normalize';
+import { distinctListings, eventDate, humanWhen, record, sourceUrl, text, type Listing } from './normalize';
 import { safeGet } from './safe-fetch';
 
 export function jsonLdEvents(html:string,pageUrl:string,now:Date):Listing[] {
@@ -19,7 +19,7 @@ export function jsonLdEvents(html:string,pageUrl:string,now:Date):Listing[] {
       const date=eventDate(start.slice(0,10),instant?new Date(now.getTime()-86400000):now);
       let url:string|null=null;
       try { url=sourceUrl(typeof e.url==='string'?new URL(e.url,pageUrl).toString():pageUrl); } catch { /* Skip malformed links without losing sibling events. */ }
-      if(date&&url&&title&&(!instant||Date.parse(instant)>=now.getTime()))found.push({provider:'calendar',external_id:text(e['@id'],1000)||`${url}|${start}`,title,event_date:date,starts_at:instant,date_label:start,venue:text(record(e.location).name),source_url:url,source_name:new URL(pageUrl).hostname,status:String(e.eventStatus??'').includes('Cancelled')?'cancelled':'scheduled'});
+      if(date&&url&&title&&(!instant||Date.parse(instant)>=now.getTime()))found.push({provider:'calendar',external_id:text(e['@id'],1000)||`${url}|${start}`,title,event_date:date,starts_at:instant,date_label:humanWhen(start)||start,venue:text(record(e.location).name),source_url:url,source_name:new URL(pageUrl).hostname,status:String(e.eventStatus??'').includes('Cancelled')?'cancelled':'scheduled'});
     }
     for(const key of ['@graph','itemListElement','item','subEvent']) if(e[key])visit(e[key],depth+1);
   }
@@ -46,7 +46,15 @@ export async function icsEvents(body:string,url:string,now:Date):Promise<Listing
       if(instant&&start.getTime()<now.getTime())continue;
       const title=text(instance.summary||value.summary);if(!date||!title)continue;
       const link=sourceUrl(value.url)||url;
-      const label=allDay?`${date} (all day)`:instant??`${date} ${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')} (time zone unspecified)`;
+      // A floating DTSTART (no TZID) states a wall clock and no instant, so it
+      // must be shown exactly as written. Formatting its UTC equivalent turned
+      // "19:00" into "1:00 AM the next day" — the one thing a time label must
+      // never do. Only a zoned event has a real moment to format.
+      const label=allDay
+        ?`${date} (all day)`
+        :zone
+          ?(humanWhen(start.toISOString(),zone)||`${date} (time zone unspecified)`)
+          :`${date} ${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')} (time zone unspecified)`;
       found.push({provider:'calendar',external_id:`${value.uid}|${label}`,title,event_date:date,starts_at:instant,date_label:label,venue:text(value.location),source_url:link,source_name:new URL(url).hostname,status:value.status==='CANCELLED'?'cancelled':'scheduled'});
       if(found.length>=500)return found;
     }

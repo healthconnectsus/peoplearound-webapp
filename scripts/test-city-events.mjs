@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 // Compile the pure TS module in memory; no build artifacts or live APIs.
 const source = readFileSync(new URL('../src/lib/city-events/normalize.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ESNext } }).outputText;
-const { eventDate, sourceUrl, searchListings, distinctListings, text, isCrawlableCalendar } =
+const { eventDate, sourceUrl, searchListings, distinctListings, text, isCrawlableCalendar, humanWhen } =
   await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
 const now = new Date('2026-09-09T12:00:00Z');
 
@@ -407,4 +407,15 @@ test('a listing page yields its iCal feed and real event links, not its navigati
     feedUrl(load('<link rel="alternate" type="text/calendar" href="https://evil.example.com/f.ics">'), page, new URL(page)),
     null,
   );
+});
+
+test('event times are shown on the event’s own clock, never the reader’s', () => {
+  // The same moment arrives written two ways. Both must read the same, and
+  // both must say when to turn up where the event is.
+  assert.equal(humanWhen('2026-09-12T15:00:00.000Z', 'America/Chicago'), 'Sat, Sep 12, 10:00 AM');
+  assert.equal(humanWhen('2026-09-12T10:00:00-05:00'), 'Sat, Sep 12, 10:00 AM');
+  // An offset far from the reader must not drag the date across midnight.
+  assert.equal(humanWhen('2026-09-12T23:30:00+09:00'), 'Sat, Sep 12, 11:30 PM');
+  // Nothing sensible in, nothing invented out.
+  for (const bad of ['not a date', '', 'Sep 12']) assert.equal(humanWhen(bad), '');
 });
