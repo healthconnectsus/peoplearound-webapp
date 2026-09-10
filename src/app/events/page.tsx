@@ -7,7 +7,6 @@ import { myMapCenter, projectPinsByIds } from "@/lib/mapPins";
 import { FeedTabs, readTabFrom } from "@/components/FeedTabs";
 import { EVENT_TABS, sortEventsForTab } from "@/lib/eventSort";
 import { PlanEventButton } from "./PlanEventButton";
-import { CityEvents } from "./CityEvents";
 import { categoryMeta } from "@/lib/projects";
 import {
   formatEventTime,
@@ -193,7 +192,6 @@ export default async function EventsPage({
               ))}
             </ul>
           )}
-          <CityEvents />
         </main>
       </MapShell>
     </AppShell>

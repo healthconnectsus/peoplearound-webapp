@@ -1,6 +1,6 @@
 // Pure normalizers: no API calls, secrets, database clients, or inferred times.
 export type Listing = {
-  provider: 'ticketmaster' | 'serpapi' | 'calendar';
+  provider: 'serpapi' | 'calendar';
   external_id: string;
   title: string;
   event_date: string;
@@ -108,30 +108,6 @@ export function eventDate(value: unknown, now: Date): string | null {
   return parsed.toISOString().slice(0, 10);
 }
 
-export function ticketmasterListings(payload: unknown, now: Date): Listing[] {
-  return rows(record(record(payload)._embedded).events).flatMap(value => {
-    const e = record(value), dates = record(e.dates), start = record(dates.start);
-    const venue = record(rows(record(e._embedded).venues)[0]);
-    const instant = text(start.dateTime, 80);
-    const startsAt = /(?:Z|[+-]\d{2}:\d{2})$/.test(instant) && Number.isFinite(Date.parse(instant)) ? instant : null;
-    if (startsAt && Date.parse(startsAt) < now.getTime()) return [];
-    // An upcoming evening event in America can have yesterday's UTC calendar
-    // date. Trust its explicit instant; keep the venue's date for display.
-    const date = eventDate(start.localDate, startsAt ? new Date(now.getTime() - DAY) : now), url = sourceUrl(e.url);
-    const title = text(e.name), id = text(e.id);
-    if (!date || !url || !title || !id || start.dateTBD) return [];
-    const status = text(record(dates.status).code);
-    return [{ provider: 'ticketmaster' as const, external_id: id, title,
-      event_date: date,
-      starts_at: startsAt,
-      date_label: [date, start.timeTBA ? 'Time to be announced' : text(start.localTime), text(dates.timezone)].filter(Boolean).join(' · '),
-      venue: [text(venue.name), text(record(venue.city).name)].filter(Boolean).join(' · '),
-      source_url: url, source_name: 'Ticketmaster',
-      status: status === 'canceled' || status === 'cancelled' ? 'cancelled' : status || 'scheduled',
-    }];
-  });
-}
-
 export function searchListings(payload: unknown, now: Date): Listing[] {
   return rows(record(payload).events_results).flatMap(value => {
     const e = record(value), d = record(e.date);
@@ -184,16 +160,3 @@ export function isCrawlableCalendar(url: string): boolean {
   }
 }
 
-/** Standard base32 geohash for Ticketmaster's geoPoint radius search. */
-export function geoHash(lat: number, lng: number): string {
-  const bounds = [[-180, 180], [-90, 90]], values = [lng, lat];
-  let out = '', digit = 0;
-  for (let bit = 0; bit < 35; bit++) {
-    const axis = bit % 2, range = bounds[axis], mid = (range[0] + range[1]) / 2;
-    const high = values[axis] >= mid;
-    digit = (digit << 1) | Number(high);
-    range[high ? 0 : 1] = mid;
-    if (bit % 5 === 4) { out += '0123456789bcdefghjkmnpqrstuvwxyz'[digit]; digit = 0; }
-  }
-  return out;
-}

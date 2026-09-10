@@ -2,7 +2,7 @@ import 'server-only';
 import { createHash } from 'node:crypto';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { reverseGeocode } from '@/lib/frontier';
-import { geoHash, isCrawlableCalendar, record, rows, sourceUrl, text, searchListings, ticketmasterListings, type Listing } from './normalize';
+import { isCrawlableCalendar, record, rows, sourceUrl, text, searchListings, type Listing } from './normalize';
 
 type Admin = NonNullable<ReturnType<typeof createAdminClient>>;
 export type EventCity = {
@@ -14,7 +14,7 @@ export type EventCity = {
 export type ImportResult = { status: string; city?: string; imported: number; message: string };
 
 export function importConfiguration() {
-  return { ticketmaster: Boolean(process.env.TICKETMASTER_API_KEY), search: Boolean(process.env.SERPAPI_API_KEY) };
+  return { search: Boolean(process.env.SERPAPI_API_KEY) };
 }
 
 function limit(key: string, fallback: number) {
@@ -23,18 +23,15 @@ function limit(key: string, fallback: number) {
 }
 
 /**
- * 15 seconds was too tight, and it failed in the worst way: silently.
- *
- * The first real Kansas City import proved it — Ticketmaster returned 319
- * listings while BOTH SerpApi calls aborted on the timeout, so the whole
- * search half of the feature produced nothing and the only trace was one
- * line of status text in the admin console. A search normally answers in
+ * 15 seconds was too tight, and it failed in the worst way: silently — a slow
+ * search aborted, the run reported partial success, and the only trace was
+ * one line of status text in the admin console. A search normally answers in
  * about three seconds, so this is not the usual case being slow; it is the
  * occasional slow one being cut off. Each cut-off also spends a unit of the
  * monthly search budget, because the budget is reserved before the call.
  *
- * 30s is still far inside the route's 180s ceiling: a full city run is one
- * Ticketmaster page loop plus at most two searches.
+ * Still far inside the route's 180s ceiling: a city run is at most two
+ * searches.
  */
 const PROVIDER_TIMEOUT_MS = 30000;
 
@@ -63,10 +60,9 @@ async function search(admin: Admin, query: string) {
  *
  * A new city is registered from a neighborhood, which stores only a name and
  * a centre — there is no state column — so `search_location` starts as just
- * "Springfield". Ticketmaster is unaffected because it searches by
- * coordinates, but the search engine is not: "Springfield" returned calendars
- * from Illinois, Oregon and a county in Georgia, and those became candidate
- * crawl sources for a Missouri neighborhood.
+ * "Springfield", and the search engine takes that literally: it returned
+ * calendars from Illinois, Oregon and a county in Georgia, and those became
+ * candidate crawl sources for a Missouri neighborhood.
  *
  * The centre coordinates already resolve this, and the app already has a
  * reverse geocoder for the frontier flow, so one Nominatim call per city
@@ -116,29 +112,6 @@ async function discoverSources(admin: Admin, city: EventCity, now: Date, where: 
   if (error) throw new Error('Could not save calendar discovery status.');
 }
 
-async function ticketmaster(city: EventCity, now: Date): Promise<Listing[]> {
-  const found: Listing[] = [];
-  // Three pages max: bounded work, 600 upcoming events per city, 90-day horizon.
-  for (let page = 0; page < 3; page++) {
-    const url = new URL('https://app.ticketmaster.com/discovery/v2/events.json');
-    const params = new URLSearchParams({ apikey: process.env.TICKETMASTER_API_KEY!, size: '200',
-      page: String(page), sort: 'date,asc',
-      startDateTime: now.toISOString().replace(/\.\d{3}Z$/, 'Z'),
-      endDateTime: new Date(now.getTime() + 90 * 86400000).toISOString().replace(/\.\d{3}Z$/, 'Z'),
-      includeTBA: 'yes', includeTBD: 'no',
-    });
-    if (city.lat != null && city.lng != null) {
-      params.set('geoPoint', geoHash(city.lat, city.lng)); params.set('radius', '25'); params.set('unit', 'miles');
-    } else params.set('city', city.name);
-    url.search = params.toString();
-    const payload = await apiJson(url);
-    found.push(...ticketmasterListings(payload, now));
-    if (page + 1 >= Number(record(record(payload).page).totalPages || 0)) break;
-    await new Promise(resolve => setTimeout(resolve, 600));
-  }
-  return found;
-}
-
 async function saveListings(admin: Admin, city: EventCity, listings: Listing[], now: Date) {
   if (!listings.length) return 0;
   const data = [...new Map(listings.map(e => [e.external_id, e])).values()].map(e => ({
@@ -153,7 +126,7 @@ async function saveListings(admin: Admin, city: EventCity, listings: Listing[], 
 /** Used by cron and the admin action. Never invoked by a public user action. */
 export async function populateCity(cityId?: string): Promise<ImportResult> {
   const config = importConfiguration();
-  if (!config.ticketmaster && !config.search) return { status: 'not_configured', imported: 0, message: 'Add a Ticketmaster or SerpApi key to enable imports.' };
+  if (!config.search) return { status: 'not_configured', imported: 0, message: 'Add a SerpApi key to enable imports.' };
   const admin = createAdminClient();
   if (!admin) return { status: 'not_configured', imported: 0, message: 'Service role is not configured.' };
   const { data, error } = await admin.rpc('claim_event_city', { p_city_id: cityId ?? null });
@@ -165,11 +138,6 @@ export async function populateCity(cityId?: string): Promise<ImportResult> {
   // Resolved once and reused by both the listing search and discovery, so a
   // city costs at most one geocode ever.
   const where = config.search ? await qualifySearchLocation(admin, city) : city.search_location;
-  // Isolated providers: a search outage must not erase Ticketmaster results.
-  if (config.ticketmaster) {
-    try { imported += await saveListings(admin, city, await ticketmaster(city, now), now); successes++; }
-    catch (e) { errors.push(`Ticketmaster: ${e instanceof Error ? e.message : 'import failed'}`); }
-  }
   if (config.search) {
     try {
       const payload = await search(admin, `community events in ${where} upcoming ${now.getUTCFullYear()}`);

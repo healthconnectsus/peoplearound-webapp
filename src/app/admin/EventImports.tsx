@@ -22,7 +22,7 @@ export async function EventImports() {
         Refresh local listings every week. New cities join the queue automatically;
         the worker checks for work every ten minutes.
       </p>
-      <p className="mt-2 text-xs">Ticketmaster: {config.ticketmaster ? 'Connected' : 'Key needed'} · Calendar search: {config.search ? 'Connected' : 'SerpApi key needed'}</p>
+      <p className="mt-2 text-xs">Calendar search: {config.search ? 'Connected' : 'SerpApi key needed'}</p>
       {error ? <p className="mt-3 text-sm text-amber-700 dark:text-amber-300">City imports need database migration 0045 before they can run.</p> : <>
         <form action={populateEventsNow} className="mt-4">
           <SubmitButton className={BUTTON} pendingLabel="Populating…">Populate now — all cities</SubmitButton>

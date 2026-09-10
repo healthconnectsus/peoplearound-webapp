@@ -7,6 +7,24 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Events: Mine leads and is the landing tab; remove the Around your city section; remove Ticketmaster entirely (code, key and rows, migration 0053)
+
+- `.env.example`
+- `docs/CITY_EVENT_IMPORTS.md`
+- `docs/DATA_MODEL.md`
+- `docs/FEATURE_IDEAS.md`
+- `scripts/test-city-database.mjs`
+- `scripts/test-city-events.mjs`
+- `src/app/admin/EventImports.tsx`
+- `src/app/admin/adminActions.ts`
+- `src/app/events/CityEvents.tsx`
+- `src/app/events/page.tsx`
+- `src/lib/city-events/importer.ts`
+- `src/lib/city-events/normalize.ts`
+- `src/lib/eventSort.ts`
+- `supabase/migrations/0053_drop_ticketmaster.sql`
+
+
 ### 2026-09-10 — Events board gets tabs: Soon, Just added, Nearby, Popular, Mine
 
 - `src/app/events/page.tsx`

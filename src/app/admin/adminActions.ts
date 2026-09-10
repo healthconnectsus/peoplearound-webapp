@@ -93,7 +93,7 @@ export async function populateEventsNow(formData: FormData) {
   const cityId = String(formData.get('cityId') ?? '');
   if (cityId && !/^[0-9a-f-]{36}$/i.test(cityId)) redirect('/admin?error=Invalid+city');
   const config = importConfiguration();
-  if (!config.ticketmaster && !config.search) redirect('/admin?error=Add+a+Ticketmaster+or+SerpApi+key+to+enable+imports');
+  if (!config.search) redirect('/admin?error=Add+a+SerpApi+key+to+enable+imports');
   if (!cityId) {
     const { error } = await admin.from('event_cities').update({ next_run_at: new Date().toISOString() })
       .eq('enabled', true).is('lease_token', null);

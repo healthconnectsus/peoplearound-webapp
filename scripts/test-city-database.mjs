@@ -34,7 +34,7 @@ assert.equal((await db.query('select consume_event_search(2,2) ok')).rows[0].ok,
 await db.exec('reset role');
 await db.exec(`insert into profiles values ('00000000-0000-0000-0000-000000000011','00000000-0000-0000-0000-000000000001'),('00000000-0000-0000-0000-000000000012','00000000-0000-0000-0000-000000000003');`);
 await db.query(`insert into city_events(city_id,provider,external_id,title,event_date,date_label,source_url,source_name,expires_at)
-values ($1,'ticketmaster','1','Park fair',current_date+1,'Tomorrow','https://example.com/1','Example',now()+interval '8 days')`, [kc]);
+values ($1,'serpapi','1','Park fair',current_date+1,'Tomorrow','https://example.com/1','Example',now()+interval '8 days')`, [kc]);
 await db.exec("set role authenticated; select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000000011',false)");
 assert.equal(await count('select count(*)::int n from city_events'), 1);
 await db.exec("select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000000012',false)");
@@ -52,6 +52,20 @@ await db.exec("reset role; update city_events set status='scheduled', expires_at
 assert.equal(await count('select count(*)::int n from city_events'), 0);
 await db.exec('reset role; set role anon');
 await assert.rejects(db.query('select * from city_events'), /permission denied/);
+
+// 0053 removed the ticketing provider. Applied twice, as every migration must
+// survive being replayed, and then checked: the value has to be rejected by
+// the database, so the feature cannot creep back through a stray insert.
+await db.exec('reset role');
+await db.exec(migration('0053_drop_ticketmaster'));
+await db.exec(migration('0053_drop_ticketmaster'));
+await assert.rejects(
+  db.query(`insert into city_events(city_id,provider,external_id,title,event_date,date_label,source_url,source_name,expires_at)
+            values ($1,'ticketmaster','x','x',current_date+1,'x','https://x.example/','x',now()+interval '8 days')`, [kc]),
+  /city_events_provider_check/, 'the ticketing provider is rejected by the database');
+await db.exec(`insert into city_events(city_id,provider,external_id,title,event_date,date_label,source_url,source_name,expires_at)
+               values ('${kc}','calendar','ok','Community calendar event',current_date+1,'x','https://x.example/','x',now()+interval '8 days')`);
+assert.equal(await count(`select count(*)::int n from city_events where provider='calendar'`), 1, 'community calendars still write');
 await db.exec(`reset role;
 alter table profiles add column display_name text, add column digest_opt_out boolean default false;
 alter table neighborhoods add column name text;

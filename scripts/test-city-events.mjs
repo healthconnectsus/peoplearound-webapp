@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 // Compile the pure TS module in memory; no build artifacts or live APIs.
 const source = readFileSync(new URL('../src/lib/city-events/normalize.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ESNext } }).outputText;
-const { eventDate, sourceUrl, searchListings, ticketmasterListings, distinctListings, geoHash, text, isCrawlableCalendar } =
+const { eventDate, sourceUrl, searchListings, distinctListings, text, isCrawlableCalendar } =
   await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
 const now = new Date('2026-09-09T12:00:00Z');
 
@@ -40,30 +40,12 @@ test('current Google inline schemas supported; undated or unlinked search hits n
   assert.equal(result[1].source_name, 'parks.org');
 });
 
-test('Ticketmaster preserves provider identity, cancellations, local times, and reschedules', () => {
-  const result = ticketmasterListings({ _embedded: { events: [
-    { id: 'a', name: 'Concert', url: 'https://ticketmaster.com/event/a', dates: { timezone: 'America/Chicago', start: { localDate: '2026-09-11', localTime: '19:00:00', dateTime: '2026-09-12T00:00:00Z' }, status: { code: 'canceled' } } },
-    { id: 'b', name: 'TBD', url: 'https://ticketmaster.com/event/b', dates: { start: { dateTBD: true, localDate: '2026-09-12' } } },
-  ] } }, now);
-  assert.equal(result.length, 1);
-  assert.equal(result[0].external_id, 'a');
-  assert.equal(result[0].status, 'cancelled');
-  assert.equal(result[0].event_date, '2026-09-11');
-  assert.match(result[0].date_label, /19:00:00.*America\/Chicago/);
-  const late = ticketmasterListings({ _embedded: { events: [{ id: 'late', name: 'Evening', url: 'https://ticketmaster.com/event/late',
-    dates: { start: { localDate: '2026-09-08', dateTime: '2026-09-09T03:00:00Z' } } }] } }, new Date('2026-09-09T01:00:00Z'));
-  assert.equal(late.length, 1);
-  assert.equal(late[0].event_date, '2026-09-08');
-});
 
 test('cross-provider duplicates collapse without hiding different dates or venues', () => {
   const base = { title: 'Park fair!', event_date: '2026-09-12', venue: 'Main Park', date_label: 'Sep 12, 10 AM' };
   assert.equal(distinctListings([base, { ...base, title: 'Park Fair' }, { ...base, venue: 'West Park' }, { ...base, event_date: '2026-09-13' }, { ...base, date_label: 'Sep 12, 2 PM' }]).length, 4);
 });
 
-test('Ticketmaster geohash matches standard reference coordinates', () => {
-  assert.equal(geoHash(42.6, -5.6), 'ezs42e4');
-});
 
 function compileWithMocks(file, mocks) {
   const code = ts.transpileModule(readFileSync(new URL(file, import.meta.url), 'utf8'), {
@@ -74,17 +56,17 @@ function compileWithMocks(file, mocks) {
   return mod.exports;
 }
 
-test('import orchestration: repeat writes, provider isolation, budgets, missing keys and locked cities', async () => {
+test('import orchestration: repeat writes, budgets, missing keys and locked cities', async () => {
   const savedFetch = globalThis.fetch;
-  const keys = ['TICKETMASTER_API_KEY', 'SERPAPI_API_KEY'];
-  const oldEnv = keys.map(k => process.env[k]);
-  const normalizers = { geoHash, record: v => v && typeof v === 'object' && !Array.isArray(v) ? v : {},
-    rows: v => Array.isArray(v) ? v : [], sourceUrl, text: (v, max = 250) => typeof v === 'string' ? v.trim().slice(0, max) : '', searchListings, ticketmasterListings,
-    isCrawlableCalendar };
+  const oldKey = process.env.SERPAPI_API_KEY;
+  const normalizers = { record: v => v && typeof v === 'object' && !Array.isArray(v) ? v : {},
+    rows: v => Array.isArray(v) ? v : [], sourceUrl,
+    text: (v, max = 250) => typeof v === 'string' ? v.trim().slice(0, max) : '',
+    searchListings, isCrawlableCalendar };
   const city = { id: 'city-1', name: 'Kansas City', search_location: 'Kansas City, Missouri', lat: 39.09, lng: -94.58,
     lease_token: 'lease-1', sources_checked_at: new Date().toISOString() };
   const writes = [], requests = [], finishes = [];
-  let available = true, budget = true, failTicketmaster = false;
+  let available = true, budget = true, failSearch = false;
   const db = {
     rpc: async name => ({ data: name === 'claim_event_city' ? (available ? [city] : []) : budget, error: null }),
     from: table => ({
@@ -100,47 +82,59 @@ test('import orchestration: repeat writes, provider isolation, budgets, missing 
     'server-only': {}, '@/lib/supabase/admin': { createAdminClient: () => db }, './normalize': normalizers,
     '@/lib/frontier': { reverseGeocode: async (lat, lng) => { geocodes.push([lat, lng]); return { name: 'x', city: 'Kansas City', region: 'Missouri, United States' }; } },
   });
+  const soon = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
   globalThis.fetch = async input => {
     const url = new URL(input); requests.push(url);
-    if (url.hostname === 'app.ticketmaster.com') {
-      if (failTicketmaster) return new Response('', { status: 503 });
-      return Response.json({ page: { totalPages: 1 }, _embedded: { events: [{
-        id: 'stable-id', name: 'Park festival', url: 'https://ticketmaster.com/event/1',
-        dates: { start: { localDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10) } },
-      }] } });
-    }
+    // The ticketing provider was removed, so the search host is now the ONLY
+    // host this importer may contact. Anything else is a regression.
     assert.equal(url.hostname, 'serpapi.com');
     assert.equal(url.searchParams.get('engine'), 'google');
-    return Response.json({ events_results: [] });
+    if (failSearch) return new Response('', { status: 503 });
+    return Response.json({ events_results: [
+      { title: 'Park festival', date: soon, link: 'https://parks.example.org/festival' },
+    ] });
   };
   try {
-    delete process.env.TICKETMASTER_API_KEY; delete process.env.SERPAPI_API_KEY;
-    assert.equal((await populateCity()).status, 'not_configured'); assert.equal(requests.length, 0);
-    process.env.TICKETMASTER_API_KEY = 'fixture';
+    delete process.env.SERPAPI_API_KEY;
+    assert.equal((await populateCity()).status, 'not_configured');
+    assert.equal(requests.length, 0, 'no key means no outbound call');
+
+    process.env.SERPAPI_API_KEY = 'fixture';
     assert.equal((await populateCity()).status, 'success');
     await populateCity();
+    // The same listing on two runs is one row, not two.
     assert.equal(writes[0].data[0].external_id, writes[1].data[0].external_id);
     assert.equal(writes[0].options.onConflict, 'city_id,provider,external_id');
     assert.equal(writes[0].data[0].city_id, city.id);
+    assert.equal(writes[0].data[0].provider, 'serpapi');
     const until = Date.parse(finishes.at(-1).next_run_at) - Date.now();
-    assert.ok(until > 6.9 * 86400000 && until <= 7 * 86400000);
+    assert.ok(until > 6.9 * 86400000 && until <= 7 * 86400000, 'success schedules a week out');
+
+    // Nothing due: claim returns no city and no request goes out.
     available = false;
     const before = requests.length;
-    assert.equal((await populateCity()).status, 'idle'); assert.equal(requests.length, before);
+    assert.equal((await populateCity()).status, 'idle');
+    assert.equal(requests.length, before);
+
     // The fixture city already reads "Kansas City, Missouri", so the one-off
-    // geocode that qualifies a bare name must never fire — a city should cost
-    // at most one Nominatim call, ever.
+    // geocode that qualifies a bare name must never fire.
     assert.equal(geocodes.length, 0);
-    available = true; failTicketmaster = true; process.env.SERPAPI_API_KEY = 'fixture';
-    assert.equal((await populateCity()).status, 'partial');
-    assert.match(finishes.at(-1).last_error, /Ticketmaster/);
-    delete process.env.TICKETMASTER_API_KEY; budget = false;
+
+    // A provider outage is reported, not swallowed, and retried tomorrow.
+    available = true; failSearch = true;
+    assert.equal((await populateCity()).status, 'error');
+    assert.match(finishes.at(-1).last_error, /Search/);
+    const retry = Date.parse(finishes.at(-1).next_run_at) - Date.now();
+    assert.ok(retry <= 86400000, 'a failure retries within a day');
+
+    // Budget exhausted: refuse before spending a request.
+    failSearch = false; budget = false;
     const beforeBudget = requests.length;
     assert.equal((await populateCity()).status, 'error');
     assert.equal(requests.length, beforeBudget);
   } finally {
     globalThis.fetch = savedFetch;
-    keys.forEach((k, i) => oldEnv[i] === undefined ? delete process.env[k] : process.env[k] = oldEnv[i]);
+    if (oldKey === undefined) delete process.env.SERPAPI_API_KEY; else process.env.SERPAPI_API_KEY = oldKey;
   }
 });
 
@@ -292,10 +286,10 @@ test('a bare city name is qualified once from its coordinates, then never again'
   // in Georgia. The centre coordinates settle it, and the result is written
   // back so the geocoder is asked once per city rather than every week.
   const savedFetch = globalThis.fetch;
-  const oldKeys = ['TICKETMASTER_API_KEY', 'SERPAPI_API_KEY'].map(k => process.env[k]);
-  const normalizers = { geoHash, record: v => v && typeof v === 'object' && !Array.isArray(v) ? v : {},
+  const oldKeys = ['SERPAPI_API_KEY'].map(k => process.env[k]);
+  const normalizers = { record: v => v && typeof v === 'object' && !Array.isArray(v) ? v : {},
     rows: v => Array.isArray(v) ? v : [], sourceUrl, text: (v, max = 250) => typeof v === 'string' ? v.trim().slice(0, max) : '',
-    searchListings, ticketmasterListings, isCrawlableCalendar };
+    searchListings, isCrawlableCalendar };
   const city = { id: 'c', name: 'Springfield', search_location: 'Springfield', lat: 37.21, lng: -93.29,
     lease_token: 'lease', sources_checked_at: null };
   const updates = [], queries = [];
@@ -317,7 +311,6 @@ test('a bare city name is qualified once from its coordinates, then never again'
     return Response.json({ events_results: [], organic_results: [] });
   };
   try {
-    delete process.env.TICKETMASTER_API_KEY;
     process.env.SERPAPI_API_KEY = 'fixture';
     await populateCity();
     assert.equal(geocodes, 1, 'geocoded exactly once');
@@ -331,7 +324,7 @@ test('a bare city name is qualified once from its coordinates, then never again'
     for (const q of queries) assert.match(q, /^.*Springfield/);
   } finally {
     globalThis.fetch = savedFetch;
-    ['TICKETMASTER_API_KEY', 'SERPAPI_API_KEY'].forEach((k, i) => {
+    ['SERPAPI_API_KEY'].forEach((k, i) => {
       if (oldKeys[i] === undefined) delete process.env[k]; else process.env[k] = oldKeys[i];
     });
   }

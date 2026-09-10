@@ -16,11 +16,19 @@ New cities are therefore normally picked up within ten minutes, subject to earli
 
 ## Providers and website discovery
 
-1. **Ticketmaster Discovery API:** upcoming events within 25 miles of the stored city/neighborhood center, or city-name search when coordinates are unavailable. Up to three 200-result pages, 90 days ahead. Stable provider IDs make repeat imports updates. Cancellation statuses are hidden; listing metadata refreshes weekly. Ticketmaster is strongest for ticketed entertainment, not library/municipal coverage.
+> **Ticketmaster was removed (2026-09, migration 0053).** It filled a new city
+> fast — 319 listings for Kansas City within a minute — but what it supplies is
+> ticketed entertainment: touring bands, arena sport, theatre runs. Beside a
+> neighbor's "Garden Work Day" that is not a neighborhood becoming visible, it
+> is noise wearing the same card. The provider code, the API key and the rows
+> are all gone, and the database now rejects the value, because a feature
+> switched off but left in the schema comes back by accident.
+
+
 2. **SerpApi Google Search API:** one event-oriented query per refresh. Only structured events_results with a valid upcoming date AND source URL become listings; ordinary organic search snippets are never invented into events. Search results without a reliable date/link are skipped. Some searches have no structured events, so zero results is possible.
 3. **Calendar discovery:** a separate Google search on first import and every 30 days finds tourism, municipal, parks, and library calendars. Candidate links are saved for admin review. Kansas City's known Visit KC calendar is included when its source search runs. Admins can enable supported sources for direct collection every 24 or 48 hours. Discovery alone does not enable a source or imply a verified partnership.
 
-SerpApi explicitly deprecated engine=google_events. The implementation uses the supported engine=google endpoint. Provider keys stay server-only. The search importer contacts fixed API hosts; a separate crawler fetches admin-enabled sources. Discovered sites are stored **disabled by default** and are never fetched until an admin enables them — discovery proposes, a human approves, because pointing an automatic crawler at unreviewed search results is how a server ends up fetching somebody's router. Calls to the fixed provider hosts time out at 30 s (raised from 15 s after the first live Kansas City run returned 319 Ticketmaster listings while both search calls aborted, leaving the search half silently empty). Source URLs are restricted to HTTPS and rendered as text links; imported HTML/images are not copied.
+SerpApi explicitly deprecated engine=google_events. The implementation uses the supported engine=google endpoint. Provider keys stay server-only. The search importer contacts fixed API hosts; a separate crawler fetches admin-enabled sources. Discovered sites are stored **disabled by default** and are never fetched until an admin enables them — discovery proposes, a human approves, because pointing an automatic crawler at unreviewed search results is how a server ends up fetching somebody's router. Calls to the fixed provider hosts time out at 30 s (raised from 15 s after a live run in which both search calls aborted, leaving the search half silently empty). Source URLs are restricted to HTTPS and rendered as text links; imported HTML/images are not copied.
 
 ## Direct calendar collection
 
@@ -49,7 +57,6 @@ Dates without time zones retain the provider's date/time label; the importer doe
 Set server-only variables locally and on Vercel:
 
 ```text
-TICKETMASTER_API_KEY=...
 SERPAPI_API_KEY=...
 EVENT_SEARCH_MONTHLY_LIMIT=200
 EVENT_SEARCH_HOURLY_LIMIT=40
@@ -57,11 +64,11 @@ EVENT_SEARCH_HOURLY_LIMIT=40
 
 The existing SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_URL, and CRON_SECRET are also required. One provider may be configured alone. Calendar discovery specifically requires SerpApi. Missing keys leave the queue untouched and admin explains what is missing.
 
-For another environment, apply migrations 0045 through 0049 in order using `scripts/db-apply.mjs`, configure the invitation template, and deploy. `RESEND_API_KEY` and a verified `ALERT_FROM` sender are required for welcome mail. Ticketmaster Discovery only needs the consumer key; the consumer secret is not used. Check source links, geographic relevance, counts, and admin status after the first import. The ten-minute schedules require a hosting plan that supports that frequency.
+For another environment, apply migrations 0045 through 0049 in order using `scripts/db-apply.mjs`, configure the invitation template, and deploy. `RESEND_API_KEY` and a verified `ALERT_FROM` sender are required for welcome mail. Check source links, geographic relevance, counts, and admin status after the first import. The ten-minute schedules require a hosting plan that supports that frequency.
 
 The monthly/hourly search budgets are reserved atomically in Postgres before API requests, including admin clicks and failed attempts. Defaults leave headroom under the researched 250 searches/month and 50/hour free plan. This tracks only this feature, not other applications sharing the key. Budget exhaustion shows in admin and does not delete existing events. At roughly one search/week plus one calendar-discovery search/month, expect approximately 5–6 searches per city per month before retries/manual refreshes. More cities eventually need a larger quota or direct municipal feeds.
 
-City identity follows the app's existing normalized city labels. Same-name cities in different regions are not yet independently identified by a geographic city ID. Admin can specify a fuller search location (e.g. Kansas City, Missouri, United States); Ticketmaster uses geographic coordinates when available. For precise global expansion, first upgrade the shared city model to include region/country identity.
+City identity follows the app's existing normalized city labels. Same-name cities in different regions are not yet independently identified by a geographic city ID. Admin can specify a fuller search location (e.g. Kansas City, Missouri, United States), and an unqualified name is filled in once from the city's own coordinates. For precise global expansion, first upgrade the shared city model to include region/country identity.
 
 ## Validation
 
@@ -73,7 +80,6 @@ City identity follows the app's existing normalized city labels. Same-name citie
 
 ## API research (checked 2026-09-09)
 
-- Ticketmaster: public developer API with a default 5,000 requests/day. Its documentation disagrees on per-second defaults; this adapter spaces paginated calls conservatively. [Discovery API](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/), [FAQ](https://developer.ticketmaster.com/support/faq/).
 - SerpApi: free plan 250 searches/month, 50/hour. Google Search supports inline event results and ordinary calendar discovery. [Pricing](https://serpapi.com/pricing), [supported event results](https://serpapi.com/events-results), [old endpoint deprecation](https://serpapi.com/google-events-api).
 - Socrata/SODA: free municipal open-data access where a city publishes a suitable events dataset; not a nationwide event catalog. Dataset schemas/coverage differ, so no generic adapter is wired yet. [SODA3 access](https://support.socrata.com/hc/en-us/articles/34730618169623-Introducing-the-new-SODA3-API), [app tokens](https://dev.socrata.com/docs/app-tokens.html).
 - [Visit KC calendar](https://www.visitkc.com/events/) is a relevant Kansas City source; a public calendar page alone is not a documented reusable events API.

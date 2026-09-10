@@ -10,22 +10,26 @@ import type { ProjectEvent } from "@/lib/projects";
  * ambiguous, since a person reading it will assume it means soonest. So the
  * labels say what they actually do:
  *
- *   Soon        what is happening next — the honest default for a diary
+ *   Mine        the ones you run, and the ones you said you're coming to
+ *   Soon        what is happening next
  *   Just added  announced most recently, which is the feed's "Recent"
  *   Nearby      closest first
  *   Popular     most neighbors going
- *   Mine        the ones you run, and the ones you said you're coming to
  *
- * Like the feed's, these are orderings rather than filters, with "Mine" the
- * one deliberate exception. A tab that quietly drops events would be worse
- * here than anywhere: missing a date is missing the thing itself.
+ * Mine leads, and carries the empty key so it is also where /events lands.
+ * The diary you are actually in is worth more than the diary that exists,
+ * and the commitments you already made are the ones you can be late for.
+ *
+ * It is also the only tab that narrows rather than reorders, which makes it
+ * the only one that can empty a page that is not empty — so the events page
+ * says how many are on around you rather than claiming there are none.
  */
 export const EVENT_TABS: readonly TabDef[] = [
-  { key: "", label: "Soon", hint: "Happening next" },
+  { key: "", label: "Mine", hint: "Yours, and the ones you're going to" },
+  { key: "soon", label: "Soon", hint: "Happening next" },
   { key: "added", label: "Just added", hint: "Most recently announced" },
   { key: "nearby", label: "Nearby", hint: "Closest to you first" },
   { key: "popular", label: "Popular", hint: "Most neighbors going" },
-  { key: "mine", label: "Mine", hint: "Yours, and the ones you're going to" },
 ] as const;
 
 /** Rough great-circle distance in km — precise enough to rank by. */
@@ -62,6 +66,10 @@ export function sortEventsForTab(
     a.starts_at.localeCompare(b.starts_at);
 
   switch (tab) {
+    case "soon":
+      // The order the query already returned: soonest first.
+      return list;
+
     case "added":
       return list.sort(
         (a, b) => b.created_at.localeCompare(a.created_at) || bySoonest(a, b),
@@ -86,10 +94,11 @@ export function sortEventsForTab(
         (a, b) => b.rsvps.length - a.rsvps.length || bySoonest(a, b),
       );
 
-    case "mine": {
-      const stewarded = ctx.stewardedIds ?? new Set<string>();
+    default: {
+      // "Mine" — the default tab, so it is the empty-key case.
       // Two ways an event is yours: you run it, or you said you're coming.
       // Both are commitments, so both belong here.
+      const stewarded = ctx.stewardedIds ?? new Set<string>();
       return list
         .filter(
           (e) =>
@@ -98,9 +107,5 @@ export function sortEventsForTab(
         )
         .sort(bySoonest);
     }
-
-    default:
-      // "Soon" — the order the query already returned.
-      return list;
   }
 }

@@ -370,7 +370,7 @@ fetching somebody's router.
 |---|---|---|
 | event_cities | Per-city import queue | `next_run_at`, `lease_token` / `lease_until`, `search_location`, `last_status` |
 | city_event_sources | Discovered calendar sites | `enabled` (**default false** — admin approves), `format` (`jsonld` / `ics`), `interval_hours` (24 or 48), `next_crawl_at` |
-| city_events | The listings themselves | `provider` (`ticketmaster` / `serpapi` / `calendar`), `event_date`, `starts_at` (null when the source gave no zone), `expires_at` |
+| city_events | The listings themselves | `provider` (`serpapi` / `calendar`), `event_date`, `starts_at` (null when the source gave no zone), `expires_at` |
 | event_search_usage | Search spend counter | `period` (`month:YYYY-MM` / `hour:…`), `used` |
 
 > **RLS:** `city_events` is selectable by signed-in users, filtered through

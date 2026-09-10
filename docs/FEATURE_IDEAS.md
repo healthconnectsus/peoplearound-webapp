@@ -149,7 +149,7 @@ ones at the bottom so they stay rejected.*
     trap.)*
 
 21. ~~**Automatic city events**~~ ✅ *shipped 2026-09* — every city refreshes
-    weekly from Ticketmaster and a search-engine pass, plus a crawler that
+    weekly from a search-engine pass, plus a crawler that
     reads published calendars (JSON-LD and `.ics`). A ten-minute worker
     drains a leased queue, so adding cities costs no extra schedule. Search
     discovers local calendar sites but stores them **disabled** — an admin
