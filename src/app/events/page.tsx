@@ -25,7 +25,7 @@ export default async function EventsPage() {
   const { data: eventRows } = await supabase
     .from("events")
     .select(
-      "id,project_id,title,starts_at,place,created_at,rsvps(user_id),project:projects(title)",
+      "id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id),project:projects(title)",
     )
     .gte("starts_at", new Date().toISOString())
     .order("starts_at", { ascending: true })
@@ -104,8 +104,18 @@ export default async function EventsPage() {
                 <li key={e.id}>
                   <Link
                     href={`/projects/${e.project_id}`}
-                    className="flex flex-col gap-1 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
+                    className="flex flex-col gap-1 overflow-hidden rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
                   >
+                    {e.photo_url ? (
+                      /* eslint-disable-next-line @next/next/no-img-element --
+                         Supabase Storage, downscaled at upload. */
+                      <img
+                        src={e.photo_url}
+                        alt={e.place ? `Photo of ${e.place}` : ""}
+                        className="-mx-4 -mt-4 mb-2 h-32 w-[calc(100%+2rem)] object-cover"
+                        loading="lazy"
+                      />
+                    ) : null}
                     <span className="font-medium">📅 {e.title}</span>
                     <span className="text-sm text-black/60 dark:text-white/60">
                       {formatEventTime(e.starts_at)}

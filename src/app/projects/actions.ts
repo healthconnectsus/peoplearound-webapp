@@ -458,6 +458,15 @@ export async function createEvent(formData: FormData) {
   const place = String(formData.get("place") ?? "")
     .trim()
     .slice(0, 200);
+  // Optional cover photo, uploaded client-side to the public projects bucket
+  // (migration 0052). Only our own storage is accepted: a URL pasted from
+  // anywhere else would let an event embed a remote image, which is both a
+  // tracking pixel and a broken picture waiting to happen.
+  const photoRaw = String(formData.get("photoUrl") ?? "").trim().slice(0, 500);
+  const photoUrl =
+    photoRaw.startsWith(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/projects/`)
+      ? photoRaw
+      : "";
   if (!projectId) redirect("/");
 
   // datetime-local gives naive "YYYY-MM-DDTHH:mm"; store it verbatim as the
@@ -487,6 +496,7 @@ export async function createEvent(formData: FormData) {
     title,
     starts_at: startsAt,
     place,
+    photo_url: photoUrl || null,
   });
 
   revalidatePath(`/projects/${projectId}`);

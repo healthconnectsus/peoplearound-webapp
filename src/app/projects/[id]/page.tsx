@@ -15,6 +15,7 @@ import { StateTag } from "./StateTag";
 import { ProjectHero } from "@/components/ProjectHero";
 import { deleteUpdate, dismissNudge } from "../updateActions";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
+import { PhotoField } from "@/components/PhotoField";
 import {
   CONTRIBUTION_TYPES,
   CONTRIBUTION_TYPE_META,
@@ -250,7 +251,7 @@ export default async function ProjectDetail({
   // Events — physical coordination, with each event's joining signals.
   const { data: eventRows } = await supabase
     .from("events")
-    .select("id,project_id,title,starts_at,place,created_at,rsvps(user_id)")
+    .select("id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id)")
     .eq("project_id", id)
     .order("starts_at", { ascending: true });
   const events = (eventRows ?? []) as unknown as ProjectEvent[];
@@ -381,6 +382,11 @@ export default async function ProjectDetail({
           className="min-w-0 flex-1 rounded-xl border border-slate-400 bg-transparent p-3 text-sm outline-none focus:border-emerald-600 dark:border-slate-400"
         />
       </div>
+      <PhotoField
+        userId={user.id}
+        label="Add a photo of the place"
+        className="mt-2"
+      />
       <SubmitButton
         pendingLabel="Creating…"
         className="mt-2 rounded-lg bg-pa-brand px-5 py-2 text-sm font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
@@ -925,6 +931,21 @@ export default async function ProjectDetail({
                         : "border-slate-300 opacity-60 dark:border-slate-600"
                     }`}
                   >
+                    {e.photo_url ? (
+                      /* eslint-disable-next-line @next/next/no-img-element --
+                         Supabase Storage, already downscaled on upload. */
+                      <img
+                        src={e.photo_url}
+                        /* The uploader writes no description, so the most
+                           truthful alt is the place it shows. With no place
+                           recorded there is nothing honest to say, and an
+                           empty alt correctly marks it decorative rather
+                           than inventing a caption. */
+                        alt={e.place ? `Photo of ${e.place}` : ""}
+                        className="mb-3 h-36 w-full rounded-lg object-cover"
+                        loading="lazy"
+                      />
+                    ) : null}
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-sm font-medium">

@@ -18,7 +18,12 @@ ones at the bottom so they stay rejected.*
 1. ~~**Real photo uploads**~~ ✅ *shipped 2026-08* — public `projects`
    storage bucket (migration 0021), reusable `PhotoPicker`, cover photo in
    the wizard and owner-editable on the project page, photos on updates.
-   *(Remaining: event photos.)*
+   Event photos landed 2026-09 (migration 0052): an event is an invitation
+   to stand in a real place with people you may not know, and "the Oak Street
+   lot" reads very differently once you can see it. Stewards attach one when
+   planning; it shows on the project page and the events board. No new
+   policies — `events` already limits writes to stewards, and a column
+   inherits its row's rules.
 2. ~~**Project updates (founder posts)**~~ ✅ *shipped 2026-08* — founder and
    accepted teammates post text+photo progress notes (`project_updates`,
    migration 0021); each lands in the history timeline as a 📣 beat.

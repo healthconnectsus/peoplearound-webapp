@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Event photos: stewards can show the place people are being invited to (migration 0052)
+
+- `docs/FEATURE_IDEAS.md`
+- `src/app/events/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/components/PhotoField.tsx`
+- `src/lib/projects.ts`
+- `supabase/migrations/0052_event_photos.sql`
+
+
 ### 2026-09-10 — Accessibility: Escape closes the Filters, community and profile menus and returns focus to the trigger
 
 - `docs/FEATURE_IDEAS.md`
