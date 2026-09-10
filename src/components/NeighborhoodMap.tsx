@@ -161,10 +161,46 @@ export function NeighborhoodMap({
   return (
     <div className={`relative ${className}`}>
       <style>{`@keyframes pa-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }`}</style>
+      {/*
+        A Leaflet map is a grid of image tiles with absolutely-positioned
+        markers: to a screen reader it is nothing at all, and an aria-label
+        saying "map of projects around you" only names the void. Every pin is
+        also a link to a project, so the honest fix is to publish that list
+        rather than describe the picture.
+
+        Hidden visually, not from assistive technology (`sr-only`, never
+        `aria-hidden`), and placed before the map so the content comes ahead
+        of the decoration in reading order. The map itself then becomes
+        genuinely decorative and is marked so, which stops a screen reader
+        announcing an empty region after the list it just read.
+
+        "Places", not "projects": lib/mapPins.ts feeds this same component
+        project pins, community clusters and group pins depending on the page,
+        so naming one of them would be wrong on the other two. Each item
+        carries its own title and subtitle, which is what says what it is.
+      */}
+      {pins.length > 0 ? (
+        <nav className="sr-only" aria-label="Places shown on the map">
+          <h2>
+            {pins.length} {pins.length === 1 ? "place" : "places"} on the map
+          </h2>
+          <ul>
+            {pins.map((pin) => (
+              <li key={pin.id}>
+                <a href={pin.href}>
+                  {pin.title}
+                  {pin.subtitle ? `. ${pin.subtitle}` : ""}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
+
       <div
         ref={holderRef}
+        role="presentation"
         className="z-0 h-full w-full overflow-hidden rounded-2xl border border-slate-400 shadow-sm dark:border-slate-500"
-        aria-label="Map of projects around you"
       />
       <p className="pointer-events-none absolute left-3 top-3 z-[500] rounded-full bg-white/90 px-3 py-1 text-xs font-medium shadow dark:bg-zinc-900/90">
         📍 What&apos;s being built around you

@@ -543,7 +543,22 @@ export function IdeaForm({
     <div className="flex flex-col gap-6">
       {/* Progress. On desktop this lives in the right rail (below); here it
           stays horizontal for narrow screens that have no rail. */}
+      {/*
+        A step change swaps nearly the whole screen while the URL, the page
+        title and the focus all stay where they were, so a screen reader
+        announces nothing at all. This is the only signal that anything
+        happened. Polite, so it waits for a pause instead of interrupting.
+
+        Outside the <ol> below, and with no responsive class: a list may only
+        contain list items, and that list is hidden on desktop — announcing
+        the step only on narrow screens would be the worse half of the bug.
+      */}
+      <p className="sr-only" role="status" aria-live="polite">
+        Step {step + 1} of {STEPS.length}: {STEPS[step]}
+      </p>
+
       <ol className="flex items-center gap-2 lg:hidden" aria-label="Steps">
+
         {STEPS.map((label, i) => (
           <li key={label} className="flex flex-1 flex-col gap-2">
             <span

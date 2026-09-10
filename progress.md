@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Accessibility: both wizards announce their steps, Escape closes them, focus returns; the map publishes its pins as a list for screen readers
+
+- `docs/FEATURE_IDEAS.md`
+- `src/app/asks/AskComposer.tsx`
+- `src/app/projects/new/CloseWizard.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/NeighborhoodMap.tsx`
+- `src/components/useOverlay.ts`
+
+
 ### 2026-09-10 — Ideas: 42 generated and guardrail-judged, grouped by lens; document the privilege-escalation fix and worker backoff
 
 - `docs/ARCHITECTURE.md`

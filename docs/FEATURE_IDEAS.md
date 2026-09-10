@@ -126,8 +126,18 @@ ones at the bottom so they stay rejected.*
     `:focus-visible` ring app-wide (dark line + white halo, so it survives
     on brand fills and photos), and reduced-motion honoured. The status
     badges were audited and all four pass AA in both themes (5.81–10.39),
-    so no change was needed there. *(Remaining: a screen-reader pass over
-    the wizard and the map.)*
+    so no change was needed there. The screen-reader pass over the wizard
+    and the map landed 2026-09: both wizards announce each step through a
+    polite live region (a step change swapped the whole screen while the URL,
+    title and focus stayed put, so nothing was announced at all); the
+    small-help composer is a real `dialog` that Escape closes, that locks the
+    page behind it, and that returns focus to the button which opened it;
+    the idea wizard answers Escape too; and the map — a grid of tiles and
+    absolutely-positioned markers, invisible to assistive technology —
+    now publishes its pins as a visually-hidden list of links, with the map
+    itself marked decorative. *(Remaining: keyboard behaviour for the custom
+    dropdowns — arrow keys and roles on TagFilter, CommunityFilter and
+    ProfileMenu.)*
 
 21. ~~**Automatic city events**~~ ✅ *shipped 2026-09* — every city refreshes
     weekly from Ticketmaster and a search-engine pass, plus a crawler that

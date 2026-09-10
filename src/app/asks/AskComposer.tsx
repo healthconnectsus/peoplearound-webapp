@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useOverlay } from "@/components/useOverlay";
 import {
   X,
   Sofa,
@@ -151,6 +152,10 @@ export function AskComposer({
     if (startOpen) router.replace(`${pathname}#asks`, { scroll: false });
   }
 
+  // Escape closes, the page behind stops scrolling, and focus returns to the
+  // button that opened this.
+  useOverlay(open, reset);
+
   if (!open) {
     return (
       <button
@@ -167,7 +172,12 @@ export function AskComposer({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-white dark:bg-zinc-950">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ask-wizard-title"
+      className="fixed inset-0 z-50 overflow-y-auto bg-white dark:bg-zinc-950"
+    >
       <button
         type="button"
         aria-label="Close"
@@ -178,9 +188,23 @@ export function AskComposer({
       </button>
 
       <div className="mx-auto w-full max-w-[90rem] px-4 py-6 lg:px-10">
-        <h1 className="mb-6 text-3xl font-extrabold tracking-tight lg:pl-14">
+        <h1
+          id="ask-wizard-title"
+          className="mb-6 text-3xl font-extrabold tracking-tight lg:pl-14"
+        >
           Ask for small help 🙋
         </h1>
+
+        {/*
+          Moving between steps changes almost the whole screen while the URL,
+          the title and the focus all stay put, so a screen reader announces
+          nothing and the user is simply somewhere else. This is the only
+          signal that anything happened. Polite, so it waits for a pause
+          rather than cutting across what is being read.
+        */}
+        <p className="sr-only" role="status" aria-live="polite">
+          Step {step + 1} of {STEPS.length}: {STEPS[step]}
+        </p>
 
         {capReached ? (
           <div className="mx-auto mt-16 max-w-md rounded-2xl border border-pa-brand/40 bg-pa-brand/5 p-6 text-center dark:border-pa-brand/50 dark:bg-pa-brand/15">
