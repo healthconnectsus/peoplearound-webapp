@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Speed: the feed and explore pages queued five and six database round trips one behind another; run them together
+
+- `src/app/explore/page.tsx`
+- `src/app/people/page.tsx`
+
+
 ### 2026-09-10 — Events: local calendars get their own section again, and event times read as times instead of ISO strings
 
 - `scripts/test-city-events.mjs`

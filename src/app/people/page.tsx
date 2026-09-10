@@ -249,8 +249,32 @@ export default async function PeoplePage({
         .neq("state", "archived")
     : { data: [] };
   const communityProjectIds = (idRows ?? []).map((r) => r.id as string);
-  const { cards, events } = await loadFeedCards(supabase, communityProjectIds, user.id);
-  const asks = await openAsks(supabase, 4);
+  // One wait instead of five. Each of these is a separate network round trip
+  // to Postgres — about 200ms from the serverless region — and they were run
+  // one after another even though none needs another's answer. That queueing,
+  // not slow SQL, is what made this page take two seconds: every query here
+  // returns a handful of rows in single-digit milliseconds.
+  //
+  // The map pins are in this batch too. They were fetched last, after the
+  // feed had already been sorted, which meant the page could not start
+  // rendering until a query nothing on screen was waiting for came back.
+  const [
+    { cards, events },
+    asks,
+    { data: myMemberships },
+    clusters,
+    gPins,
+  ] = await Promise.all([
+    loadFeedCards(supabase, communityProjectIds, user.id),
+    openAsks(supabase, 4),
+    supabase
+      .from("memberships")
+      .select("project_id")
+      .eq("user_id", user.id)
+      .eq("status", "accepted"),
+    peopleClusterPins(supabase),
+    groupPins(supabase),
+  ]);
 
   // Tags are multi-select now — "games AND food & drink" is a reasonable
   // thing to want, and the old single-value chips made it impossible.
@@ -270,11 +294,6 @@ export default async function PeoplePage({
 
   // Which teams you're actually on. Inferring it from "this project has
   // more than one member" would put every busy project under "Mine".
-  const { data: myMemberships } = await supabase
-    .from("memberships")
-    .select("project_id")
-    .eq("user_id", user.id)
-    .eq("status", "accepted");
   const joinedIds = new Set(
     ((myMemberships ?? []) as { project_id: string }[]).map((m) => m.project_id),
   );
@@ -295,11 +314,7 @@ export default async function PeoplePage({
 
   // People are pinned as COMMUNITY clusters with headcounts — never at
   // anyone's home (see lib/mapPins.ts). Groups live here too: a group IS
-  // people.
-  const [clusters, gPins] = await Promise.all([
-    peopleClusterPins(supabase),
-    groupPins(supabase),
-  ]);
+  // people. Both were fetched in the batch above.
   const located = [...clusters, ...gPins];
   const pins = located.length
     ? located

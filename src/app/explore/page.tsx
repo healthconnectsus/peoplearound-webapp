@@ -131,25 +131,46 @@ export default async function ExplorePage({
       : membershipResult.data.map((m) => m.community_id),
   );
 
-  const [{ count: myStarsGiven }, { count: myRsvpCount }] = await Promise.all([
+  // One wait rather than six. Every line here is a separate round trip to
+  // Postgres, roughly 200ms each from the serverless region, and they were
+  // queued behind one another although none needs another's answer — which is
+  // why this was the slowest page in the app at about four seconds. The
+  // queries themselves return counts and a few dozen rows in milliseconds.
+  const [
+    [{ count: myStarsGiven }, { count: myRsvpCount }],
+    milestone,
+    asks,
+    { data: allCommunityRows },
+    { data: allMemberRows },
+    badges,
+  ] = await Promise.all([
+    Promise.all([
+      supabase
+        .from("stars")
+        .select("project_id", { count: "exact", head: true })
+        .eq("user_id", user.id),
+      supabase
+        .from("rsvps")
+        .select("event_id", { count: "exact", head: true })
+        .eq("user_id", user.id),
+    ]),
+    // A collective beat when the neighborhood crosses a threshold — about the
+    // place, never a person (see lib/milestones.ts).
+    communityMilestone(supabase, myHood, neighborhoodName),
+    // Small help is time-sensitive in a way ideas aren't — an ask for Saturday
+    // is worthless on Sunday, so it rides at the top of the feed.
+    openAsks(supabase, 4),
+    // The directory: every community, plus the two numbers that say whether
+    // one is alive — how many people are in it and how much is being built.
     supabase
-      .from("stars")
-      .select("project_id", { count: "exact", head: true })
-      .eq("user_id", user.id),
-    supabase
-      .from("rsvps")
-      .select("event_id", { count: "exact", head: true })
-      .eq("user_id", user.id),
+      .from("neighborhoods")
+      .select("id,name,city,kind,description")
+      .order("name", { ascending: true }),
+    supabase.from("community_members").select("community_id"),
+    // Badges here too, so a fresh badge celebrates immediately rather than
+    // only on the profile page.
+    computeBadges(supabase, user.id, { id: myHood, name: neighborhoodName }),
   ]);
-
-  // A collective beat when the neighborhood crosses a threshold — about the
-  // place, never a person (see lib/milestones.ts).
-  const milestone = await communityMilestone(supabase, myHood, neighborhoodName);
-
-  // Small help is time-sensitive in a way ideas aren't — an ask for Saturday
-  // is worthless on Sunday, so it rides at the top of the feed, not on a
-  // page you have to think to visit.
-  const asks = await openAsks(supabase, 4);
 
   // Onboarding nudge: one small first action beats a blank profile. Shown
   // only to young accounts that haven't starred or RSVPed yet; it retires
@@ -161,31 +182,12 @@ export default async function ExplorePage({
     isWithinDays(profile.created_at, 30) &&
     (!starredOnce || !rsvpedOnce);
 
-  // The directory. Explore is about finding a community to belong to, so it
-  // loads all of them plus the two numbers that say whether a community is
-  // alive: how many people are in it, and how much is being built there.
-  const [{ data: allCommunityRows }, { data: allMemberRows }] =
-    await Promise.all([
-      supabase
-        .from("neighborhoods")
-        .select("id,name,city,kind,description")
-        .order("name", { ascending: true }),
-      supabase.from("community_members").select("community_id"),
-    ]);
-
   // Membership comes from the query above — myCommunityIds already knows
   // which of these you're in.
   const memberTally = new Map<string, number>();
   for (const m of (allMemberRows ?? []) as { community_id: string }[]) {
     memberTally.set(m.community_id, (memberTally.get(m.community_id) ?? 0) + 1);
   }
-
-  // Badges here too, so a fresh badge (e.g. 🌱 on first login after
-  // founding a place) celebrates immediately — not only on the profile page.
-  const badges = await computeBadges(supabase, user.id, {
-    id: myHood,
-    name: neighborhoodName,
-  });
 
   const projects = (projectRows ?? []) as unknown as Project[];
   const events = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
