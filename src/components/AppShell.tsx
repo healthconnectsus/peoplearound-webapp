@@ -4,6 +4,7 @@ import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { AdminCityPicker } from './AdminCityPicker';
 import { navCounts, type NavCounts } from "@/lib/navCounts";
+import { currentUser } from "@/lib/auth";
 
 /**
  * Shared chrome for signed-in pages: a Nextdoor-style left sidebar plus
@@ -11,9 +12,7 @@ import { navCounts, type NavCounts } from "@/lib/navCounts";
  */
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
 
   let counts: NavCounts | null = null;
   let isAdmin = false;

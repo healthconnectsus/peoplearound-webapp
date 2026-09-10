@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { timeAgo } from "@/lib/projects";
 import { ProfileMenu } from "./ProfileMenu";
 import { TopBarIcons, type Notification } from "./TopBarIcons";
+import { currentUser } from "@/lib/auth";
 
 /**
  * Desktop-only top bar (Nextdoor-style): centered search, notification and
@@ -12,9 +13,7 @@ import { TopBarIcons, type Notification } from "./TopBarIcons";
  */
 export async function TopBar() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
 
   let name = "Neighbor";
   let neighborhood: string | null = null;

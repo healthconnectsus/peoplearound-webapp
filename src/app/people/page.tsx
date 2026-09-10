@@ -30,6 +30,7 @@ import {
   leaveCommunity,
   setPrimaryCommunity,
 } from "@/app/neighborhood/communityActions";
+import { currentUser } from "@/lib/auth";
 
 export const metadata = { title: "People around" };
 
@@ -127,9 +128,7 @@ export default async function PeoplePage({
   } = await searchParams;
   const tab = readTab(rawTab);
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const [

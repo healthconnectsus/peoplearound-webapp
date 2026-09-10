@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Speed: verify the signed-in user once per render instead of four times
+
+- `src/app/people/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/MapShell.tsx`
+- `src/components/TopBar.tsx`
+- `src/lib/auth.ts`
+
+
 ### 2026-09-10 — When one event arrives twice, keep the copy that says more — the feed carries tags the page does not
 
 - `scripts/test-city-events.mjs`

@@ -1,6 +1,7 @@
 import { NeighborhoodMap, type MapPin } from "@/components/NeighborhoodMap";
 import { createClient } from "@/lib/supabase/server";
 import { myCommunityFocuses, myMapCenter } from "@/lib/mapPins";
+import { currentUser } from "@/lib/auth";
 
 /**
  * The split app shell: content scrolls on the left, the map sits sticky and
@@ -23,9 +24,7 @@ export async function MapShell({
   // frame the same place, and threading it through eight call sites would
   // guarantee one of them eventually forgets.
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   const [center, focuses] = user
     ? await Promise.all([
         myMapCenter(supabase, user.id),
