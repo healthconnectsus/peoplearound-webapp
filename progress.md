@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Imported calendars: skip administrative notices like tuition deadlines, which nobody attends, without suppressing real events
+
+- `scripts/test-city-events.mjs`
+- `src/lib/city-events/crawler.ts`
+- `src/lib/city-events/normalize.ts`
+
+
 ### 2026-09-10 — Docs: record the performance posture and how imported listings keep their source's labels
 
 - `docs/ARCHITECTURE.md`

@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 // Compile the pure TS module in memory; no build artifacts or live APIs.
 const source = readFileSync(new URL('../src/lib/city-events/normalize.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ESNext } }).outputText;
-const { eventDate, sourceUrl, searchListings, distinctListings, text, isCrawlableCalendar, humanWhen, cleanTags } =
+const { eventDate, sourceUrl, searchListings, distinctListings, text, isCrawlableCalendar, humanWhen, cleanTags, isAGathering } =
   await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
 const now = new Date('2026-09-09T12:00:00Z');
 
@@ -445,4 +445,29 @@ test('a source’s own labels are kept; its navigation is not', () => {
   assert.equal(cleanTags(['a1','b2','c3','d4','e5','f6','g7','h8']).length, 6);
   // Nothing sensible in, empty out — never a null to guard against.
   for (const bad of [null, undefined, 42, {}]) assert.deepEqual(cleanTags(bad), []);
+});
+
+test('a billing deadline is not an event; a conference is', () => {
+  // Real entries from CU Boulder's public calendar that nobody attends.
+  for (const notice of [
+    'Fall 2026 Tuition & Fee Bill Available Online (new and/or unpaid)',
+    'Fall 2026 Last Day for Class Withdrawal in 5-Wk Session 1',
+    'Fall 2026 Last Day to Change Pass/Fail for a Student-Option course',
+    'Spring registration opens',
+    'Application due',
+  ]) assert.equal(isAGathering(notice), false, notice);
+
+  // Real entries from the same feed that someone could turn up to. The filter
+  // is narrow on purpose: suppressing a real event costs far more than
+  // letting one notice through.
+  for (const event of [
+    'Conference on World Affairs Kick-off Meeting',
+    'Design/HEALth Exhibition',
+    'PowerUp 2026 Conference',
+    'Garden Work Day',
+    'KC Parks Board Meeting',
+    'Overcoming Difficult Work Histories',
+    'Last Chance Saloon live music',
+    'Deadline Day: a play',
+  ]) assert.equal(isAGathering(event), true, event);
 });

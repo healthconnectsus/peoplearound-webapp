@@ -157,6 +157,40 @@ export function cleanTags(input: unknown): string[] {
   return out;
 }
 
+/**
+ * Some entries on a public calendar are notices, not gatherings.
+ *
+ * Institutions put both on the same feed. CU Boulder's calendar carries the
+ * Conference on World Affairs and a design exhibition — genuinely things a
+ * neighbor could go to — beside "Fall 2026 Tuition & Fee Bill Available
+ * Online" and "Last Day to Change Pass/Fail". Nobody attends a billing
+ * deadline, and listing one next to a garden morning is the same category
+ * error that made the ticketing provider a nuisance.
+ *
+ * Deliberately narrow. It matches the administrative vocabulary of deadlines
+ * and billing, not anything describing an occasion, because the cost of
+ * suppressing a real event is much higher than the cost of letting one notice
+ * through. Anything uncertain is kept.
+ */
+const IS_A_NOTICE = new RegExp(
+  [
+    'tuition', 'fee bill', 'fees due', 'payment due',
+    'last day to', 'last day for',
+    'registration (opens|closes|begins|ends)',
+    'grades (due|post)', 'census date', 'add/drop',
+    'pass/fail', 'application due',
+    // "deadline" only where something administrative owns it. On its own it
+    // would suppress a play called Deadline Day, which the tests caught.
+    '(registration|application|withdrawal|payment|submission|entry) deadline',
+    'deadline (to|for) (apply|register|submit|enrol|enroll|withdraw)',
+  ].join('|'),
+  'i',
+);
+
+export function isAGathering(title: string): boolean {
+  return !IS_A_NOTICE.test(title);
+}
+
 export function humanWhen(iso: string, zone?: string | null): string {
   const ms = Date.parse(iso);
   if (!Number.isFinite(ms)) return '';
