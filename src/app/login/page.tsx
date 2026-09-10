@@ -369,6 +369,11 @@ export default async function LoginPage({
                 </Link>
               </li>
               <li>
+                <Link href="/city" className="hover:underline">
+                  Cities
+                </Link>
+              </li>
+              <li>
                 <Link href="/privacy" className="hover:underline">
                   Privacy
                 </Link>

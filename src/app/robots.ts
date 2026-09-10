@@ -23,6 +23,7 @@ export default function robots(): MetadataRoute.Robots {
           "/login",
           "/start",
           "/privacy",
+          "/city",
           "/city/",
         ],
         disallow: [

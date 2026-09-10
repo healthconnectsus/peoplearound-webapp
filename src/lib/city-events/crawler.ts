@@ -59,6 +59,14 @@ export async function crawlNextCalendar(){
   const source=(data as {id:string;city_id:string;url:string;format:string;interval_hours:number;lease_token:string}[]|null)?.[0];
   if(!source)return {status:'idle'};
   const now=new Date();let count=0;let failure:string|null=null;
+  // Wall-clock budget, comfortably under the route's maxDuration of 180s.
+  // Worst case without it is about 165s — seven requests at up to 15s each
+  // plus six crawl-delay sleeps of up to 10s — which is close enough to the
+  // ceiling that a slow host tips it over. Being killed loses the listings
+  // already parsed and, before 0051, re-queued the site immediately; stopping
+  // early keeps what we have and lets the run finish honestly.
+  const startedAt=Date.now();
+  const BUDGET_MS=150_000;
   try{
     const root=new URL(source.url);const robotsUrl=new URL('/robots.txt',root).toString();
     const robotsResponse=await safeGet(robotsUrl);
@@ -75,10 +83,15 @@ export async function crawlNextCalendar(){
       listings=jsonLdEvents(page.body,source.url,now);
       const $=load(page.body);const links=new Set<string>();
       $('a[href]').each((_i,node)=>{try{const u=new URL($(node).attr('href')!,source.url);if(u.origin===root.origin&&/\/events?\//i.test(u.pathname)&&u.pathname!==root.pathname&&robots.isAllowed(u.toString(),'PeoplearoundEvents')!==false)links.add(u.toString());}catch{}});
+      let stoppedEarly=false;
       for(const link of [...links].slice(0,5)){
+        // One more detail page costs a crawl-delay sleep plus a request that
+        // may run the full 15s. Only start it if both still fit.
+        if(Date.now()-startedAt > BUDGET_MS-(delay*1000+15000)){stoppedEarly=true;break;}
         await new Promise(r=>setTimeout(r,delay*1000));
         const detail=await safeGet(link);if(detail.status===200)listings.push(...jsonLdEvents(detail.body,link,now));
       }
+      if(stoppedEarly)console.warn(`[crawl] ${source.url}: stopped early on time budget`);
     }
     // Deduplicate before writing, not only when rendering.
     // This crawler reads the listing page and then follows up to five detail

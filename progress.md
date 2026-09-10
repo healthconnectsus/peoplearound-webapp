@@ -7,6 +7,19 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Security: any signed-in user could make themselves an admin; lock profiles to column grants. Crashed import/crawl workers now back off instead of looping. City index page.
+
+- `src/app/city/[slug]/page.tsx`
+- `src/app/city/page.tsx`
+- `src/app/login/page.tsx`
+- `src/app/robots.ts`
+- `src/app/sitemap.ts`
+- `src/lib/city-events/crawler.ts`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0050_profiles_column_grants.sql`
+- `supabase/migrations/0051_claim_backs_off.sql`
+
+
 ### 2026-09-10 — City events: qualify a bare city name from its coordinates before searching, and never accept a social page as a calendar source
 
 - `scripts/test-city-events.mjs`

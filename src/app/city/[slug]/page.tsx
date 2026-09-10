@@ -95,10 +95,10 @@ export default async function CityPage({
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-10 lg:py-16">
       <Link
-        href="/"
+        href="/city"
         className="text-sm text-black/50 hover:underline dark:text-white/50"
       >
-        ← Peoplearound
+        ← All cities
       </Link>
 
       <h1 className="mt-4 text-3xl font-extrabold tracking-tight lg:text-4xl">

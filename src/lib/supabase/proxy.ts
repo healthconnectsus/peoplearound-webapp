@@ -84,6 +84,7 @@ export async function updateSession(request: NextRequest) {
     path === "/privacy" ||
     // City pages exist to be handed to partners and press; they publish
     // counts only (migration 0043) and name nobody.
+    path === "/city" ||
     path.startsWith("/city/") ||
     // Logged-out landing page calls this to register uncovered locations;
     // it validates its own input and only ever touches anon-safe RPCs.
