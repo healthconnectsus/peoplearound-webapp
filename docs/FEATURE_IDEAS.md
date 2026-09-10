@@ -101,7 +101,10 @@ ones at the bottom so they stay rejected.*
     Readable signed out, because a page a council officer must log in to
     read is no use to them. Backed by anon-safe views (migration 0043) that
     can only ever return counts plus global-reach titles.
-    *(Remaining: an index of cities — today you share the URL directly.)*
+    A `sitemap.xml` now lists every city page (built from the same
+    anon-safe view), and `robots.txt` allowlists the public pages, so these
+    are findable rather than hand-shared. *(Remaining: a human-facing index
+    page linking the cities.)*
 18. **Embeddable widget** — "ideas near you" iframe for library/city/school
     sites; every embed is a frontier funnel. *(M)*
 19. ~~**Data export & privacy page**~~ ✅ *shipped 2026-09* —
@@ -119,6 +122,43 @@ ones at the bottom so they stay rejected.*
     badges were audited and all four pass AA in both themes (5.81–10.39),
     so no change was needed there. *(Remaining: a screen-reader pass over
     the wizard and the map.)*
+
+21. ~~**Automatic city events**~~ ✅ *shipped 2026-09* — every city refreshes
+    weekly from Ticketmaster and a search-engine pass, plus a crawler that
+    reads published calendars (JSON-LD and `.ics`). A ten-minute worker
+    drains a leased queue, so adding cities costs no extra schedule. Search
+    discovers local calendar sites but stores them **disabled** — an admin
+    approves each before anything is fetched. Listings live in their own
+    table and render under "Around your city", never mixed into
+    neighbor-led projects. `/admin` gained populate-now buttons, per-city
+    search locations and the calendar list. Full notes in
+    [CITY_EVENT_IMPORTS](CITY_EVENT_IMPORTS.md) (migrations 0045, 0049).
+    *(Remaining: sites that publish no structured data — visitkc.com and
+    kclibrary.org among them — need an `.ics` feed URL or a small adapter.)*
+22. ~~**Clans**~~ ✅ *shipped 2026-09* — every account gets one clan and one
+    unguessable invite code, so inviting is a link rather than a form
+    (migration 0046).
+23. ~~**Admin city view & activity reports**~~ ✅ *shipped 2026-09* — a city
+    picker in the top bar puts an admin in any city without changing their
+    own home community, and `/admin/activity` reports what one person or one
+    community has posted: projects, events, small help, offers, updates,
+    contributions (migrations 0046, 0047).
+24. ~~**Demo residents**~~ ✅ *shipped 2026-09* — a new city is seeded with
+    labelled example profiles so the first arrival doesn't meet an empty
+    room. They are **not** accounts: no login, no inbox, no effect on
+    analytics or badges, and the UI says "example profiles, not real
+    people · cannot be messaged". The labelling is deliberate — undisclosed
+    fake neighbors would corrupt the north-star metric and, in a
+    place-based product, be unrecoverable once noticed (migration 0046).
+25. ~~**Welcome email**~~ ✅ *shipped 2026-09* — one email, thirty minutes
+    after sign-up, about the events and neighbors actually near that person.
+    Queued per user so a retry can never become a second email
+    (migrations 0046, 0048).
+26. ~~**Content Security Policy**~~ *partly shipped 2026-09* — nonce-based
+    with `'strict-dynamic'`, minted per request in the proxy; violations
+    collected at `/api/csp-report`. **Running report-only on purpose**: a
+    wrong policy blanks the page rather than degrading. *(Remaining: flip
+    `CSP_ENFORCE=1` once the reports stay quiet.)*
 
 ## Rejected (recorded so they stay rejected)
 

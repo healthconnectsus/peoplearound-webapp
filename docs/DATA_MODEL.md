@@ -345,6 +345,118 @@ every signed-in neighbor can read (Postgres has no per-column RLS).
 > to centre your own profile map; never pins you for anyone else (the People
 > map shows community clusters — see [UX_SPEC](UX_SPEC.md#417-the-map-shell-live-app-wide)).
 
+### event_cities · city_event_sources · city_events · event_search_usage
+
+Imported listings, kept in their own corner of the schema on purpose. These
+rows are **not** neighbor-led activity: nobody here started anything, and no
+one is accountable for a scraped concert the way a founder is accountable for
+a project. Mixing them into `projects` or `events` would have made the feed
+dishonest, so they live apart and surface under their own heading ("Around
+your city") with a line telling the reader to check the organizer's page.
+
+`event_cities` is a work queue, one row per city, leased so two workers never
+import the same city twice. A city is claimed only when `next_run_at` has
+passed; a successful run pushes it seven days out, a failed one a single day.
+The ten-minute cron is therefore almost always a no-op — one indexed query
+that finds nothing due and returns.
+
+`city_event_sources` holds calendar websites found by search, and defaults to
+`enabled = false`. That default is the whole safety design: discovery only
+*proposes* a site, and nothing is fetched from it until an admin approves it.
+An automatic crawler pointed at unreviewed search results is how you end up
+fetching somebody's router.
+
+| Table | Purpose | Notable columns |
+|---|---|---|
+| event_cities | Per-city import queue | `next_run_at`, `lease_token` / `lease_until`, `search_location`, `last_status` |
+| city_event_sources | Discovered calendar sites | `enabled` (**default false** — admin approves), `format` (`jsonld` / `ics`), `interval_hours` (24 or 48), `next_crawl_at` |
+| city_events | The listings themselves | `provider` (`ticketmaster` / `serpapi` / `calendar`), `event_date`, `starts_at` (null when the source gave no zone), `expires_at` |
+| event_search_usage | Search spend counter | `period` (`month:YYYY-MM` / `hour:…`), `used` |
+
+> **RLS:** `city_events` is selectable by signed-in users, filtered through
+> `can_read_city_events(city_id)` — you see listings for cities your
+> communities are actually in, and nothing else. The other three are revoked
+> from `anon` and `authenticated` entirely and reachable only by the service
+> role: a queue, a crawl list and a spend counter are operational state, not
+> user data. `consume_event_search` takes an advisory lock and increments
+> before the call, so a burst of workers cannot overspend the search budget
+> (migrations 0045, 0049).
+
+### demo_residents
+
+Example profiles shown in a city that has no neighbors yet, so the first
+person to arrive doesn't meet an empty room.
+
+They are deliberately **not** users. There is no `auth.users` row, no
+`profiles` row, no password and no inbox — which is what makes them safe.
+Nobody can message one and wait forever for a reply, they cannot be added to
+a project, and they cannot inflate analytics, reputation, badges or the
+neighborhood milestone thresholds, because none of those read this table.
+Every row is labelled twice over: `display_name` is constrained to start with
+`Demo — `, and the UI prints "example profiles, not real people · cannot be
+messaged" above them.
+
+That labelling is a decision, not an oversight. Undisclosed fake neighbors
+would corrupt the north-star metric this product is measured by, and in a
+place-based community the discovery of them is not recoverable.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| city_id | uuid (FK → event_cities) | Cascades when a city is removed |
+| slot | integer 1–20 | Unique per city; makes seeding idempotent |
+| display_name | text | DB check: must begin `Demo — ` |
+| bio | text | Defaults to an explicit "Not a real person." |
+
+> **RLS:** selectable by signed-in users, scoped to cities you belong to.
+> Writes are service-role only via `seed_demo_residents()`; a trigger seeds
+> four when a new city is registered (migration 0046).
+
+### clans · clan_members
+
+Every account gets one clan and one invite code, so inviting people is a link
+rather than a form. The code is a full UUID with the dashes stripped — 122
+bits from `gen_random_uuid()`, not a short human-typed code, because a
+guessable code is an open door into a private group.
+
+The clan owner cannot leave their own clan (the delete policy excludes them),
+which stops a clan being orphaned with members still inside it.
+
+| Table | Notable columns |
+|---|---|
+| clans | `owner_id` (unique — one clan per person), `invite_code` (unique, 32 hex chars), `name` |
+| clan_members | `(clan_id, user_id)` composite PK, `joined_at` |
+
+> **RLS:** you read a clan and its members only via `in_clan()` — membership
+> is the key, so 222 clans on the site resolve to the one you are in. Owners
+> may rename their own clan (`grant update(name)` — the column grant means
+> `owner_id` and `invite_code` are not writable from the client at all).
+> Members may delete their own membership row to leave, except the owner.
+> Joining goes through `join_clan(code)`, which is revoked from `anon`
+> (migration 0046).
+
+### welcome_mail_jobs
+
+A queue so the welcome email is sent once, late, and only if there is
+something worth saying. One row per user, keyed by `user_id`, so a retry can
+never become a second email.
+
+`due_at` defaults to thirty minutes after sign-up rather than firing
+immediately — the point of the mail is "here is what is happening near you",
+and that reads better once the person has had a chance to look around
+themselves.
+
+| Column | Notes |
+|---|---|
+| user_id | uuid (PK, FK → profiles) — one job per person, ever |
+| due_at | Defaults to now + 30 minutes |
+| lease_until | Held while a worker sends, so two crons cannot both send |
+| status / attempts / sent_at / last_error | Retry bookkeeping |
+
+> **RLS:** revoked from `anon` and `authenticated`; service role only. The
+> content is assembled by `welcome_context(user)`, which returns only what
+> that person is already entitled to see (migrations 0046, 0048).
+
 ## Tables — planned
 
 Give / lend / offer — the non-monetary replacement for a marketplace
@@ -414,5 +526,14 @@ Give / lend / offer — the non-monetary replacement for a marketplace
 | New locations need a signed-up human | Anonymous visitors get name preview only; `register_frontier_location` is service-role-only + DB caps (3/IP/day, 25/day) | ✅ Live |
 | No self-invites; attribution set once | `profiles_no_self_invite` check; `invited_by` only written when null | ✅ Live |
 | Reputation read-only | Derived/computed; no client write path | Planned |
+| Imported listings never pose as neighbor activity | Separate `city_events` table, own `provider`, rendered under its own heading; never written to `projects` or `events` | ✅ Live |
+| You only see listings for your own cities | `city_events` select policy calls `can_read_city_events(city_id)`; the queue, crawl list and spend counter are service-role only | ✅ Live |
+| A discovered website is never crawled unreviewed | `city_event_sources.enabled` defaults to **false**; an admin approves before anything is fetched | ✅ Live |
+| The server cannot be aimed at a private address | `safe-fetch` resolves DNS, rejects non-public unicast, pins the validated IP, and allows only same-origin redirects | ✅ Live |
+| Search spend is bounded | `consume_event_search()` takes an advisory lock and increments before the call; month + hour buckets | ✅ Live |
+| Demo residents can never act or be acted on | Not users: no `auth.users`, no `profiles`, no inbox; `display_name` check forces the `Demo — ` prefix; excluded from analytics, badges and milestones | ✅ Live |
+| Clan invite codes are not guessable | 122-bit `gen_random_uuid()` with dashes stripped; `invite_code` is not client-writable (column-level `grant update(name)` only) | ✅ Live |
+| A welcome email can only be sent once | `welcome_mail_jobs` is keyed by `user_id`, leased while sending | ✅ Live |
+| Admin power requires a re-check, every time | Every `/admin` action re-reads `profiles.is_admin` from the session before the service-role client exists | ✅ Live |
 
 > This schema iterates as the human loop is proven. The live tables are deliberately minimal; the trust layer lands on top of them.

@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Docs: the eight new tables, the security posture (CSP, headers, crawler SSRF guard, cron auth), and the backlog brought up to what shipped
+
+- `docs/ARCHITECTURE.md`
+- `docs/CITY_EVENT_IMPORTS.md`
+- `docs/DATA_MODEL.md`
+- `docs/FEATURE_IDEAS.md`
+
+
 ### 2026-09-09 — City events: decode HTML entities in imported titles, dedupe on write via the display helper, raise provider timeout to 30s
 
 - `scripts/test-city-events.mjs`
