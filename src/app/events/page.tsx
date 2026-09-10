@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
-import { projectPinsByIds } from "@/lib/mapPins";
+import { myMapCenter, projectPinsByIds } from "@/lib/mapPins";
+import { FeedTabs, readTabFrom } from "@/components/FeedTabs";
+import { EVENT_TABS, sortEventsForTab } from "@/lib/eventSort";
 import { PlanEventButton } from "./PlanEventButton";
 import { CityEvents } from "./CityEvents";
 import { categoryMeta } from "@/lib/projects";
@@ -15,7 +17,13 @@ import {
 
 export const metadata = { title: "Events" };
 
-export default async function EventsPage() {
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const { tab: rawTab } = await searchParams;
+  const tab = readTabFrom(rawTab, EVENT_TABS);
   const supabase = await createClient();
   const {
     data: { user },
@@ -38,6 +46,14 @@ export default async function EventsPage() {
   const pins = await projectPinsByIds(
     supabase,
     events.map((e) => e.project_id),
+  );
+
+  // "Nearby" measures from the viewer's own centre to each event's project
+  // pin. Both are already loaded for the map, so the tab costs one extra
+  // query rather than a second pass over the events.
+  const center = await myMapCenter(supabase, user.id);
+  const placeOf = new Map(
+    pins.map((p) => [p.id, { lat: p.lat, lng: p.lng }] as const),
   );
 
   // Events hang off projects, so "plan an event" needs to know which one.
@@ -71,6 +87,15 @@ export default async function EventsPage() {
     title: p.title,
     emoji: categoryMeta(p.category).emoji,
   }));
+
+  // The chosen tab rearranges the same events the query already returned;
+  // only "Mine" narrows, and it narrows to things the viewer committed to.
+  const visible = sortEventsForTab(events, tab, {
+    userId: user.id,
+    center,
+    placeOf,
+    stewardedIds: new Set(stewarded.keys()),
+  });
   return (
     <AppShell>
       <MapShell pins={pins}>
@@ -86,21 +111,58 @@ export default async function EventsPage() {
             <PlanEventButton projects={stewardedProjects} />
           </div>
 
+          <div className="mt-5" id="events">
+            <FeedTabs
+              active={tab}
+              basePath="/events"
+              tabs={EVENT_TABS}
+              ariaLabel="Sort the events"
+              hash="events"
+            />
+          </div>
+
           <h2 className="mt-6 text-xl font-bold">With your project teams</h2>
-          {events.length === 0 ? (
+          {visible.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">
               <p className="text-3xl" aria-hidden>
                 📅
               </p>
-              <p className="mt-3 font-medium">No upcoming events</p>
-              <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-                Events are created inside projects. Join one — or start your own
-                and rally the neighbors.
-              </p>
+              {/*
+                "Mine" is the one tab that narrows, so it is the one tab that
+                can empty a page which is not actually empty. Saying "no
+                upcoming events" there would be false, and would send someone
+                away from a board that has plenty on it.
+              */}
+              {events.length > 0 ? (
+                <>
+                  <p className="mt-3 font-medium">
+                    Nothing here is yours yet
+                  </p>
+                  <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+                    There {events.length === 1 ? "is" : "are"} {events.length}{" "}
+                    upcoming {events.length === 1 ? "event" : "events"} around
+                    you — say you&rsquo;re coming to one and it shows up here.
+                  </p>
+                  <Link
+                    href="/events"
+                    className="mt-4 inline-block rounded-lg border-2 border-slate-500 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-400 dark:text-white/80 dark:hover:bg-white/10"
+                  >
+                    See what&rsquo;s on
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="mt-3 font-medium">No upcoming events</p>
+                  <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+                    Events are created inside projects. Join one — or start
+                    your own and rally the neighbors.
+                  </p>
+                </>
+              )}
             </div>
           ) : (
             <ul className="mt-6 flex flex-col gap-3">
-              {events.map((e) => (
+              {visible.map((e) => (
                 <li key={e.id}>
                   <Link
                     href={`/projects/${e.project_id}`}

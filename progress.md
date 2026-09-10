@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Events board gets tabs: Soon, Just added, Nearby, Popular, Mine
+
+- `src/app/events/page.tsx`
+- `src/components/FeedTabs.tsx`
+- `src/lib/eventSort.ts`
+
+
 ### 2026-09-10 — Event photos: stewards can show the place people are being invited to (migration 0052)
 
 - `docs/FEATURE_IDEAS.md`
