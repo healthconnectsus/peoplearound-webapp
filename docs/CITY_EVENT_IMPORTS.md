@@ -32,6 +32,19 @@ SerpApi explicitly deprecated engine=google_events. The implementation uses the 
 
 ## Direct calendar collection
 
+Listings keep the labels their source applied (migration 0055): iCal states
+them in `CATEGORIES`, and a web page usually renders them as links to its own
+category pages rather than publishing them as data, so the crawler reads the
+link text. They are shown as chips and are never inferred by us — "Public
+Meeting" and "Nature" are the difference between two errands that look
+identical in a list of titles.
+
+When the same event arrives from both a feed and a page, the copy kept is the
+one that says more. That ordering matters: a site's page is read before its
+feed, and the feed is usually the half carrying the categories, so keeping
+whichever arrived first silently discarded every tag on kcparks.org.
+
+
 Admin → Calendar collection accepts an ICS feed or a webpage containing schema.org Event JSON-LD. Each enabled source runs daily or every other day. A ten-minute cron claims one due source per invocation, with a lease to prevent overlap. The manual collection button runs one source and queues the remainder.
 
 The crawler checks robots.txt, respects supported crawl delays, pins validated public DNS addresses, limits requests to 1 MB and 15 seconds, and rejects cross-origin redirects. A webpage crawl follows at most five same-origin event detail links. Only dated, linked events are saved. Titles are HTML-decoded before storage, so a calendar publishing `KC Chief&#8217;s Red Thursday Pep Rally` inside its JSON-LD is stored and shown as written. Listings are deduplicated on write with the same helper the feed uses on display, because a crawl reads the listing page and then its detail pages and sites publish the same event in both. All-day and floating calendar times remain labels rather than invented UTC instants. Recurrence expansion is bounded; unusually dense recurrence rules are skipped. Unsupported sites show an admin explanation and may need a custom adapter. This is a scheduled server worker and does not require an ongoing Claude or Codex session.

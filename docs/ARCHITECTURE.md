@@ -171,6 +171,39 @@ The agent's first job — **idea shaping** — is live: [`/api/shape-idea`](../s
 
 Later jobs (stall nudges, dignified off-ramps) follow the same constraint: the agent's success metric is **human** joins, contributions, and acknowledgments — not agent interactions. The acknowledgment ledger doubles as the agent's training signal. If usage data shows agent interactions rising relative to human activity (the anti-metric in [PRD §6](PRD.md#6-success-metrics)), that is treated as a regression.
 
+## Performance posture
+
+Every page here is server-rendered from several Postgres queries, so the thing
+that decides how fast it feels is not SQL — the queries return dozens of rows
+in single-digit milliseconds — but **how many round trips happen one after
+another**. Compute (Vercel `iad1`) and the database (Supabase `us-east-1`) are
+co-located, so a round trip is cheap; a queue of them is not.
+
+Measured on production: the server returns its first byte in a steady ~250ms.
+What varied, sometimes to several seconds, was how long the streamed body took
+to finish — which is exactly the time spent waiting on queued queries.
+
+- **Fan out, don't queue.** `/people` ran five independent queries in sequence
+  (feed cards, open asks, memberships, community pins, group pins) and
+  `/explore` six (star and RSVP counts, milestone, asks, the community
+  directory, member tallies, badges). None needed another's answer. Both are
+  now a single `Promise.all`, which took `/people` from about 2.1s to under
+  1s and `/explore` from 4.2s to about 1s.
+- **Ask the database to count.** The rail's "Local Faves" badge used to select
+  every star row the viewer could see and count distinct projects in Node, on
+  every page load, because the badge lives in the shell. `visible_faves_count()`
+  (migration 0054) returns the number instead: 397ms and 46 rows became 118ms
+  and none. It is SECURITY INVOKER, so row-level security decides what is
+  counted exactly as before.
+- **Verify the session once.** `auth.getUser()` is a network call to the auth
+  server, not a cookie read, and four components wanted the user while
+  rendering one page. `currentUser()` in `src/lib/auth.ts` wraps it in React's
+  `cache`, which memoises for one render and nothing longer.
+- **Watch for unbounded selects.** Anything that reads a table which grows
+  without limit — stars, messages, notifications, views — needs a filter, a
+  `limit`, or an aggregate done in Postgres. A page that is fine at 46 rows is
+  not evidence of anything.
+
 ## Security & privacy posture
 
 - Auth via Supabase Auth (email/magic-link today; phone + verified neighborhood later).
