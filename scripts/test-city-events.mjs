@@ -329,3 +329,50 @@ test('a bare city name is qualified once from its coordinates, then never again'
     });
   }
 });
+
+test('a listing page yields its iCal feed and real event links, not its navigation', async () => {
+  const normalize = compileWithMocks('../src/lib/city-events/normalize.ts', {});
+  const { feedUrl, eventLinks } = compileWithMocks('../src/lib/city-events/crawler.ts', {
+    'server-only': {}, '@/lib/supabase/admin': {}, './normalize': normalize, './safe-fetch': {},
+  });
+  const { load } = require('cheerio');
+  const robotsParser = require('robots-parser');
+  const robots = robotsParser('https://example.org/robots.txt', 'User-agent: *\nAllow: /\n');
+
+  // Shaped after the two real Kansas City sites this was written against:
+  // kcparks.org advertises an iCal feed, and visitkc.com's listing page links
+  // mostly to pagination and category pages.
+  const page = 'https://example.org/events/';
+  const $ = load(`
+    <link rel="alternate" type="text/calendar" title="iCal Feed" href="https://example.org/events/?ical=1">
+    <a href="/events/page/2/">2</a>
+    <a href="/events/this-weekend/">This weekend</a>
+    <a href="/events/type/free-events/">Free</a>
+    <a href="/events/category/music/">Music</a>
+    <a href="/events/tag/outdoors/">Outdoors</a>
+    <a href="/events/venue/the-hall/">The Hall</a>
+    <a href="/events/repair-cafe-bring-your-broken-things/">Repair café</a>
+    <a href="/events/garden-work-day/">Garden work day</a>
+    <a href="https://elsewhere.example.com/events/not-ours/">Other site</a>
+    <a href="/events/">Same page</a>
+  `);
+
+  // The feed is what the page says it is, resolved absolute.
+  assert.equal(feedUrl($, page, new URL(page)), 'https://example.org/events/?ical=1');
+
+  const links = eventLinks($, page, new URL(page), robots);
+  // Only the two genuine events survive; pagination, category, tag, venue,
+  // the page itself and the off-site link are all dropped.
+  assert.deepEqual(links, [
+    'https://example.org/events/repair-cafe-bring-your-broken-things/',
+    'https://example.org/events/garden-work-day/',
+  ]);
+
+  // A page with no feed link says so rather than guessing a URL.
+  assert.equal(feedUrl(load('<a href="/events/x/">x</a>'), page, new URL(page)), null);
+  // A feed on someone else's domain is not this site's feed.
+  assert.equal(
+    feedUrl(load('<link rel="alternate" type="text/calendar" href="https://evil.example.com/f.ics">'), page, new URL(page)),
+    null,
+  );
+});

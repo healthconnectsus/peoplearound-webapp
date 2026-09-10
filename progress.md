@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Crawler: use the iCal feed a page advertises, and follow real event links instead of pagination; say plainly when a site blocks us
+
+- `scripts/test-city-events.mjs`
+- `src/lib/city-events/crawler.ts`
+
+
 ### 2026-09-10 — Events: Mine leads and is the landing tab; remove the Around your city section; remove Ticketmaster entirely (code, key and rows, migration 0053)
 
 - `.env.example`

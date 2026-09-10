@@ -53,6 +53,80 @@ export async function icsEvents(body:string,url:string,now:Date):Promise<Listing
   }return found;
 }
 
+/**
+ * The iCal feed a page advertises about itself.
+ *
+ * `<link rel="alternate" type="text/calendar">` is how WordPress calendars —
+ * The Events Calendar in particular, which runs a great many parks, library
+ * and community sites — point at their own feed. kcparks.org publishes one at
+ * `/events/?ical=1` carrying exact start times and recurrence that its listing
+ * markup leaves out.
+ *
+ * Same-origin only. A feed link is attacker-influenceable in exactly the way a
+ * discovered URL is, and safeGet would refuse a private address anyway, but
+ * there is no reason a site's own calendar should live somewhere else.
+ */
+export function feedUrl(
+  $: ReturnType<typeof load>,
+  pageUrl: string,
+  root: URL,
+): string | null {
+  const raw = $('link[rel="alternate"][type="text/calendar"]').attr('href')
+    ?? $('link[type="text/calendar"]').attr('href');
+  if (!raw) return null;
+  try {
+    const u = new URL(raw, pageUrl);
+    if (u.origin !== root.origin) return null;
+    return sourceUrl(u.toString());
+  } catch { return null; }
+}
+
+/**
+ * Which links on a listing page are worth spending the budget on.
+ *
+ * The old filter took the first five same-origin links whose path contained
+ * "/event", and on visitkc.com those five were `/events/page/2/`,
+ * `/events/this-weekend/`, `/events/type/free-events/` and two more like them
+ * — pagination and category pages, none of which carries an event. The crawl
+ * spent its whole allowance on navigation and reported that the site had no
+ * events, when in fact every real event page there publishes perfectly good
+ * `Event` JSON-LD.
+ *
+ * So: drop the shapes that are navigation rather than an event, and prefer the
+ * long descriptive slugs that real events have. Ordering matters more than the
+ * filter, because only the first five are ever fetched.
+ */
+const NOT_AN_EVENT_PATH =
+  /\/(page|type|category|categories|tag|tags|search|list|month|week|day|today|tomorrow|this-weekend|upcoming|past|archive|venue|venues|organizer|organizers|feed|ical)(\/|$)/i;
+
+export function eventLinks(
+  $: ReturnType<typeof load>,
+  pageUrl: string,
+  root: URL,
+  robots: ReturnType<typeof robotsParser>,
+): string[] {
+  const found = new Set<string>();
+  $('a[href]').each((_i, node) => {
+    try {
+      const u = new URL($(node).attr('href')!, pageUrl);
+      if (u.origin !== root.origin) return;
+      if (!/\/events?\//i.test(u.pathname)) return;
+      if (u.pathname === root.pathname) return;
+      if (NOT_AN_EVENT_PATH.test(u.pathname)) return;
+      // A bare "/events/" with a query is a filtered listing, not an event.
+      if (u.search && !/\/events?\/[^/]+\//i.test(u.pathname)) return;
+      if (robots.isAllowed(u.toString(), 'PeoplearoundEvents') === false) return;
+      found.add(u.toString());
+    } catch { /* a malformed href is not worth losing its siblings over */ }
+  });
+  // Longest slug first: "/events/repair-cafe-bring-your-broken-things/" is far
+  // more likely to be one event than "/events/free/".
+  return [...found].sort((a, b) => {
+    const seg = (u: string) => new URL(u).pathname.replace(/\/+$/, '').split('/').pop() ?? '';
+    return seg(b).length - seg(a).length;
+  });
+}
+
 export async function crawlNextCalendar(){
   const admin=createAdminClient();if(!admin)return {status:'not_configured'};
   const {data,error}=await admin.rpc('claim_event_source');if(error)return {status:'queue_unavailable'};
@@ -70,7 +144,13 @@ export async function crawlNextCalendar(){
   try{
     const root=new URL(source.url);const robotsUrl=new URL('/robots.txt',root).toString();
     const robotsResponse=await safeGet(robotsUrl);
-    if(robotsResponse.status!==404&&robotsResponse.status!==200)throw new Error('Could not verify robots.txt');
+    // 403/401 is the site refusing this crawler outright, which an operator
+    // can act on (ask them, or drop the source). "Could not verify robots.txt"
+    // sounded like our bug and told them nothing.
+    if(robotsResponse.status===401||robotsResponse.status===403)
+      throw new Error('This site blocks automated readers (HTTP '+robotsResponse.status+'). Ask them for a calendar feed.');
+    if(robotsResponse.status!==404&&robotsResponse.status!==200)
+      throw new Error(`Could not read robots.txt (HTTP ${robotsResponse.status})`);
     const robots=robotsParser(robotsUrl,robotsResponse.status===404?'':robotsResponse.body);
     if(robots.isAllowed(source.url,'PeoplearoundEvents')===false)throw new Error('Crawling disallowed by robots.txt');
     const delay=Math.max(1,robots.getCrawlDelay('PeoplearoundEvents')??1);
@@ -81,13 +161,29 @@ export async function crawlNextCalendar(){
     if(source.format==='ics')listings=await icsEvents(page.body,source.url,now);
     else{
       listings=jsonLdEvents(page.body,source.url,now);
-      const $=load(page.body);const links=new Set<string>();
-      $('a[href]').each((_i,node)=>{try{const u=new URL($(node).attr('href')!,source.url);if(u.origin===root.origin&&/\/events?\//i.test(u.pathname)&&u.pathname!==root.pathname&&robots.isAllowed(u.toString(),'PeoplearoundEvents')!==false)links.add(u.toString());}catch{}});
+      const $=load(page.body);
+      const affordable=()=>Date.now()-startedAt <= BUDGET_MS-(delay*1000+15000);
       let stoppedEarly=false;
-      for(const link of [...links].slice(0,5)){
+
+      // A page that publishes its own iCal feed is telling us where the real
+      // data is; scraping the HTML beside it is guesswork. WordPress calendars
+      // advertise it as <link rel="alternate" type="text/calendar">, and it
+      // carries exact times and recurrence that the listing markup omits.
+      // Merged with the scrape rather than replacing it, because a feed often
+      // covers a shorter window than the page does.
+      const feed=feedUrl($,source.url,root);
+      if(feed&&affordable()){
+        await new Promise(r=>setTimeout(r,delay*1000));
+        const ics=await safeGet(feed);
+        if(ics.status===200&&/BEGIN:VCALENDAR/i.test(ics.body)){
+          listings.push(...await icsEvents(ics.body,feed,now));
+        }
+      }
+
+      for(const link of eventLinks($,source.url,root,robots).slice(0,5)){
         // One more detail page costs a crawl-delay sleep plus a request that
         // may run the full 15s. Only start it if both still fit.
-        if(Date.now()-startedAt > BUDGET_MS-(delay*1000+15000)){stoppedEarly=true;break;}
+        if(!affordable()){stoppedEarly=true;break;}
         await new Promise(r=>setTimeout(r,delay*1000));
         const detail=await safeGet(link);if(detail.status===200)listings.push(...jsonLdEvents(detail.body,link,now));
       }
