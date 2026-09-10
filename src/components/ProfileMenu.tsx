@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Lightbulb, LogOut, MapPin, Settings, UsersRound } from "lucide-react";
 import { signOut } from "@/app/login/actions";
 import { initials } from "@/lib/projects";
+import { useOverlay } from "@/components/useOverlay";
 
 const ITEM_CLASS =
   "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10";
@@ -48,6 +49,11 @@ export function ProfileMenu({
   avatarUrl: string | null;
 }) {
   const [open, setOpen] = useState(false);
+
+  // Escape closes this and puts focus back on the button that opened it.
+  // Without it a keyboard user can open the menu and has no way to leave
+  // it — the click-away layer below is reachable only with a pointer.
+  useOverlay(open, () => setOpen(false), { lockScroll: false });
 
   return (
     <div className="relative">

@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Accessibility: Escape closes the Filters, community and profile menus and returns focus to the trigger
+
+- `docs/FEATURE_IDEAS.md`
+- `src/components/CommunityFilter.tsx`
+- `src/components/ProfileMenu.tsx`
+- `src/components/TagFilter.tsx`
+- `src/components/useOverlay.ts`
+
+
 ### 2026-09-10 — Accessibility: both wizards announce their steps, Escape closes them, focus returns; the map publishes its pins as a list for screen readers
 
 - `docs/FEATURE_IDEAS.md`

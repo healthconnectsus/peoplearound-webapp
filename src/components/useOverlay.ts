@@ -23,7 +23,19 @@ import { useEffect, useRef } from "react";
  * which would also re-run the focus-restore cleanup mid-life and throw focus
  * around while the overlay is still open.
  */
-export function useOverlay(open: boolean, onClose: () => void) {
+export function useOverlay(
+  open: boolean,
+  onClose: () => void,
+  /**
+   * Whether the page behind should stop scrolling. True for a full-screen
+   * wizard; false for a dropdown, which is small, anchored to its trigger,
+   * and has no business freezing the page under it. The rest of the contract
+   * — Escape, and focus back to the trigger — is the same either way, which
+   * is why the dropdowns share this hook rather than growing their own
+   * half-version of it.
+   */
+  { lockScroll = true }: { lockScroll?: boolean } = {},
+) {
   const closeRef = useRef(onClose);
   // Written in an effect rather than during render: a ref mutated while
   // rendering is not safe under concurrent rendering, and React's lint rule
@@ -48,14 +60,14 @@ export function useOverlay(open: boolean, onClose: () => void) {
     document.addEventListener("keydown", onKeyDown);
 
     const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (lockScroll) document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
+      if (lockScroll) document.body.style.overflow = previousOverflow;
       // The opener can be gone by now (a re-render replaced it), so this is
       // best-effort rather than guaranteed.
       if (opener && document.contains(opener)) opener.focus?.();
     };
-  }, [open]);
+  }, [open, lockScroll]);
 }

@@ -135,9 +135,13 @@ ones at the bottom so they stay rejected.*
     the idea wizard answers Escape too; and the map — a grid of tiles and
     absolutely-positioned markers, invisible to assistive technology —
     now publishes its pins as a visually-hidden list of links, with the map
-    itself marked decorative. *(Remaining: keyboard behaviour for the custom
-    dropdowns — arrow keys and roles on TagFilter, CommunityFilter and
-    ProfileMenu.)*
+    itself marked decorative. The three custom dropdowns (Filters, the
+    community picker and the profile menu) now close on Escape and hand
+    focus back to their trigger, sharing the same hook as the wizards — the
+    click-away layer under them was reachable only with a pointer, so a
+    keyboard user who opened one had no way out. *(Remaining: arrow-key
+    navigation within those menus, which is a refinement rather than a
+    trap.)*
 
 21. ~~**Automatic city events**~~ ✅ *shipped 2026-09* — every city refreshes
     weekly from Ticketmaster and a search-engine pass, plus a crawler that

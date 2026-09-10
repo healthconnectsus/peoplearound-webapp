@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { CHIP, CHIP_ACTIVE, CHIP_IDLE } from "@/lib/chips";
+import { useOverlay } from "@/components/useOverlay";
 
 /**
  * Every feed tag, folded into one checkable menu.
@@ -41,6 +42,11 @@ export function TagFilter({
   extraParams?: Record<string, string | undefined>;
 }) {
   const [open, setOpen] = useState(false);
+
+  // Escape closes this and puts focus back on the button that opened it.
+  // Without it a keyboard user can open the menu and has no way to leave
+  // it — the click-away layer below is reachable only with a pointer.
+  useOverlay(open, () => setOpen(false), { lockScroll: false });
   const router = useRouter();
 
   const count = Object.values(selected).reduce((n, v) => n + v.length, 0);
