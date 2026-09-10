@@ -29,7 +29,7 @@ export async function LocalCalendars() {
   const { data, error } = await supabase
     .from("city_events")
     .select(
-      "id,title,event_date,starts_at,date_label,venue,source_url,source_name,provider,status",
+      "id,title,event_date,starts_at,date_label,venue,source_url,source_name,provider,status,tags",
     )
     .eq("provider", "calendar")
     .gte("event_date", now.slice(0, 10))
@@ -70,8 +70,23 @@ export async function LocalCalendars() {
                 {e.date_label}
                 {e.venue ? ` · ${e.venue.split(",")[0]}` : ""}
               </span>
-              <span className="text-xs text-black/40 dark:text-white/40">
-                {e.source_name} ↗
+              <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                {/*
+                  The source's own labels, not ours. "Public Meeting" and
+                  "Nature" are the difference between two errands that look
+                  identical in a list of titles.
+                */}
+                {(e.tags ?? []).slice(0, 3).map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-black/60 dark:bg-white/10 dark:text-white/60"
+                  >
+                    {t}
+                  </span>
+                ))}
+                <span className="text-xs text-black/40 dark:text-white/40">
+                  {e.source_name} ↗
+                </span>
               </span>
             </a>
           </li>

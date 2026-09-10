@@ -10,6 +10,8 @@ export type Listing = {
   source_url: string;
   source_name: string;
   status: string;
+  /** Labels the source applied, never ones we inferred (migration 0055). */
+  tags: string[];
 };
 
 export function record(value: unknown): Record<string, unknown> {
@@ -126,6 +128,35 @@ export function eventDate(value: unknown, now: Date): string | null {
  * timezone database: "2026-09-12T10:00:00-05:00" means ten o'clock where the
  * event is, whatever that offset is called.
  */
+/**
+ * Tidy the labels a source applied to an event.
+ *
+ * Sources are inconsistent: iCal hands over a comma-joined string or an array,
+ * a page hands over the text of its category links, and both include things
+ * that are navigation rather than description ("All Events", "More"). Kept
+ * short, deduplicated case-insensitively, and capped — a listing wearing
+ * fifteen labels tells a reader less than one wearing three.
+ */
+const NOT_A_TAG = /^(all|all events|events?|more|other|misc|miscellaneous|uncategori[sz]ed|view all|see all)$/i;
+
+export function cleanTags(input: unknown): string[] {
+  const raw: string[] = Array.isArray(input)
+    ? input.flatMap(v => (typeof v === 'string' ? v.split(',') : []))
+    : typeof input === 'string' ? input.split(',') : [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const value of raw) {
+    const tag = text(value, 40);
+    if (!tag || tag.length < 2 || NOT_A_TAG.test(tag)) continue;
+    const key = tag.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(tag);
+    if (out.length >= 6) break;
+  }
+  return out;
+}
+
 export function humanWhen(iso: string, zone?: string | null): string {
   const ms = Date.parse(iso);
   if (!Number.isFinite(ms)) return '';
@@ -157,7 +188,7 @@ export function searchListings(payload: unknown, now: Date): Listing[] {
       event_date: date, starts_at: null,
       date_label: [date, text(d.when, 160) || text(e.time, 80)].filter(Boolean).join(' · '),
       venue: rows(e.address).map(v => text(v, 120)).filter(Boolean).join(' · ').slice(0, 250) || text(e.venue),
-      source_url: url, source_name: new URL(url).hostname.replace(/^www\./, ''), status: 'scheduled',
+      source_url: url, source_name: new URL(url).hostname.replace(/^www\./, ''), status: 'scheduled', tags: [],
     }];
   });
 }

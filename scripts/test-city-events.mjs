@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 // Compile the pure TS module in memory; no build artifacts or live APIs.
 const source = readFileSync(new URL('../src/lib/city-events/normalize.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ESNext } }).outputText;
-const { eventDate, sourceUrl, searchListings, distinctListings, text, isCrawlableCalendar, humanWhen } =
+const { eventDate, sourceUrl, searchListings, distinctListings, text, isCrawlableCalendar, humanWhen, cleanTags } =
   await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
 const now = new Date('2026-09-09T12:00:00Z');
 
@@ -418,4 +418,18 @@ test('event times are shown on the event’s own clock, never the reader’s', (
   assert.equal(humanWhen('2026-09-12T23:30:00+09:00'), 'Sat, Sep 12, 11:30 PM');
   // Nothing sensible in, nothing invented out.
   for (const bad of ['not a date', '', 'Sep 12']) assert.equal(humanWhen(bad), '');
+});
+
+test('a source’s own labels are kept; its navigation is not', () => {
+  // iCal states them comma-joined in one CATEGORIES line.
+  assert.deepEqual(cleanTags('Nature, Educational, Public Meeting'),
+    ['Nature', 'Educational', 'Public Meeting']);
+  // A page hands over the text of its category links, which repeats and
+  // includes chrome that is not a label.
+  assert.deepEqual(cleanTags(['Free Events', 'Sports', 'free events', 'All Events', 'More', '']),
+    ['Free Events', 'Sports']);
+  // Three chips inform; fifteen do not.
+  assert.equal(cleanTags(['a1','b2','c3','d4','e5','f6','g7','h8']).length, 6);
+  // Nothing sensible in, empty out — never a null to guard against.
+  for (const bad of [null, undefined, 42, {}]) assert.deepEqual(cleanTags(bad), []);
 });

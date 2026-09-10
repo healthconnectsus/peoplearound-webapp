@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Imported events keep the labels their source gave them: iCal categories, and the category links a page shows as chips (migration 0055)
+
+- `scripts/test-city-events.mjs`
+- `src/app/events/LocalCalendars.tsx`
+- `src/lib/city-events/crawler.ts`
+- `src/lib/city-events/normalize.ts`
+- `supabase/migrations/0055_city_event_tags.sql`
+
+
 ### 2026-09-10 — Speed: count Local Faves in Postgres instead of shipping every star row to the shell on every page load (migration 0054)
 
 - `src/lib/navCounts.ts`

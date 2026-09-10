@@ -4,7 +4,7 @@ import { load } from 'cheerio';
 import ical from 'node-ical';
 import robotsParser from 'robots-parser';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { distinctListings, eventDate, humanWhen, record, sourceUrl, text, type Listing } from './normalize';
+import { cleanTags, distinctListings, eventDate, humanWhen, record, sourceUrl, text, type Listing } from './normalize';
 import { safeGet } from './safe-fetch';
 
 export function jsonLdEvents(html:string,pageUrl:string,now:Date):Listing[] {
@@ -19,7 +19,7 @@ export function jsonLdEvents(html:string,pageUrl:string,now:Date):Listing[] {
       const date=eventDate(start.slice(0,10),instant?new Date(now.getTime()-86400000):now);
       let url:string|null=null;
       try { url=sourceUrl(typeof e.url==='string'?new URL(e.url,pageUrl).toString():pageUrl); } catch { /* Skip malformed links without losing sibling events. */ }
-      if(date&&url&&title&&(!instant||Date.parse(instant)>=now.getTime()))found.push({provider:'calendar',external_id:text(e['@id'],1000)||`${url}|${start}`,title,event_date:date,starts_at:instant,date_label:humanWhen(start)||start,venue:text(record(e.location).name),source_url:url,source_name:new URL(pageUrl).hostname,status:String(e.eventStatus??'').includes('Cancelled')?'cancelled':'scheduled'});
+      if(date&&url&&title&&(!instant||Date.parse(instant)>=now.getTime()))found.push({provider:'calendar',external_id:text(e['@id'],1000)||`${url}|${start}`,title,event_date:date,starts_at:instant,date_label:humanWhen(start)||start,venue:text(record(e.location).name),source_url:url,source_name:new URL(pageUrl).hostname,status:String(e.eventStatus??'').includes('Cancelled')?'cancelled':'scheduled',tags:cleanTags(e.keywords??e.about)});
     }
     for(const key of ['@graph','itemListElement','item','subEvent']) if(e[key])visit(e[key],depth+1);
   }
@@ -55,7 +55,7 @@ export async function icsEvents(body:string,url:string,now:Date):Promise<Listing
         :zone
           ?(humanWhen(start.toISOString(),zone)||`${date} (time zone unspecified)`)
           :`${date} ${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')} (time zone unspecified)`;
-      found.push({provider:'calendar',external_id:`${value.uid}|${label}`,title,event_date:date,starts_at:instant,date_label:label,venue:text(value.location),source_url:link,source_name:new URL(url).hostname,status:value.status==='CANCELLED'?'cancelled':'scheduled'});
+      found.push({provider:'calendar',external_id:`${value.uid}|${label}`,title,event_date:date,starts_at:instant,date_label:label,venue:text(value.location),source_url:link,source_name:new URL(url).hostname,status:value.status==='CANCELLED'?'cancelled':'scheduled',tags:cleanTags(value.categories)});
       if(found.length>=500)return found;
     }
   }return found;
@@ -136,6 +136,38 @@ export function eventLinks(
   return [...found];
 }
 
+/**
+ * The tags an event page shows but does not publish.
+ *
+ * visitkc.com puts "Free Events", "Special Events", "Sports" under each event
+ * as chips, and none of it appears in the page's structured data — they are
+ * links to the site's own category pages. That taxonomy shape is near
+ * universal on WordPress and Drupal, so reading the link text is a general
+ * answer rather than a per-site adapter.
+ *
+ * Only same-origin taxonomy links count. An outbound link is somebody else's
+ * category, and a link to another event is not a label.
+ */
+const TAXONOMY_PATH = /\/(type|types|category|categories|tag|tags|topic|topics)\//i;
+
+export function taxonomyTags(
+  $: ReturnType<typeof load>,
+  pageUrl: string,
+  root: URL,
+): string[] {
+  const found: string[] = [];
+  $('a[href]').each((_i, node) => {
+    try {
+      const u = new URL($(node).attr('href')!, pageUrl);
+      if (u.origin !== root.origin) return;
+      if (!TAXONOMY_PATH.test(u.pathname)) return;
+      const label = $(node).text();
+      if (label) found.push(label);
+    } catch { /* a malformed href is not a tag */ }
+  });
+  return cleanTags(found);
+}
+
 export async function crawlNextCalendar(){
   const admin=createAdminClient();if(!admin)return {status:'not_configured'};
   const {data,error}=await admin.rpc('claim_event_source');if(error)return {status:'queue_unavailable'};
@@ -194,7 +226,15 @@ export async function crawlNextCalendar(){
         // may run the full 15s. Only start it if both still fit.
         if(!affordable()){stoppedEarly=true;break;}
         await new Promise(r=>setTimeout(r,delay*1000));
-        const detail=await safeGet(link);if(detail.status===200)listings.push(...jsonLdEvents(detail.body,link,now));
+        const detail=await safeGet(link);
+        if(detail.status===200){
+          // A detail page's chips describe the event on that page, so they
+          // belong to the events parsed from it — and only to those.
+          const pageTags=taxonomyTags(load(detail.body),link,root);
+          for(const e of jsonLdEvents(detail.body,link,now)){
+            listings.push(e.tags.length?e:{...e,tags:pageTags});
+          }
+        }
       }
       if(stoppedEarly)console.warn(`[crawl] ${source.url}: stopped early on time budget`);
     }
