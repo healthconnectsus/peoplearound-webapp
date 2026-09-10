@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Ideas: 42 generated and guardrail-judged, grouped by lens; document the privilege-escalation fix and worker backoff
+
+- `docs/ARCHITECTURE.md`
+- `docs/FEATURE_IDEAS.md`
+- `docs/IDEAS_2026-09.md`
+
+
 ### 2026-09-10 — Security: any signed-in user could make themselves an admin; lock profiles to column grants. Crashed import/crawl workers now back off instead of looping. City index page.
 
 - `src/app/city/[slug]/page.tsx`

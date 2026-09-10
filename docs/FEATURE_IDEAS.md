@@ -1,5 +1,11 @@
 # Peoplearound — Feature Backlog
 
+> **See also: [IDEAS_2026-09](IDEAS_2026-09.md)** — forty-two further ideas
+> generated against the live code and judged against the guardrails, grouped
+> by operator tooling, honest content supply, return triggers, invitation,
+> institutions, and the first ninety seconds in an empty city. Nothing there
+> is scheduled; move an entry here when it is chosen.
+
 *A living list of proposed features. Each entry must serve the mission
 (restore the feeling of mattering) and respect the guardrails in
 [UX_SPEC §6](UX_SPEC.md#6-ux-anti-patterns-do-not-build) and
