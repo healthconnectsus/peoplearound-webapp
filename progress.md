@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — When one event arrives twice, keep the copy that says more — the feed carries tags the page does not
+
+- `scripts/test-city-events.mjs`
+- `src/lib/city-events/normalize.ts`
+
+
 ### 2026-09-10 — Imported events keep the labels their source gave them: iCal categories, and the category links a page shows as chips (migration 0055)
 
 - `scripts/test-city-events.mjs`

@@ -64,6 +64,19 @@ test('cross-provider duplicates collapse without hiding different dates or venue
     venue: 'Kansas City Northern Miniature Railroad' };
   assert.equal(distinctListings([feed, scraped]).length, 1, 'the same event from two sources is one row');
 
+  // And the survivor is the copy that says more. A site's feed carries
+  // CATEGORIES its listing page does not, and the page is read first — so
+  // keeping whichever arrived first silently discarded every tag.
+  const tagless = { ...scraped, tags: [] };
+  const tagged = { ...feed, tags: ['Nature', 'Public Meeting'] };
+  assert.deepEqual(distinctListings([tagless, tagged])[0].tags, ['Nature', 'Public Meeting']);
+  assert.deepEqual(distinctListings([tagged, tagless])[0].tags, ['Nature', 'Public Meeting']);
+
+  // Order still follows the source, so a list reads as its source ordered it.
+  const later = { ...feed, event_date: '2026-09-20', starts_at: '2026-09-20T15:00:00+00:00' };
+  assert.deepEqual(distinctListings([later, tagged]).map(e => e.event_date),
+    ['2026-09-20', '2026-09-12']);
+
   // Two real showings of the same thing on one day are still two.
   assert.equal(distinctListings([
     { ...feed, starts_at: '2026-09-12T15:00:00+00:00' },

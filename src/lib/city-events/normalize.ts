@@ -213,10 +213,27 @@ export function searchListings(payload: unknown, now: Date): Listing[] {
  * tell two library branches apart, not enough for a postal address to make a
  * duplicate look unique.
  */
-export function distinctListings<T extends Pick<Listing, 'title' | 'event_date' | 'venue' | 'date_label' | 'starts_at'>>(list: T[]): T[] {
-  const seen = new Set<string>();
+export function distinctListings<
+  T extends Pick<Listing, 'title' | 'event_date' | 'venue' | 'date_label' | 'starts_at'> & { tags?: string[] },
+>(list: T[]): T[] {
   const clean = (v: string) => (v ?? '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
-  return list.filter(e => {
+
+  /**
+   * When two copies are the same event, keep the one that says more.
+   *
+   * This is not cosmetic. A site's iCal feed carries CATEGORIES — "Nature",
+   * "Public Meeting" — that its HTML listing does not, and the page is read
+   * before the feed. Keeping whichever arrived first therefore threw away
+   * every tag on kcparks.org while appearing to work perfectly.
+   */
+  const richness = (e: T) =>
+    ((e.tags?.length ?? 0) > 0 ? 4 : 0) +
+    (e.starts_at ? 2 : 0) +
+    ((e.venue ?? '').length > 0 ? 1 : 0);
+
+  const best = new Map<string, T>();
+  const order: string[] = [];
+  for (const e of list) {
     // Compare the instant, not the text of it. The same moment reaches us
     // written two ways — an iCal feed emits "2026-09-12T14:00:00.000Z" where
     // the page's markup says "2026-09-12T09:00:00-05:00" — and as strings
@@ -227,9 +244,12 @@ export function distinctListings<T extends Pick<Listing, 'title' | 'event_date' 
     const when = Number.isFinite(instant) ? String(instant) : clean(e.date_label);
     const place = clean((e.venue ?? '').split(',')[0]);
     const key = `${clean(e.title)}|${e.event_date}|${when}|${place}`;
-    if (seen.has(key)) return false;
-    seen.add(key); return true;
-  });
+    const held = best.get(key);
+    if (!held) { best.set(key, e); order.push(key); continue; }
+    if (richness(e) > richness(held)) best.set(key, e);
+  }
+  // First-seen order, so a list still reads the way its source ordered it.
+  return order.map(k => best.get(k)!);
 }
 
 /**
