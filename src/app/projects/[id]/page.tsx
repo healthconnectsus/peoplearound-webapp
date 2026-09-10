@@ -157,25 +157,103 @@ export default async function ProjectDetail({
     }));
   }
 
-  // Stars — count, whether the current user has starred, and who/when for
-  // the history timeline.
-  const { data: starRows } = await supabase
-    .from("stars")
-    .select("user_id,created_at,profile:profiles(display_name)")
-    .eq("project_id", id)
-    .order("created_at", { ascending: true });
+  // Everything this page needs, asked for at once.
+  //
+  // These were thirteen queries in a queue: stars, then members, then badges,
+  // then updates, then the nudge, then my flag, then contributions, then
+  // events — each waiting on the one before it although none needs its
+  // answer. On the page where people actually join a project and log help,
+  // that queue was the whole cost; the queries themselves return a handful of
+  // rows each.
+  //
+  // Two things stay ordered on purpose. `reconcile_contributions` must finish
+  // before the contributions are read, because it is what promotes them to
+  // confirmed, so it is chained rather than raced. And recording the view is
+  // fire-and-forget: nothing on screen waits for it.
+  const [
+    { data: starRows },
+    { data: memberRows },
+    badges,
+    { data: updateRows },
+    { data: nudgeRow },
+    { data: myFlag },
+    { data: contributionRows },
+    { data: eventRows },
+  ] = await Promise.all([
+    // Stars — count, whether the current user has starred, and who/when for
+    // the history timeline.
+    supabase
+      .from("stars")
+      .select("user_id,created_at,profile:profiles(display_name)")
+      .eq("project_id", id)
+      .order("created_at", { ascending: true }),
+
+    // Memberships — requests and accepted collaborators.
+    supabase
+      .from("memberships")
+      .select("user_id,status,role,created_at,profile:profiles(display_name,avatar_url)")
+      .eq("project_id", id)
+      .order("created_at", { ascending: true }),
+
+    // Badges here too, so sharing your first idea celebrates immediately on
+    // the page you land on after creating it.
+    computeBadges(supabase, user.id, {
+      id: project.neighborhood_id ?? null,
+      name: null,
+    }),
+
+    // The build log — founder/teammate progress notes.
+    supabase
+      .from("project_updates")
+      .select("id,author_id,body,photo_url,created_at,author:profiles(display_name)")
+      .eq("project_id", id)
+      .order("created_at", { ascending: false }),
+
+    // A private word from the gardener, if this project has gone quiet.
+    // RLS returns a row only to the founder (migration 0029).
+    supabase
+      .from("project_nudges")
+      .select("kind,body,dismissed_at")
+      .eq("project_id", id)
+      .maybeSingle(),
+
+    // Community moderation: have I already reported this one? (RLS returns
+    // only my own flag row.)
+    supabase
+      .from("project_flags")
+      .select("user_id")
+      .eq("project_id", id)
+      .eq("user_id", user.id)
+      .maybeSingle(),
+
+    // Contributions — apply any pending confirmations first (server-side,
+    // idempotent; this is what makes the 7-day founder-bypass window take
+    // effect), then read the record.
+    supabase
+      .rpc("reconcile_contributions", { p_project_id: id })
+      .then(() =>
+        supabase
+          .from("contributions")
+          .select(
+            "id,contributor_id,type,description,status,created_at,confirmed_at,contributor:profiles(display_name),attestations(attester_id,created_at,attester:profiles(display_name))",
+          )
+          .eq("project_id", id)
+          .order("created_at", { ascending: false }),
+      ),
+
+    // Events — physical coordination, with each event's joining signals.
+    supabase
+      .from("events")
+      .select("id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id)")
+      .eq("project_id", id)
+      .order("starts_at", { ascending: true }),
+  ]);
+
   const stars = (starRows ?? []) as unknown as Star[];
   const starCount = stars.length;
   const hasStarred = stars.some((s) => s.user_id === user.id);
 
-  // Memberships — requests and accepted collaborators.
-  const { data: memberRows } = await supabase
-    .from("memberships")
-    .select("user_id,status,role,created_at,profile:profiles(display_name,avatar_url)")
-    .eq("project_id", id)
-    .order("created_at", { ascending: true });
   const members = (memberRows ?? []) as unknown as Membership[];
-
   const myMembership = members.find((m) => m.user_id === user.id) ?? null;
   const pending = members.filter((m) => m.status === "pending");
   const accepted = members.filter((m) => m.status === "accepted");
@@ -186,25 +264,6 @@ export default async function ProjectDetail({
   const myRole = (myMembership as unknown as { role?: string } | null)?.role;
   const isSteward = isOwner || (isTeammate && myRole === "co_organizer");
 
-  // Private analytics: count this visit (deduped per day; owners excluded;
-  // raw rows never client-readable — see migration 0020).
-  if (!isOwner) {
-    await supabase.rpc("record_project_view", { p_project_id: id });
-  }
-
-  // Badges here too, so sharing your first idea celebrates immediately on
-  // the page you land on after creating it.
-  const badges = await computeBadges(supabase, user.id, {
-    id: project.neighborhood_id ?? null,
-    name: null,
-  });
-
-  // The build log — founder/teammate progress notes.
-  const { data: updateRows } = await supabase
-    .from("project_updates")
-    .select("id,author_id,body,photo_url,created_at,author:profiles(display_name)")
-    .eq("project_id", id)
-    .order("created_at", { ascending: false });
   const updates = (updateRows ?? []) as unknown as {
     id: string;
     author_id: string;
@@ -214,46 +273,20 @@ export default async function ProjectDetail({
     author?: { display_name: string | null } | null;
   }[];
 
-  // A private word from the gardener, if this project has gone quiet.
-  // RLS returns a row only to the founder (migration 0029).
-  const { data: nudgeRow } = await supabase
-    .from("project_nudges")
-    .select("kind,body,dismissed_at")
-    .eq("project_id", id)
-    .maybeSingle();
   const nudge =
     nudgeRow && !(nudgeRow as { dismissed_at: string | null }).dismissed_at
       ? (nudgeRow as { kind: string; body: string })
       : null;
 
-  // Community moderation: have I already reported this one? (RLS returns
-  // only my own flag row.)
-  const { data: myFlag } = await supabase
-    .from("project_flags")
-    .select("user_id")
-    .eq("project_id", id)
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  // Contributions — apply any pending confirmations (server-side, idempotent;
-  // this is also what makes the 7-day founder-bypass window take effect),
-  // then read the record.
-  await supabase.rpc("reconcile_contributions", { p_project_id: id });
-  const { data: contributionRows } = await supabase
-    .from("contributions")
-    .select(
-      "id,contributor_id,type,description,status,created_at,confirmed_at,contributor:profiles(display_name),attestations(attester_id,created_at,attester:profiles(display_name))",
-    )
-    .eq("project_id", id)
-    .order("created_at", { ascending: false });
   const contributions = (contributionRows ?? []) as unknown as Contribution[];
 
-  // Events — physical coordination, with each event's joining signals.
-  const { data: eventRows } = await supabase
-    .from("events")
-    .select("id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id)")
-    .eq("project_id", id)
-    .order("starts_at", { ascending: true });
+  // Private analytics: count this visit (deduped per day; owners excluded;
+  // raw rows never client-readable — see migration 0020). Nothing on screen
+  // depends on it, so it is not awaited.
+  if (!isOwner) {
+    void supabase.rpc("record_project_view", { p_project_id: id });
+  }
+
   const events = (eventRows ?? []) as unknown as ProjectEvent[];
   const upcomingEvents = events.filter((e) => isUpcomingEvent(e.starts_at));
   const pastEvents = events

@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-10 — Speed: the project page asked for thirteen things in a queue; ask for them together
+
+- `src/app/projects/[id]/page.tsx`
+
+
 ### 2026-09-10 — Imported calendars: skip administrative notices like tuition deadlines, which nobody attends, without suppressing real events
 
 - `scripts/test-city-events.mjs`
