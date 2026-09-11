@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { myMapCenter, projectPinsByIds } from "@/lib/mapPins";
-import { FeedTabs, readTabFrom } from "@/components/FeedTabs";
+import { readTabFrom } from "@/components/FeedTabs";
+import { SortSelect } from "@/components/SortSelect";
 import { EVENT_TABS, sortEventsForTab } from "@/lib/eventSort";
 import { PlanEventButton } from "./PlanEventButton";
 import { LocalCalendars } from "./LocalCalendars";
@@ -131,34 +132,34 @@ export default async function EventsPage({
             <PlanEventButton projects={stewardedProjects} />
           </div>
 
-          <div className="mt-5 flex flex-col gap-3" id="events">
-            <FeedTabs
+          {/*
+            Two questions about one diary: how it's arranged, and whose it is.
+            As two chip strips they wrapped over three lines and pushed the
+            events themselves off the first screen. As two buttons they sit on
+            one line and say what's currently chosen. Both live in the URL, so
+            any combination is a link you can send.
+          */}
+          <div className="mt-5 flex flex-wrap items-center gap-2" id="events">
+            <SortSelect
               active={tab}
               basePath="/events"
               tabs={EVENT_TABS}
-              ariaLabel="Sort the events"
+              label="Sort the events"
               hash="events"
               extraParams={{ community: picked || undefined }}
             />
 
-            {/*
-              Belonging to several communities means one diary with everything
-              in it. The tabs arrange that list; this narrows it to one place.
-              Both live in the URL, so any combination is a link you can send.
-            */}
             {mine.length > 1 ? (
-              <div>
-                <CommunityFilter
-                  communities={mine.map((c) => ({
-                    id: c.id,
-                    label: communityLabel(c),
-                  }))}
-                  selected={picked}
-                  basePath="/events"
-                  hash="events"
-                  extraParams={{ tab: tab || undefined }}
-                />
-              </div>
+              <CommunityFilter
+                communities={mine.map((c) => ({
+                  id: c.id,
+                  label: communityLabel(c),
+                }))}
+                selected={picked}
+                basePath="/events"
+                hash="events"
+                extraParams={{ tab: tab || undefined }}
+              />
             ) : null}
           </div>
 

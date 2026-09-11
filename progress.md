@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-11 — Events: sort choices move into a dropdown
+
+- `src/app/events/page.tsx`
+- `src/components/SortSelect.tsx`
+
+
 ### 2026-09-11 — Events: a dropdown to narrow the board to one of your communities, for both your teams' events and the local calendars (migration 0056)
 
 - `src/app/events/LocalCalendars.tsx`
