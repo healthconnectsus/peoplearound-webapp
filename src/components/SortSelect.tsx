@@ -92,7 +92,6 @@ export function SortSelect({
                 role="menuitemradio"
                 aria-checked={t.key === active}
                 onClick={() => go(t.key)}
-                title={t.hint}
                 className={`flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10 ${
                   t.key === active ? "font-semibold" : ""
                 }`}
