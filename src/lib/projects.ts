@@ -225,7 +225,7 @@ export type ProjectEvent = {
   /** Optional cover photo (migration 0052); null for events planned without one. */
   photo_url?: string | null;
   created_at: string;
-  project?: { title: string } | null;
+  project?: { title: string; neighborhood_id?: string | null } | null;
   rsvps: { user_id: string }[];
 };
 

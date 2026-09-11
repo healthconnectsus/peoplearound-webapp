@@ -20,9 +20,18 @@ import { useOverlay } from "@/components/useOverlay";
 export function CommunityFilter({
   communities,
   selected,
+  basePath = "/people",
+  hash = "feed",
+  extraParams = {},
 }: {
   communities: { id: string; label: string }[];
   selected: string;
+  /** Which page's list this narrows. */
+  basePath?: string;
+  /** Anchor to land on, so choosing does not lose your place. */
+  hash?: string;
+  /** Params to carry across a change, e.g. the chosen tab. */
+  extraParams?: Record<string, string | undefined>;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -35,9 +44,17 @@ export function CommunityFilter({
   const ALL = "All my communities";
   const current = communities.find((c) => c.id === selected)?.label ?? ALL;
 
-  function go(href: string) {
+  function href(community?: string) {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(extraParams)) if (v) params.set(k, v);
+    if (community) params.set("community", community);
+    const qs = params.toString();
+    return qs ? `${basePath}?${qs}#${hash}` : `${basePath}#${hash}`;
+  }
+
+  function go(to: string) {
     setOpen(false);
-    router.push(href);
+    router.push(to);
   }
 
   const rowClass = (isCurrent: boolean) =>
@@ -69,7 +86,7 @@ export function CommunityFilter({
           <div className="absolute left-0 top-11 z-[1001] max-h-[70vh] w-64 overflow-y-auto rounded-xl border border-slate-300 bg-white p-2 shadow-xl dark:border-slate-600 dark:bg-zinc-900">
             <button
               type="button"
-              onClick={() => go("/people#feed")}
+              onClick={() => go(href())}
               className={rowClass(selected === "")}
             >
               <Check
@@ -84,7 +101,7 @@ export function CommunityFilter({
               <button
                 key={c.id}
                 type="button"
-                onClick={() => go(`/people?community=${c.id}#feed`)}
+                onClick={() => go(href(c.id))}
                 className={rowClass(selected === c.id)}
               >
                 <Check

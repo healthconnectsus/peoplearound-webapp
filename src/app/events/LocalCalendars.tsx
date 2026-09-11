@@ -20,13 +20,32 @@ import { distinctListings, type Listing } from "@/lib/city-events/normalize";
 
 type Row = Listing & { id: string };
 
-export async function LocalCalendars() {
+export async function LocalCalendars({
+  community = null,
+}: {
+  /** Narrow to one community's city, or null for every city you're in. */
+  community?: string | null;
+}) {
   const supabase = await createClient();
   const now = new Date().toISOString();
 
+  // A community sits in a city, and imported listings hang off the city. The
+  // mapping needs a function because `event_cities` is service-role only
+  // (migration 0056) — a normal session cannot join to it.
+  let cityId: string | null = null;
+  if (community) {
+    const { data } = await supabase.rpc("event_city_for_community", {
+      p_community: community,
+    });
+    cityId = (data as string | null) ?? null;
+    // Asked for one city's listings and there is no such city: show none
+    // rather than quietly widening back to all of them.
+    if (!cityId) return null;
+  }
+
   // RLS (can_read_city_events) already limits this to cities the viewer's
-  // communities are actually in, so there is nothing to scope here.
-  const { data, error } = await supabase
+  // communities are in. `cityId` narrows further, to the one they picked.
+  let query = supabase
     .from("city_events")
     .select(
       "id,title,event_date,starts_at,date_label,venue,source_url,source_name,provider,status,tags",
@@ -34,9 +53,11 @@ export async function LocalCalendars() {
     .eq("provider", "calendar")
     .gte("event_date", now.slice(0, 10))
     .gt("expires_at", now)
-    .neq("status", "cancelled")
-    .order("event_date")
-    .limit(60);
+    .neq("status", "cancelled");
+
+  if (cityId) query = query.eq("city_id", cityId);
+
+  const { data, error } = await query.order("event_date").limit(60);
 
   // Shipping this ahead of its migration must never break a neighbor's own
   // events, which are the point of the page.

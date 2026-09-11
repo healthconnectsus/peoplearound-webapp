@@ -8,6 +8,9 @@ import { FeedTabs, readTabFrom } from "@/components/FeedTabs";
 import { EVENT_TABS, sortEventsForTab } from "@/lib/eventSort";
 import { PlanEventButton } from "./PlanEventButton";
 import { LocalCalendars } from "./LocalCalendars";
+import { CommunityFilter } from "@/components/CommunityFilter";
+import { communityLabel, type Community } from "@/lib/communities";
+import { currentUser } from "@/lib/auth";
 import { categoryMeta } from "@/lib/projects";
 import {
   formatEventTime,
@@ -20,28 +23,45 @@ export const metadata = { title: "Events" };
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; community?: string }>;
 }) {
-  const { tab: rawTab } = await searchParams;
+  const { tab: rawTab, community } = await searchParams;
   const tab = readTabFrom(rawTab, EVENT_TABS);
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
-  const { data: eventRows } = await supabase
-    .from("events")
-    .select(
-      "id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id),project:projects(title)",
-    )
-    .gte("starts_at", new Date().toISOString())
-    .order("starts_at", { ascending: true })
-    .limit(50);
+  // The project's neighborhood comes along so the community dropdown can
+  // narrow these; an event belongs to whichever community its project is in.
+  const [{ data: eventRows }, { data: memberRows }] = await Promise.all([
+    supabase
+      .from("events")
+      .select(
+        "id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id),project:projects(title,neighborhood_id)",
+      )
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: true })
+      .limit(50),
+    supabase
+      .from("community_members")
+      .select("community:neighborhoods(id,name,city,kind)")
+      .eq("user_id", user.id),
+  ]);
 
-  const events = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
+  const mine = ((memberRows ?? []) as unknown as { community: Community | null }[])
+    .map((m) => m.community)
+    .filter((c): c is Community => Boolean(c))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  // Only one of your own communities, and only if you are really in it.
+  const picked = community && mine.some((c) => c.id === community) ? community : "";
+
+  const allEvents = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
     isUpcomingEvent(e.starts_at),
   );
+  const events = picked
+    ? allEvents.filter((e) => e.project?.neighborhood_id === picked)
+    : allEvents;
 
   const pins = await projectPinsByIds(
     supabase,
@@ -111,14 +131,35 @@ export default async function EventsPage({
             <PlanEventButton projects={stewardedProjects} />
           </div>
 
-          <div className="mt-5" id="events">
+          <div className="mt-5 flex flex-col gap-3" id="events">
             <FeedTabs
               active={tab}
               basePath="/events"
               tabs={EVENT_TABS}
               ariaLabel="Sort the events"
               hash="events"
+              extraParams={{ community: picked || undefined }}
             />
+
+            {/*
+              Belonging to several communities means one diary with everything
+              in it. The tabs arrange that list; this narrows it to one place.
+              Both live in the URL, so any combination is a link you can send.
+            */}
+            {mine.length > 1 ? (
+              <div>
+                <CommunityFilter
+                  communities={mine.map((c) => ({
+                    id: c.id,
+                    label: communityLabel(c),
+                  }))}
+                  selected={picked}
+                  basePath="/events"
+                  hash="events"
+                  extraParams={{ tab: tab || undefined }}
+                />
+              </div>
+            ) : null}
           </div>
 
           <h2 className="mt-6 text-xl font-bold">With your project teams</h2>
@@ -194,7 +235,7 @@ export default async function EventsPage({
             </ul>
           )}
 
-          <LocalCalendars />
+          <LocalCalendars community={picked || null} />
         </main>
       </MapShell>
     </AppShell>

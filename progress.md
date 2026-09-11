@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-11 — Events: a dropdown to narrow the board to one of your communities, for both your teams' events and the local calendars (migration 0056)
+
+- `src/app/events/LocalCalendars.tsx`
+- `src/app/events/page.tsx`
+- `src/components/CommunityFilter.tsx`
+- `src/lib/projects.ts`
+- `supabase/migrations/0056_event_city_for_community.sql`
+
+
 ### 2026-09-10 — Speed: the project page asked for thirteen things in a queue; ask for them together
 
 - `src/app/projects/[id]/page.tsx`
