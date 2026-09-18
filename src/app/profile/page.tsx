@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { myWorldPins, myMapCenter } from "@/lib/mapPins";
@@ -76,9 +77,7 @@ export default async function ProfilePage({
 }) {
   const { error } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const [{ data: profileRow }, { data: ownRows }, { data: starRows }] =

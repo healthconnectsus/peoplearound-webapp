@@ -3,11 +3,12 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { SubmitButton } from '@/components/SubmitButton';
 import { createClient } from '@/lib/supabase/server';
+import { currentUser } from "@/lib/auth";
 import { SITE_URL } from '@/lib/site';
 import { joinClan,renameClan,leaveClan,dismissClanInvite } from './actions';
 export const metadata={title:'Your clans'};
 export default async function ClansPage({searchParams}:{searchParams:Promise<{clan?:string;error?:string;message?:string}>}) {
-  const client=await createClient();const {data:{user}}=await client.auth.getUser();if(!user)redirect('/login');
+  const client=await createClient();const user=await currentUser();if(!user)redirect('/login');
   const params=await searchParams;const incoming=params.clan??(await cookies()).get('pa-clan')?.value??'';
   const {data:clans,error}=await client.from('clans').select('id,name,owner_id,invite_code').order('created_at');
   const {data:members}=await client.from('clan_members').select('clan_id,user_id,profile:profiles(display_name)').limit(500);

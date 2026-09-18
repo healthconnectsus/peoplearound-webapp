@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from 'next/link';
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { CopyLinkButton } from "./CopyLinkButton";
 
@@ -8,9 +9,7 @@ export const metadata = { title: "Invite neighbors" };
 
 export default async function InvitePage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const { count: neighborCount } = await supabase

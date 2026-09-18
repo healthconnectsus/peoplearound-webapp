@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { signOut } from "@/app/login/actions";
 import { updateProfile } from "./actions";
@@ -45,9 +46,7 @@ export default async function SettingsPage({
 }) {
   const { error, message } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   // select("*") keeps this page working before migration 0010 is applied —

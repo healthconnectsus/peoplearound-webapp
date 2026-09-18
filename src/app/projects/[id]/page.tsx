@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MessageCircle, Star as StarIcon } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { SubmitButton } from "@/components/SubmitButton";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -97,9 +98,7 @@ export default async function ProjectDetail({
   const { plan } = await searchParams;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const { data } = await supabase

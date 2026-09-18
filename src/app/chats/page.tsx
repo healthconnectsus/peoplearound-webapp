@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { MessageCircle, SquarePen } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { initials, timeAgo } from "@/lib/projects";
@@ -44,9 +45,7 @@ export default async function ChatsPage({
 }) {
   const { c: selectedId, to, new: composeNew, error } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   // My conversations (pre-migration-0011 this errors → show setup notice).

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { buildCsp, cspHeaderName } from "@/lib/csp";
+import { verifiedClaims } from "@/lib/supabase/claims";
 
 /**
  * Refreshes the Supabase auth session on every request and enforces route
@@ -58,10 +59,13 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // IMPORTANT: do not run code between createServerClient and getUser().
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // IMPORTANT: do not run code between createServerClient and this call.
+  // Verified locally against the project's signing key (see claims.ts) —
+  // the one network trip this used to make on every request is gone. An
+  // expired session is still refreshed here, and the new cookie written
+  // back through setAll above.
+  const claims = await verifiedClaims(supabase);
+  const user = claims ? { id: claims.sub } : null;
 
   const path = request.nextUrl.pathname;
 

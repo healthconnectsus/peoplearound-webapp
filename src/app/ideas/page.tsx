@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { projectPinsByIds } from "@/lib/mapPins";
@@ -22,9 +23,7 @@ export default async function IdeasPage({
   const tab = readTab(rawTab);
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   // Which teams you're on — the only thing the "Mine" tab needs beyond

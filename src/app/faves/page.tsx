@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { MapShell } from "@/components/MapShell";
 import { projectPinsByIds } from "@/lib/mapPins";
@@ -11,9 +12,7 @@ export const metadata = { title: "Local Faves" };
 /** Local Faves — the L in the rail's P·E·O·P·L·E. */
 export default async function FavesPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const [{ data: projectRows }, { data: starRows }] = await Promise.all([

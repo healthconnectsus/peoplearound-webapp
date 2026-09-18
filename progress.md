@@ -7,6 +7,32 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-18 — Speed: verify the session locally against the project's signing key instead of asking the auth server twice per page
+
+- `.gitignore`
+- `src/app/admin/page.tsx`
+- `src/app/analytics/page.tsx`
+- `src/app/chats/page.tsx`
+- `src/app/clans/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/explore/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/projects/new/page.tsx`
+- `src/app/recap/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/lib/admin.ts`
+- `src/lib/auth.ts`
+- `src/lib/supabase/claims.ts`
+- `src/lib/supabase/proxy.ts`
+
+
 ### 2026-09-11 — Events sort menu: let the label carry the accessible name
 
 - `src/components/SortSelect.tsx`

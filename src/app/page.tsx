@@ -2,6 +2,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ipHash, registerFrontierLocation } from "@/lib/frontier";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 
 /**
  * The front door. Every signed-in visit to peoplearound.com passes through
@@ -17,9 +18,7 @@ import { createClient } from "@/lib/supabase/server";
  */
 export default async function Root() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const { data: profileRow } = await supabase

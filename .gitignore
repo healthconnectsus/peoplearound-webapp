@@ -52,3 +52,4 @@ next-env.d.ts
 
 # Source collages for avatars — kept locally, never published.
 /public/people*.webp
+.scratch/

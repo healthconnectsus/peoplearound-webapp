@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { categoryMeta } from "@/lib/projects";
 import { communityRecap } from "@/lib/milestones";
@@ -20,9 +21,7 @@ export default async function RecapPage({
 }) {
   const { year: yearParam } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const { data: profileRow } = await supabase

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { categoryMeta, recentDayKeys, STATE_META, timeAgo } from "@/lib/projects";
 import { computeImpact } from "@/lib/impact";
@@ -86,9 +87,7 @@ function FunnelBar({
 
 export default async function AnalyticsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const { data: ownRows } = await supabase

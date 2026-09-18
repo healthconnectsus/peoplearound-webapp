@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { IdeaForm } from "./IdeaForm";
 import { CloseWizard } from "./CloseWizard";
 import { playbookBySlug } from "@/lib/playbooks";
@@ -26,9 +27,7 @@ export default async function NewProjectPage({
   const { error, playbook, intent } = await searchParams;
   const pb = playbook ? playbookBySlug(playbook) : undefined;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   // The wall belongs at the door: the 0017 trigger would reject the insert

@@ -5,6 +5,7 @@ import { computeBadges } from "@/lib/badges";
 import { communityMilestone } from "@/lib/milestones";
 import { openAsks, formatMinutes } from "@/lib/asks";
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { type MapPin } from "@/components/NeighborhoodMap";
@@ -54,9 +55,7 @@ export default async function ExplorePage({
 }) {
   const { q, cat, help: helpFilter, ev, kind } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
   const { data: profileRow } = await supabase
