@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { DemoResidents } from '@/components/DemoResidents';
 import { redirect } from "next/navigation";
 import { Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
 import { AsksSection } from "@/components/AsksSection";
 import { FeedComposer } from "@/components/FeedComposer";
@@ -104,7 +106,7 @@ function KindBadge({ kind }: { kind: string | null | undefined }) {
   );
 }
 
-export default async function PeoplePage({
+async function PeoplePage({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -320,7 +322,7 @@ export default async function PeoplePage({
     : await nearbyProjectPins(supabase, user.id);
 
   return (
-    <AppShell>
+    <>
       <MapShell pins={pins}>
         <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <FeedComposer />
@@ -660,6 +662,23 @@ export default async function PeoplePage({
           <DemoResidents />
         </main>
       </MapShell>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof PeoplePage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <PeoplePage {...props} />
+      </Suspense>
     </AppShell>
   );
 }

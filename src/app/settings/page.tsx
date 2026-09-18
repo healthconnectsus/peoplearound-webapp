@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { signOut } from "@/app/login/actions";
 import { updateProfile } from "./actions";
 import { setDigestOptOut } from "@/app/notificationActions";
@@ -39,7 +41,7 @@ type ProfileRow = {
   neighborhood?: { name: string; city: string | null } | null;
 };
 
-export default async function SettingsPage({
+async function SettingsPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; message?: string }>;
@@ -62,7 +64,7 @@ export default async function SettingsPage({
   const name = profile?.display_name ?? user.email?.split("@")[0] ?? "Neighbor";
 
   return (
-    <AppShell>
+    <>
       <main className="w-full max-w-xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
         <div className="mb-4 flex items-center gap-3">
           <Link
@@ -295,6 +297,23 @@ export default async function SettingsPage({
           </div>
         </div>
       </main>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof SettingsPage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <SettingsPage {...props} />
+      </Suspense>
     </AppShell>
   );
 }

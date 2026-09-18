@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
 import { myWorldPins, myMapCenter } from "@/lib/mapPins";
 import { LocationCard } from "./LocationCard";
@@ -70,7 +72,7 @@ function ProjectRow({
   );
 }
 
-export default async function ProfilePage({
+async function ProfilePage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
@@ -251,7 +253,7 @@ export default async function ProfilePage({
   ];
 
   return (
-    <AppShell>
+    <>
       <BadgeCelebration badges={badges} userId={user.id} />
       <MapShell pins={pins}>
         <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
@@ -637,6 +639,23 @@ export default async function ProfilePage({
           </section>
         </main>
       </MapShell>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof ProfilePage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <ProfilePage {...props} />
+      </Suspense>
     </AppShell>
   );
 }

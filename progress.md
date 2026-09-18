@@ -7,6 +7,37 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-18 — Speed: the frame first, the content when it's ready — every signed-in page streams its shell at the first byte and its body behind a skeleton; the sidebar, top bar and map read one memoised profile instead of four
+
+- `src/app/admin/activity/page.tsx`
+- `src/app/admin/city/page.tsx`
+- `src/app/admin/page.tsx`
+- `src/app/analytics/page.tsx`
+- `src/app/chats/page.tsx`
+- `src/app/clans/page.tsx`
+- `src/app/connections/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/explore/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/invite/page.tsx`
+- `src/app/loading.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/recap/page.tsx`
+- `src/app/settings/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/ContentSkeleton.tsx`
+- `src/components/MapShell.tsx`
+- `src/components/TopBar.tsx`
+- `src/lib/mapPins.ts`
+- `src/lib/navCounts.ts`
+- `src/lib/profile.ts`
+
+
 ### 2026-09-18 — Speed: verify the session locally against the project's signing key instead of asking the auth server twice per page
 
 - `.gitignore`

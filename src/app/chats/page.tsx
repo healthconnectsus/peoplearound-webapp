@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { MessageCircle, SquarePen } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { initials, timeAgo } from "@/lib/projects";
 import { Composer } from "./Composer";
@@ -38,7 +40,7 @@ function Avatar({ person, size }: { person: PersonLite; size: string }) {
   );
 }
 
-export default async function ChatsPage({
+async function ChatsPage({
   searchParams,
 }: {
   searchParams: Promise<{ c?: string; to?: string; new?: string; error?: string }>;
@@ -164,7 +166,7 @@ export default async function ChatsPage({
   const showThread = Boolean(threadPartner || toPerson);
 
   return (
-    <AppShell>
+    <>
       <LiveRefresh
         tables={
           selectedId
@@ -339,6 +341,23 @@ export default async function ChatsPage({
           </div>
         </div>
       </main>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof ChatsPage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <ChatsPage {...props} />
+      </Suspense>
     </AppShell>
   );
 }

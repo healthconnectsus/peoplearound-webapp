@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 
 export const metadata = { title: "Help Center" };
 
@@ -36,12 +38,12 @@ const FAQ: { q: string; a: string }[] = [
   },
 ];
 
-export default async function HelpPage() {
+async function HelpPage() {
   const user = await currentUser();
   if (!user) redirect("/login");
 
   return (
-    <AppShell>
+    <>
       <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">Help Center</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
@@ -77,6 +79,23 @@ export default async function HelpPage() {
           .
         </p>
       </main>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page() {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <HelpPage />
+      </Suspense>
     </AppShell>
   );
 }

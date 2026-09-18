@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { categoryMeta, recentDayKeys, STATE_META, timeAgo } from "@/lib/projects";
 import { computeImpact } from "@/lib/impact";
 
@@ -85,7 +87,7 @@ function FunnelBar({
   );
 }
 
-export default async function AnalyticsPage() {
+async function AnalyticsPage() {
   const supabase = await createClient();
   const user = await currentUser();
   if (!user) redirect("/login");
@@ -190,7 +192,7 @@ export default async function AnalyticsPage() {
   const peak = Math.max(1, ...days.map((d) => d.value));
 
   return (
-    <AppShell>
+    <>
       <main className="w-full max-w-4xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">Your analytics</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
@@ -414,6 +416,23 @@ export default async function AnalyticsPage() {
           </p>
         </section>
       </main>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page() {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <AnalyticsPage />
+      </Suspense>
     </AppShell>
   );
 }

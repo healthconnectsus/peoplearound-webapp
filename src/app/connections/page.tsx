@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { initials } from "@/lib/projects";
 
 export const metadata = { title: "Connections" };
@@ -13,7 +15,7 @@ type Connection = {
   sharedProjects: string[];
 };
 
-export default async function ConnectionsPage() {
+async function ConnectionsPage() {
   const supabase = await createClient();
   const user = await currentUser();
   if (!user) redirect("/login");
@@ -94,7 +96,7 @@ export default async function ConnectionsPage() {
   );
 
   return (
-    <AppShell>
+    <>
       <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">
           My connections
@@ -150,6 +152,23 @@ export default async function ConnectionsPage() {
           </ul>
         )}
       </main>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page() {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <ConnectionsPage />
+      </Suspense>
     </AppShell>
   );
 }

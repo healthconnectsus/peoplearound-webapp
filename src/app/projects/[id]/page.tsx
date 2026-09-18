@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { MessageCircle, Star as StarIcon } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { SubmitButton } from "@/components/SubmitButton";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { NeighborhoodMap, type MapPin } from "@/components/NeighborhoodMap";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
@@ -85,7 +87,7 @@ function TeamAvatar({
   );
 }
 
-export default async function ProjectDetail({
+async function ProjectDetail({
   params,
   searchParams,
 }: {
@@ -429,7 +431,7 @@ export default async function ProjectDetail({
   );
 
   return (
-    <AppShell>
+    <>
       <BadgeCelebration badges={badges} userId={user.id} />
       <LiveRefresh
         tables={[
@@ -1309,6 +1311,23 @@ export default async function ProjectDetail({
         ) : null}
       </main>
       </div>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof ProjectDetail>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <ProjectDetail {...props} />
+      </Suspense>
     </AppShell>
   );
 }

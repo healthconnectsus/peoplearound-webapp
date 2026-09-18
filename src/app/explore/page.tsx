@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
@@ -7,6 +8,7 @@ import { openAsks, formatMinutes } from "@/lib/asks";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { type MapPin } from "@/components/NeighborhoodMap";
 import { MapShell } from "@/components/MapShell";
@@ -42,7 +44,7 @@ export const metadata = { title: "Explore communities" };
  * claim, frontier registration — then redirects here or to /people).
  */
 
-export default async function ExplorePage({
+async function ExplorePage({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -408,7 +410,7 @@ export default async function ExplorePage({
     }));
 
   return (
-    <AppShell>
+    <>
       <BadgeCelebration badges={badges} userId={user.id} />
       <LiveRefresh tables="projects,events" />
 
@@ -766,6 +768,23 @@ export default async function ExplorePage({
           </div>
         </main>
       </MapShell>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof ExplorePage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <ExplorePage {...props} />
+      </Suspense>
     </AppShell>
   );
 }

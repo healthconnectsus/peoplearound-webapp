@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
 import { myMapCenter, projectPinsByIds } from "@/lib/mapPins";
 import { readTabFrom } from "@/components/FeedTabs";
@@ -21,7 +23,7 @@ import {
 
 export const metadata = { title: "Events" };
 
-export default async function EventsPage({
+async function EventsPage({
   searchParams,
 }: {
   searchParams: Promise<{ tab?: string; community?: string }>;
@@ -118,7 +120,7 @@ export default async function EventsPage({
     stewardedIds: new Set(stewarded.keys()),
   });
   return (
-    <AppShell>
+    <>
       <MapShell pins={pins}>
         <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -239,6 +241,23 @@ export default async function EventsPage({
           <LocalCalendars community={picked || null} />
         </main>
       </MapShell>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof EventsPage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <EventsPage {...props} />
+      </Suspense>
     </AppShell>
   );
 }

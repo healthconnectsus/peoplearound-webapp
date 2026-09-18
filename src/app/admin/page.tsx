@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { timeAgo } from "@/lib/projects";
 import { EventImports } from "./EventImports";
@@ -31,7 +33,7 @@ const INPUT =
 const PILL =
   "rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10";
 
-export default async function AdminPage({
+async function AdminPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; message?: string }>;
@@ -51,14 +53,14 @@ export default async function AdminPage({
   const admin = createAdminClient();
   if (!admin) {
     return (
-      <AppShell>
+      <>
         <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
           <p className="mt-4 text-sm text-red-600">
             SUPABASE_SERVICE_ROLE_KEY is not configured.
           </p>
         </main>
-      </AppShell>
+      </>
     );
   }
 
@@ -120,7 +122,7 @@ export default async function AdminPage({
   }
 
   return (
-    <AppShell>
+    <>
       <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
@@ -289,6 +291,23 @@ export default async function AdminPage({
           </ul>
         </section>
       </main>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof AdminPage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <AdminPage {...props} />
+      </Suspense>
     </AppShell>
   );
 }

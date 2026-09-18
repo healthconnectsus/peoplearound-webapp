@@ -22,7 +22,9 @@ export async function MapShell({
 
   // Resolved here rather than by each page: every map on the site should
   // frame the same place, and threading it through eight call sites would
-  // guarantee one of them eventually forgets.
+  // guarantee one of them eventually forgets. Both loaders lean on the
+  // memoised profile the shell has already read, so this costs two reads
+  // (your saved point, your memberships) rather than four.
   const supabase = await createClient();
   const user = await currentUser();
   const [center, focuses] = user

@@ -1,80 +1,99 @@
 import { Search } from "lucide-react";
-import Link from 'next/link';
-import { AdminCityPicker } from './AdminCityPicker';
+import Link from "next/link";
+import { AdminCityPicker } from "./AdminCityPicker";
 import { createClient } from "@/lib/supabase/server";
 import { timeAgo } from "@/lib/projects";
 import { ProfileMenu } from "./ProfileMenu";
 import { TopBarIcons, type Notification } from "./TopBarIcons";
 import { currentUser } from "@/lib/auth";
+import { currentProfile } from "@/lib/profile";
 
 /**
  * Desktop-only top bar (Nextdoor-style): centered search, notification and
  * message icons, and the profile menu. Mobile uses SiteHeader instead.
+ *
+ * Split in two so the frame can be on screen before anyone knows who you
+ * are. `TopBarFrame` is the bar itself — search, the fixed links — and takes
+ * the personal cluster on the right as a slot. `TopBar` fills that slot from
+ * your profile and inbox; `TopBarFallback` fills it with the same shapes and
+ * nothing in them, and is what the app shell shows while the reads are out.
+ * Same heights, same positions, so nothing moves when the real one lands.
  */
 export async function TopBar() {
+  const profile = await currentProfile();
+  if (!profile) return <TopBarFallback />;
+
   const supabase = await createClient();
   const user = await currentUser();
+  const name =
+    profile.display_name ?? user?.email?.split("@")[0] ?? "Neighbor";
 
-  let name = "Neighbor";
-  let neighborhood: string | null = null;
-  let avatarUrl: string | null = null;
-  const notifications: Notification[] = [];
-  let pendingCount = 0;
-  let isAdmin = false;
-
-  if (user) {
-    // select("*") so this keeps working before migration 0010 adds avatar_url
-    const { data: profileRow } = await supabase
-      .from("profiles")
-      .select("*,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name)")
-      .eq("id", user.id)
-      .maybeSingle();
-    const profile = profileRow as unknown as {
-      display_name: string | null;
-      is_admin?: boolean;
-      avatar_url?: string | null;
-      neighborhood?: { name: string } | null;
-    } | null;
-    name = profile?.display_name ?? user.email?.split("@")[0] ?? "Neighbor";
-    neighborhood = profile?.neighborhood?.name ?? null;
-    avatarUrl = profile?.avatar_url ?? null;
-    isAdmin = Boolean(profile?.is_admin);
-
-    // The persistent inbox (migration 0025): triggers fan out join
-    // requests, stars, contributions, confirmations, and events into
-    // `notifications`; the bell just reads it.
-    const [{ data: notifRows }, { count: unread }] = await Promise.all([
-      supabase
-        .from("notifications")
-        .select("id,kind,body,href,read_at,created_at")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(15),
-      supabase
-        .from("notifications")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .is("read_at", null),
-    ]);
-    for (const r of (notifRows ?? []) as {
+  // The persistent inbox (migration 0025): triggers fan out join
+  // requests, stars, contributions, confirmations, and events into
+  // `notifications`; the bell just reads it.
+  const [{ data: notifRows }, { count: unread }] = await Promise.all([
+    supabase
+      .from("notifications")
+      .select("id,kind,body,href,read_at,created_at")
+      .eq("user_id", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(15),
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", profile.id)
+      .is("read_at", null),
+  ]);
+  const notifications: Notification[] = (
+    (notifRows ?? []) as {
       id: string;
       kind: string;
       body: string;
       href: string;
       read_at: string | null;
       created_at: string;
-    }[]) {
-      notifications.push({
-        key: r.id,
-        kind: r.kind,
-        text: `${r.body} · ${timeAgo(r.created_at)}`,
-        href: r.href,
-        unread: r.read_at == null,
-      });
-    }
-    pendingCount = unread ?? 0;
-  }
+    }[]
+  ).map((r) => ({
+    key: r.id,
+    kind: r.kind,
+    text: `${r.body} · ${timeAgo(r.created_at)}`,
+    href: r.href,
+    unread: r.read_at == null,
+  }));
 
+  return (
+    <TopBarFrame>
+      {profile.is_admin && <AdminCityPicker />}
+      <Link href="/clans" className="text-xs underline">
+        My clan
+      </Link>
+      <TopBarIcons notifications={notifications} badge={unread ?? 0} />
+      <ProfileMenu
+        name={name}
+        neighborhood={profile.neighborhood?.name ?? null}
+        avatarUrl={profile.avatar_url}
+      />
+    </TopBarFrame>
+  );
+}
+
+/** The bar with nobody in it yet: same icons, a blank face where yours will be. */
+export function TopBarFallback() {
+  return (
+    <TopBarFrame>
+      <Link href="/clans" className="text-xs underline">
+        My clan
+      </Link>
+      <TopBarIcons notifications={[]} badge={0} />
+      <span
+        aria-hidden
+        className="h-9 w-9 rounded-full bg-black/10 dark:bg-white/10"
+      />
+    </TopBarFrame>
+  );
+}
+
+function TopBarFrame({ children }: { children: React.ReactNode }) {
   // Columns mirror MapShell's split so the search bar sits over the content
   // column, not under the map.
   return (
@@ -101,16 +120,7 @@ export async function TopBar() {
           </label>
         </form>
       </div>
-      <div className="flex items-center justify-end gap-2 px-6">
-        {isAdmin && <AdminCityPicker />}
-        <Link href="/clans" className="text-xs underline">My clan</Link>
-        <TopBarIcons notifications={notifications} badge={pendingCount} />
-        <ProfileMenu
-          name={name}
-          neighborhood={neighborhood}
-          avatarUrl={avatarUrl}
-        />
-      </div>
+      <div className="flex items-center justify-end gap-2 px-6">{children}</div>
     </div>
   );
 }

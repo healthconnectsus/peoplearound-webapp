@@ -1,30 +1,26 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "./SiteHeader";
 import { Sidebar } from "./Sidebar";
-import { TopBar } from "./TopBar";
-import { AdminCityPicker } from './AdminCityPicker';
-import { navCounts, type NavCounts } from "@/lib/navCounts";
-import { currentUser } from "@/lib/auth";
+import { TopBar, TopBarFallback } from "./TopBar";
+import { AdminCityPicker } from "./AdminCityPicker";
+import { navCounts } from "@/lib/navCounts";
+import { currentProfile } from "@/lib/profile";
 
 /**
  * Shared chrome for signed-in pages: a Nextdoor-style left sidebar plus
  * search top bar on desktop, the classic top header on mobile.
+ *
+ * The frame renders at once and knows nothing about you. The parts that do —
+ * the numbers beside the rail, your name and notifications in the top bar,
+ * the admin picker — each sit behind their own Suspense boundary and stream
+ * in when their reads answer. This used to be one async component that
+ * awaited the profile and six counts before returning a single tag, which
+ * held the whole document, page content included, behind the slowest of
+ * them. Now the first byte carries the frame and a skeleton, the browser
+ * starts on styles and scripts, and the personal parts fill in behind.
  */
-export async function AppShell({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const user = await currentUser();
-
-  let counts: NavCounts | null = null;
-  let isAdmin = false;
-  if (user) {
-    const [{ data: profileRow }, resolved] = await Promise.all([
-      supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle(),
-      navCounts(supabase, user.id),
-    ]);
-    isAdmin = Boolean((profileRow as { is_admin?: boolean | null } | null)?.is_admin);
-    counts = resolved;
-  }
-
+export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen lg:flex lg:pl-3 xl:pl-6">
       {/* First thing in the tab order: without it, reaching the feed by
@@ -33,10 +29,18 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <a href="#content" className="skip-link">
         Skip to content
       </a>
-      <Sidebar counts={counts} isAdmin={isAdmin} />
+      {/* The fallback is the same rail without its numbers, so the swap
+          when they arrive moves nothing. */}
+      <Suspense fallback={<Sidebar />}>
+        <SidebarWithCounts />
+      </Suspense>
       <div className="flex min-w-0 flex-1 flex-col">
-        <SiteHeader cityPicker={isAdmin ? <AdminCityPicker id="admin-city-mobile" /> : undefined} />
-        <TopBar />
+        <Suspense fallback={<SiteHeader />}>
+          <SiteHeaderWithPicker />
+        </Suspense>
+        <Suspense fallback={<TopBarFallback />}>
+          <TopBar />
+        </Suspense>
         {/* Layout-neutral: it inherits the flex behaviour the pages
             already relied on as direct children. */}
         <div id="content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col">
@@ -44,5 +48,24 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </div>
+  );
+}
+
+async function SidebarWithCounts() {
+  const profile = await currentProfile();
+  if (!profile) return <Sidebar />;
+  const supabase = await createClient();
+  const counts = await navCounts(supabase, profile.id, profile.neighborhood_id);
+  return <Sidebar counts={counts} isAdmin={profile.is_admin} />;
+}
+
+async function SiteHeaderWithPicker() {
+  const profile = await currentProfile();
+  return (
+    <SiteHeader
+      cityPicker={
+        profile?.is_admin ? <AdminCityPicker id="admin-city-mobile" /> : undefined
+      }
+    />
   );
 }

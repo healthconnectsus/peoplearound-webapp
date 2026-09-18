@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import { Suspense } from "react";
 import { AppShell } from '@/components/AppShell';
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { requireAdministrator } from '@/lib/admin';
 export const metadata = { title: 'Activity reports' };
-export default async function ActivityPage({ searchParams }: { searchParams: Promise<{ user?: string; community?: string; q?: string }> }) {
+async function ActivityPage({ searchParams }: { searchParams: Promise<{ user?: string; community?: string; q?: string }> }) {
   const { admin } = await requireAdministrator();
   const params = await searchParams;
   const uuid = (s?: string) => s && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s) ? s : null;
@@ -14,7 +16,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
     user || community ? admin.rpc('admin_activity', { p_user: user, p_community: community }) : Promise.resolve({ data: null, error: null }),
   ]);
   const data = report.data as { totals: Record<string,number>; entries: { id:string;kind:string;title:string;created_at:string;href:string;actor:string|null }[] } | null;
-  return <AppShell><main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
+  return <><main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
     <h1 className="text-3xl font-bold">Activity reports</h1><Link href="/admin" className="text-sm underline">Back to admin</Link>
     <form className="mt-5 flex flex-wrap gap-2">
       <input name="q" placeholder="Filter user names" defaultValue={params.q} aria-label="Filter user names" className="rounded border bg-transparent p-2" />
@@ -27,5 +29,22 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
     {data && <><div className="mt-5 grid grid-cols-3 gap-3">{['project','event','small help','offer','update','contribution'].map(k => <div key={k} className="rounded border p-3"><strong className="block text-xl">{data.totals[k] ?? 0}</strong>{k}</div>)}</div>
       <ul className="mt-5 space-y-2">{data.entries.map(e => <li key={`${e.kind}-${e.id}`} className="rounded border p-3"><Link href={e.href} className="font-semibold underline">{e.title}</Link><p className="text-xs">{e.kind} · {new Date(e.created_at).toLocaleString('en-US',{timeZone:'UTC'})} UTC {e.actor ? <Link href={`/admin/activity?user=${e.actor}`} className="underline"> · inspect author</Link> : ' · creator not recorded'}</p></li>)}</ul>
       {!data.entries.length && <p className="mt-4">No activity matching this selection.</p>}</>}
-  </main></AppShell>;
+  </main></>;
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof ActivityPage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <ActivityPage {...props} />
+      </Suspense>
+    </AppShell>
+  );
 }

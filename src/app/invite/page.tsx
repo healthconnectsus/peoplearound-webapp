@@ -1,13 +1,15 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import Link from 'next/link';
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { CopyLinkButton } from "./CopyLinkButton";
 
 export const metadata = { title: "Invite neighbors" };
 
-export default async function InvitePage() {
+async function InvitePage() {
   const supabase = await createClient();
   const user = await currentUser();
   if (!user) redirect("/login");
@@ -17,7 +19,7 @@ export default async function InvitePage() {
     .select("id", { count: "exact", head: true });
 
   return (
-    <AppShell>
+    <>
       <main className="w-full max-w-xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
         <h1 className="text-3xl font-extrabold tracking-tight">
           Invite neighbors
@@ -49,6 +51,23 @@ export default async function InvitePage() {
           </div>
         </div>
       </main>
+    </>
+  );
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page() {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <InvitePage />
+      </Suspense>
     </AppShell>
   );
 }

@@ -27,14 +27,9 @@ export type NavCounts = {
 export async function navCounts(
   supabase: Client,
   userId: string,
+  /** Your primary neighborhood — the shell already holds it (lib/profile.ts). */
+  primaryId: string | null,
 ): Promise<NavCounts> {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("neighborhood_id")
-    .eq("id", userId)
-    .maybeSingle();
-  const primaryId = (profile?.neighborhood_id as string | null) ?? null;
-
   const [starRes, rsvpRes, offerRes, peopleRes, ownRes, joinedRes] =
     await Promise.all([
     // Local Faves lists starred, non-archived projects — count the distinct

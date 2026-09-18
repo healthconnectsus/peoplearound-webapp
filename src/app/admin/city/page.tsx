@@ -1,9 +1,11 @@
 import Link from 'next/link';
+import { Suspense } from "react";
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
+import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { requireAdministrator } from '@/lib/admin';
 export const metadata = { title: 'City overview' };
-export default async function AdminCityPage({ searchParams }: { searchParams: Promise<{city?:string}> }) {
+async function AdminCityPage({ searchParams }: { searchParams: Promise<{city?:string}> }) {
   const { admin } = await requireAdministrator();
   const { city:id } = await searchParams;
   if (!id) notFound();
@@ -17,10 +19,27 @@ export default async function AdminCityPage({ searchParams }: { searchParams: Pr
     admin.from('city_events').select('id,title,date_label,source_url').eq('city_id',id).gte('event_date',new Date().toISOString().slice(0,10)).gt('expires_at',new Date().toISOString()).neq('status','cancelled').order('event_date').limit(50),
     admin.from('demo_residents').select('id,display_name').eq('city_id',id),
   ]);
-  return <AppShell><main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8"><h1 className="text-3xl font-bold">{city.name}</h1><p className="mt-2 text-sm">Admin city view. Your own home community stays unchanged.</p>
+  return <><main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8"><h1 className="text-3xl font-bold">{city.name}</h1><p className="mt-2 text-sm">Admin city view. Your own home community stays unchanged.</p>
     <h2 className="mt-6 text-xl font-bold">Communities</h2><ul>{hoods.map(h => <li key={h.id}><Link className="underline" href={`/admin/activity?community=${h.id}`}>{h.name} — view activity</Link></li>)}</ul>
     <h2 className="mt-6 text-xl font-bold">Registered residents</h2><ul>{people?.map(p => <li key={p.id}><Link className="underline" href={`/admin/activity?user=${p.id}`}>{p.display_name ?? 'Neighbor'} — view activity</Link></li>)}</ul>
     <h2 className="mt-6 text-xl font-bold">Demo residents — not real people</h2><ul>{demos?.map(d => <li key={d.id}>{d.display_name}</li>)}</ul>
     <h2 className="mt-6 text-xl font-bold">Imported events</h2><ul className="space-y-2">{events?.map(e => <li key={e.id}><a href={e.source_url} target="_blank" rel="noopener noreferrer" className="underline">{e.title}</a><p className="text-xs">{e.date_label}</p></li>)}</ul>
-  </main></AppShell>;
+  </main></>;
+}
+
+/**
+ * The frame first, the content when it's ready.
+ *
+ * The shell streams at the first byte with a skeleton where the body will
+ * land, and the body follows when its reads answer. The page used to hold
+ * the whole document until the last query came back.
+ */
+export default function Page(props: Parameters<typeof AdminCityPage>[0]) {
+  return (
+    <AppShell>
+      <Suspense fallback={<ContentSkeleton />}>
+        <AdminCityPage {...props} />
+      </Suspense>
+    </AppShell>
+  );
 }

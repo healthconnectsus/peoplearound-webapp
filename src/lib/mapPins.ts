@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatMinutes } from "@/lib/asks";
+import { currentProfile } from "@/lib/profile";
 import type { MapPin } from "@/components/NeighborhoodMap";
 import { categoryMeta, STATE_META, type ProjectState } from "@/lib/projects";
 
@@ -167,14 +168,28 @@ export async function myCommunityFocuses(
   supabase: Client,
   userId: string,
 ): Promise<MapFocus[]> {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("neighborhood_id")
-    .eq("id", userId)
-    .maybeSingle();
-  const primaryId = (profile?.neighborhood_id as string | null) ?? null;
+  // The shell has already read this row for this request; the memoised
+  // profile makes that free here. Asked about someone else, read it.
+  const own = await currentProfile();
+  const primaryId =
+    own?.id === userId
+      ? own.neighborhood_id
+      : (((
+          await supabase
+            .from("profiles")
+            .select("neighborhood_id")
+            .eq("id", userId)
+            .maybeSingle()
+        ).data?.neighborhood_id as string | null) ?? null);
 
-  const ids = await myCommunityIds(supabase, userId);
+  const { data: memberships } = await supabase
+    .from("community_members")
+    .select("community_id")
+    .eq("user_id", userId);
+  const idSet = new Set<string>();
+  if (primaryId) idSet.add(primaryId);
+  for (const m of memberships ?? []) idSet.add(m.community_id as string);
+  const ids = [...idSet];
   if (ids.length === 0) return [];
 
   const { data } = await supabase
@@ -220,16 +235,27 @@ export async function myMapCenter(
     return { lat: mine.lat, lng: mine.lng };
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select(
-      "neighborhood:neighborhoods!profiles_neighborhood_id_fkey(center_lat,center_lng)",
-    )
-    .eq("id", userId)
-    .maybeSingle();
-  const hood = (profile as unknown as {
-    neighborhood?: { center_lat: number | null; center_lng: number | null } | null;
-  } | null)?.neighborhood;
+  // Same row the shell already holds for this request (see lib/profile.ts).
+  const own = await currentProfile();
+  const hood =
+    own?.id === userId
+      ? own.neighborhood
+      : (
+          (
+            await supabase
+              .from("profiles")
+              .select(
+                "neighborhood:neighborhoods!profiles_neighborhood_id_fkey(center_lat,center_lng)",
+              )
+              .eq("id", userId)
+              .maybeSingle()
+          ).data as unknown as {
+            neighborhood?: {
+              center_lat: number | null;
+              center_lng: number | null;
+            } | null;
+          } | null
+        )?.neighborhood;
   if (hood?.center_lat != null && hood?.center_lng != null) {
     return { lat: hood.center_lat, lng: hood.center_lng };
   }
