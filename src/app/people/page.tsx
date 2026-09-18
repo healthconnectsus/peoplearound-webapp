@@ -33,6 +33,7 @@ import {
   setPrimaryCommunity,
 } from "@/app/neighborhood/communityActions";
 import { currentUser } from "@/lib/auth";
+import { currentProfile } from "@/lib/profile";
 
 export const metadata = { title: "People around" };
 
@@ -134,18 +135,14 @@ async function PeoplePage({
   if (!user) redirect("/login");
 
   const [
-    { data: profileRow },
+    profile,
     { data: communityRows },
     membershipResult,
     { data: remoteProjectRows },
   ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select(
-        "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,center_lat,center_lng)",
-      )
-      .eq("id", user.id)
-      .maybeSingle(),
+    // The frame is reading this same row right now; the memoised copy means
+    // the page does not pay for its own.
+    currentProfile(),
     supabase.from("neighborhoods").select("*").order("name"),
     supabase
       .from("community_members")
@@ -162,10 +159,6 @@ async function PeoplePage({
       .neq("state", "archived"),
   ]);
 
-  const profile = profileRow as unknown as {
-    neighborhood_id: string | null;
-    neighborhood?: { name: string } | null;
-  } | null;
   const primaryId = profile?.neighborhood_id ?? null;
 
   const communities = (communityRows ?? []) as Community[];
@@ -316,9 +309,7 @@ async function PeoplePage({
 
   // Tabs arrange; the Filters dropdown narrows. They compose, and both live
   // in the URL so any combination is a link you can send someone.
-  const myCentre = (profile as unknown as {
-    neighborhood?: { center_lat?: number | null; center_lng?: number | null } | null;
-  } | null)?.neighborhood;
+  const myCentre = profile?.neighborhood;
   const visible = sortForTab(filtered, tab, {
     userId: user.id,
     center:
@@ -674,7 +665,10 @@ async function PeoplePage({
 
 
           <AsksSection userId={user.id} startOpen={compose === "1"} />
-          <DemoResidents />
+          {/* Last on the page and often empty — it should hold nothing up. */}
+          <Suspense fallback={null}>
+            <DemoResidents />
+          </Suspense>
         </main>
       </MapShell>
     </>

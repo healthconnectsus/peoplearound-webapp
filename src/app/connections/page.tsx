@@ -20,19 +20,19 @@ async function ConnectionsPage() {
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  // Projects where I am the founder…
-  const { data: ownRows } = await supabase
-    .from("projects")
-    .select("id,title")
-    .eq("owner_id", user.id);
-  // …and projects whose team I joined.
-  const { data: myMemberships } = await supabase
-    .from("memberships")
-    .select(
-      "project_id,project:projects(id,title,owner_id,owner:profiles!projects_owner_id_fkey(id,display_name))",
-    )
-    .eq("user_id", user.id)
-    .eq("status", "accepted");
+  // Two independent reads, one wait — they used to run one after the other.
+  const [{ data: ownRows }, { data: myMemberships }] = await Promise.all([
+    // Projects where I am the founder…
+    supabase.from("projects").select("id,title").eq("owner_id", user.id),
+    // …and projects whose team I joined.
+    supabase
+      .from("memberships")
+      .select(
+        "project_id,project:projects(id,title,owner_id,owner:profiles!projects_owner_id_fkey(id,display_name))",
+      )
+      .eq("user_id", user.id)
+      .eq("status", "accepted"),
+  ]);
 
   type JoinedProject = {
     id: string;

@@ -246,7 +246,14 @@ async function EventsPage({
             </ul>
           )}
 
-          <LocalCalendars community={picked || null} />
+          {/*
+            Its own boundary: the local calendars are context, read in two
+            further steps, and sit below everything else. Your teams' events
+            should not wait for a list from the parks department.
+          */}
+          <Suspense fallback={null}>
+            <LocalCalendars community={picked || null} />
+          </Suspense>
         </main>
       </MapShell>
     </>

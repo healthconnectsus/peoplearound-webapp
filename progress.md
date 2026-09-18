@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-18 — Speed: bottom-of-page sections stream on their own, connections and people ask in parallel and reuse the frame's profile; record the performance findings in ARCHITECTURE.md
+
+- `docs/ARCHITECTURE.md`
+- `src/app/connections/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/people/page.tsx`
+
+
 ### 2026-09-18 — Docs: thirty ideas for marketing, development and business development; npm run smoke — a signed-in, stream-aware check of every page against the deployed site
 
 - `docs/IDEAS_2026-09-18.md`

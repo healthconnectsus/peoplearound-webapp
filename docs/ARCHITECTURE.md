@@ -195,10 +195,61 @@ to finish — which is exactly the time spent waiting on queued queries.
   (migration 0054) returns the number instead: 397ms and 46 rows became 118ms
   and none. It is SECURITY INVOKER, so row-level security decides what is
   counted exactly as before.
-- **Verify the session once.** `auth.getUser()` is a network call to the auth
-  server, not a cookie read, and four components wanted the user while
-  rendering one page. `currentUser()` in `src/lib/auth.ts` wraps it in React's
-  `cache`, which memoises for one render and nothing longer.
+- **Verify the session locally, once.** `auth.getUser()` is a network call to
+  the auth server — about 130ms — and every page paid for it at least twice:
+  in the proxy to guard the route, then again in the render (and a third time
+  on the seventeen pages that called it themselves rather than sharing). The
+  project signs its tokens with an asymmetric key (ES256), so the signature
+  can be checked against the published public key instead. `verifiedClaims()`
+  in `src/lib/supabase/claims.ts` fetches that key set once per server
+  instance, keeps it ten minutes, and hands it to `getClaims()`, which then
+  verifies in about a millisecond; the proxy and `currentUser()` both use it,
+  and `currentUser()` is wrapped in React's `cache` so a render asks once.
+  First byte fell by 110–190ms on every signed-in page. What is given up: a
+  session revoked elsewhere stays valid here until its token expires, at most
+  an hour. Server actions and route handlers still call `getUser()` — they
+  run once, on a write, where the freshest answer is worth the trip.
+- **The frame first, the content when it is ready.** `AppShell` used to be one
+  async component that awaited the profile and six counts before returning a
+  tag, and every page awaited all of its own data before rendering the shell
+  at all — so the document was held until the slowest query anywhere on the
+  page came back. Now the shell is synchronous, its personal parts (rail
+  counts, top bar, admin picker) each stream behind their own `<Suspense>`,
+  and every signed-in page is a thin default export that renders
+  `<AppShell><Suspense fallback={<ContentSkeleton/>}><Body/></Suspense></AppShell>`.
+  The first byte carries the whole frame and a skeleton; the browser starts on
+  styles, scripts and fonts while the body's reads are still out. Two things
+  follow from this and are worth knowing: a `redirect()` or `notFound()`
+  thrown inside a body now happens after the response has started, so it
+  arrives as a client-side redirect or not-found rather than a 307/404 (the
+  proxy still answers signed-out visitors with a real redirect); and **an
+  HTTP 200 no longer means the page worked** — a body that throws leaves the
+  frame intact. `npm run smoke` exists for that reason: it signs in a
+  throwaway account and reads each page's stream the way a browser does.
+- **One read for the frame** (migration 0057). Profile, six rail counts, the
+  inbox and its unread count, your saved location, your memberships and those
+  communities' centres were twelve API requests on every page view.
+  `shell_state()` returns them as one JSON document — SECURITY INVOKER and
+  keyed on `auth.uid()`, so row-level security applies exactly as it did to
+  the separate queries and there is no argument through which to ask about
+  anyone else. `shellState()` in `src/lib/shell.ts` memoises it per render;
+  the sidebar, top bar, map shell, `currentProfile()` and `myMapCenter()` all
+  read from it, and each keeps its old direct query as a fallback should the
+  call fail.
+- **Count requests, not just milliseconds.** The reason that last change
+  matters is not that twelve requests are slow — each takes about 30ms from
+  the function. It is tail latency. Measured from inside Vercel, roughly one
+  read in twenty-five to the database API takes between 300ms and 2.4s, with
+  a warm connection pool and over a single HTTP/2 connection alike, so it is
+  not connection setup. The database host is the smallest Supabase offers:
+  428 MB of RAM, 330 MB of it in swap, 133 million major page faults since
+  boot — while `pg_stat_statements` shows no application query averaging
+  over 200ms. The host is paging itself back in. A page is as slow as its
+  slowest read, so a page making twenty-five reads met a slow one on most
+  views, and a page making six mostly does not. **The remaining fix is not
+  in this repository: move the project off the Free plan's Nano instance**
+  (see IDEAS_2026-09-18 §D1). Until then, and after, every read removed from
+  a page is a lottery ticket not bought.
 - **Watch for unbounded selects.** Anything that reads a table which grows
   without limit — stars, messages, notifications, views — needs a filter, a
   `limit`, or an aggregate done in Postgres. A page that is fine at 46 rows is
