@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test:events": "node --test scripts/test-city-events.mjs",
     "test:database": "node scripts/test-city-database.mjs",
-    "ship": "node scripts/ship.mjs"
+    "ship": "node scripts/ship.mjs",
+    "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",

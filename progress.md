@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-18 — Docs: thirty ideas for marketing, development and business development; npm run smoke — a signed-in, stream-aware check of every page against the deployed site
+
+- `docs/IDEAS_2026-09-18.md`
+- `package.json`
+- `scripts/smoke.mjs`
+
+
 ### 2026-09-18 — Speed: the page frame — profile, rail counts, inbox, map centre, your communities — arrives in one database read instead of twelve (migration 0057); remove the temporary latency probe
 
 - `package-lock.json`
