@@ -7,6 +7,19 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-18 — Speed: the page frame — profile, rail counts, inbox, map centre, your communities — arrives in one database read instead of twelve (migration 0057); remove the temporary latency probe
+
+- `package-lock.json`
+- `package.json`
+- `src/app/api/diag-latency/route.ts`
+- `src/components/AppShell.tsx`
+- `src/components/TopBar.tsx`
+- `src/lib/mapPins.ts`
+- `src/lib/profile.ts`
+- `src/lib/shell.ts`
+- `supabase/migrations/0057_shell_state.sql`
+
+
 ### 2026-09-18 — Temporary probe: compare default fetch, a kept-alive pool and HTTP/2 for database reads from inside Vercel
 
 - `package-lock.json`

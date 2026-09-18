@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
+import { shellState } from "@/lib/shell";
 
 /** What the chrome knows about the signed-in person: name, face, place, standing. */
 export type CurrentProfile = {
@@ -44,6 +45,11 @@ export const currentProfile = cache(
   async (): Promise<CurrentProfile | null> => {
     const user = await currentUser();
     if (!user) return null;
+
+    // The frame's one read (lib/shell.ts) already carries this row. Only if
+    // that call failed does the profile get a request of its own.
+    const shell = await shellState();
+    if (shell) return shell.profile;
 
     const supabase = await createClient();
     const { data } = await supabase

@@ -6,6 +6,7 @@ import { TopBar, TopBarFallback } from "./TopBar";
 import { AdminCityPicker } from "./AdminCityPicker";
 import { navCounts } from "@/lib/navCounts";
 import { currentProfile } from "@/lib/profile";
+import { shellState } from "@/lib/shell";
 
 /**
  * Shared chrome for signed-in pages: a Nextdoor-style left sidebar plus
@@ -52,6 +53,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 }
 
 async function SidebarWithCounts() {
+  // One read for the whole frame; the six separate counts below are what is
+  // left for the day that read fails.
+  const shell = await shellState();
+  if (shell?.profile) {
+    return <Sidebar counts={shell.counts} isAdmin={shell.profile.is_admin} />;
+  }
+
   const profile = await currentProfile();
   if (!profile) return <Sidebar />;
   const supabase = await createClient();

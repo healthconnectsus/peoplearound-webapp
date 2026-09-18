@@ -7,6 +7,7 @@ import { ProfileMenu } from "./ProfileMenu";
 import { TopBarIcons, type Notification } from "./TopBarIcons";
 import { currentUser } from "@/lib/auth";
 import { currentProfile } from "@/lib/profile";
+import { shellState } from "@/lib/shell";
 
 /**
  * Desktop-only top bar (Nextdoor-style): centered search, notification and
@@ -23,7 +24,6 @@ export async function TopBar() {
   const profile = await currentProfile();
   if (!profile) return <TopBarFallback />;
 
-  const supabase = await createClient();
   const user = await currentUser();
   const name =
     profile.display_name ?? user?.email?.split("@")[0] ?? "Neighbor";
@@ -31,19 +31,13 @@ export async function TopBar() {
   // The persistent inbox (migration 0025): triggers fan out join
   // requests, stars, contributions, confirmations, and events into
   // `notifications`; the bell just reads it.
-  const [{ data: notifRows }, { count: unread }] = await Promise.all([
-    supabase
-      .from("notifications")
-      .select("id,kind,body,href,read_at,created_at")
-      .eq("user_id", profile.id)
-      .order("created_at", { ascending: false })
-      .limit(15),
-    supabase
-      .from("notifications")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", profile.id)
-      .is("read_at", null),
-  ]);
+  //
+  // It arrives with the rest of the frame (lib/shell.ts). The two queries
+  // below are only the fallback for when that read fails.
+  const shell = await shellState();
+  const { notifRows, unread } = shell
+    ? { notifRows: shell.notifications, unread: shell.unread }
+    : await inboxDirect(profile.id);
   const notifications: Notification[] = (
     (notifRows ?? []) as {
       id: string;
@@ -75,6 +69,24 @@ export async function TopBar() {
       />
     </TopBarFrame>
   );
+}
+
+async function inboxDirect(userId: string) {
+  const supabase = await createClient();
+  const [{ data: notifRows }, { count: unread }] = await Promise.all([
+    supabase
+      .from("notifications")
+      .select("id,kind,body,href,read_at,created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(15),
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .is("read_at", null),
+  ]);
+  return { notifRows, unread };
 }
 
 /** The bar with nobody in it yet: same icons, a blank face where yours will be. */

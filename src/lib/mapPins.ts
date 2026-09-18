@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatMinutes } from "@/lib/asks";
 import { currentProfile } from "@/lib/profile";
+import { shellState } from "@/lib/shell";
 import type { MapPin } from "@/components/NeighborhoodMap";
 import { categoryMeta, STATE_META, type ProjectState } from "@/lib/projects";
 
@@ -168,8 +169,26 @@ export async function myCommunityFocuses(
   supabase: Client,
   userId: string,
 ): Promise<MapFocus[]> {
-  // The shell has already read this row for this request; the memoised
-  // profile makes that free here. Asked about someone else, read it.
+  // The frame's one read (lib/shell.ts) already lists your communities with
+  // their centres — no further request needed when the question is about you.
+  const shell = await shellState();
+  if (shell?.profile?.id === userId) {
+    const primary = shell.profile.neighborhood_id;
+    return shell.communities
+      .filter((c) => c.center_lat != null && c.center_lng != null)
+      .map((c) => ({
+        id: c.id,
+        label: c.name,
+        lat: c.center_lat!,
+        lng: c.center_lng!,
+        primary: c.id === primary,
+      }))
+      .sort((a, b) =>
+        a.primary === b.primary ? a.label.localeCompare(b.label) : a.primary ? -1 : 1,
+      );
+  }
+
+  // Fallback: that read failed, or the question is about someone else.
   const own = await currentProfile();
   const primaryId =
     own?.id === userId
@@ -226,6 +245,19 @@ export async function myMapCenter(
   supabase: Client,
   userId: string,
 ): Promise<{ lat: number; lng: number } | null> {
+  // Your saved point and your neighborhood's centre both ride along with the
+  // frame's one read (lib/shell.ts).
+  const shell = await shellState();
+  if (shell?.profile?.id === userId) {
+    if (shell.location?.lat != null && shell.location?.lng != null) {
+      return { lat: shell.location.lat, lng: shell.location.lng };
+    }
+    const home = shell.profile.neighborhood;
+    return home?.center_lat != null && home?.center_lng != null
+      ? { lat: home.center_lat, lng: home.center_lng }
+      : null;
+  }
+
   const { data: mine } = await supabase
     .from("user_locations")
     .select("lat,lng")
