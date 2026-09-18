@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-18 — Temporary probe: compare default fetch, a kept-alive pool and HTTP/2 for database reads from inside Vercel
+
+- `package-lock.json`
+- `package.json`
+- `src/app/api/diag-latency/route.ts`
+
+
 ### 2026-09-18 — Temporary: a bearer-gated probe to time this function's own reads to the database from inside Vercel
 
 - `src/app/api/diag-latency/route.ts`
