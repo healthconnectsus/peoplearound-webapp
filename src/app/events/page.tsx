@@ -34,9 +34,19 @@ async function EventsPage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
+  // One wait for everything that depends only on who you are. The map
+  // centre and the list of projects you steward used to be fetched after
+  // the events came back, though neither needs them.
+  //
   // The project's neighborhood comes along so the community dropdown can
   // narrow these; an event belongs to whichever community its project is in.
-  const [{ data: eventRows }, { data: memberRows }] = await Promise.all([
+  const [
+    { data: eventRows },
+    { data: memberRows },
+    center,
+    { data: ownRows },
+    { data: coOrgRows },
+  ] = await Promise.all([
     supabase
       .from("events")
       .select(
@@ -49,6 +59,22 @@ async function EventsPage({
       .from("community_members")
       .select("community:neighborhoods(id,name,city,kind)")
       .eq("user_id", user.id),
+    // "Nearby" measures from the viewer's own centre to each event's
+    // project pin.
+    myMapCenter(supabase, user.id),
+    // Events hang off projects, so "plan an event" needs to know which one.
+    // Founders and co-organizers are the people allowed to run them.
+    supabase
+      .from("projects")
+      .select("id,title,category")
+      .eq("owner_id", user.id)
+      .neq("state", "archived"),
+    supabase
+      .from("memberships")
+      .select("role,status,project:projects(id,title,category,state)")
+      .eq("user_id", user.id)
+      .eq("status", "accepted")
+      .eq("role", "co_organizer"),
   ]);
 
   const mine = ((memberRows ?? []) as unknown as { community: Community | null }[])
@@ -71,29 +97,11 @@ async function EventsPage({
     events.map((e) => e.project_id),
   );
 
-  // "Nearby" measures from the viewer's own centre to each event's project
-  // pin. Both are already loaded for the map, so the tab costs one extra
-  // query rather than a second pass over the events.
-  const center = await myMapCenter(supabase, user.id);
+  // The pins are already loaded for the map, so "Nearby" costs no extra
+  // query — just a lookup from event to place.
   const placeOf = new Map(
     pins.map((p) => [p.id, { lat: p.lat, lng: p.lng }] as const),
   );
-
-  // Events hang off projects, so "plan an event" needs to know which one.
-  // Founders and co-organizers are the people allowed to run them.
-  const [{ data: ownRows }, { data: coOrgRows }] = await Promise.all([
-    supabase
-      .from("projects")
-      .select("id,title,category")
-      .eq("owner_id", user.id)
-      .neq("state", "archived"),
-    supabase
-      .from("memberships")
-      .select("role,status,project:projects(id,title,category,state)")
-      .eq("user_id", user.id)
-      .eq("status", "accepted")
-      .eq("role", "co_organizer"),
-  ]);
 
   type Steward = { id: string; title: string; category: string };
   const stewarded = new Map<string, Steward>();

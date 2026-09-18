@@ -7,6 +7,7 @@ import { communityMilestone } from "@/lib/milestones";
 import { openAsks, formatMinutes } from "@/lib/asks";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
+import { currentProfile } from "@/lib/profile";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -60,18 +61,9 @@ async function ExplorePage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const { data: profileRow } = await supabase
-    .from("profiles")
-    .select(
-      "neighborhood_id,created_at,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
-    )
-    .eq("id", user.id)
-    .maybeSingle();
-  const profile = profileRow as unknown as {
-    neighborhood_id: string | null;
-    created_at: string;
-    neighborhood?: { name: string; city: string | null } | null;
-  } | null;
+  // The same row the shell is reading at this moment; memoised, so this
+  // page no longer pays for its own copy before it can ask anything else.
+  const profile = await currentProfile();
 
   // First-contact onboarding (invite attribution, silent neighborhood claim,
   // frontier registration) lives on the root page — it's the one place every

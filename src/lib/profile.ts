@@ -9,6 +9,7 @@ export type CurrentProfile = {
   display_name: string | null;
   avatar_url: string | null;
   is_admin: boolean;
+  created_at: string;
   neighborhood_id: string | null;
   neighborhood: {
     name: string;
@@ -48,7 +49,7 @@ export const currentProfile = cache(
     const { data } = await supabase
       .from("profiles")
       .select(
-        "id,display_name,avatar_url,is_admin,neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city,center_lat,center_lng)",
+        "id,display_name,avatar_url,is_admin,created_at,neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city,center_lat,center_lng)",
       )
       .eq("id", user.id)
       .maybeSingle();

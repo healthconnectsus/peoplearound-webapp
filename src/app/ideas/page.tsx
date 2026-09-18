@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
+import { currentProfile } from "@/lib/profile";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
@@ -28,18 +29,24 @@ async function IdeasPage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  // Which teams you're on — the only thing the "Mine" tab needs beyond
-  // ownership, which the cards already carry.
-  const [{ data: memberRows }] =
-    await Promise.all([
-      supabase
-        .from("memberships")
-        .select(
-          "project_id,status,project:projects(id,title,description,category,state,created_at,owner:profiles!projects_owner_id_fkey(display_name))"
-        )
-        .eq("user_id", user.id)
-        .eq("status", "accepted"),
-    ]);
+  // One wait: your teams, the feed, and your profile (which the shell is
+  // reading at the same moment — the memoised copy makes it free here).
+  const [{ data: memberRows }, { cards }, own] = await Promise.all([
+    // Which teams you're on — the only thing the "Mine" tab needs beyond
+    // ownership, which the cards already carry.
+    supabase
+      .from("memberships")
+      .select(
+        "project_id,status,project:projects(id,title,description,category,state,created_at,owner:profiles!projects_owner_id_fkey(display_name))",
+      )
+      .eq("user_id", user.id)
+      .eq("status", "accepted"),
+    // The browsable feed. Every project RLS lets this account see — the
+    // tabs are five ways of arranging that one set, not five different
+    // queries.
+    loadFeedCards(supabase, undefined, user.id),
+    currentProfile(),
+  ]);
 
   const joined = (
     (memberRows ?? []) as unknown as {
@@ -48,21 +55,10 @@ async function IdeasPage({
   )
     .map((m) => m.project)
     .filter((p): p is Project => Boolean(p) && p!.state !== "archived");
-
-  // The browsable feed. Every project RLS lets this account see — the tabs
-  // are five ways of arranging that one set, not five different queries.
-  const { cards } = await loadFeedCards(supabase, undefined, user.id);
   const joinedIds = new Set(joined.map((p) => p.id));
 
   // "Nearby" is measured from your own community's centre.
-  const { data: hood } = await supabase
-    .from("profiles")
-    .select("neighborhood:neighborhoods!profiles_neighborhood_id_fkey(center_lat,center_lng)")
-    .eq("id", user.id)
-    .maybeSingle();
-  const centre = (hood as unknown as {
-    neighborhood?: { center_lat: number | null; center_lng: number | null } | null;
-  } | null)?.neighborhood;
+  const centre = own?.neighborhood;
   const center =
     centre?.center_lat != null && centre?.center_lng != null
       ? { lat: centre.center_lat, lng: centre.center_lng }

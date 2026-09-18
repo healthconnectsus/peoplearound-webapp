@@ -125,24 +125,38 @@ async function ProfilePage({
   const myStarredIds = stars
     .filter((s) => s.user_id === user.id)
     .map((s) => s.project_id);
-  const { data: favedRows } = myStarredIds.length
-    ? await supabase
-        .from("projects")
-        .select(
-          "id,title,category,state,created_at,owner:profiles!projects_owner_id_fkey(display_name)",
-        )
-        .in("id", myStarredIds)
-        .neq("state", "archived")
-    : { data: [] };
-  const faves = (favedRows ?? []) as unknown as Project[];
 
+  // Everything else this page shows, asked for at once. It used to arrive
+  // in five waves — your faves, then five counts, then your reputation,
+  // then your map and lists, then your badges — each wave waiting on the
+  // one before although none needed its answer.
+  const hoodForBadges = profileRow as unknown as {
+    neighborhood_id?: string | null;
+  } | null;
   const [
+    { data: favedRows },
     { count: teamsJoined },
     { count: helpConfirmed },
     viewCountsResult,
     { count: messagesSent },
     { count: broughtCount },
+    reputation,
+    pins,
+    { data: myLoc },
+    { data: myCommunityRows },
+    { data: myEventRows },
+    { data: myRsvpRows },
+    badges,
   ] = await Promise.all([
+    myStarredIds.length
+      ? supabase
+          .from("projects")
+          .select(
+            "id,title,category,state,created_at,owner:profiles!projects_owner_id_fkey(display_name)",
+          )
+          .in("id", myStarredIds)
+          .neq("state", "archived")
+      : Promise.resolve({ data: [] as unknown[] }),
     supabase
       .from("memberships")
       .select("project_id", { count: "exact", head: true })
@@ -163,30 +177,8 @@ async function ProfilePage({
       .from("profiles")
       .select("id", { count: "exact", head: true })
       .eq("invited_by", user.id),
-  ]);
-
-  const viewRows = (viewCountsResult.data ?? []) as {
-    project_id: string;
-    views: number;
-  }[];
-  const ideaViews = viewRows.reduce((sum, r) => sum + r.views, 0);
-  const viewsFor = (id: string) =>
-    viewRows.find((r) => r.project_id === id)?.views ?? 0;
-
-  // Badges — derived from confirmed records at read time (see lib/badges.ts).
-  const hoodForBadges = profileRow as unknown as {
-    neighborhood_id?: string | null;
-  } | null;
-  const reputation = await computeReputation(supabase, user.id);
-
-  // Your own world on the map + the lists behind it.
-  const [
-    pins,
-    { data: myLoc },
-    { data: myCommunityRows },
-    { data: myEventRows },
-    { data: myRsvpRows },
-  ] = await Promise.all([
+    computeReputation(supabase, user.id),
+    // Your own world on the map + the lists behind it.
     myWorldPins(supabase, user.id),
     supabase
       .from("user_locations")
@@ -203,7 +195,21 @@ async function ProfilePage({
       .order("starts_at", { ascending: true })
       .limit(100),
     supabase.from("rsvps").select("event_id").eq("user_id", user.id),
+    // Badges — derived from confirmed records at read time (see lib/badges.ts).
+    computeBadges(supabase, user.id, {
+      id: hoodForBadges?.neighborhood_id ?? null,
+      name: profile?.neighborhood?.name ?? null,
+    }),
   ]);
+  const faves = (favedRows ?? []) as unknown as Project[];
+
+  const viewRows = (viewCountsResult.data ?? []) as {
+    project_id: string;
+    views: number;
+  }[];
+  const ideaViews = viewRows.reduce((sum, r) => sum + r.views, 0);
+  const viewsFor = (id: string) =>
+    viewRows.find((r) => r.project_id === id)?.views ?? 0;
 
   const myCommunities = ((myCommunityRows ?? []) as unknown as {
     community?: { id: string; name: string; city: string | null; kind: string | null } | null;
@@ -222,10 +228,6 @@ async function ProfilePage({
     project_id: string;
     project?: { title: string; owner_id: string } | null;
   }[]).filter((e) => e.project?.owner_id === user.id || rsvpSet.has(e.id));
-  const badges = await computeBadges(supabase, user.id, {
-    id: hoodForBadges?.neighborhood_id ?? null,
-    name: profile?.neighborhood?.name ?? null,
-  });
 
   const starsReceived = own.reduce((sum, p) => sum + starCount(p.id), 0);
   const memberSince = profile?.created_at

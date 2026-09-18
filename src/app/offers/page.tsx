@@ -58,16 +58,22 @@ async function OffersPage() {
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const { data: rows, error } = await supabase
-    .from("offers")
-    .select(
-      "id,user_id,kind,title,description,photo_url,place,claimed_by,claimed_at,created_at,poster:profiles!offers_user_id_fkey(display_name),claimer:profiles!offers_claimed_by_fkey(display_name)",
-    )
-    // Small help ("need") lives on its own board at /asks — same table,
-    // opposite direction.
-    .neq("kind", "need")
-    .order("created_at", { ascending: false })
-    .limit(60);
+  // Three independent reads, one wait. They ran one after another, which
+  // made the board wait for the map twice before it could draw.
+  const [{ data: rows, error }, center, spotPins] = await Promise.all([
+    supabase
+      .from("offers")
+      .select(
+        "id,user_id,kind,title,description,photo_url,place,claimed_by,claimed_at,created_at,poster:profiles!offers_user_id_fkey(display_name),claimer:profiles!offers_claimed_by_fkey(display_name)",
+      )
+      // Small help ("need") lives on its own board at /asks — same table,
+      // opposite direction.
+      .neq("kind", "need")
+      .order("created_at", { ascending: false })
+      .limit(60),
+    myMapCenter(supabase, user.id),
+    offerPins(supabase),
+  ]);
 
   const offers = (rows ?? []) as unknown as OfferRow[];
   const available = offers.filter((o) => !o.claimed_by);
@@ -75,8 +81,6 @@ async function OffersPage() {
 
   // Offers with a rough spot pin themselves; otherwise fall back to the
   // neighborhood's projects so the map still gives context.
-  const center = await myMapCenter(supabase, user.id);
-  const spotPins = await offerPins(supabase);
   const pins = spotPins.length
     ? spotPins
     : await nearbyProjectPins(supabase, user.id);

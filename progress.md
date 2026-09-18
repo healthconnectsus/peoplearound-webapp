@@ -7,6 +7,21 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-18 — Speed: pages ask for everything they need at once — people, events, offers, projects, chats, profile and project pages each collapse three to five queued waits into one; drop the unused Geist Mono font
+
+- `src/app/chats/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/explore/page.tsx`
+- `src/app/globals.css`
+- `src/app/ideas/page.tsx`
+- `src/app/layout.tsx`
+- `src/app/offers/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/lib/profile.ts`
+
+
 ### 2026-09-18 — Speed: the frame first, the content when it's ready — every signed-in page streams its shell at the first byte and its body behind a skeleton; the sidebar, top bar and map read one memoised profile instead of four
 
 - `src/app/admin/activity/page.tsx`

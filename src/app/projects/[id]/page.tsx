@@ -139,24 +139,7 @@ async function ProjectDetail({
 
   // An unlocated project borrows its neighborhood's map: the other things
   // being built nearby, so the column is a place rather than a blank.
-  let nearbyPins: MapPin[] = [];
-  if (!hasPin && mapCenter && project.neighborhood_id) {
-    const { data: nearbyRows } = await supabase
-      .from("projects")
-      .select("id,title,category,state,lat,lng")
-      .eq("neighborhood_id", project.neighborhood_id)
-      .not("lat", "is", null)
-      .limit(40);
-    nearbyPins = ((nearbyRows ?? []) as unknown as Project[]).map((n) => ({
-      id: n.id,
-      title: n.title,
-      emoji: categoryMeta(n.category).emoji,
-      href: `/projects/${n.id}`,
-      lat: n.lat!,
-      lng: n.lng!,
-      subtitle: STATE_META[n.state].label,
-    }));
-  }
+  const borrowsMap = !hasPin && mapCenter != null && !!project.neighborhood_id;
 
   // Everything this page needs, asked for at once.
   //
@@ -180,6 +163,7 @@ async function ProjectDetail({
     { data: myFlag },
     { data: contributionRows },
     { data: eventRows },
+    { data: nearbyRows },
   ] = await Promise.all([
     // Stars — count, whether the current user has starred, and who/when for
     // the history timeline.
@@ -248,7 +232,30 @@ async function ProjectDetail({
       .select("id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id)")
       .eq("project_id", id)
       .order("starts_at", { ascending: true }),
+
+    // The neighborhood's other located projects, for a project with no pin
+    // of its own. This waited its turn before the batch; it belongs in it.
+    borrowsMap
+      ? supabase
+          .from("projects")
+          .select("id,title,category,state,lat,lng")
+          .eq("neighborhood_id", project.neighborhood_id!)
+          .not("lat", "is", null)
+          .limit(40)
+      : Promise.resolve({ data: [] as unknown[] }),
   ]);
+
+  const nearbyPins: MapPin[] = ((nearbyRows ?? []) as unknown as Project[]).map(
+    (n) => ({
+      id: n.id,
+      title: n.title,
+      emoji: categoryMeta(n.category).emoji,
+      href: `/projects/${n.id}`,
+      lat: n.lat!,
+      lng: n.lng!,
+      subtitle: STATE_META[n.state].label,
+    }),
+  );
 
   const stars = (starRows ?? []) as unknown as Star[];
   const starCount = stars.length;

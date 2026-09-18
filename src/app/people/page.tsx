@@ -168,28 +168,77 @@ async function PeoplePage({
   } | null;
   const primaryId = profile?.neighborhood_id ?? null;
 
-  // Founding neighbors: the first 10 members of a place, by join order — a
-  // permanent, derived fact (no points, no gaming surface). It belongs on
-  // this page because it is about the community that is *yours*.
-  const [{ data: hoodMemberRows }, { count: neighborCount }, { count: broughtCount }] =
+  const communities = (communityRows ?? []) as Community[];
+  // Pre-migration-0011 fallback: treat the primary neighborhood as the only
+  // membership so the page still works.
+  const migrationApplied = !membershipResult.error;
+  const myIds = new Set(
+    migrationApplied
+      ? (membershipResult.data ?? []).map((m) => m.community_id)
+      : primaryId
+        ? [primaryId]
+        : [],
+  );
+
+  // A picked community narrows the feed further — but only one of yours;
+  // an arbitrary id in the URL falls back to all, never widens.
+  const picked = community && myIds.has(community) ? community : "";
+  const communityIds = picked ? [picked] : [...myIds];
+
+  // Second wave: everything that needed only your primary neighborhood or
+  // your memberships, which the first wave just returned. These were three
+  // waits in a row — founding neighbors, then the neighbor list, then the
+  // feed's project ids — each a round trip nothing else was waiting on.
+  const [
+    { data: hoodMemberRows },
+    { count: neighborCount },
+    { count: broughtCount },
+    { data: neighborRows },
+    { data: idRows },
+  ] = await Promise.all([
+    // Founding neighbors: the first 10 members of a place, by join order — a
+    // permanent, derived fact (no points, no gaming surface). It belongs on
+    // this page because it is about the community that is *yours*.
     primaryId
-      ? await Promise.all([
-          supabase
-            .from("community_members")
-            .select("user_id,created_at")
-            .eq("community_id", primaryId)
-            .order("created_at", { ascending: true })
-            .limit(10),
-          supabase
-            .from("community_members")
-            .select("user_id", { count: "exact", head: true })
-            .eq("community_id", primaryId),
-          supabase
-            .from("profiles")
-            .select("id", { count: "exact", head: true })
-            .eq("invited_by", user.id),
-        ])
-      : [{ data: [] }, { count: 0 }, { count: 0 }];
+      ? supabase
+          .from("community_members")
+          .select("user_id,created_at")
+          .eq("community_id", primaryId)
+          .order("created_at", { ascending: true })
+          .limit(10)
+      : Promise.resolve({ data: [] as { user_id: string }[] }),
+    primaryId
+      ? supabase
+          .from("community_members")
+          .select("user_id", { count: "exact", head: true })
+          .eq("community_id", primaryId)
+      : Promise.resolve({ count: 0 }),
+    primaryId
+      ? supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("invited_by", user.id)
+      : Promise.resolve({ count: 0 }),
+    primaryId
+      ? supabase
+          .from("profiles")
+          .select("id,display_name,avatar_url,created_at")
+          .eq("neighborhood_id", primaryId)
+          .order("created_at", { ascending: true })
+          .limit(100)
+      : Promise.resolve({ data: [] as PersonRow[] }),
+    // The feed strip, narrowed to your own communities —
+    // projects.neighborhood_id is the same table as
+    // community_members.community_id (0011 generalized neighborhoods into
+    // communities), so this is a direct filter, not a guess.
+    communityIds.length
+      ? supabase
+          .from("projects")
+          .select("id")
+          .in("neighborhood_id", communityIds)
+          .neq("state", "archived")
+      : Promise.resolve({ data: [] as { id: string }[] }),
+  ]);
 
   const foundingMembers = (hoodMemberRows ?? []) as { user_id: string }[];
   const myFoundingRank =
@@ -197,15 +246,6 @@ async function PeoplePage({
   const hoodSize = neighborCount ?? foundingMembers.length;
   const isFoundingEra = primaryId != null && hoodSize < 10;
   const hoodName = profile?.neighborhood?.name ?? "your neighborhood";
-
-  const { data: neighborRows } = primaryId
-    ? await supabase
-        .from("profiles")
-        .select("id,display_name,avatar_url,created_at")
-        .eq("neighborhood_id", primaryId)
-        .order("created_at", { ascending: true })
-        .limit(100)
-    : { data: [] };
 
   const neighbors = (neighborRows ?? []) as PersonRow[];
   const remoteOwners = new Map<string, PersonRow>();
@@ -221,34 +261,9 @@ async function PeoplePage({
     (p) => !neighbors.some((n) => n.id === p.id),
   );
 
-  const communities = (communityRows ?? []) as Community[];
-  // Pre-migration-0011 fallback: treat the primary neighborhood as the only
-  // membership so the page still works.
-  const migrationApplied = !membershipResult.error;
-  const myIds = new Set(
-    migrationApplied
-      ? (membershipResult.data ?? []).map((m) => m.community_id)
-      : primaryId
-        ? [primaryId]
-        : [],
-  );
   const mine = communities.filter((c) => myIds.has(c.id));
   const discover = communities.filter((c) => !myIds.has(c.id));
 
-  // The feed strip, narrowed to your own communities — projects.neighborhood_id
-  // is the same table as community_members.community_id (0011 generalized
-  // neighborhoods into communities), so this is a direct filter, not a guess.
-  // A picked community narrows the feed further — but only one of yours;
-  // an arbitrary id in the URL falls back to all, never widens.
-  const picked = community && myIds.has(community) ? community : "";
-  const communityIds = picked ? [picked] : [...myIds];
-  const { data: idRows } = communityIds.length
-    ? await supabase
-        .from("projects")
-        .select("id")
-        .in("neighborhood_id", communityIds)
-        .neq("state", "archived")
-    : { data: [] };
   const communityProjectIds = (idRows ?? []).map((r) => r.id as string);
   // One wait instead of five. Each of these is a separate network round trip
   // to Postgres — about 200ms from the serverless region — and they were run

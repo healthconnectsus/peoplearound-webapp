@@ -61,14 +61,68 @@ async function ChatsPage({
     (myRows ?? []).map((r) => [r.conversation_id, r.last_read_at as string]),
   );
 
+  type Msg = {
+    id: string;
+    conversation_id: string;
+    sender_id: string;
+    body: string;
+    created_at: string;
+  };
+
+  // Everything that needs only the conversation list, in one wait: who else
+  // is in them, the recent messages, the open thread, and the person a new
+  // message is addressed to. These were five round trips in a row.
+  const wantThread = Boolean(selectedId && convIds.includes(selectedId));
+  const [
+    { data: partRows },
+    { data: recentRows },
+    { data: threadRows },
+    { data: toRow },
+    { data: peopleRows },
+  ] = await Promise.all([
+    convIds.length > 0
+      ? supabase
+          .from("conversation_participants")
+          .select("conversation_id,user_id")
+          .in("conversation_id", convIds)
+          .neq("user_id", user.id)
+      : Promise.resolve({ data: [] as { conversation_id: string; user_id: string }[] }),
+    // Recent messages → last-message preview per conversation + unread flags.
+    convIds.length > 0
+      ? supabase
+          .from("messages")
+          .select("id,conversation_id,sender_id,body,created_at")
+          .in("conversation_id", convIds)
+          .order("created_at", { ascending: false })
+          .limit(400)
+      : Promise.resolve({ data: [] as Msg[] }),
+    // Selected thread.
+    wantThread
+      ? supabase
+          .from("messages")
+          .select("id,conversation_id,sender_id,body,created_at")
+          .eq("conversation_id", selectedId!)
+          .order("created_at", { ascending: true })
+          .limit(500)
+      : Promise.resolve({ data: [] as Msg[] }),
+    // New-message flow: ?to=<user> composes to that person.
+    to && to !== user.id
+      ? supabase.from("profiles").select("*").eq("id", to).maybeSingle()
+      : Promise.resolve({ data: null as PersonLite | null }),
+    // People picker for ?new=1.
+    composeNew
+      ? supabase
+          .from("profiles")
+          .select("*")
+          .neq("id", user.id)
+          .order("display_name")
+          .limit(100)
+      : Promise.resolve({ data: [] as PersonLite[] }),
+  ]);
+
   // Partners in those conversations.
   const partnerOf = new Map<string, PersonLite>();
   if (convIds.length > 0) {
-    const { data: partRows } = await supabase
-      .from("conversation_participants")
-      .select("conversation_id,user_id")
-      .in("conversation_id", convIds)
-      .neq("user_id", user.id);
     const partnerIds = [...new Set((partRows ?? []).map((r) => r.user_id))];
     const { data: profRows } = partnerIds.length
       ? await supabase.from("profiles").select("*").in("id", partnerIds)
@@ -86,24 +140,7 @@ async function ChatsPage({
     }
   }
 
-  // Recent messages → last-message preview per conversation + unread flags.
-  type Msg = {
-    id: string;
-    conversation_id: string;
-    sender_id: string;
-    body: string;
-    created_at: string;
-  };
-  let recent: Msg[] = [];
-  if (convIds.length > 0) {
-    const { data } = await supabase
-      .from("messages")
-      .select("id,conversation_id,sender_id,body,created_at")
-      .in("conversation_id", convIds)
-      .order("created_at", { ascending: false })
-      .limit(400);
-    recent = (data ?? []) as Msg[];
-  }
+  const recent = (recentRows ?? []) as Msg[];
   const lastMsgOf = new Map<string, Msg>();
   for (const m of recent) {
     if (!lastMsgOf.has(m.conversation_id)) lastMsgOf.set(m.conversation_id, m);
@@ -126,42 +163,11 @@ async function ChatsPage({
       (b.last?.created_at ?? "").localeCompare(a.last?.created_at ?? ""),
     );
 
-  // Selected thread.
-  let thread: Msg[] = [];
-  let threadPartner: PersonLite | null = null;
-  if (selectedId && convIds.includes(selectedId)) {
-    const { data } = await supabase
-      .from("messages")
-      .select("id,conversation_id,sender_id,body,created_at")
-      .eq("conversation_id", selectedId)
-      .order("created_at", { ascending: true })
-      .limit(500);
-    thread = (data ?? []) as Msg[];
-    threadPartner = partnerOf.get(selectedId) ?? null;
-  }
-
-  // New-message flow: ?to=<user> composes to that person.
-  let toPerson: PersonLite | null = null;
-  if (to && to !== user.id) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", to)
-      .maybeSingle();
-    toPerson = (data as PersonLite | null) ?? null;
-  }
-
-  // People picker for ?new=1.
-  let people: PersonLite[] = [];
-  if (composeNew) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .neq("id", user.id)
-      .order("display_name")
-      .limit(100);
-    people = (data ?? []) as PersonLite[];
-  }
+  const thread = (threadRows ?? []) as Msg[];
+  const threadPartner =
+    wantThread && selectedId ? (partnerOf.get(selectedId) ?? null) : null;
+  const toPerson = (toRow as PersonLite | null) ?? null;
+  const people = (peopleRows ?? []) as PersonLite[];
 
   const showThread = Boolean(threadPartner || toPerson);
 
