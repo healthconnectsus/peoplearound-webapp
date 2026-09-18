@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-18 — Temporary: a bearer-gated probe to time this function's own reads to the database from inside Vercel
+
+- `src/app/api/diag-latency/route.ts`
+
+
 ### 2026-09-18 — Speed: pages ask for everything they need at once — people, events, offers, projects, chats, profile and project pages each collapse three to five queued waits into one; drop the unused Geist Mono font
 
 - `src/app/chats/page.tsx`
