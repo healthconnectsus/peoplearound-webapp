@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-19 — Docs: the search strategy — where the nine public URLs actually stand, what can and cannot be won at this scale, and the sequence
+
+- `docs/SEO.md`
+
+
 ### 2026-09-19 — SEO: the share card sat behind the login redirect, so no unfurler could ever fetch it
 
 - `src/proxy.ts`
