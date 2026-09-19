@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-19 — SEO: the share card sat behind the login redirect, so no unfurler could ever fetch it
+
+- `src/proxy.ts`
+
+
 ### 2026-09-19 — SEO: demo places leave every page a stranger can read (migration 0058), the front door gets a title, share card, canonicals and structured data, and the sitemap stops advertising a redirect
 
 - `.gitignore`

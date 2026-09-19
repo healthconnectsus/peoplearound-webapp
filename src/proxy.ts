@@ -35,7 +35,16 @@ export const config = {
      *                       rules, on a site that deliberately publishes
      *                       city pages for partners and press.
      *   sitemap.xml         same.
+     *   opengraph-image     the share card. Facebook, Slack, LinkedIn,
+     *                       WhatsApp and every other unfurler fetches it
+     *                       with no session and will not follow a redirect
+     *                       to an HTML page — so the card *was* a redirect
+     *                       to the login form, which is to say no card at
+     *                       all, on a product whose whole distribution plan
+     *                       is neighbors sending each other links. Matched
+     *                       anywhere in the path, so a per-page card added
+     *                       later is covered too, and twitter-image with it.
      */
-    "/((?!_next/static|_next/image|favicon\\.ico|sw\\.js|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico|sw\\.js|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|.*opengraph-image|.*twitter-image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
