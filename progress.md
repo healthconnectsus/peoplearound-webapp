@@ -7,6 +7,21 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-19 — SEO: demo places leave every page a stranger can read (migration 0058), the front door gets a title, share card, canonicals and structured data, and the sitemap stops advertising a redirect
+
+- `.gitignore`
+- `src/app/city/[slug]/page.tsx`
+- `src/app/city/page.tsx`
+- `src/app/layout.tsx`
+- `src/app/login/page.tsx`
+- `src/app/opengraph-image.tsx`
+- `src/app/privacy/page.tsx`
+- `src/app/sitemap.ts`
+- `src/app/start/page.tsx`
+- `src/components/JsonLd.tsx`
+- `supabase/migrations/0058_demo_not_public.sql`
+
+
 ### 2026-09-18 — Speed: bottom-of-page sections stream on their own, connections and people ask in parallel and reuse the frame's profile; record the performance findings in ARCHITECTURE.md
 
 - `docs/ARCHITECTURE.md`

@@ -12,7 +12,12 @@ import {
 import { versionLabel, BUILD_TIME } from "@/lib/version";
 
 export const metadata: Metadata = {
-  title: "Start a club in your neighborhood — Peoplearound",
+  // The root layout's template appends " — Peoplearound"; saying it here too
+  // rendered "… — Peoplearound — Peoplearound" in the browser tab and in
+  // search results, spending a quarter of the visible title on the brand
+  // twice over.
+  title: "Start a club in your neighborhood",
+  alternates: { canonical: "/start" },
   description:
     "Start a run club, pickup soccer group, or pickleball crew where you live. Share the idea, neighbors join in, and every contribution is credited.",
 };

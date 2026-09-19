@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import {
   CalendarDays,
@@ -11,6 +12,22 @@ import { categoryMeta, STATE_META, timeAgo } from "@/lib/projects";
 import { versionLabel, BUILD_TIME } from "@/lib/version";
 import { signIn, signUp, signInWithMagicLink } from "./actions";
 import { AutoLocate } from "./AutoLocate";
+import { JsonLd, organizationLd } from "@/components/JsonLd";
+
+/**
+ * Every signed-out visit ends up here — the root path redirects to it — so
+ * this is the site's front door and its only substantial public page. It had
+ * no metadata of its own at all, which meant a search result read
+ * "Peoplearound" with the generic site description, on a name shared with a
+ * crowd of similarly titled apps. Until a real marketing page exists at "/",
+ * this is the URL to be found by (see docs/SEO.md).
+ */
+export const metadata: Metadata = {
+  title: "Do something with the people around you",
+  description:
+    "Share an idea for your neighborhood and the people around you join in — gardens, repair cafés, run clubs, walking groups. Every contribution is credited to the neighbor who made it.",
+  alternates: { canonical: "/login" },
+};
 
 const INPUT =
   "rounded-lg border border-slate-400 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400 dark:bg-zinc-800";
@@ -77,13 +94,18 @@ export default async function LoginPage({
     communities: number;
     neighbors: number;
   } | null;
-  const ideas: PublicIdea[] =
-    ideasError || !ideaRows?.length
-      ? SAMPLE_IDEAS
-      : (ideaRows as PublicIdea[]);
+  // Only projects whose author chose "open to anywhere" can appear here, so
+  // this list is often empty — and when it is, the cards below are the
+  // hand-written examples, not anybody's real project. The page has to say
+  // which, because the heading over them claims they are real.
+  const showingExamples = Boolean(ideasError) || !ideaRows?.length;
+  const ideas: PublicIdea[] = showingExamples
+    ? SAMPLE_IDEAS
+    : (ideaRows as PublicIdea[]);
 
   return (
     <div className="flex min-h-screen flex-col">
+      <JsonLd data={organizationLd} />
       {turnstileKey ? (
         <script
           src="https://challenges.cloudflare.com/turnstile/api.js"
@@ -222,11 +244,14 @@ export default async function LoginPage({
         {/* Live ideas teaser */}
         <section className="mx-auto w-full max-w-5xl px-4 py-12">
           <h2 className="text-center text-2xl font-semibold tracking-tight">
-            Ideas being built right now within the communities
+            {showingExamples
+              ? "The kind of thing neighbors start here"
+              : "Ideas being built right now within the communities"}
           </h2>
           <p className="mt-1 text-center text-sm text-black/50 dark:text-white/50">
-            Real projects from real communities. Join to star them, meet the
-            team, or add your own.
+            {showingExamples
+              ? "Examples, not real projects — every neighbor-led project on Peoplearound today is visible only to the communities it belongs to."
+              : "Real projects from real communities. Join to star them, meet the team, or add your own."}
           </p>
           {/* The ones shown are the ones open to anywhere. Everything else is
               counted here rather than quoted — the scale is real, the

@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy — Peoplearound",
+  title: "Privacy",
+  alternates: { canonical: "/privacy" },
   description:
     "What Peoplearound stores, what it never stores, and how to take your data or delete it.",
 };

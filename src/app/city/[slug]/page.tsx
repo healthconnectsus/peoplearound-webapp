@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_META, STATE_META } from "@/lib/projects";
+import { JsonLd, breadcrumbLd } from "@/components/JsonLd";
 
 /**
  * A public, read-only picture of what a city is building
@@ -62,11 +63,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const { city } = await loadCity(slug);
-  if (!city) return { title: "City — Peoplearound" };
+  if (!city) return { title: "City" };
   const places = city.communities === 1 ? "community" : "communities";
+  // A new city has no projects yet, and "0 neighbor-led projects in Kansas
+  // City" is what search results showed — a description advertising that
+  // nothing is happening. Say what the page is instead, and quote numbers
+  // only once there are numbers worth quoting.
+  const description =
+    city.projects > 0
+      ? `${city.projects} neighbor-led ${city.projects === 1 ? "project" : "projects"} across ${city.communities} ${places} in ${city.city} — what people here are starting together.`
+      : `What neighbors in ${city.city} are starting together, and the local events on this week. No account needed to read it.`;
   return {
-    title: `What ${city.city} is building — Peoplearound`,
-    description: `${city.projects} neighbor-led projects across ${city.communities} ${places} in ${city.city}.`,
+    title: `What ${city.city} is building`,
+    description,
+    alternates: { canonical: `/city/${slug}` },
   };
 }
 
@@ -94,6 +104,13 @@ export default async function CityPage({
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-10 lg:py-16">
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Peoplearound", path: "/" },
+          { name: "Cities", path: "/city" },
+          { name: city.city, path: `/city/${slug}` },
+        ])}
+      />
       <Link
         href="/city"
         className="text-sm text-black/50 hover:underline dark:text-white/50"

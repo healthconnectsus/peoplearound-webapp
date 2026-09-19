@@ -51,9 +51,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Every public page, and only those. Anything requiring a session is
   // deliberately absent: listing it would advertise a URL that answers a
   // stranger with a redirect.
+  //
+  // "/" is deliberately absent: it answers a signed-out visitor — which is
+  // every crawler — with a redirect to /login, and a sitemap that lists a
+  // redirect spends crawl budget to learn nothing. /login carries the
+  // marketing page today, so it is the entry that matters. When a real
+  // public home page exists at "/" (docs/SEO.md §3.1), that becomes the
+  // priority-1 entry and this one drops back.
   const staticPages: MetadataRoute.Sitemap = [
-    { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
-    { url: `${SITE_URL}/login`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/login`, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE_URL}/start`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/city`, changeFrequency: "weekly", priority: 0.7 },

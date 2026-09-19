@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { SITE_URL } from "@/lib/site";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ServiceWorker } from "@/components/ServiceWorker";
@@ -14,8 +15,12 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
+  // Without this, every relative URL in metadata — the share card, each
+  // page's canonical — is emitted as a path, and a path is not a valid
+  // og:image or canonical. Nothing warned; the tags were simply wrong.
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Peoplearound",
+    default: "Peoplearound — do something with the people around you",
     // Each page sets only its own name; this makes the tab readable when a
     // dozen of them are open, which is how people actually use the site.
     template: "%s — Peoplearound",
@@ -23,6 +28,16 @@ export const metadata: Metadata = {
   description: "Build ideas with your communities — a hyperlocal network where neighbors join each other's projects.",
   applicationName: "Peoplearound",
   appleWebApp: { capable: true, title: "Peoplearound", statusBarStyle: "default" },
+  // Deliberately no title or description here. Next fills og:title and
+  // og:description from each page's own title and description, and anything
+  // set at this level would be inherited literally by every page that does
+  // not override it — one card headline for the whole site.
+  openGraph: {
+    type: "website",
+    siteName: "Peoplearound",
+    locale: "en_US",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

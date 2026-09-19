@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { JsonLd, organizationLd, breadcrumbLd } from "@/components/JsonLd";
 
 /**
  * The index the city pages never had.
@@ -26,6 +27,7 @@ type CityRow = {
 
 export const metadata: Metadata = {
   title: "Where Peoplearound is being built",
+  alternates: { canonical: "/city" },
   description:
     "Every city with neighbors starting things on Peoplearound, with counts of projects, communities and neighbors.",
 };
@@ -58,6 +60,13 @@ export default async function CityIndexPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-10 lg:py-16">
+      <JsonLd data={organizationLd} />
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Peoplearound", path: "/" },
+          { name: "Cities", path: "/city" },
+        ])}
+      />
       <Link
         href="/"
         className="text-sm text-black/50 hover:underline dark:text-white/50"
