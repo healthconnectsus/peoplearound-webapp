@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-19 — Speed: remember a page you just left in the tab's own memory for 30 seconds, instead of re-rendering it on the server every time you navigate back
+
+- `next.config.ts`
+
+
 ### 2026-09-19 — Docs: the search strategy — where the nine public URLs actually stand, what can and cannot be won at this scale, and the sequence
 
 - `docs/SEO.md`
