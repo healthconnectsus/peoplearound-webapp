@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-20 — Speed: index the columns the new read paths filter on — two of them were a full table scan on every page load
+
+- `supabase/migrations/0067_indexes_for_the_hot_paths.sql`
+
+
 ### 2026-09-20 — Speed: a project page is one database read instead of ten (migration 0066), with the reconcile that must precede the contributions still preceding them
 
 - `src/app/projects/[id]/page.tsx`
