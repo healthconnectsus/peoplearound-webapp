@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-20 — Speed: the neighborhood block on People around is one read instead of four, its community list comes from the frame, and the map pins share the directory call (migration 0065); the crawler and importer poll every 30 minutes instead of every 10
+
+- `src/app/people/page.tsx`
+- `src/lib/directory.ts`
+- `src/lib/mapPins.ts`
+- `supabase/migrations/0065_neighborhood_snapshot.sql`
+- `vercel.json`
+
+
 ### 2026-09-20 — Speed: the profile map is built from lists the page already has instead of fetching them again, Local Faves is ranked in Postgres, and stars are counted there too (migrations 0063, 0064)
 
 - `src/app/faves/page.tsx`

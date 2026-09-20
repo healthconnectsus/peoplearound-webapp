@@ -33,7 +33,7 @@ import {
   setPrimaryCommunity,
 } from "@/app/neighborhood/communityActions";
 import { currentUser } from "@/lib/auth";
-import { currentProfile } from "@/lib/profile";
+import { shellState } from "@/lib/shell";
 import { communityDirectory } from "@/lib/directory";
 
 export const metadata = { title: "People around" };
@@ -135,23 +135,15 @@ async function PeoplePage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const [
-    profile,
-    communities,
-    membershipResult,
-    { data: remoteProjectRows },
-  ] = await Promise.all([
-    // The frame is reading this same row right now; the memoised copy means
-    // the page does not pay for its own.
-    currentProfile(),
+  const [shell, communities, { data: remoteProjectRows }] = await Promise.all([
+    // The frame is reading this for its own use right now; the memoised copy
+    // means the page pays nothing for the profile, the map centre, or the
+    // list of communities it belongs to.
+    shellState(),
     // Every community with its headcount, already counted (migration 0061).
     // This was `select("*")`, which also fetches the `boundary` column — a
     // polygon per community, on a page that renders only the name.
     communityDirectory(supabase),
-    supabase
-      .from("community_members")
-      .select("community_id")
-      .eq("user_id", user.id),
     // People offering skills that work from anywhere = owners of projects
     // that welcome online help.
     supabase
@@ -163,18 +155,13 @@ async function PeoplePage({
       .neq("state", "archived"),
   ]);
 
+  const profile = shell?.profile ?? null;
   const primaryId = profile?.neighborhood_id ?? null;
 
-  // Pre-migration-0011 fallback: treat the primary neighborhood as the only
-  // membership so the page still works.
-  const migrationApplied = !membershipResult.error;
-  const myIds = new Set(
-    migrationApplied
-      ? (membershipResult.data ?? []).map((m) => m.community_id)
-      : primaryId
-        ? [primaryId]
-        : [],
-  );
+  // `shell_state` already unions your memberships with your primary
+  // neighborhood, which is what the pre-migration-0011 fallback here used to
+  // do by hand.
+  const myIds = new Set((shell?.communities ?? []).map((c) => c.id));
 
   // A picked community narrows the feed further — but only one of yours;
   // an arbitrary id in the URL falls back to all, never widens.
@@ -185,44 +172,13 @@ async function PeoplePage({
   // your memberships, which the first wave just returned. These were three
   // waits in a row — founding neighbors, then the neighbor list, then the
   // feed's project ids — each a round trip nothing else was waiting on.
-  const [
-    { data: hoodMemberRows },
-    { count: neighborCount },
-    { count: broughtCount },
-    { data: neighborRows },
-    { data: idRows },
-  ] = await Promise.all([
-    // Founding neighbors: the first 10 members of a place, by join order — a
-    // permanent, derived fact (no points, no gaming surface). It belongs on
-    // this page because it is about the community that is *yours*.
+  const [snapshotResult, { data: idRows }] = await Promise.all([
+    // The neighborhood block under the feed: who founded this place, how
+    // many are in it, who they are, and how many you brought. Four requests
+    // about one community became one (migration 0065).
     primaryId
-      ? supabase
-          .from("community_members")
-          .select("user_id,created_at")
-          .eq("community_id", primaryId)
-          .order("created_at", { ascending: true })
-          .limit(10)
-      : Promise.resolve({ data: [] as { user_id: string }[] }),
-    primaryId
-      ? supabase
-          .from("community_members")
-          .select("user_id", { count: "exact", head: true })
-          .eq("community_id", primaryId)
-      : Promise.resolve({ count: 0 }),
-    primaryId
-      ? supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("invited_by", user.id)
-      : Promise.resolve({ count: 0 }),
-    primaryId
-      ? supabase
-          .from("profiles")
-          .select("id,display_name,avatar_url,created_at")
-          .eq("neighborhood_id", primaryId)
-          .order("created_at", { ascending: true })
-          .limit(100)
-      : Promise.resolve({ data: [] as PersonRow[] }),
+      ? supabase.rpc("neighborhood_snapshot", { p_community: primaryId })
+      : Promise.resolve({ data: null }),
     // The feed strip, narrowed to your own communities —
     // projects.neighborhood_id is the same table as
     // community_members.community_id (0011 generalized neighborhoods into
@@ -236,14 +192,20 @@ async function PeoplePage({
       : Promise.resolve({ data: [] as { id: string }[] }),
   ]);
 
-  const foundingMembers = (hoodMemberRows ?? []) as { user_id: string }[];
-  const myFoundingRank =
-    foundingMembers.findIndex((m) => m.user_id === user.id) + 1; // 0 = not founding
-  const hoodSize = neighborCount ?? foundingMembers.length;
+  const snapshot = (snapshotResult.data ?? {}) as {
+    founding?: string[];
+    neighbors?: number;
+    brought?: number;
+    people?: PersonRow[];
+  };
+  const foundingIds = snapshot.founding ?? [];
+  const myFoundingRank = foundingIds.indexOf(user.id) + 1; // 0 = not founding
+  const hoodSize = snapshot.neighbors ?? foundingIds.length;
+  const broughtCount = snapshot.brought ?? 0;
   const isFoundingEra = primaryId != null && hoodSize < 10;
   const hoodName = profile?.neighborhood?.name ?? "your neighborhood";
 
-  const neighbors = (neighborRows ?? []) as PersonRow[];
+  const neighbors = snapshot.people ?? [];
   const remoteOwners = new Map<string, PersonRow>();
   for (const row of (remoteProjectRows ?? []) as unknown as {
     owner_id: string;
@@ -388,13 +350,14 @@ async function PeoplePage({
               {message}
             </p>
           ) : null}
-          {!migrationApplied ? (
-            <p className="mt-4 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
-              Multi-community support needs migration 0011 — run
-              supabase/migrations/0011_communities_and_chats.sql in the Supabase
-              SQL editor.
-            </p>
-          ) : null}
+          {/*
+            The "migration 0011 is missing" notice that stood here is gone.
+            It tested whether a `community_members` query errored — a query
+            this page no longer makes, because the frame's one read supplies
+            the list. Migration 0065 is fifty-four migrations past the one it
+            warned about; a warning that can no longer fire is just a line
+            that has to keep compiling.
+          */}
 
           {!primaryId ? (
             <div className="mt-6 rounded-2xl border border-emerald-600/20 bg-emerald-50/70 p-5 dark:border-emerald-500/25 dark:bg-emerald-950/20">

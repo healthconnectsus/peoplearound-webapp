@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatMinutes } from "@/lib/asks";
 import { currentProfile } from "@/lib/profile";
 import { shellState } from "@/lib/shell";
-import { cache } from "react";
+import { communityDirectory } from "@/lib/directory";
 import type { MapPin } from "@/components/NeighborhoodMap";
 import { categoryMeta, STATE_META, type ProjectState } from "@/lib/projects";
 
@@ -120,13 +120,19 @@ type LocatedCommunity = {
  * The count comes back already counted (migration 0059). It used to be done
  * by selecting the entire profiles table and tallying it in a loop.
  */
-const locatedCommunities = cache(
-  async (supabase: Client): Promise<LocatedCommunity[]> => {
-    const { data, error } = await supabase.rpc("community_pins");
-    if (error || !data) return [];
-    return data as LocatedCommunity[];
-  },
-);
+async function locatedCommunities(supabase: Client): Promise<LocatedCommunity[]> {
+  return (await communityDirectory(supabase))
+    .filter((c) => c.center_lat != null && c.center_lng != null)
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      city: c.city,
+      kind: c.kind,
+      center_lat: c.center_lat!,
+      center_lng: c.center_lng!,
+      members: c.residents,
+    }));
+}
 
 /** Communities themselves, pinned at their centres. */
 export async function communityPins(supabase: Client): Promise<MapPin[]> {

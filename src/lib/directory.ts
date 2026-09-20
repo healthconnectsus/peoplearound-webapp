@@ -17,6 +17,8 @@ export type DirectoryCommunity = {
   center_lng: number | null;
   /** Rows in `community_members`, counted in Postgres. */
   members: number;
+  /** Profiles that name this place as theirs — what the map pin counts. */
+  residents: number;
 };
 
 /**
