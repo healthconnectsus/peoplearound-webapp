@@ -25,7 +25,7 @@ import {
   CATEGORIES,
   CATEGORY_META,
 } from "@/lib/projects";
-import { communityLabel, kindMeta, type Community } from "@/lib/communities";
+import { communityLabel, kindMeta } from "@/lib/communities";
 import { LocateButton } from "@/app/neighborhood/LocateButton";
 import {
   joinCommunity,
@@ -34,6 +34,7 @@ import {
 } from "@/app/neighborhood/communityActions";
 import { currentUser } from "@/lib/auth";
 import { currentProfile } from "@/lib/profile";
+import { communityDirectory } from "@/lib/directory";
 
 export const metadata = { title: "People around" };
 
@@ -136,14 +137,17 @@ async function PeoplePage({
 
   const [
     profile,
-    { data: communityRows },
+    communities,
     membershipResult,
     { data: remoteProjectRows },
   ] = await Promise.all([
     // The frame is reading this same row right now; the memoised copy means
     // the page does not pay for its own.
     currentProfile(),
-    supabase.from("neighborhoods").select("*").order("name"),
+    // Every community with its headcount, already counted (migration 0061).
+    // This was `select("*")`, which also fetches the `boundary` column — a
+    // polygon per community, on a page that renders only the name.
+    communityDirectory(supabase),
     supabase
       .from("community_members")
       .select("community_id")
@@ -161,7 +165,6 @@ async function PeoplePage({
 
   const primaryId = profile?.neighborhood_id ?? null;
 
-  const communities = (communityRows ?? []) as Community[];
   // Pre-migration-0011 fallback: treat the primary neighborhood as the only
   // membership so the page still works.
   const migrationApplied = !membershipResult.error;

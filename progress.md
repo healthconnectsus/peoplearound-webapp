@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-20 — Speed: Explore stops duplicating the feed loader line for line and uses it, and both feed pages get the community directory counted in Postgres instead of reading every membership row (migration 0061)
+
+- `src/app/explore/page.tsx`
+- `src/app/people/page.tsx`
+- `src/lib/directory.ts`
+- `supabase/migrations/0061_community_directory.sql`
+
+
 ### 2026-09-20 — Speed: the feed's five reads become one (migration 0060), and the map counts neighbors in Postgres instead of fetching every profile row to count them in Node (migration 0059)
 
 - `src/lib/feed.ts`

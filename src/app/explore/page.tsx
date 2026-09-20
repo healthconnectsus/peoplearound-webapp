@@ -13,10 +13,12 @@ import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { type MapPin } from "@/components/NeighborhoodMap";
 import { MapShell } from "@/components/MapShell";
-import { ProjectCard, type CardData } from "@/components/ProjectFeedCard";
+import { ProjectCard } from "@/components/ProjectFeedCard";
 import { NewCommunityDialog } from "@/app/people/NewCommunityDialog";
 import { kindMeta } from "@/lib/communities";
 import { chip } from "@/lib/chips";
+import { loadFeedCards } from "@/lib/feed";
+import { communityDirectory } from "@/lib/directory";
 import {
   joinCommunity,
   leaveCommunity,
@@ -26,12 +28,7 @@ import {
   categoryMeta,
   formatEventTime,
   initials,
-  isUpcomingEvent,
   isWithinDays,
-  isoDaysAgo,
-  timeAgo,
-  type Project,
-  type ProjectEvent,
 } from "@/lib/projects";
 import { versionLabel } from "@/lib/version";
 
@@ -76,40 +73,14 @@ async function ExplorePage({
   const myCity = profile.neighborhood?.city ?? null;
   const neighborhoodName = profile.neighborhood?.name ?? "your neighborhood";
 
-  const monthAgo = isoDaysAgo(30);
-
-  const [
-    { data: projectRows },
-    { data: starRows },
-    { data: memberRows },
-    { data: eventRows },
-    { data: confirmedRows },
-    membershipResult,
-  ] = await Promise.all([
-    supabase
-      .from("projects")
-      .select(
-        "id,owner_id,title,description,category,state,help,reach,photo_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name,avatar_url),neighborhood:neighborhoods(name,city)",
-      )
-      .neq("state", "archived")
-      .order("created_at", { ascending: false }),
-    supabase.from("stars").select("project_id,created_at,user_id"),
-    supabase
-      .from("memberships")
-      .select("project_id,status,created_at,profile:profiles(display_name)")
-      .eq("status", "accepted"),
-    supabase
-      .from("events")
-      .select(
-        "id,project_id,title,starts_at,place,created_at,rsvps(user_id),project:projects(title)",
-      )
-      .order("starts_at", { ascending: true })
-      .limit(30),
-    supabase
-      .from("contributions")
-      .select("project_id,confirmed_at,contributor:profiles(display_name)")
-      .eq("status", "confirmed")
-      .gte("confirmed_at", monthAgo),
+  const [{ cards, events }, membershipResult] = await Promise.all([
+    // Every project this account can see, assembled into cards. This page
+    // used to inline the five queries and the sixty lines of assembly that
+    // `loadFeedCards` already contained, character for character — the
+    // comment on that function even claimed Explore was a caller. It is one
+    // now, so the feed tells the same story here as on People around, and
+    // one request (migration 0060) does what five did.
+    loadFeedCards(supabase, undefined, user.id),
     supabase
       .from("community_members")
       .select("community_id")
@@ -133,8 +104,7 @@ async function ExplorePage({
     [{ count: myStarsGiven }, { count: myRsvpCount }],
     milestone,
     asks,
-    { data: allCommunityRows },
-    { data: allMemberRows },
+    allCommunities,
     badges,
   ] = await Promise.all([
     Promise.all([
@@ -155,11 +125,9 @@ async function ExplorePage({
     openAsks(supabase, 4),
     // The directory: every community, plus the two numbers that say whether
     // one is alive — how many people are in it and how much is being built.
-    supabase
-      .from("neighborhoods")
-      .select("id,name,city,kind,description")
-      .order("name", { ascending: true }),
-    supabase.from("community_members").select("community_id"),
+    // The headcount arrives counted (migration 0061); it used to come from
+    // reading every row of `community_members` and tallying it in a loop.
+    communityDirectory(supabase),
     // Badges here too, so a fresh badge celebrates immediately rather than
     // only on the profile page.
     computeBadges(supabase, user.id, { id: myHood, name: neighborhoodName }),
@@ -175,74 +143,6 @@ async function ExplorePage({
     isWithinDays(profile.created_at, 30) &&
     (!starredOnce || !rsvpedOnce);
 
-  // Membership comes from the query above — myCommunityIds already knows
-  // which of these you're in.
-  const memberTally = new Map<string, number>();
-  for (const m of (allMemberRows ?? []) as { community_id: string }[]) {
-    memberTally.set(m.community_id, (memberTally.get(m.community_id) ?? 0) + 1);
-  }
-
-  const projects = (projectRows ?? []) as unknown as Project[];
-  const events = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
-    isUpcomingEvent(e.starts_at),
-  );
-  const confirmed = (confirmedRows ?? []) as unknown as {
-    project_id: string;
-    confirmed_at: string;
-    contributor?: { display_name: string | null } | null;
-  }[];
-  type MemberRow = {
-    project_id: string;
-    created_at: string;
-    profile?: { display_name: string | null } | null;
-  };
-  const members = (memberRows ?? []) as unknown as MemberRow[];
-  const stars = starRows ?? [];
-
-  // Assemble card data: counts, team names, and the freshest story beat.
-  const cards: CardData[] = projects.map((p) => {
-    const myStars = stars.filter((s) => s.project_id === p.id);
-    const myMembers = members.filter((m) => m.project_id === p.id);
-    const team = [
-      p.owner?.display_name ?? "Someone",
-      ...myMembers.map((m) => m.profile?.display_name ?? "A neighbor"),
-    ];
-    const nextEvent = events.find((e) => e.project_id === p.id);
-    const hot = Boolean(
-      nextEvent &&
-        new Date(nextEvent.starts_at).getTime() <
-          new Date(isoDaysAgo(-7)).getTime(),
-    );
-
-    let beat: string | null = null;
-    const freshConfirmed = confirmed.find(
-      (c) => c.project_id === p.id && isWithinDays(c.confirmed_at, 7),
-    );
-    const recentStars = myStars.filter((s) => isWithinDays(s.created_at, 7));
-    const freshMember = myMembers.find((m) => isWithinDays(m.created_at, 7));
-    if (nextEvent) {
-      beat = `📅 ${nextEvent.title} · ${formatEventTime(nextEvent.starts_at)} · ${nextEvent.rsvps.length} going`;
-    } else if (freshConfirmed) {
-      beat = `🙌 ${freshConfirmed.contributor?.display_name ?? "A neighbor"}'s help was confirmed ${timeAgo(freshConfirmed.confirmed_at)}`;
-    } else if (recentStars.length > 0) {
-      beat = `⭐ ${recentStars.length} ${recentStars.length === 1 ? "neighbor" : "neighbors"} starred this this week`;
-    } else if (freshMember) {
-      beat = `🤝 ${freshMember.profile?.display_name ?? "A neighbor"} joined the team ${timeAgo(freshMember.created_at)}`;
-    } else if (isWithinDays(p.created_at, 7)) {
-      beat = `✨ Fresh — shared ${timeAgo(p.created_at)}`;
-    }
-
-    return {
-      ...p,
-      starCount: myStars.length,
-      starred: myStars.some(
-        (x) => (x as { user_id?: string }).user_id === user.id,
-      ),
-      team,
-      beat,
-      hot,
-    };
-  });
 
   // Top-bar search: a simple contains-match over title and description.
   const query = q?.trim().toLowerCase() ?? "";
@@ -261,20 +161,11 @@ async function ExplorePage({
     glimpse: string[];
     joined: boolean;
   };
-  const directory: DirectoryRow[] = (
-    (allCommunityRows ?? []) as unknown as {
-      id: string;
-      name: string;
-      city: string | null;
-      kind: string | null;
-      description: string | null;
-    }[]
-  )
+  const directory: DirectoryRow[] = allCommunities
     .map((c) => {
       const inHere = cards.filter((pr) => pr.neighborhood_id === c.id);
       return {
         ...c,
-        members: memberTally.get(c.id) ?? 0,
         projects: inHere.length,
         glimpse: inHere.slice(0, 2).map((pr) => pr.title),
         joined: myCommunityIds.has(c.id),
@@ -299,11 +190,7 @@ async function ExplorePage({
 
   /** Kinds that actually exist here, so the filter never offers an empty set. */
   const kindsPresent = Array.from(
-    new Set(
-      ((allCommunityRows ?? []) as unknown as { kind: string | null }[]).map(
-        (c) => c.kind ?? "other",
-      ),
-    ),
+    new Set(allCommunities.map((c) => c.kind ?? "other")),
   );
 
 
