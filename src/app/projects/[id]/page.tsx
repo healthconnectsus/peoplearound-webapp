@@ -103,18 +103,37 @@ async function ProjectDetail({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const { data } = await supabase
-    .from("projects")
-    .select(
-      // profiles is reachable via several FKs now (owner, memberships, stars),
-      // so the owner embed must name its constraint explicitly.
-      "id,owner_id,title,description,category,state,help,reach,photo_url,photo_credit_name,photo_credit_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name,avatar_url),neighborhood:neighborhoods(name,city,center_lat,center_lng)",
-    )
-    .eq("id", id)
-    .maybeSingle();
+  // Everything this page renders, in one request (migration 0066).
+  //
+  // It was ten: the project, its stars, its team, the build log, the
+  // gardener's nudge, your flag, the contribution record, the events, the
+  // neighborhood's other pins — plus the badge block, which migration 0062
+  // had already folded into one. They ran together, so this is not about
+  // queueing; it is about how many separate chances a single page load has
+  // of meeting a slow read. The reconcile that must precede the
+  // contributions still does, inside the function.
+  const { data: detail } = await supabase.rpc("project_detail", { p_id: id });
+  const page = (detail ?? {}) as {
+    project?: Project | null;
+    stars?: Star[];
+    members?: Membership[];
+    updates?: {
+      id: string;
+      author_id: string;
+      body: string;
+      photo_url: string | null;
+      created_at: string;
+      author?: { display_name: string | null } | null;
+    }[];
+    nudge?: { kind: string; body: string; dismissed_at: string | null } | null;
+    flagged?: boolean;
+    contributions?: Contribution[];
+    events?: ProjectEvent[];
+    nearby?: Project[];
+  };
 
-  if (!data) notFound();
-  const project = data as unknown as Project;
+  if (!page.project) notFound();
+  const project = page.project;
   const isOwner = project.owner_id === user.id;
   const meta = STATE_META[project.state];
   const cat = categoryMeta(project.category);
@@ -141,109 +160,15 @@ async function ProjectDetail({
   // being built nearby, so the column is a place rather than a blank.
   const borrowsMap = !hasPin && mapCenter != null && !!project.neighborhood_id;
 
-  // Everything this page needs, asked for at once.
-  //
-  // These were thirteen queries in a queue: stars, then members, then badges,
-  // then updates, then the nudge, then my flag, then contributions, then
-  // events — each waiting on the one before it although none needs its
-  // answer. On the page where people actually join a project and log help,
-  // that queue was the whole cost; the queries themselves return a handful of
-  // rows each.
-  //
-  // Two things stay ordered on purpose. `reconcile_contributions` must finish
-  // before the contributions are read, because it is what promotes them to
-  // confirmed, so it is chained rather than raced. And recording the view is
-  // fire-and-forget: nothing on screen waits for it.
-  const [
-    { data: starRows },
-    { data: memberRows },
-    badges,
-    { data: updateRows },
-    { data: nudgeRow },
-    { data: myFlag },
-    { data: contributionRows },
-    { data: eventRows },
-    { data: nearbyRows },
-  ] = await Promise.all([
-    // Stars — count, whether the current user has starred, and who/when for
-    // the history timeline.
-    supabase
-      .from("stars")
-      .select("user_id,created_at,profile:profiles(display_name)")
-      .eq("project_id", id)
-      .order("created_at", { ascending: true }),
-
-    // Memberships — requests and accepted collaborators.
-    supabase
-      .from("memberships")
-      .select("user_id,status,role,created_at,profile:profiles(display_name,avatar_url)")
-      .eq("project_id", id)
-      .order("created_at", { ascending: true }),
-
-    // Badges here too, so sharing your first idea celebrates immediately on
-    // the page you land on after creating it.
-    computeBadges(supabase, user.id, {
-      id: project.neighborhood_id ?? null,
-      name: null,
-    }),
-
-    // The build log — founder/teammate progress notes.
-    supabase
-      .from("project_updates")
-      .select("id,author_id,body,photo_url,created_at,author:profiles(display_name)")
-      .eq("project_id", id)
-      .order("created_at", { ascending: false }),
-
-    // A private word from the gardener, if this project has gone quiet.
-    // RLS returns a row only to the founder (migration 0029).
-    supabase
-      .from("project_nudges")
-      .select("kind,body,dismissed_at")
-      .eq("project_id", id)
-      .maybeSingle(),
-
-    // Community moderation: have I already reported this one? (RLS returns
-    // only my own flag row.)
-    supabase
-      .from("project_flags")
-      .select("user_id")
-      .eq("project_id", id)
-      .eq("user_id", user.id)
-      .maybeSingle(),
-
-    // Contributions — apply any pending confirmations first (server-side,
-    // idempotent; this is what makes the 7-day founder-bypass window take
-    // effect), then read the record.
-    supabase
-      .rpc("reconcile_contributions", { p_project_id: id })
-      .then(() =>
-        supabase
-          .from("contributions")
-          .select(
-            "id,contributor_id,type,description,status,created_at,confirmed_at,contributor:profiles(display_name),attestations(attester_id,created_at,attester:profiles(display_name))",
-          )
-          .eq("project_id", id)
-          .order("created_at", { ascending: false }),
-      ),
-
-    // Events — physical coordination, with each event's joining signals.
-    supabase
-      .from("events")
-      .select("id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id)")
-      .eq("project_id", id)
-      .order("starts_at", { ascending: true }),
-
-    // The neighborhood's other located projects, for a project with no pin
-    // of its own. This waited its turn before the batch; it belongs in it.
-    borrowsMap
-      ? supabase
-          .from("projects")
-          .select("id,title,category,state,lat,lng")
-          .eq("neighborhood_id", project.neighborhood_id!)
-          .not("lat", "is", null)
-          .limit(40)
-      : Promise.resolve({ data: [] as unknown[] }),
-  ]);
+  // The badge block — derived from confirmed records at read time, so a
+  // fresh badge celebrates on the page you land on after creating something.
+  // One request since migration 0062; the rest of this page arrived with
+  // project_detail above.
+  const badges = await computeBadges(supabase, user.id, {
+    id: project.neighborhood_id ?? null,
+    name: null,
+  });
+  const nearbyRows = borrowsMap ? (page.nearby ?? []) : [];
 
   const nearbyPins: MapPin[] = ((nearbyRows ?? []) as unknown as Project[]).map(
     (n) => ({
@@ -257,11 +182,11 @@ async function ProjectDetail({
     }),
   );
 
-  const stars = (starRows ?? []) as unknown as Star[];
+  const stars = page.stars ?? [];
   const starCount = stars.length;
   const hasStarred = stars.some((s) => s.user_id === user.id);
 
-  const members = (memberRows ?? []) as unknown as Membership[];
+  const members = page.members ?? [];
   const myMembership = members.find((m) => m.user_id === user.id) ?? null;
   const pending = members.filter((m) => m.status === "pending");
   const accepted = members.filter((m) => m.status === "accepted");
@@ -272,21 +197,11 @@ async function ProjectDetail({
   const myRole = (myMembership as unknown as { role?: string } | null)?.role;
   const isSteward = isOwner || (isTeammate && myRole === "co_organizer");
 
-  const updates = (updateRows ?? []) as unknown as {
-    id: string;
-    author_id: string;
-    body: string;
-    photo_url: string | null;
-    created_at: string;
-    author?: { display_name: string | null } | null;
-  }[];
+  const updates = page.updates ?? [];
 
-  const nudge =
-    nudgeRow && !(nudgeRow as { dismissed_at: string | null }).dismissed_at
-      ? (nudgeRow as { kind: string; body: string })
-      : null;
+  const nudge = page.nudge && !page.nudge.dismissed_at ? page.nudge : null;
 
-  const contributions = (contributionRows ?? []) as unknown as Contribution[];
+  const contributions = page.contributions ?? [];
 
   // Private analytics: count this visit (deduped per day; owners excluded;
   // raw rows never client-readable — see migration 0020). Nothing on screen
@@ -295,7 +210,7 @@ async function ProjectDetail({
     void supabase.rpc("record_project_view", { p_project_id: id });
   }
 
-  const events = (eventRows ?? []) as unknown as ProjectEvent[];
+  const events = page.events ?? [];
   const upcomingEvents = events.filter((e) => isUpcomingEvent(e.starts_at));
   const pastEvents = events
     .filter((e) => !isUpcomingEvent(e.starts_at))
@@ -1312,7 +1227,7 @@ async function ProjectDetail({
           <div className="mt-10 border-t border-slate-300 pt-4 dark:border-slate-600">
             <FlagButton
               projectId={project.id}
-              alreadyFlagged={Boolean(myFlag)}
+              alreadyFlagged={Boolean(page.flagged)}
             />
           </div>
         ) : null}

@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-20 — Speed: a project page is one database read instead of ten (migration 0066), with the reconcile that must precede the contributions still preceding them
+
+- `src/app/projects/[id]/page.tsx`
+- `supabase/migrations/0066_project_detail.sql`
+
+
 ### 2026-09-20 — Speed: the neighborhood block on People around is one read instead of four, its community list comes from the frame, and the map pins share the directory call (migration 0065); the crawler and importer poll every 30 minutes instead of every 10
 
 - `src/app/people/page.tsx`
