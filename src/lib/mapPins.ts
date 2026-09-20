@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatMinutes } from "@/lib/asks";
 import { currentProfile } from "@/lib/profile";
 import { shellState } from "@/lib/shell";
+import { cache } from "react";
 import type { MapPin } from "@/components/NeighborhoodMap";
 import { categoryMeta, STATE_META, type ProjectState } from "@/lib/projects";
 
@@ -45,6 +46,11 @@ type Client = SupabaseClient<any, any, any>;
 
 /** The communities this user belongs to (primary always included). */
 async function myCommunityIds(supabase: Client, userId: string) {
+  // The frame's one read already lists them (lib/shell.ts), so asking about
+  // yourself — which is every caller today — costs nothing further.
+  const shell = await shellState();
+  if (shell?.profile?.id === userId) return shell.communities.map((c) => c.id);
+
   const [{ data: profile }, { data: memberships }] = await Promise.all([
     supabase
       .from("profiles")
@@ -93,21 +99,38 @@ export async function projectPinsByIds(
   return toPins((data ?? []) as ProjectPinRow[]);
 }
 
+type LocatedCommunity = {
+  id: string;
+  name: string;
+  city: string | null;
+  kind: string | null;
+  center_lat: number;
+  center_lng: number;
+  /** Neighbors whose profile names this community, counted in Postgres. */
+  members: number;
+};
+
+/**
+ * Every community that has a point on the map, with its headcount.
+ *
+ * Three pin builders below want the same rows and differ only in how they
+ * label them, and `/people` renders two of them at once. One request each
+ * would be three; `cache` makes it one per render.
+ *
+ * The count comes back already counted (migration 0059). It used to be done
+ * by selecting the entire profiles table and tallying it in a loop.
+ */
+const locatedCommunities = cache(
+  async (supabase: Client): Promise<LocatedCommunity[]> => {
+    const { data, error } = await supabase.rpc("community_pins");
+    if (error || !data) return [];
+    return data as LocatedCommunity[];
+  },
+);
+
 /** Communities themselves, pinned at their centres. */
 export async function communityPins(supabase: Client): Promise<MapPin[]> {
-  const { data } = await supabase
-    .from("neighborhoods")
-    .select("id,name,city,kind,center_lat,center_lng")
-    .not("center_lat", "is", null)
-    .limit(200);
-  return ((data ?? []) as {
-    id: string;
-    name: string;
-    city: string | null;
-    kind: string | null;
-    center_lat: number;
-    center_lng: number;
-  }[]).map((c) => ({
+  return (await locatedCommunities(supabase)).map((c) => ({
     id: c.id,
     title: c.name,
     emoji: c.kind === "neighborhood" || !c.kind ? "🏘️" : "👥",
@@ -326,28 +349,17 @@ export async function askPins(supabase: Client): Promise<MapPin[]> {
  * interest…), pinned at their centre.
  */
 export async function groupPins(supabase: Client): Promise<MapPin[]> {
-  const { data } = await supabase
-    .from("neighborhoods")
-    .select("id,name,city,kind,center_lat,center_lng")
-    .not("center_lat", "is", null)
-    .neq("kind", "neighborhood")
-    .limit(200);
-  return ((data ?? []) as {
-    id: string;
-    name: string;
-    city: string | null;
-    kind: string;
-    center_lat: number;
-    center_lng: number;
-  }[]).map((c) => ({
-    id: c.id,
-    title: c.name,
-    emoji: "👥",
-    href: "/neighborhood",
-    lat: c.center_lat,
-    lng: c.center_lng,
-    subtitle: [c.kind, c.city].filter(Boolean).join(" · "),
-  }));
+  return (await locatedCommunities(supabase))
+    .filter((c) => c.kind !== "neighborhood")
+    .map((c) => ({
+      id: c.id,
+      title: c.name,
+      emoji: "👥",
+      href: "/neighborhood",
+      lat: c.center_lat,
+      lng: c.center_lng,
+      subtitle: [c.kind, c.city].filter(Boolean).join(" · "),
+    }));
 }
 
 /**
@@ -358,39 +370,17 @@ export async function groupPins(supabase: Client): Promise<MapPin[]> {
  * are without learning where anyone lives.
  */
 export async function peopleClusterPins(supabase: Client): Promise<MapPin[]> {
-  const [{ data: hoods }, { data: members }] = await Promise.all([
-    supabase
-      .from("neighborhoods")
-      .select("id,name,center_lat,center_lng")
-      .not("center_lat", "is", null)
-      .limit(200),
-    supabase.from("profiles").select("neighborhood_id"),
-  ]);
-  const counts = new Map<string, number>();
-  for (const m of (members ?? []) as { neighborhood_id: string | null }[]) {
-    if (m.neighborhood_id) {
-      counts.set(m.neighborhood_id, (counts.get(m.neighborhood_id) ?? 0) + 1);
-    }
-  }
-  return ((hoods ?? []) as {
-    id: string;
-    name: string;
-    center_lat: number;
-    center_lng: number;
-  }[])
-    .map((h) => {
-      const n = counts.get(h.id) ?? 0;
-      return {
-        id: h.id,
-        title: h.name,
-        emoji: "🧑‍🤝‍🧑",
-        href: "/people",
-        lat: h.center_lat,
-        lng: h.center_lng,
-        subtitle: `${n} neighbor${n === 1 ? "" : "s"}`,
-      };
-    })
-    .filter((p) => !p.subtitle.startsWith("0 "));
+  return (await locatedCommunities(supabase))
+    .filter((c) => c.members > 0)
+    .map((c) => ({
+      id: c.id,
+      title: c.name,
+      emoji: "🧑‍🤝‍🧑",
+      href: "/people",
+      lat: c.center_lat,
+      lng: c.center_lng,
+      subtitle: `${c.members} neighbor${c.members === 1 ? "" : "s"}`,
+    }));
 }
 
 /**

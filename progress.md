@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-20 — Speed: the feed's five reads become one (migration 0060), and the map counts neighbors in Postgres instead of fetching every profile row to count them in Node (migration 0059)
+
+- `src/lib/feed.ts`
+- `src/lib/mapPins.ts`
+- `supabase/migrations/0059_community_pins.sql`
+- `supabase/migrations/0060_feed_material.sql`
+
+
 ### 2026-09-19 — Speed: remember a page you just left in the tab's own memory for 30 seconds, instead of re-rendering it on the server every time you navigate back
 
 - `next.config.ts`

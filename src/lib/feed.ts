@@ -20,34 +20,78 @@ type Client = SupabaseClient<any, any, any>;
  * surfacing). Shared by Explore (every zone) and People around (community
  * zone only) so both pages tell the same story about the same projects.
  */
-export async function loadFeedCards(
-  supabase: Client,
-  projectIds?: string[],
-  /** Whose star state to report on each card — the signed-in viewer. */
-  viewerId?: string,
-): Promise<{ cards: CardData[]; events: ProjectEvent[]; confirmedThisMonth: number }> {
-  const monthAgo = isoDaysAgo(30);
-  const scoped = projectIds != null;
-  // An empty explicit scope means "no projects" — skip the round trips.
-  if (scoped && projectIds.length === 0) {
-    return { cards: [], events: [], confirmedThisMonth: 0 };
-  }
+type StarRow = { project_id: string; created_at: string; user_id: string };
+type MemberRow = {
+  project_id: string;
+  created_at: string;
+  profile?: { display_name: string | null } | null;
+};
+type ConfirmedRow = {
+  project_id: string;
+  confirmed_at: string;
+  contributor?: { display_name: string | null } | null;
+};
 
+/** The five result sets a feed is assembled from. */
+type Material = {
+  projects: Project[];
+  stars: StarRow[];
+  members: MemberRow[];
+  events: ProjectEvent[];
+  confirmed: ConfirmedRow[];
+};
+
+/**
+ * All five sets, in one request (migration 0060).
+ *
+ * They were five. Running together rather than queued, so the wall-clock
+ * cost was already a single round trip — but what five bought was five draws
+ * from the tail. Measured from inside the serverless function, about one
+ * database read in twenty-five takes between a third of a second and two
+ * seconds, and a feed is as slow as its slowest read.
+ *
+ * Only the fetching moved. Which beat each card shows, whether it is hot,
+ * who is on the team — all of that stays in TypeScript below, where it is
+ * legible and can change without a migration.
+ *
+ * The old queries remain as `feedMaterialDirect`, used only if this call
+ * fails. A feed that renders empty because one request failed looks, to a
+ * neighbor, exactly like a neighborhood where nothing is happening — the one
+ * impression this product cannot afford to give by accident.
+ */
+async function feedMaterial(
+  supabase: Client,
+  projectIds: string[] | undefined,
+  since: string,
+): Promise<Material> {
+  const { data, error } = await supabase.rpc("feed_material", {
+    p_since: since,
+    p_project_ids: projectIds ?? null,
+  });
+  if (!error && data) return data as Material;
+  return feedMaterialDirect(supabase, projectIds, since);
+}
+
+async function feedMaterialDirect(
+  supabase: Client,
+  projectIds: string[] | undefined,
+  since: string,
+): Promise<Material> {
   let projectQuery = supabase
     .from("projects")
     .select(
       "id,owner_id,title,description,category,state,help,reach,photo_url,when_text,lat,lng,neighborhood_id,created_at,updated_at,owner:profiles!projects_owner_id_fkey(display_name,avatar_url),neighborhood:neighborhoods(name,city)",
     )
     .neq("state", "archived")
-    .order("created_at", { ascending: false });
-  if (scoped) projectQuery = projectQuery.in("id", projectIds);
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (projectIds != null) projectQuery = projectQuery.in("id", projectIds);
 
   const { data: projectRows } = await projectQuery;
   const projects = (projectRows ?? []) as unknown as Project[];
   const ids = projects.map((p) => p.id);
-
   if (ids.length === 0) {
-    return { cards: [], events: [], confirmedThisMonth: 0 };
+    return { projects, stars: [], members: [], events: [], confirmed: [] };
   }
 
   const [{ data: starRows }, { data: memberRows }, { data: eventRows }, { data: confirmedRows }] =
@@ -74,24 +118,38 @@ export async function loadFeedCards(
         .select("project_id,confirmed_at,contributor:profiles(display_name)")
         .eq("status", "confirmed")
         .in("project_id", ids)
-        .gte("confirmed_at", monthAgo),
+        .gte("confirmed_at", since),
     ]);
 
-  const events = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
-    isUpcomingEvent(e.starts_at),
-  );
-  const confirmed = (confirmedRows ?? []) as unknown as {
-    project_id: string;
-    confirmed_at: string;
-    contributor?: { display_name: string | null } | null;
-  }[];
-  type MemberRow = {
-    project_id: string;
-    created_at: string;
-    profile?: { display_name: string | null } | null;
+  return {
+    projects,
+    stars: (starRows ?? []) as StarRow[],
+    members: (memberRows ?? []) as unknown as MemberRow[],
+    events: (eventRows ?? []) as unknown as ProjectEvent[],
+    confirmed: (confirmedRows ?? []) as unknown as ConfirmedRow[],
   };
-  const members = (memberRows ?? []) as unknown as MemberRow[];
-  const stars = starRows ?? [];
+}
+
+export async function loadFeedCards(
+  supabase: Client,
+  projectIds?: string[],
+  /** Whose star state to report on each card — the signed-in viewer. */
+  viewerId?: string,
+): Promise<{ cards: CardData[]; events: ProjectEvent[]; confirmedThisMonth: number }> {
+  const monthAgo = isoDaysAgo(30);
+  // An empty explicit scope means "no projects" — skip the round trip.
+  if (projectIds != null && projectIds.length === 0) {
+    return { cards: [], events: [], confirmedThisMonth: 0 };
+  }
+
+  const material = await feedMaterial(supabase, projectIds, monthAgo);
+  const projects = material.projects;
+  if (projects.length === 0) {
+    return { cards: [], events: [], confirmedThisMonth: 0 };
+  }
+
+  const events = material.events.filter((e) => isUpcomingEvent(e.starts_at));
+  const { confirmed, members, stars } = material;
 
   const cards: CardData[] = projects.map((p) => {
     const myStars = stars.filter((s) => s.project_id === p.id);
