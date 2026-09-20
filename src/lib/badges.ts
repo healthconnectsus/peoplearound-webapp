@@ -92,61 +92,45 @@ export async function computeBadges(
   userId: string,
   hood: { id: string | null; name: string | null },
 ): Promise<Badge[]> {
-  const [confirmed, attested, invited, foundingRows, completedOwn, ownIdeas] =
-    await Promise.all([
-      supabase
-        .from("contributions")
-        .select("id,type")
-        .eq("contributor_id", userId)
-        .eq("status", "confirmed"),
-      supabase
-        .from("attestations")
-        .select("id", { count: "exact", head: true })
-        .eq("attester_id", userId),
-      supabase
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("invited_by", userId),
-      hood.id
-        ? supabase
-            .from("community_members")
-            .select("user_id")
-            .eq("community_id", hood.id)
-            .order("created_at", { ascending: true })
-            .limit(10)
-        : Promise.resolve({ data: [] as { user_id: string }[] }),
-      supabase
-        .from("projects")
-        .select("id,memberships(user_id,status)")
-        .eq("owner_id", userId)
-        .eq("state", "completed"),
-      supabase
-        .from("projects")
-        .select("id", { count: "exact", head: true })
-        .eq("owner_id", userId),
-    ]);
+  // Six counts and reads, in one request (migration 0062). Three pages call
+  // this — profile, explore, and a project page — so six became eighteen
+  // across a session, each one a separate draw from the database's tail
+  // latency. The rules below are unchanged: they stay here, where the
+  // thresholds sit next to the words they print.
+  const { data } = await supabase.rpc("badge_material", {
+    p_user: userId,
+    p_community: hood.id,
+  });
+  const material = (data ?? {}) as {
+    confirmed?: { id: string; type: string }[];
+    attested?: number;
+    invited?: number;
+    founding?: string[];
+    completedOwn?: { id: string; memberships: { status: string }[] }[];
+    ownIdeas?: number;
+  };
 
-  const confirmedRows = (confirmed.data ?? []) as { id: string; type: string }[];
+  const confirmedRows = material.confirmed ?? [];
+  const attestedCount = material.attested ?? 0;
+  const invitedCount = material.invited ?? 0;
+  const ideaCount = material.ownIdeas ?? 0;
   const badges: Badge[] = [];
 
-  if ((foundingRows.data ?? []).some((m) => m.user_id === userId)) {
+  if ((material.founding ?? []).includes(userId)) {
     badges.push(DEFS.founding(hood.name ?? "your neighborhood"));
   }
   // One-time only: shared an idea at all. Never scales with volume (see
   // docs/INCENTIVES.md §2.5) — courage moment, not a posting reward.
-  if ((ownIdeas.count ?? 0) >= 1) badges.push(DEFS.firstIdea);
+  if (ideaCount >= 1) badges.push(DEFS.firstIdea);
   if (confirmedRows.length >= 1) badges.push(DEFS.firstHelp);
   if (confirmedRows.length >= 5) badges.push(DEFS.trustedHands);
-  if ((attested.count ?? 0) >= 3) badges.push(DEFS.witness);
+  if (attestedCount >= 3) badges.push(DEFS.witness);
   if (confirmedRows.some((c) => c.type === "presence")) badges.push(DEFS.showedUp);
-  const completedWithTeam = (
-    (completedOwn.data ?? []) as unknown as {
-      id: string;
-      memberships: { status: string }[];
-    }[]
-  ).some((p) => p.memberships?.some((m) => m.status === "accepted"));
+  const completedWithTeam = (material.completedOwn ?? []).some((p) =>
+    p.memberships?.some((m) => m.status === "accepted"),
+  );
   if (completedWithTeam) badges.push(DEFS.madeReal);
-  if ((invited.count ?? 0) >= 3) badges.push(DEFS.broughtNeighbors);
+  if (invitedCount >= 3) badges.push(DEFS.broughtNeighbors);
 
   return badges;
 }

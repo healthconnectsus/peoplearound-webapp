@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-20 — Speed: badges derive from one request instead of six, on the three pages that show them, and a community milestone from one instead of three (migration 0062)
+
+- `src/lib/badges.ts`
+- `src/lib/milestones.ts`
+- `supabase/migrations/0062_badge_material.sql`
+
+
 ### 2026-09-20 — Speed: Explore stops duplicating the feed loader line for line and uses it, and both feed pages get the community directory counted in Postgres instead of reading every membership row (migration 0061)
 
 - `src/app/explore/page.tsx`

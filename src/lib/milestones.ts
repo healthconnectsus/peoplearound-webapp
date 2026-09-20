@@ -24,22 +24,15 @@ export async function communityMilestone(
   communityId: string,
   communityName: string,
 ): Promise<Milestone | null> {
-  const [{ count: neighbors }, { count: completed }, { count: confirmed }] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("neighborhood_id", communityId),
-      supabase
-        .from("projects")
-        .select("id", { count: "exact", head: true })
-        .eq("neighborhood_id", communityId)
-        .eq("state", "completed"),
-      supabase
-        .from("contributions")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "confirmed"),
-    ]);
+  // Three counts, one request (migration 0062).
+  const { data } = await supabase.rpc("community_milestone_counts", {
+    p_community: communityId,
+  });
+  const { neighbors, completed, confirmed } = (data ?? {}) as {
+    neighbors?: number;
+    completed?: number;
+    confirmed?: number;
+  };
 
   const n = neighbors ?? 0;
   const built = completed ?? 0;
