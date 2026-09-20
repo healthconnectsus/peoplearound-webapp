@@ -17,26 +17,12 @@ async function FavesPage() {
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const [{ data: projectRows }, { data: starRows }] = await Promise.all([
-    supabase
-      .from("projects")
-      .select(
-        "id,title,description,category,state,neighborhood_id,created_at,owner:profiles!projects_owner_id_fkey(display_name),neighborhood:neighborhoods(name,city)",
-      )
-      .neq("state", "archived"),
-    supabase.from("stars").select("project_id"),
-  ]);
-
-  const projects = (projectRows ?? []) as unknown as Project[];
-  const stars = starRows ?? [];
-  const starCount = (id: string) =>
-    stars.filter((s) => s.project_id === id).length;
-
-  const faves = projects
-    .map((p) => ({ ...p, stars: starCount(p.id) }))
-    .filter((p) => p.stars > 0)
-    .sort((a, b) => b.stars - a.stars)
-    .slice(0, 20);
+  // Ranked and cut to twenty in Postgres (migration 0063). This page used to
+  // read every non-archived project and every star row, join them in memory,
+  // sort, and keep twenty — two unbounded reads to render a list that has a
+  // hard limit printed on it.
+  const { data } = await supabase.rpc("top_faves", { p_limit: 20 });
+  const faves = (data ?? []) as unknown as (Project & { stars: number })[];
 
   const pins = await projectPinsByIds(supabase, faves.map((p) => p.id));
   return (

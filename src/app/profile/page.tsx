@@ -6,7 +6,8 @@ import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
-import { myWorldPins, myMapCenter } from "@/lib/mapPins";
+import { buildMyWorldPins, myMapCenter } from "@/lib/mapPins";
+import { shellState } from "@/lib/shell";
 import { LocationCard } from "./LocationCard";
 import { BadgeMedallion } from "@/components/BadgeMedallion";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
@@ -82,7 +83,7 @@ async function ProfilePage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const [{ data: profileRow }, { data: ownRows }, { data: starRows }] =
+  const [{ data: profileRow }, { data: ownRows }, { data: starData }, shell] =
     await Promise.all([
       // select("*") keeps this page working before migration 0010 is applied
       supabase
@@ -92,15 +93,22 @@ async function ProfilePage({
         )
         .eq("id", user.id)
         .maybeSingle(),
+      // lat/lng ride along so the map can be built from this list rather
+      // than fetching your own projects a second time.
       supabase
         .from("projects")
         .select(
-          "id,title,category,state,created_at,owner:profiles!projects_owner_id_fkey(display_name)",
+          "id,title,category,state,lat,lng,created_at,owner:profiles!projects_owner_id_fkey(display_name)",
         )
         .eq("owner_id", user.id)
         .neq("state", "archived")
         .order("created_at", { ascending: false }),
-      supabase.from("stars").select("project_id,user_id"),
+      // Which projects you starred, and how many stars each of yours has
+      // (migration 0063). This was one unbounded read of the whole stars
+      // table, counted in memory.
+      supabase.rpc("profile_stars", { p_user: user.id }),
+      // Your communities and their centres — already loaded for the frame.
+      shellState(),
     ]);
 
   const profile = profileRow as unknown as {
@@ -117,14 +125,20 @@ async function ProfilePage({
   } | null;
   const name = profile?.display_name ?? user.email?.split("@")[0] ?? "Neighbor";
   const own = (ownRows ?? []) as unknown as Project[];
-  const stars = starRows ?? [];
-  const starCount = (id: string) =>
-    stars.filter((s) => s.project_id === id).length;
+  const starInfo = (starData ?? {}) as {
+    mine?: string[];
+    counts?: Record<string, number>;
+  };
+  const starCount = (id: string) => starInfo.counts?.[id] ?? 0;
 
   // Projects this user starred = their Faves.
-  const myStarredIds = stars
-    .filter((s) => s.user_id === user.id)
-    .map((s) => s.project_id);
+  const myStarredIds = starInfo.mine ?? [];
+
+  // Your own point, already loaded for the frame (migration 0057). The map
+  // below is built entirely from lists this page holds — location,
+  // communities, your projects, your faves, your events — rather than
+  // fetching each of them a second time, which is what it used to do.
+  const myLoc = shell?.location ?? null;
 
   // Everything else this page shows, asked for at once. It used to arrive
   // in five waves — your faves, then five counts, then your reputation,
@@ -141,9 +155,6 @@ async function ProfilePage({
     { count: messagesSent },
     { count: broughtCount },
     reputation,
-    pins,
-    { data: myLoc },
-    { data: myCommunityRows },
     { data: myEventRows },
     { data: myRsvpRows },
     badges,
@@ -152,7 +163,7 @@ async function ProfilePage({
       ? supabase
           .from("projects")
           .select(
-            "id,title,category,state,created_at,owner:profiles!projects_owner_id_fkey(display_name)",
+            "id,title,category,state,lat,lng,created_at,owner:profiles!projects_owner_id_fkey(display_name)",
           )
           .in("id", myStarredIds)
           .neq("state", "archived")
@@ -178,20 +189,9 @@ async function ProfilePage({
       .select("id", { count: "exact", head: true })
       .eq("invited_by", user.id),
     computeReputation(supabase, user.id),
-    // Your own world on the map + the lists behind it.
-    myWorldPins(supabase, user.id),
-    supabase
-      .from("user_locations")
-      .select("lat,lng")
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("community_members")
-      .select("community_id,community:neighborhoods(id,name,city,kind)")
-      .eq("user_id", user.id),
     supabase
       .from("events")
-      .select("id,title,starts_at,place,project_id,project:projects(title,owner_id)")
+      .select("id,title,starts_at,place,project_id,project:projects(title,lat,lng,owner_id)")
       .order("starts_at", { ascending: true })
       .limit(100),
     supabase.from("rsvps").select("event_id").eq("user_id", user.id),
@@ -211,23 +211,41 @@ async function ProfilePage({
   const viewsFor = (id: string) =>
     viewRows.find((r) => r.project_id === id)?.views ?? 0;
 
-  const myCommunities = ((myCommunityRows ?? []) as unknown as {
-    community?: { id: string; name: string; city: string | null; kind: string | null } | null;
-  }[])
-    .map((r) => r.community)
-    .filter(Boolean) as { id: string; name: string; city: string | null; kind: string | null }[];
+  // Straight from the frame's one read — name, city, kind and centre, which
+  // since migration 0064 is everything this page wanted from a query of its
+  // own.
+  const myCommunities = shell?.communities ?? [];
 
   const rsvpSet = new Set(
     ((myRsvpRows ?? []) as { event_id: string }[]).map((r) => r.event_id),
   );
-  const myEvents = ((myEventRows ?? []) as unknown as {
+  const allEventRows = (myEventRows ?? []) as unknown as {
     id: string;
     title: string;
     starts_at: string;
     place: string;
     project_id: string;
-    project?: { title: string; owner_id: string } | null;
-  }[]).filter((e) => e.project?.owner_id === user.id || rsvpSet.has(e.id));
+    project?: {
+      title: string;
+      lat: number | null;
+      lng: number | null;
+      owner_id: string;
+    } | null;
+  }[];
+  const myEvents = allEventRows.filter(
+    (e) => e.project?.owner_id === user.id || rsvpSet.has(e.id),
+  );
+
+  // The map, assembled from what is already on this page.
+  const pins = buildMyWorldPins({
+    userId: user.id,
+    location: myLoc,
+    communities: myCommunities,
+    ownProjects: own,
+    favedProjects: faves,
+    events: allEventRows,
+    rsvpEventIds: rsvpSet,
+  });
 
   const starsReceived = own.reduce((sum, p) => sum + starCount(p.id), 0);
   const memberSince = profile?.created_at
@@ -405,7 +423,7 @@ async function ProfilePage({
           ) : null}
 
           <LocationCard
-            initial={myLoc as { lat: number; lng: number } | null}
+            initial={myLoc}
             center={await myMapCenter(supabase, user.id)}
           />
 

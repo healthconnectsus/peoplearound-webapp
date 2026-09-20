@@ -37,6 +37,7 @@ export type ShellState = {
     id: string;
     name: string;
     city: string | null;
+    kind: string | null;
     center_lat: number | null;
     center_lng: number | null;
   }[];

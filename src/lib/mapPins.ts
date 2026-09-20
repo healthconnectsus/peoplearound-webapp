@@ -388,71 +388,66 @@ export async function peopleClusterPins(supabase: Client): Promise<MapPin[]> {
  * belong to, your ideas, the ideas you starred, and the events you're part
  * of. Everything here is already yours — no other person is ever pinned.
  */
-export async function myWorldPins(
-  supabase: Client,
-  userId: string,
-): Promise<MapPin[]> {
-  const ids = await myCommunityIds(supabase, userId);
+/** What a profile page already knows, shaped for the pin builder below. */
+export type MyWorldInput = {
+  userId: string;
+  /** Your own saved point, blunted to ~1.1 km on write (migration 0031). */
+  location: { lat: number; lng: number } | null;
+  communities: {
+    id: string;
+    name: string;
+    city: string | null;
+    kind: string | null;
+    center_lat: number | null;
+    center_lng: number | null;
+  }[];
+  ownProjects: ProjectPinRow[];
+  favedProjects: ProjectPinRow[];
+  events: {
+    id: string;
+    title: string;
+    project_id: string;
+    project?: {
+      title: string;
+      lat: number | null;
+      lng: number | null;
+      owner_id: string;
+    } | null;
+  }[];
+  rsvpEventIds: Set<string>;
+};
 
-  const [
-    { data: me },
-    { data: hoods },
-    { data: mine },
-    { data: starred },
-    { data: myEvents },
-    { data: myRsvps },
-  ] = await Promise.all([
-    supabase
-      .from("user_locations")
-      .select("lat,lng")
-      .eq("user_id", userId)
-      .maybeSingle(),
-    ids.length
-      ? supabase
-          .from("neighborhoods")
-          .select("id,name,city,kind,center_lat,center_lng")
-          .in("id", ids)
-          .not("center_lat", "is", null)
-      : Promise.resolve({ data: [] }),
-    supabase
-      .from("projects")
-      .select("id,title,category,state,lat,lng")
-      .eq("owner_id", userId)
-      .neq("state", "archived")
-      .not("lat", "is", null),
-    supabase.from("stars").select("project_id").eq("user_id", userId),
-    supabase
-      .from("events")
-      .select("id,title,starts_at,project_id,project:projects(title,lat,lng,owner_id)")
-      .limit(200),
-    supabase.from("rsvps").select("event_id").eq("user_id", userId),
-  ]);
-
+/**
+ * Your own world: your approximate spot, the communities you belong to, your
+ * ideas, the ideas you starred, and the events you're part of. Everything
+ * here is already yours — no other person is ever pinned.
+ *
+ * Takes data rather than fetching it, which is the whole point. This used to
+ * make seven requests of its own, and the profile page that calls it had
+ * already fetched six of those seven for its own use: your location, your
+ * communities, your projects, your faves, your events, your RSVPs. It asked
+ * again because it was written as a self-contained helper, and being
+ * self-contained cost more than it was worth.
+ */
+export function buildMyWorldPins(input: MyWorldInput): MapPin[] {
   const pins: MapPin[] = [];
 
-  // You — blunted to ~1.1 km, and only ever visible to you (migration 0031).
-  const loc = me as { lat: number; lng: number } | null;
-  if (loc) {
+  // You — only ever visible to you.
+  if (input.location) {
     pins.push({
       id: "me",
       title: "You are around here",
       emoji: "📍",
       href: "/profile",
-      lat: loc.lat,
-      lng: loc.lng,
+      lat: input.location.lat,
+      lng: input.location.lng,
       subtitle: "Approximate — only you can see this",
       hot: true,
     });
   }
 
-  for (const c of (hoods ?? []) as {
-    id: string;
-    name: string;
-    city: string | null;
-    kind: string | null;
-    center_lat: number;
-    center_lng: number;
-  }[]) {
+  for (const c of input.communities) {
+    if (c.center_lat == null || c.center_lng == null) continue;
     pins.push({
       id: `hood-${c.id}`,
       title: c.name,
@@ -464,44 +459,20 @@ export async function myWorldPins(
     });
   }
 
-  for (const p of (mine ?? []) as ProjectPinRow[]) {
-    pins.push({ ...toPins([p])[0], subtitle: "Your idea" });
+  for (const p of toPins(input.ownProjects)) {
+    pins.push({ ...p, subtitle: "Your idea" });
   }
 
-  // Faves — fetched separately so their pins read as ⭐, not as your own.
-  const starIds = ((starred ?? []) as { project_id: string }[]).map(
-    (s) => s.project_id,
-  );
-  if (starIds.length) {
-    const { data: favRows } = await supabase
-      .from("projects")
-      .select("id,title,category,state,lat,lng")
-      .in("id", starIds.slice(0, 100))
-      .not("lat", "is", null);
-    for (const p of (favRows ?? []) as ProjectPinRow[]) {
-      if (pins.some((x) => x.id === p.id)) continue;
-      pins.push({ ...toPins([p])[0], emoji: "⭐", subtitle: "You starred this" });
-    }
+  // Faves read as ⭐ rather than as your own.
+  for (const p of toPins(input.favedProjects)) {
+    if (pins.some((x) => x.id === p.id)) continue;
+    pins.push({ ...p, emoji: "⭐", subtitle: "You starred this" });
   }
 
   // Events you created or said you're in, pinned at their project.
-  const rsvpIds = new Set(
-    ((myRsvps ?? []) as { event_id: string }[]).map((r) => r.event_id),
-  );
-  for (const e of (myEvents ?? []) as unknown as {
-    id: string;
-    title: string;
-    starts_at: string;
-    project_id: string;
-    project?: {
-      title: string;
-      lat: number | null;
-      lng: number | null;
-      owner_id: string;
-    } | null;
-  }[]) {
-    const isMine = e.project?.owner_id === userId;
-    if (!isMine && !rsvpIds.has(e.id)) continue;
+  for (const e of input.events) {
+    const isMine = e.project?.owner_id === input.userId;
+    if (!isMine && !input.rsvpEventIds.has(e.id)) continue;
     if (e.project?.lat == null || e.project?.lng == null) continue;
     if (pins.some((x) => x.id === `event-${e.id}`)) continue;
     pins.push({

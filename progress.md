@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-20 — Speed: the profile map is built from lists the page already has instead of fetching them again, Local Faves is ranked in Postgres, and stars are counted there too (migrations 0063, 0064)
+
+- `src/app/faves/page.tsx`
+- `src/app/profile/page.tsx`
+- `src/lib/mapPins.ts`
+- `src/lib/shell.ts`
+- `supabase/migrations/0063_stars_in_postgres.sql`
+- `supabase/migrations/0064_shell_communities_kind.sql`
+
+
 ### 2026-09-20 — Speed: badges derive from one request instead of six, on the three pages that show them, and a community milestone from one instead of three (migration 0062)
 
 - `src/lib/badges.ts`
