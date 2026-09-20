@@ -253,7 +253,53 @@ to finish — which is exactly the time spent waiting on queued queries.
 - **Watch for unbounded selects.** Anything that reads a table which grows
   without limit — stars, messages, notifications, views — needs a filter, a
   `limit`, or an aggregate done in Postgres. A page that is fine at 46 rows is
-  not evidence of anything.
+  not evidence of anything. Five places were violating this and are fixed: the
+  map counted every profile row to caption a pin, Explore read every membership
+  row to tally its directory, Local Faves read every project and every star to
+  rank twenty of them, and the profile page read every star for two answers
+  about one person.
+- **Count requests, not queries.** Most of what follows is one idea. A page
+  making twenty small requests is not twenty times slower than one making one —
+  it is *as slow as its slowest*, and roughly one read in twenty-five is slow.
+  So the lever is the count, and the shape of the fix is always the same: a
+  `security invoker` function returning one JSON document, with the assembly
+  left in TypeScript where it stays legible and can change without a migration.
+  Invoker is the load-bearing word — every table inside is still read under the
+  caller's row-level security, so one of these can never widen what someone
+  sees.
+
+  | function | replaces | used by |
+  |---|---|---|
+  | `shell_state` (0057, 0064) | 12 requests | every signed-in page |
+  | `feed_material` (0060) | 5 | People around, Explore, Projects |
+  | `community_directory` (0061, 0065) | 2, one a full-table scan | People around, Explore, the map |
+  | `badge_material` (0062) | 6 | profile, Explore, a project page |
+  | `community_milestone_counts` (0062) | 3 | Explore |
+  | `top_faves`, `profile_stars` (0063) | 2 full-table scans | Local Faves, profile |
+  | `neighborhood_snapshot` (0065) | 4 | People around |
+  | `project_detail` (0066) | 9 | a project page |
+
+  Measured from the database's own side, the sixteen signed-in pages went from
+  273 statements per load to 160 — and the two that matter most, the landing
+  feed and a project page, from 44 to 22 and from 34 to 6. `npm run budget`
+  measures this against a per-page ceiling and fails when one is exceeded;
+  raise a budget deliberately, in a commit that says why.
+- **Take data, do not re-fetch it.** `myWorldPins` made seven requests of its
+  own to draw the profile map, and the page calling it had already fetched six
+  of the seven. It is a pure function over what the page holds now. Explore
+  carried a copy of `loadFeedCards` — five queries and sixty lines of assembly,
+  character for character — and is a caller instead. A self-contained helper is
+  worth it right up until the containment is the cost.
+- **Index before it hurts, not after** (migration 0067). Two columns the frame
+  filters on for every single page load had no usable index:
+  `community_members.user_id` and `rsvps.user_id`, each covered only by a
+  composite key whose *second* column it is. An index on a hundred-row table is
+  instant; the same statement on nine million rows is an outage.
+- **Poll at the rate work appears.** The crawler and the city importer lease one
+  item and schedule the next hours out — 48 for a source, a day for a city —
+  and both woke every ten minutes, finding nothing roughly fourteen times in
+  fifteen. Half-hourly costs nothing in freshness. The welcome mailer and the
+  push sender stay at ten minutes, because those are latency a person feels.
 
 ## Security & privacy posture
 

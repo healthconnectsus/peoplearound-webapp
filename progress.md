@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-20 — A query budget that fails when a page regresses, and the read layer written down in ARCHITECTURE.md
+
+- `docs/ARCHITECTURE.md`
+- `package.json`
+- `scripts/budget.mjs`
+
+
 ### 2026-09-20 — Speed: index the columns the new read paths filter on — two of them were a full table scan on every page load
 
 - `supabase/migrations/0067_indexes_for_the_hot_paths.sql`
