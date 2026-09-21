@@ -27,7 +27,9 @@ function usePhotoUpload(userId: string, kind: "avatar" | "cover") {
     // Loaded on use rather than with the page (see PhotoPicker).
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
-    const optimized = await shrinkImage(file);
+    // 512px for a face that is never shown above 96px; the full 1600 for a
+    // cover that spans the page.
+    const optimized = await shrinkImage(file, kind === "avatar" ? 512 : 1600);
     // Extension must describe the BYTES we're storing: shrinkImage re-encodes
     // to JPEG, so a .png path would hold JPEG data.
     const ext = optimized.name.split(".").pop()?.toLowerCase() || "jpg";

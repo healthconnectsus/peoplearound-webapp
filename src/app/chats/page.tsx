@@ -107,13 +107,13 @@ async function ChatsPage({
       : Promise.resolve({ data: [] as Msg[] }),
     // New-message flow: ?to=<user> composes to that person.
     to && to !== user.id
-      ? supabase.from("profiles").select("*").eq("id", to).maybeSingle()
+      ? supabase.from("profiles").select("id,display_name,avatar_url").eq("id", to).maybeSingle()
       : Promise.resolve({ data: null as PersonLite | null }),
     // People picker for ?new=1.
     composeNew
       ? supabase
           .from("profiles")
-          .select("*")
+          .select("id,display_name,avatar_url")
           .neq("id", user.id)
           .order("display_name")
           .limit(100)
@@ -125,7 +125,7 @@ async function ChatsPage({
   if (convIds.length > 0) {
     const partnerIds = [...new Set((partRows ?? []).map((r) => r.user_id))];
     const { data: profRows } = partnerIds.length
-      ? await supabase.from("profiles").select("*").in("id", partnerIds)
+      ? await supabase.from("profiles").select("id,display_name,avatar_url").in("id", partnerIds)
       : { data: [] };
     const profOf = new Map(
       ((profRows ?? []) as PersonLite[]).map((p) => [p.id, p]),

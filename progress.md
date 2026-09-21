@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Bandwidth: card photos become lazy images instead of eager CSS backgrounds, avatars upload at 512px instead of 1600 for a face never drawn above 96px, chats stop fetching every profile column for three fields
+
+- `src/app/chats/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/settings/PhotoUploads.tsx`
+- `src/components/ProjectHero.tsx`
+- `src/lib/image.ts`
+
+
 ### 2026-09-21 — Fix: the proxy redirected AVIF images to the login page — the hero's best encoding was unreachable in every browser that prefers it
 
 - `src/proxy.ts`

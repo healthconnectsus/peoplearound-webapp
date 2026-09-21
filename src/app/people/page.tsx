@@ -72,6 +72,8 @@ function PersonCard({
         <img
           src={person.avatar_url}
           alt=""
+          loading="lazy"
+          decoding="async"
           className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-black/10"
         />
       ) : (

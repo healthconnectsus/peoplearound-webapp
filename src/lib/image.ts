@@ -12,8 +12,20 @@
 const MAX_EDGE = 1600;
 const QUALITY = 0.82;
 
-/** Browser-only: downscale and re-encode. Returns the original on failure. */
-export async function shrinkImage(file: File): Promise<File> {
+/**
+ * Browser-only: downscale and re-encode. Returns the original on failure.
+ *
+ * `maxEdge` is the longest side the result may have. Project and cover
+ * photos are shown up to the width of a card, so the default keeps them
+ * sharp on a retina screen. An avatar is never drawn larger than 96px
+ * anywhere on the site, and it is drawn on every card, roster and message
+ * — so it gets a smaller ceiling, and every one of those renders pulls a
+ * few tens of kilobytes instead of a few hundred.
+ */
+export async function shrinkImage(
+  file: File,
+  maxEdge: number = MAX_EDGE,
+): Promise<File> {
   if (typeof window === "undefined" || !("createImageBitmap" in window)) {
     return file;
   }
@@ -23,7 +35,7 @@ export async function shrinkImage(file: File): Promise<File> {
     const bitmap = await createImageBitmap(file, {
       imageOrientation: "from-image",
     });
-    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+    const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
     if (scale === 1 && file.size < 400 * 1024) {
       bitmap.close();
       return file;

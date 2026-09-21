@@ -140,10 +140,24 @@ export function ProjectHero({
   }
 
   return (
-    <div
-      className="relative h-56 w-full bg-cover bg-center"
-      style={{ backgroundImage: `url(${photoUrl})` }}
-    >
+    <div className="relative h-56 w-full overflow-hidden">
+      {/*
+        An <img>, not a CSS background, so the browser can defer it. A
+        background image is fetched the moment its element is laid out, so a
+        feed of twelve cards fetched twelve full-size photos — roughly 3 MB —
+        before anyone had scrolled. With loading="lazy" a card below the fold
+        costs nothing until it is nearly on screen; the one already in view
+        loads immediately, as browsers treat in-viewport lazy images.
+        Decorative here: the title and byline beside it carry the meaning.
+      */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- Supabase Storage, downscaled on upload */}
+      <img
+        src={photoUrl}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       {/* Dark scrim so white type stays legible over any photo. */}
       <div
         aria-hidden
