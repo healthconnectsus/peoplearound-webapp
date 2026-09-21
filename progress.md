@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Fix: the proxy redirected AVIF images to the login page — the hero's best encoding was unreachable in every browser that prefers it
+
+- `src/proxy.ts`
+
+
 ### 2026-09-21 — Cost: the public city pages are prerendered and served from the CDN instead of rendered per visit; the front door caches its tally for five minutes, drops the Supabase client from its JavaScript, and loads a 130 KB hero instead of 510 KB; realtime and uploads load the client only when used; six unused assets (1 MB) removed
 
 - `public/file.svg`
