@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Docs: the performance posture records this pass — chains of requests, pins from rows in hand, static public pages, browser caching for public images, the service worker, bucket-enforced upload limits; query budgets tightened to the new counts
+
+- `docs/ARCHITECTURE.md`
+- `scripts/budget.mjs`
+
+
 ### 2026-09-21 — Speed: four pages stop waiting on a second round trip — /events, /ideas and /faves draw their map pins from rows they already hold instead of fetching the same projects again (migration 0071 gives top_faves its coordinates), /analytics sends everything not about your ideas alongside them, /recap and /events take your neighborhood and communities from the frame instead of asking again
 
 - `src/app/analytics/page.tsx`

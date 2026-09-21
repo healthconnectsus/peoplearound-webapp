@@ -275,15 +275,33 @@ to finish — which is exactly the time spent waiting on queued queries.
   | `community_directory` (0061, 0065) | 2, one a full-table scan | People around, Explore, the map |
   | `badge_material` (0062) | 6 | profile, Explore, a project page |
   | `community_milestone_counts` (0062) | 3 | Explore |
-  | `top_faves`, `profile_stars` (0063) | 2 full-table scans | Local Faves, profile |
+  | `top_faves`, `profile_stars` (0063, 0071) | 2 full-table scans, and the map's refetch | Local Faves, profile |
   | `neighborhood_snapshot` (0065) | 4 | People around |
   | `project_detail` (0066) | 9 | a project page |
+  | `profile_page` (0069) | 13, in two waves | profile |
+  | `feed_material_for_communities` (0070) | 2, in a chain | People around |
 
   Measured from the database's own side, the sixteen signed-in pages went from
-  273 statements per load to 160 — and the two that matter most, the landing
-  feed and a project page, from 44 to 22 and from 34 to 6. `npm run budget`
-  measures this against a per-page ceiling and fails when one is exceeded;
-  raise a budget deliberately, in a commit that says why.
+  273 statements per load to 160, and a second pass took them to 126: the
+  landing feed from 44 to 20, a project page from 34 to 6, the profile from 46
+  to 4. `npm run budget` measures this against a per-page ceiling and fails
+  when one is exceeded; raise a budget deliberately, in a commit that says why.
+- **A chain costs more than a crowd.** After the count, what decides a page's
+  time is how many of its requests wait on another. `/people` waited on three
+  in a row — the frame's read, then the ids of your communities' projects, then
+  the feed for those ids — and the middle one only handed the database back a
+  list it could have made itself; `feed_material_for_communities` takes the
+  community ids. `/events`, `/ideas` and `/faves` each fetched their projects a
+  second time, after everything else, just for the coordinates; they build
+  their pins from the rows they already hold (`projectPinsFrom`). `/analytics`
+  queued a read behind a list it never used, `/explore` ran a second wave that
+  needed nothing from the first, and `/recap` and `/events` asked again for the
+  neighborhood and communities the frame had already loaded. On `/people`,
+  requests that depend on nothing are started before the frame's read is
+  awaited and joined after it.
+- **Don't pay for what cannot show.** `/explore` ran two counts on every visit
+  to decide a nudge that only an account younger than thirty days can see.
+  Older accounts no longer run them.
 - **Take data, do not re-fetch it.** `myWorldPins` made seven requests of its
   own to draw the profile map, and the page calling it had already fetched six
   of the seven. It is a pure function over what the page holds now. Explore
@@ -300,6 +318,46 @@ to finish — which is exactly the time spent waiting on queued queries.
   and both woke every ten minutes, finding nothing roughly fourteen times in
   fifteen. Half-hourly costs nothing in freshness. The welcome mailer and the
   push sender stay at ten minutes, because those are latency a person feels.
+- **Public pages are static; the front door is small.** `/city` and every
+  `/city/[slug]` show only public data, so they read it through an anonymous
+  client (`src/lib/supabase/anon.ts`) that touches no cookies — reading cookies
+  is what forces a page to render per request — and are prerendered and served
+  from the CDN, refreshed hourly. The login page's live tally is cached for
+  five minutes, and the page no longer ships the Supabase client at all: its
+  "people near you" check is one call to `/api/register-location`. Realtime
+  (`LiveRefresh`) and the photo uploaders import the client when they are
+  used, not with the page. The hero is AVIF at 130 KB (WebP and JPEG behind it
+  in `image-set()`), where it was a 510 KB JPEG; card photos are lazy `<img>`
+  elements rather than CSS backgrounds, which browsers fetch eagerly; avatars
+  are resized to 512px before upload, covers and project photos to 1600px.
+- **Let browsers keep what does not change.** Next serves everything in
+  `public/` with `max-age=0, must-revalidate`, so each picture on a page cost a
+  304 round trip — and a billed edge request — on every load; `/people` lists
+  up to a hundred neighbors. `avatars/`, `faces/` and `photos/`, which git
+  history shows have never been modified in place, now get a week, then a month
+  of `stale-while-revalidate` (`next.config.ts`). The logo and icons keep the
+  default on purpose: `logo.svg` has been rewritten 25 times. In Storage,
+  project photos live at unique paths with a one-year cache. Avatars and covers
+  are overwritten at a fixed path with `?v=` in the stored URL and stay at an
+  hour: measured, Supabase's CDN answered a never-requested `?v=` from cache,
+  and served the old bytes for at least twenty seconds after an overwrite, so a
+  longer cache there needs unique paths first.
+- **The service worker stays out of the way.** A worker with a fetch handler
+  stands in front of every request, and one the browser has stopped must start
+  again before a page request can leave — which is how people arrive from a
+  notification or the home-screen icon. `public/sw.js` enables navigation
+  preload, so the browser sends the page request while the worker wakes, and
+  registers static routes that send every request that is not a page load
+  straight to the network (Chrome 123+; elsewhere the handler's early return
+  does the same once awake). Tested in headless Chrome, upgrading from the old
+  worker in place: one request per navigation, carrying the preload header;
+  29 of 29 subresources routed past the worker; redirects and the offline page
+  intact. On a desktop the worker started in about 2ms — the gain is on phones.
+- **The buckets enforce the upload rules** (migration 0068). The 5 MB and
+  images-only limits lived only in the browser, so the storage API — which any
+  signed-in session can call directly — accepted any file type up to the
+  project-wide 50 MB into public buckets served from our egress. Both buckets
+  now hold the same limits as the UI, so nothing the UI allows is refused.
 
 ## Security & privacy posture
 
