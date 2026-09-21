@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
+import { currentProfile } from "@/lib/profile";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { categoryMeta } from "@/lib/projects";
@@ -26,17 +27,11 @@ async function RecapPage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const { data: profileRow } = await supabase
-    .from("profiles")
-    .select(
-      "neighborhood_id,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
-    )
-    .eq("id", user.id)
-    .maybeSingle();
-  const profile = profileRow as unknown as {
-    neighborhood_id: string | null;
-    neighborhood?: { name: string; city: string | null } | null;
-  } | null;
+  // Your neighborhood and its name ride along with the frame's own read
+  // (lib/profile.ts), which is in flight at this moment. This page used to
+  // ask for them again, and wait for the answer before it could ask for
+  // the recap itself.
+  const profile = await currentProfile();
   if (!profile?.neighborhood_id) redirect("/neighborhood");
 
   const parsed = Number.parseInt(yearParam ?? "", 10);

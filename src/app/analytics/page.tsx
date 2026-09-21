@@ -92,11 +92,36 @@ async function AnalyticsPage() {
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const { data: ownRows } = await supabase
-    .from("projects")
-    .select("id,title,category,state,created_at")
-    .eq("owner_id", user.id)
-    .order("created_at", { ascending: false });
+  // Two waits, not three. Four of the numbers below are about your ideas,
+  // so the list of them comes first — and everything that is not about
+  // them (your impact, the view counts, messages, invitations) goes out
+  // beside it, instead of queueing behind a list it never reads. Your
+  // impact used to wait on its own, in between.
+  const [
+    { data: ownRows },
+    impact,
+    viewCounts,
+    dailyViews,
+    { count: messagesSent },
+    { count: brought },
+  ] = await Promise.all([
+    supabase
+      .from("projects")
+      .select("id,title,category,state,created_at")
+      .eq("owner_id", user.id)
+      .order("created_at", { ascending: false }),
+    computeImpact(supabase, user.id),
+    supabase.rpc("idea_view_counts"),
+    supabase.rpc("idea_view_daily", { p_days: 30 }),
+    supabase
+      .from("messages")
+      .select("id", { count: "exact", head: true })
+      .eq("sender_id", user.id),
+    supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("invited_by", user.id),
+  ]);
   const own = (ownRows ?? []) as {
     id: string;
     title: string;
@@ -106,20 +131,12 @@ async function AnalyticsPage() {
   }[];
   const ids = own.map((p) => p.id);
 
-  const impact = await computeImpact(supabase, user.id);
-
   const [
-    viewCounts,
-    dailyViews,
     { data: starRows },
     { data: memberRows },
     { data: updateRows },
     { count: confirmedHelp },
-    { count: messagesSent },
-    { count: brought },
   ] = await Promise.all([
-    supabase.rpc("idea_view_counts"),
-    supabase.rpc("idea_view_daily", { p_days: 30 }),
     ids.length
       ? supabase.from("stars").select("project_id").in("project_id", ids)
       : Promise.resolve({ data: [] as { project_id: string }[] }),
@@ -142,14 +159,6 @@ async function AnalyticsPage() {
           .in("project_id", ids)
           .eq("status", "confirmed")
       : Promise.resolve({ count: 0 }),
-    supabase
-      .from("messages")
-      .select("id", { count: "exact", head: true })
-      .eq("sender_id", user.id),
-    supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("invited_by", user.id),
   ]);
 
   const views = (viewCounts.data ?? []) as {

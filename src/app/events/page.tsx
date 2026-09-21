@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
-import { myMapCenter, projectPinsByIds } from "@/lib/mapPins";
+import { myMapCenter, projectPinsFrom } from "@/lib/mapPins";
+import { shellState } from "@/lib/shell";
 import { readTabFrom } from "@/components/FeedTabs";
 import { SortSelect } from "@/components/SortSelect";
 import { EVENT_TABS, sortEventsForTab } from "@/lib/eventSort";
@@ -19,9 +20,25 @@ import {
   formatEventTime,
   isUpcomingEvent,
   type ProjectEvent,
+  type ProjectState,
 } from "@/lib/projects";
 
 export const metadata = { title: "Events" };
+
+/**
+ * An event with what its host project brings: the community it belongs
+ * to, for the dropdown, and where it is, for the map.
+ */
+type HostedEvent = Omit<ProjectEvent, "project"> & {
+  project?: {
+    title: string;
+    neighborhood_id: string | null;
+    category: string;
+    state: ProjectState;
+    lat: number | null;
+    lng: number | null;
+  } | null;
+};
 
 async function EventsPage({
   searchParams,
@@ -34,15 +51,18 @@ async function EventsPage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  // One wait for everything that depends only on who you are. The map
-  // centre and the list of projects you steward used to be fetched after
-  // the events came back, though neither needs them.
+  // One wait for everything on the page. The map centre and the list of
+  // projects you steward used to be fetched after the events came back,
+  // though neither needs them — and so did the map pins, which do.
   //
-  // The project's neighborhood comes along so the community dropdown can
-  // narrow these; an event belongs to whichever community its project is in.
+  // The host project's neighborhood comes along so the community dropdown
+  // can narrow these (an event belongs to whichever community its project
+  // is in), and its category, state and coordinates so the map can be
+  // drawn from these same rows. The pins used to be a second request for
+  // the same projects, which could only start once this one had answered.
   const [
     { data: eventRows },
-    { data: memberRows },
+    shell,
     center,
     { data: ownRows },
     { data: coOrgRows },
@@ -50,15 +70,14 @@ async function EventsPage({
     supabase
       .from("events")
       .select(
-        "id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id),project:projects(title,neighborhood_id)",
+        "id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id),project:projects(title,neighborhood_id,category,state,lat,lng)",
       )
       .gte("starts_at", new Date().toISOString())
       .order("starts_at", { ascending: true })
       .limit(50),
-    supabase
-      .from("community_members")
-      .select("community:neighborhoods(id,name,city,kind)")
-      .eq("user_id", user.id),
+    // Your communities, for the dropdown: the frame's own list, the same
+    // one every other page uses. This page used to ask community_members.
+    shellState(),
     // "Nearby" measures from the viewer's own centre to each event's
     // project pin.
     myMapCenter(supabase, user.id),
@@ -77,24 +96,27 @@ async function EventsPage({
       .eq("role", "co_organizer"),
   ]);
 
-  const mine = ((memberRows ?? []) as unknown as { community: Community | null }[])
-    .map((m) => m.community)
-    .filter((c): c is Community => Boolean(c))
+  const mine: Community[] = (shell?.communities ?? [])
+    .map(({ id, name, city, kind }) => ({
+      id,
+      name,
+      city,
+      kind: kind as Community["kind"],
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
   // Only one of your own communities, and only if you are really in it.
   const picked = community && mine.some((c) => c.id === community) ? community : "";
 
-  const allEvents = ((eventRows ?? []) as unknown as ProjectEvent[]).filter((e) =>
+  const allEvents = ((eventRows ?? []) as unknown as HostedEvent[]).filter((e) =>
     isUpcomingEvent(e.starts_at),
   );
   const events = picked
     ? allEvents.filter((e) => e.project?.neighborhood_id === picked)
     : allEvents;
 
-  const pins = await projectPinsByIds(
-    supabase,
-    events.map((e) => e.project_id),
+  const pins = projectPinsFrom(
+    events.flatMap((e) => (e.project ? [{ id: e.project_id, ...e.project }] : [])),
   );
 
   // The pins are already loaded for the map, so "Nearby" costs no extra

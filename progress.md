@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Speed: four pages stop waiting on a second round trip — /events, /ideas and /faves draw their map pins from rows they already hold instead of fetching the same projects again (migration 0071 gives top_faves its coordinates), /analytics sends everything not about your ideas alongside them, /recap and /events take your neighborhood and communities from the frame instead of asking again
+
+- `src/app/analytics/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/faves/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/recap/page.tsx`
+- `src/lib/mapPins.ts`
+- `supabase/migrations/0071_top_faves_coordinates.sql`
+
+
 ### 2026-09-21 — Speed: /explore asks for everything in one wave instead of two (nothing in the second needed the first), takes your communities from the frame instead of a query of its own, and runs the two onboarding-nudge counts only for accounts young enough to be shown the nudge
 
 - `src/app/explore/page.tsx`

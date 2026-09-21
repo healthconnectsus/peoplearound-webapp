@@ -17,7 +17,7 @@ import { categoryMeta, STATE_META, type ProjectState } from "@/lib/projects";
  * (see docs/SCALING.md and the feed's own pin logic).
  */
 
-type ProjectPinRow = {
+export type ProjectPinRow = {
   id: string;
   title: string;
   category: string;
@@ -85,18 +85,16 @@ export async function nearbyProjectPins(
   return toPins((data ?? []) as ProjectPinRow[]);
 }
 
-/** Only the projects in a given id list (e.g. your faves, or event hosts). */
-export async function projectPinsByIds(
-  supabase: Client,
-  ids: string[],
-): Promise<MapPin[]> {
-  if (ids.length === 0) return [];
-  const { data } = await supabase
-    .from("projects")
-    .select("id,title,category,state,lat,lng")
-    .in("id", ids.slice(0, 200))
-    .not("lat", "is", null);
-  return toPins((data ?? []) as ProjectPinRow[]);
+/**
+ * Pins for projects a page already holds — the cards on /ideas, the event
+ * hosts on /events — so it need not fetch the same rows a second time just
+ * for their coordinates. That second fetch could only start once the first
+ * had answered, so it cost a full extra round trip on every load. One pin
+ * per project, however many rows name it; unlocated projects are skipped,
+ * as below.
+ */
+export function projectPinsFrom(rows: ProjectPinRow[]): MapPin[] {
+  return toPins([...new Map(rows.map((r) => [r.id, r])).values()]);
 }
 
 type LocatedCommunity = {

@@ -7,7 +7,7 @@ import { currentProfile } from "@/lib/profile";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
-import { projectPinsByIds } from "@/lib/mapPins";
+import { projectPinsFrom } from "@/lib/mapPins";
 import { type Project } from "@/lib/projects";
 import { PlaybookList } from "@/components/PlaybookList";
 import { ProjectCard } from "@/components/ProjectFeedCard";
@@ -71,10 +71,9 @@ async function IdeasPage({
   });
 
   // The map follows the tab, so what you see listed is what you see pinned.
-  const pins = await projectPinsByIds(
-    supabase,
-    visible.slice(0, 40).map((p) => p.id),
-  );
+  // The cards already carry their coordinates; this used to fetch the same
+  // forty projects again, after everything else, to learn where they were.
+  const pins = projectPinsFrom(visible.slice(0, 40));
 
   return (
     <>

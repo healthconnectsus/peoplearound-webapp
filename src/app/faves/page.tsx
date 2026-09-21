@@ -6,7 +6,7 @@ import { currentUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
-import { projectPinsByIds } from "@/lib/mapPins";
+import { projectPinsFrom } from "@/lib/mapPins";
 import { categoryMeta, STATE_META, type Project } from "@/lib/projects";
 
 export const metadata = { title: "Local Faves" };
@@ -24,7 +24,9 @@ async function FavesPage() {
   const { data } = await supabase.rpc("top_faves", { p_limit: 20 });
   const faves = (data ?? []) as unknown as (Project & { stars: number })[];
 
-  const pins = await projectPinsByIds(supabase, faves.map((p) => p.id));
+  // Each fave arrives with its coordinates (migration 0071); the map used
+  // to fetch these twenty projects again, after the list, to place them.
+  const pins = projectPinsFrom(faves);
   return (
     <>
       <MapShell pins={pins}>
