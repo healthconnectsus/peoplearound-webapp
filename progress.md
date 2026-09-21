@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Speed: /explore asks for everything in one wave instead of two (nothing in the second needed the first), takes your communities from the frame instead of a query of its own, and runs the two onboarding-nudge counts only for accounts young enough to be shown the nudge
+
+- `src/app/explore/page.tsx`
+
+
 ### 2026-09-21 — Speed: /people stops waiting on a request whose only job was to hand the database back its own project ids (migration 0070, feed_material_for_communities); everything on the page that depends on nothing starts at once instead of in waves; the profile query budget tightened from 32 to 8 statements
 
 - `scripts/budget.mjs`

@@ -8,6 +8,7 @@ import { openAsks, formatMinutes } from "@/lib/asks";
 import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/auth";
 import { currentProfile } from "@/lib/profile";
+import { shellState } from "@/lib/shell";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -73,7 +74,26 @@ async function ExplorePage({
   const myCity = profile.neighborhood?.city ?? null;
   const neighborhoodName = profile.neighborhood?.name ?? "your neighborhood";
 
-  const [{ cards, events }, membershipResult] = await Promise.all([
+  // The onboarding nudge below is only ever shown to an account younger
+  // than thirty days, so only such an account pays for the two counts
+  // behind it. Everyone else used to run them on every visit, to decide
+  // something already decided.
+  const youngAccount =
+    profile.created_at != null && isWithinDays(profile.created_at, 30);
+
+  // One wait. Every line here is a separate round trip to Postgres, and
+  // none needs another's answer. They used to arrive in two waves — the
+  // feed and your memberships, then the rest — although nothing in the
+  // second wave used anything from the first.
+  const [
+    { cards, events },
+    shell,
+    [{ count: myStarsGiven }, { count: myRsvpCount }],
+    milestone,
+    asks,
+    allCommunities,
+    badges,
+  ] = await Promise.all([
     // Every project this account can see, assembled into cards. This page
     // used to inline the five queries and the sixty lines of assembly that
     // `loadFeedCards` already contained, character for character — the
@@ -81,42 +101,20 @@ async function ExplorePage({
     // now, so the feed tells the same story here as on People around, and
     // one request (migration 0060) does what five did.
     loadFeedCards(supabase, undefined, user.id),
-    supabase
-      .from("community_members")
-      .select("community_id")
-      .eq("user_id", user.id),
-  ]);
-
-  // Communities I belong to; falls back to just the primary neighborhood
-  // before migration 0011 (community_members doesn't exist yet).
-  const myCommunityIds = new Set<string>(
-    membershipResult.error || !membershipResult.data?.length
-      ? [myHood]
-      : membershipResult.data.map((m) => m.community_id),
-  );
-
-  // One wait rather than six. Every line here is a separate round trip to
-  // Postgres, roughly 200ms each from the serverless region, and they were
-  // queued behind one another although none needs another's answer — which is
-  // why this was the slowest page in the app at about four seconds. The
-  // queries themselves return counts and a few dozen rows in milliseconds.
-  const [
-    [{ count: myStarsGiven }, { count: myRsvpCount }],
-    milestone,
-    asks,
-    allCommunities,
-    badges,
-  ] = await Promise.all([
-    Promise.all([
-      supabase
-        .from("stars")
-        .select("project_id", { count: "exact", head: true })
-        .eq("user_id", user.id),
-      supabase
-        .from("rsvps")
-        .select("event_id", { count: "exact", head: true })
-        .eq("user_id", user.id),
-    ]),
+    // Already answered: currentProfile() above came from this same read.
+    shellState(),
+    youngAccount
+      ? Promise.all([
+          supabase
+            .from("stars")
+            .select("project_id", { count: "exact", head: true })
+            .eq("user_id", user.id),
+          supabase
+            .from("rsvps")
+            .select("event_id", { count: "exact", head: true })
+            .eq("user_id", user.id),
+        ])
+      : ([{ count: null }, { count: null }] as const),
     // A collective beat when the neighborhood crosses a threshold — about the
     // place, never a person (see lib/milestones.ts).
     communityMilestone(supabase, myHood, neighborhoodName),
@@ -133,15 +131,22 @@ async function ExplorePage({
     computeBadges(supabase, user.id, { id: myHood, name: neighborhoodName }),
   ]);
 
+  // Communities you belong to, primary included — the frame's own list,
+  // the same one /people and /profile use. This page used to ask
+  // community_members for it separately. If the frame's read failed, just
+  // the primary neighborhood, as before.
+  const myCommunityIds = new Set<string>(
+    shell?.communities.length
+      ? shell.communities.map((c) => c.id)
+      : [myHood],
+  );
+
   // Onboarding nudge: one small first action beats a blank profile. Shown
   // only to young accounts that haven't starred or RSVPed yet; it retires
   // itself the moment both are done (recognition follows, never nags).
   const starredOnce = (myStarsGiven ?? 0) > 0;
   const rsvpedOnce = (myRsvpCount ?? 0) > 0;
-  const showNudge =
-    profile?.created_at != null &&
-    isWithinDays(profile.created_at, 30) &&
-    (!starredOnce || !rsvpedOnce);
+  const showNudge = youngAccount && (!starredOnce || !rsvpedOnce);
 
 
   // Top-bar search: a simple contains-match over title and description.
