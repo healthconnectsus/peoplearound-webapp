@@ -20,6 +20,7 @@ import { kindMeta } from "@/lib/communities";
 import { chip } from "@/lib/chips";
 import { loadFeedCards } from "@/lib/feed";
 import { communityDirectory } from "@/lib/directory";
+import { adminCommunityPeople, type CommunityPeople } from "@/lib/adminStats";
 import {
   joinCommunity,
   leaveCommunity,
@@ -42,6 +43,41 @@ export const metadata = { title: "Explore communities" };
  * owns first-contact onboarding — invite attribution, silent neighborhood
  * claim, frontier registration — then redirects here or to /people).
  */
+
+/**
+ * Admins only: how many of a community's members are real people — an
+ * account that has signed in at least once — and what the rest of the
+ * headcount is. The public count mixes in demo accounts, which in the demo
+ * neighborhoods are nearly all of it (lib/adminStats.ts).
+ */
+function RealUsers({ counts }: { counts?: CommunityPeople }) {
+  const real = counts?.real_count ?? 0;
+  const rest = [
+    counts?.demo ? `${counts.demo} demo` : null,
+    counts?.never_signed_in
+      ? `${counts.never_signed_in} never signed in`
+      : null,
+  ].filter(Boolean);
+  return (
+    <p
+      className="mt-1 text-xs text-black/60 dark:text-white/60"
+      title="Visible to admins only. A real user has signed in at least once; demo accounts and sign-ups that never signed in don't count."
+    >
+      <span aria-hidden>🛡️ </span>
+      <span className="sr-only">Admins only: </span>
+      <span className="font-semibold text-black/80 dark:text-white/80">
+        {real} real {real === 1 ? "user" : "users"}
+      </span>
+      {counts?.real_30d ? ` · +${counts.real_30d} in the last 30 days` : null}
+      {rest.length > 0 ? (
+        <span className="text-black/45 dark:text-white/45">
+          {" "}
+          · {rest.join(" · ")}
+        </span>
+      ) : null}
+    </p>
+  );
+}
 
 async function ExplorePage({
   searchParams,
@@ -93,6 +129,7 @@ async function ExplorePage({
     asks,
     allCommunities,
     badges,
+    realPeople,
   ] = await Promise.all([
     // Every project this account can see, assembled into cards. This page
     // used to inline the five queries and the sixty lines of assembly that
@@ -129,6 +166,8 @@ async function ExplorePage({
     // Badges here too, so a fresh badge celebrates immediately rather than
     // only on the profile page.
     computeBadges(supabase, user.id, { id: myHood, name: neighborhoodName }),
+    // Admins only: how many members of each community are real people.
+    profile.is_admin ? adminCommunityPeople(supabase) : null,
   ]);
 
   // Communities you belong to, primary included — the frame's own list,
@@ -590,6 +629,9 @@ async function ExplorePage({
                           {c.members} {c.members === 1 ? "member" : "members"} ·{" "}
                           {c.projects} {c.projects === 1 ? "project" : "projects"}
                         </p>
+                        {realPeople ? (
+                          <RealUsers counts={realPeople[c.id]} />
+                        ) : null}
                       </div>
 
                       {c.joined ? (

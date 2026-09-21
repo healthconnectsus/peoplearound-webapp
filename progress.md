@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Admin: real users per community on Explore, and a users section on Analytics — totals, new this year/month/week, active users, weekly real sign-ups, where people are arriving, how they arrived and how far they got; a real user is an account that has signed in at least once (migration 0072), because 217 of 222 accounts are demo fixtures or sign-ups that never signed in
+
+- `src/app/analytics/UserGrowth.tsx`
+- `src/app/analytics/page.tsx`
+- `src/app/analytics/parts.tsx`
+- `src/app/explore/page.tsx`
+- `src/lib/adminStats.ts`
+- `supabase/migrations/0072_admin_user_analytics.sql`
+
+
 ### 2026-09-21 — Docs: the performance posture records this pass — chains of requests, pins from rows in hand, static public pages, browser caching for public images, the service worker, bucket-enforced upload limits; query budgets tightened to the new counts
 
 - `docs/ARCHITECTURE.md`
