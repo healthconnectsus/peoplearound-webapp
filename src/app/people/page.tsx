@@ -137,11 +137,11 @@ async function PeoplePage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const [shell, communities, { data: remoteProjectRows }] = await Promise.all([
-    // The frame is reading this for its own use right now; the memoised copy
-    // means the page pays nothing for the profile, the map centre, or the
-    // list of communities it belongs to.
-    shellState(),
+  // Started now, awaited below. None of these needs anything the page
+  // learns along the way, so none of them waits for it: they run beside the
+  // one chain that does — the frame's read, then what depends on it —
+  // rather than in waves before and after it.
+  const independent = Promise.all([
     // Every community with its headcount, already counted (migration 0061).
     // This was `select("*")`, which also fetches the `boundary` column — a
     // polygon per community, on a page that renders only the name.
@@ -155,8 +155,28 @@ async function PeoplePage({
       )
       .in("help", ["remote", "both"])
       .neq("state", "archived"),
+    openAsks(supabase, 4),
+    // Which teams you're actually on (see joinedIds below).
+    supabase
+      .from("memberships")
+      .select("project_id")
+      .eq("user_id", user.id)
+      .eq("status", "accepted"),
+    // People are pinned as COMMUNITY clusters with headcounts — never at
+    // anyone's home (see lib/mapPins.ts) — with groups beside them. Both are
+    // built from the directory above, which is memoised, so neither costs a
+    // request of its own.
+    peopleClusterPins(supabase),
+    groupPins(supabase),
   ]);
+  // Awaited further down. This only keeps a failure from being reported as
+  // unhandled while the page is still waiting on the frame's read.
+  independent.catch(() => {});
 
+  // The frame is reading this for its own use right now; the memoised copy
+  // means the page pays nothing for the profile, the map centre, or the
+  // list of communities it belongs to.
+  const shell = await shellState();
   const profile = shell?.profile ?? null;
   const primaryId = profile?.neighborhood_id ?? null;
 
@@ -170,28 +190,30 @@ async function PeoplePage({
   const picked = community && myIds.has(community) ? community : "";
   const communityIds = picked ? [picked] : [...myIds];
 
-  // Second wave: everything that needed only your primary neighborhood or
-  // your memberships, which the first wave just returned. These were three
-  // waits in a row — founding neighbors, then the neighbor list, then the
-  // feed's project ids — each a round trip nothing else was waiting on.
-  const [snapshotResult, { data: idRows }] = await Promise.all([
+  // What needed your communities, in one wait, beside everything above.
+  const [
+    [
+      communities,
+      { data: remoteProjectRows },
+      asks,
+      { data: myMemberships },
+      clusters,
+      gPins,
+    ],
+    snapshotResult,
+    { cards, events },
+  ] = await Promise.all([
+    independent,
     // The neighborhood block under the feed: who founded this place, how
     // many are in it, who they are, and how many you brought. Four requests
     // about one community became one (migration 0065).
     primaryId
       ? supabase.rpc("neighborhood_snapshot", { p_community: primaryId })
       : Promise.resolve({ data: null }),
-    // The feed strip, narrowed to your own communities —
-    // projects.neighborhood_id is the same table as
-    // community_members.community_id (0011 generalized neighborhoods into
-    // communities), so this is a direct filter, not a guess.
-    communityIds.length
-      ? supabase
-          .from("projects")
-          .select("id")
-          .in("neighborhood_id", communityIds)
-          .neq("state", "archived")
-      : Promise.resolve({ data: [] as { id: string }[] }),
+    // The feed strip, narrowed to your own communities. This was two
+    // requests in a row — the ids of your communities' projects, then the
+    // feed for those ids — and is one now (migration 0070).
+    loadFeedCards(supabase, communityIds, user.id),
   ]);
 
   const snapshot = (snapshotResult.data ?? {}) as {
@@ -223,34 +245,6 @@ async function PeoplePage({
 
   const mine = communities.filter((c) => myIds.has(c.id));
   const discover = communities.filter((c) => !myIds.has(c.id));
-
-  const communityProjectIds = (idRows ?? []).map((r) => r.id as string);
-  // One wait instead of five. Each of these is a separate network round trip
-  // to Postgres — about 200ms from the serverless region — and they were run
-  // one after another even though none needs another's answer. That queueing,
-  // not slow SQL, is what made this page take two seconds: every query here
-  // returns a handful of rows in single-digit milliseconds.
-  //
-  // The map pins are in this batch too. They were fetched last, after the
-  // feed had already been sorted, which meant the page could not start
-  // rendering until a query nothing on screen was waiting for came back.
-  const [
-    { cards, events },
-    asks,
-    { data: myMemberships },
-    clusters,
-    gPins,
-  ] = await Promise.all([
-    loadFeedCards(supabase, communityProjectIds, user.id),
-    openAsks(supabase, 4),
-    supabase
-      .from("memberships")
-      .select("project_id")
-      .eq("user_id", user.id)
-      .eq("status", "accepted"),
-    peopleClusterPins(supabase),
-    groupPins(supabase),
-  ]);
 
   // Tags are multi-select now — "games AND food & drink" is a reasonable
   // thing to want, and the old single-value chips made it impossible.
@@ -286,9 +280,8 @@ async function PeoplePage({
     joinedIds,
   });
 
-  // People are pinned as COMMUNITY clusters with headcounts — never at
-  // anyone's home (see lib/mapPins.ts). Groups live here too: a group IS
-  // people. Both were fetched in the batch above.
+  // Groups sit beside the people clusters: a group IS people. Both arrived
+  // with the requests started at the top of the page.
   const located = [...clusters, ...gPins];
   const pins = located.length
     ? located

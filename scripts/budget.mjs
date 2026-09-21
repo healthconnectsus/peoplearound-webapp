@@ -49,7 +49,7 @@ const RUNS = 6;
 const BUDGET = {
   "/people": 28,
   "/explore": 24,
-  "/profile": 32,
+  "/profile": 8,
   "/events": 16,
   "/ideas": 12,
   "/offers": 12,

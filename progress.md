@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Speed: /people stops waiting on a request whose only job was to hand the database back its own project ids (migration 0070, feed_material_for_communities); everything on the page that depends on nothing starts at once instead of in waves; the profile query budget tightened from 32 to 8 statements
+
+- `scripts/budget.mjs`
+- `src/app/people/page.tsx`
+- `src/lib/feed.ts`
+- `supabase/migrations/0070_feed_for_communities.sql`
+
+
 ### 2026-09-21 — Speed: the profile page reads everything it shows in one request (migration 0069, profile_page) instead of about thirteen in two waves; your events are read directly instead of being picked out of the 100 earliest on the site, which would have started dropping them past a hundred events
 
 - `src/app/profile/page.tsx`
