@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Speed: the profile page reads everything it shows in one request (migration 0069, profile_page) instead of about thirteen in two waves; your events are read directly instead of being picked out of the 100 earliest on the site, which would have started dropping them past a hundred events
+
+- `src/app/profile/page.tsx`
+- `src/lib/badges.ts`
+- `src/lib/reputation.ts`
+- `supabase/migrations/0069_profile_page.sql`
+
+
 ### 2026-09-21 — Cost and speed: the storage buckets themselves now refuse anything but images up to 5 MB (the limit only lived in the browser); neighbor avatars, faces and demo photos are cached for a week instead of re-checked on every page load; the service worker stops delaying page loads (navigation preload) and stops standing in front of scripts, images and data (static routes); three unused 420 KB contact sheets removed
 
 - `next.config.ts`

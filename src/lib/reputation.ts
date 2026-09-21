@@ -1,5 +1,4 @@
 import "server-only";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { CONTRIBUTION_TYPE_META, type ContributionType } from "@/lib/projects";
 
 /**
@@ -30,27 +29,20 @@ export type Reputation = {
   summary: string | null;
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any -- accepts ssr + js clients */
-export async function computeReputation(
-  supabase: SupabaseClient<any, any, any>,
-  userId: string,
-): Promise<Reputation> {
-  const { data } = await supabase
-    .from("contributions")
-    .select(
-      "id,type,project_id,project:projects(category),attestations(attester_id)",
-    )
-    .eq("contributor_id", userId)
-    .eq("status", "confirmed");
+/**
+ * One confirmed contribution, with its project's category and the
+ * neighbors who attested it. The profile page receives these inside
+ * profile_page() (migration 0069) rather than fetching them on their own.
+ */
+export type ReputationRow = {
+  id: string;
+  type: ContributionType;
+  project_id: string;
+  project?: { category: string } | null;
+  attestations: { attester_id: string }[];
+};
 
-  const rows = (data ?? []) as unknown as {
-    id: string;
-    type: ContributionType;
-    project_id: string;
-    project?: { category: string } | null;
-    attestations: { attester_id: string }[];
-  }[];
-
+export function reputationFrom(rows: ReputationRow[]): Reputation {
   const byType = new Map<ContributionType, { count: number; who: Set<string> }>();
   const allAttesters = new Set<string>();
   const projects = new Set<string>();

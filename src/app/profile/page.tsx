@@ -11,8 +11,8 @@ import { shellState } from "@/lib/shell";
 import { LocationCard } from "./LocationCard";
 import { BadgeMedallion } from "@/components/BadgeMedallion";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
-import { computeBadges } from "@/lib/badges";
-import { computeReputation } from "@/lib/reputation";
+import { badgesFrom, type BadgeMaterial } from "@/lib/badges";
+import { reputationFrom, type ReputationRow } from "@/lib/reputation";
 import {
   categoryMeta,
   initials,
@@ -22,6 +22,50 @@ import {
 import { DeleteAccountButton } from "./DeleteAccountButton";
 
 export const metadata = { title: "Your profile" };
+
+/** What profile_page() returns (migration 0069). */
+type ProfileDoc = {
+  profile: {
+    display_name: string | null;
+    created_at: string;
+    bio: string | null;
+    pronouns: string | null;
+    show_pronouns: boolean | null;
+    website: string | null;
+    hometown: string | null;
+    avatar_url: string | null;
+    cover_url: string | null;
+    neighborhood_id: string | null;
+    neighborhood: { name: string; city: string | null } | null;
+  } | null;
+  /** Your ideas, newest first; carries lat/lng for the map. */
+  own: Project[];
+  stars: { mine: string[]; counts: Record<string, number> };
+  /** The projects you starred, most recently starred first. */
+  faved: Project[];
+  teams_joined: number;
+  help_confirmed: number;
+  messages_sent: number;
+  brought: number;
+  idea_views: { project_id: string; views: number }[];
+  reputation: ReputationRow[];
+  /** Events you run or are joining, earliest first. */
+  events: {
+    id: string;
+    title: string;
+    starts_at: string;
+    place: string;
+    project_id: string;
+    project: {
+      title: string;
+      lat: number | null;
+      lng: number | null;
+      owner_id: string;
+    } | null;
+  }[];
+  rsvps: string[];
+  badges: BadgeMaterial;
+};
 
 function ProjectRow({
   p,
@@ -83,56 +127,31 @@ async function ProfilePage({
   const user = await currentUser();
   if (!user) redirect("/login");
 
-  const [{ data: profileRow }, { data: ownRows }, { data: starData }, shell] =
-    await Promise.all([
-      // select("*") keeps this page working before migration 0010 is applied
-      supabase
-        .from("profiles")
-        .select(
-          "*,neighborhood:neighborhoods!profiles_neighborhood_id_fkey(name,city)",
-        )
-        .eq("id", user.id)
-        .maybeSingle(),
-      // lat/lng ride along so the map can be built from this list rather
-      // than fetching your own projects a second time.
-      supabase
-        .from("projects")
-        .select(
-          "id,title,category,state,lat,lng,created_at,owner:profiles!projects_owner_id_fkey(display_name)",
-        )
-        .eq("owner_id", user.id)
-        .neq("state", "archived")
-        .order("created_at", { ascending: false }),
-      // Which projects you starred, and how many stars each of yours has
-      // (migration 0063). This was one unbounded read of the whole stars
-      // table, counted in memory.
-      supabase.rpc("profile_stars", { p_user: user.id }),
-      // Your communities and their centres — already loaded for the frame.
-      shellState(),
-    ]);
+  // Everything this page shows, in one request (migration 0069), beside the
+  // frame's own read. It used to be about thirteen requests in two waves —
+  // the second waiting on the first for your starred ids — and every one a
+  // separate draw from the database's slow tail.
+  const [{ data: doc, error: docError }, shell] = await Promise.all([
+    supabase.rpc("profile_page"),
+    // Your communities, location and their centres — loaded for the frame.
+    shellState(),
+  ]);
+  // Rendered anyway, a failed read would be a profile with no ideas, no
+  // stars and no badges, which reads as lost data. The error boundary says
+  // what actually happened and offers a retry.
+  if (docError || !doc) {
+    throw new Error(`profile_page failed: ${docError?.message ?? "no data"}`);
+  }
+  const page = doc as ProfileDoc;
 
-  const profile = profileRow as unknown as {
-    display_name: string | null;
-    created_at: string;
-    bio?: string | null;
-    pronouns?: string | null;
-    show_pronouns?: boolean | null;
-    website?: string | null;
-    hometown?: string | null;
-    avatar_url?: string | null;
-    cover_url?: string | null;
-    neighborhood?: { name: string; city: string | null } | null;
-  } | null;
+  const profile = page.profile;
   const name = profile?.display_name ?? user.email?.split("@")[0] ?? "Neighbor";
-  const own = (ownRows ?? []) as unknown as Project[];
-  const starInfo = (starData ?? {}) as {
-    mine?: string[];
-    counts?: Record<string, number>;
-  };
-  const starCount = (id: string) => starInfo.counts?.[id] ?? 0;
+  const own = page.own;
+  const starCount = (id: string) => page.stars.counts?.[id] ?? 0;
 
   // Projects this user starred = their Faves.
-  const myStarredIds = starInfo.mine ?? [];
+  const myStarredIds = page.stars.mine ?? [];
+  const faves = page.faved;
 
   // Your own point, already loaded for the frame (migration 0057). The map
   // below is built entirely from lists this page holds — location,
@@ -140,101 +159,28 @@ async function ProfilePage({
   // fetching each of them a second time, which is what it used to do.
   const myLoc = shell?.location ?? null;
 
-  // Everything else this page shows, asked for at once. It used to arrive
-  // in five waves — your faves, then five counts, then your reputation,
-  // then your map and lists, then your badges — each wave waiting on the
-  // one before although none needed its answer.
-  const hoodForBadges = profileRow as unknown as {
-    neighborhood_id?: string | null;
-  } | null;
-  const [
-    { data: favedRows },
-    { count: teamsJoined },
-    { count: helpConfirmed },
-    viewCountsResult,
-    { count: messagesSent },
-    { count: broughtCount },
-    reputation,
-    { data: myEventRows },
-    { data: myRsvpRows },
-    badges,
-  ] = await Promise.all([
-    myStarredIds.length
-      ? supabase
-          .from("projects")
-          .select(
-            "id,title,category,state,lat,lng,created_at,owner:profiles!projects_owner_id_fkey(display_name)",
-          )
-          .in("id", myStarredIds)
-          .neq("state", "archived")
-      : Promise.resolve({ data: [] as unknown[] }),
-    supabase
-      .from("memberships")
-      .select("project_id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("status", "accepted"),
-    supabase
-      .from("contributions")
-      .select("id", { count: "exact", head: true })
-      .eq("contributor_id", user.id)
-      .not("confirmed_at", "is", null),
-    // Views of MY ideas (owner-only counts, deduped per viewer per day).
-    supabase.rpc("idea_view_counts"),
-    supabase
-      .from("messages")
-      .select("id", { count: "exact", head: true })
-      .eq("sender_id", user.id),
-    supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("invited_by", user.id),
-    computeReputation(supabase, user.id),
-    supabase
-      .from("events")
-      .select("id,title,starts_at,place,project_id,project:projects(title,lat,lng,owner_id)")
-      .order("starts_at", { ascending: true })
-      .limit(100),
-    supabase.from("rsvps").select("event_id").eq("user_id", user.id),
-    // Badges — derived from confirmed records at read time (see lib/badges.ts).
-    computeBadges(supabase, user.id, {
-      id: hoodForBadges?.neighborhood_id ?? null,
-      name: profile?.neighborhood?.name ?? null,
-    }),
-  ]);
-  const faves = (favedRows ?? []) as unknown as Project[];
-
-  const viewRows = (viewCountsResult.data ?? []) as {
-    project_id: string;
-    views: number;
-  }[];
+  const viewRows = page.idea_views;
   const ideaViews = viewRows.reduce((sum, r) => sum + r.views, 0);
   const viewsFor = (id: string) =>
     viewRows.find((r) => r.project_id === id)?.views ?? 0;
+
+  // Both derived from confirmed records at read time; the rules live in
+  // lib/reputation.ts and lib/badges.ts, the inputs arrived above.
+  const reputation = reputationFrom(page.reputation);
+  const badges = badgesFrom(
+    page.badges,
+    user.id,
+    profile?.neighborhood?.name ?? null,
+  );
 
   // Straight from the frame's one read — name, city, kind and centre, which
   // since migration 0064 is everything this page wanted from a query of its
   // own.
   const myCommunities = shell?.communities ?? [];
 
-  const rsvpSet = new Set(
-    ((myRsvpRows ?? []) as { event_id: string }[]).map((r) => r.event_id),
-  );
-  const allEventRows = (myEventRows ?? []) as unknown as {
-    id: string;
-    title: string;
-    starts_at: string;
-    place: string;
-    project_id: string;
-    project?: {
-      title: string;
-      lat: number | null;
-      lng: number | null;
-      owner_id: string;
-    } | null;
-  }[];
-  const myEvents = allEventRows.filter(
-    (e) => e.project?.owner_id === user.id || rsvpSet.has(e.id),
-  );
+  // Events you run or are joining — the only ones the function returns.
+  const myEvents = page.events;
+  const rsvpSet = new Set(page.rsvps);
 
   // The map, assembled from what is already on this page.
   const pins = buildMyWorldPins({
@@ -243,7 +189,7 @@ async function ProfilePage({
     communities: myCommunities,
     ownProjects: own,
     favedProjects: faves,
-    events: allEventRows,
+    events: myEvents,
     rsvpEventIds: rsvpSet,
   });
 
@@ -266,10 +212,10 @@ async function ProfilePage({
     { label: "Idea views", value: ideaViews },
     { label: "Stars received", value: starsReceived },
     { label: "Stars given", value: starsGiven },
-    { label: "Teams joined", value: teamsJoined ?? 0 },
-    { label: "Help confirmed", value: helpConfirmed ?? 0 },
-    { label: "Messages sent", value: messagesSent ?? 0 },
-    { label: "Neighbors brought", value: broughtCount ?? 0 },
+    { label: "Teams joined", value: page.teams_joined },
+    { label: "Help confirmed", value: page.help_confirmed },
+    { label: "Messages sent", value: page.messages_sent },
+    { label: "Neighbors brought", value: page.brought },
   ];
 
   return (

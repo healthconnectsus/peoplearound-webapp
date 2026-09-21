@@ -101,15 +101,29 @@ export async function computeBadges(
     p_user: userId,
     p_community: hood.id,
   });
-  const material = (data ?? {}) as {
-    confirmed?: { id: string; type: string }[];
-    attested?: number;
-    invited?: number;
-    founding?: string[];
-    completedOwn?: { id: string; memberships: { status: string }[] }[];
-    ownIdeas?: number;
-  };
+  return badgesFrom((data ?? {}) as BadgeMaterial, userId, hood.name);
+}
 
+/** What badge_material() returns (migration 0062). */
+export type BadgeMaterial = {
+  confirmed?: { id: string; type: string }[];
+  attested?: number;
+  invited?: number;
+  founding?: string[];
+  completedOwn?: { id: string; memberships: { status: string }[] }[];
+  ownIdeas?: number;
+};
+
+/**
+ * The badge rules, applied to material already in hand. The profile page
+ * gets its material inside profile_page() (migration 0069); everyone else
+ * goes through computeBadges above.
+ */
+export function badgesFrom(
+  material: BadgeMaterial,
+  userId: string,
+  hoodName: string | null,
+): Badge[] {
   const confirmedRows = material.confirmed ?? [];
   const attestedCount = material.attested ?? 0;
   const invitedCount = material.invited ?? 0;
@@ -117,7 +131,7 @@ export async function computeBadges(
   const badges: Badge[] = [];
 
   if ((material.founding ?? []).includes(userId)) {
-    badges.push(DEFS.founding(hood.name ?? "your neighborhood"));
+    badges.push(DEFS.founding(hoodName ?? "your neighborhood"));
   }
   // One-time only: shared an idea at all. Never scales with volume (see
   // docs/INCENTIVES.md §2.5) — courage moment, not a posting reward.
