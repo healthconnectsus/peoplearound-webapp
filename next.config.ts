@@ -41,6 +41,37 @@ const securityHeaders = [
   },
 ];
 
+/**
+ * How long a browser may keep the pictures that ship in `public/` without
+ * asking again.
+ *
+ * Next cannot know whether a file in `public/` will change, so it serves all
+ * of them with `max-age=0, must-revalidate`: the browser keeps the bytes but
+ * must check with the server before every use. That check is a full round
+ * trip that returns nothing (a 304), paid again on every page load, for every
+ * picture on the page. /people lists up to a hundred neighbors, so scrolling
+ * it was up to a hundred of those, each holding a face back until its answer
+ * came, and each one counted as a billed request at the edge.
+ *
+ * The folders below are content, not branding, and they do not change in
+ * place: git history has never once modified a file in avatars/, faces/ or
+ * photos/ — new pictures arrive under new names. So a week without asking,
+ * then a month in which the browser shows what it has and checks in the
+ * background.
+ *
+ * Deliberately NOT here: the logo and the app icons. logo.svg has been
+ * rewritten in place 25 times and the icons 6, so they keep the default and
+ * every visitor sees a new logo the moment it ships. Built JavaScript and CSS
+ * need nothing either — Next already serves those as immutable, with the
+ * content hash in the file name.
+ */
+const longLivedImages = [
+  {
+    key: "Cache-Control",
+    value: "public, max-age=604800, stale-while-revalidate=2592000",
+  },
+];
+
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_COMMIT_SHA: commitSha(),
@@ -82,7 +113,12 @@ const nextConfig: NextConfig = {
     staleTimes: { dynamic: 30 },
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      { source: "/avatars/:path*", headers: longLivedImages },
+      { source: "/faces/:path*", headers: longLivedImages },
+      { source: "/photos/:path*", headers: longLivedImages },
+    ];
   },
 };
 

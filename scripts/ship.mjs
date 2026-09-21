@@ -58,10 +58,13 @@ const files = capture("git diff --cached --name-only")
   .split("\n")
   .filter(Boolean);
 
-// 2. Document in progress.md (date + message + changed files).
+// 2. Document in progress.md (date + message + changed files). Only the
+//    subject line: a message may carry a body or trailers after a blank
+//    line, and those belong in the commit, not in a changelog heading.
 const date = new Date().toISOString().slice(0, 10);
+const subject = msg.split("\n")[0].trim();
 const entry =
-  `### ${date} — ${msg}\n\n` + files.map((f) => `- \`${f}\``).join("\n") + "\n";
+  `### ${date} — ${subject}\n\n` + files.map((f) => `- \`${f}\``).join("\n") + "\n";
 
 const progress = readFileSync(PROGRESS, "utf8");
 if (!progress.includes(MARKER)) {

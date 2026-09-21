@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Cost and speed: the storage buckets themselves now refuse anything but images up to 5 MB (the limit only lived in the browser); neighbor avatars, faces and demo photos are cached for a week instead of re-checked on every page load; the service worker stops delaying page loads (navigation preload) and stops standing in front of scripts, images and data (static routes); three unused 420 KB contact sheets removed
+
+- `next.config.ts`
+- `public/faces/people1.webp`
+- `public/faces/people2.webp`
+- `public/faces/people3.webp`
+- `public/sw.js`
+- `scripts/ship.mjs`
+- `supabase/migrations/0068_storage_upload_limits.sql`
+
+
 ### 2026-09-21 — Bandwidth: card photos become lazy images instead of eager CSS backgrounds, avatars upload at 512px instead of 1600 for a face never drawn above 96px, chats stop fetching every profile column for three fields
 
 - `src/app/chats/page.tsx`
