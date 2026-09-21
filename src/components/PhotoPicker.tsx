@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import { Camera } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { shrinkImage } from "@/lib/image";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -38,6 +37,10 @@ export function PhotoPicker({
     }
     setBusy(true);
     setError(null);
+    // Loaded when someone actually picks a photo, not with the page: the
+    // Supabase client is the largest thing this component would otherwise
+    // put in every composer's bundle.
+    const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
     const optimized = await shrinkImage(file);
     const ext = optimized.name.split(".").pop()?.toLowerCase() || "jpg";

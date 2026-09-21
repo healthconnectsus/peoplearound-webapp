@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { createAnonClient } from "@/lib/supabase/anon";
 import { JsonLd, organizationLd, breadcrumbLd } from "@/components/JsonLd";
 
 /**
@@ -32,12 +32,15 @@ export const metadata: Metadata = {
     "Every city with neighbors starting things on Peoplearound, with counts of projects, communities and neighbors.",
 };
 
-// Counts move slowly and this page is public, so it can be cached rather than
-// re-queried for every visitor.
+// Counts move slowly and this page is public, so it is prerendered and
+// revalidated hourly. That only became true once it stopped touching
+// `cookies()`: the session-bound client made every visit — every crawler —
+// a function invocation with a database read, for a page whose answer is the
+// same for everyone. The anon client reads no cookies, so the page is static.
 export const revalidate = 3600;
 
 export default async function CityIndexPage() {
-  const supabase = await createClient();
+  const supabase = createAnonClient();
   const { data } = await supabase
     .from("public_cities")
     .select("city,slug,communities,projects,neighbors")

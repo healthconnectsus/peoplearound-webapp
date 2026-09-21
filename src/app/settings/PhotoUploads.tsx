@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, Pencil } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { initials } from "@/lib/projects";
 import { shrinkImage } from "@/lib/image";
 
@@ -25,6 +24,8 @@ function usePhotoUpload(userId: string, kind: "avatar" | "cover") {
     }
     setBusy(true);
     setError(null);
+    // Loaded on use rather than with the page (see PhotoPicker).
+    const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
     const optimized = await shrinkImage(file);
     // Extension must describe the BYTES we're storing: shrinkImage re-encodes

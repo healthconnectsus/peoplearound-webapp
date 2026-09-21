@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+
+type BrowserClient = ReturnType<
+  typeof import("@/lib/supabase/client").createClient
+>;
+type Channel = ReturnType<BrowserClient["channel"]>;
 
 /**
  * Keeps a server-rendered page fresh without polling every viewer.
@@ -66,11 +70,15 @@ export function LiveRefresh({ tables }: { tables: string }) {
     }
 
     // --- Realtime ---------------------------------------------------------
-    const supabase = createClient();
-    let channel: ReturnType<typeof supabase.channel> | null = null;
+    // The client library is imported here, after mount, rather than with
+    // the page. It is the largest dependency in the browser bundle — auth,
+    // realtime and PostgREST together — and only the three pages that
+    // subscribe need it, once the page is already on screen.
+    let supabase: BrowserClient | null = null;
+    let channel: Channel | null = null;
 
     const subscribe = () => {
-      if (channel) return;
+      if (channel || !supabase) return;
       let ch = supabase.channel(`live:${tables}`);
       for (const entry of tables.split(",")) {
         const [table, filter] = entry.trim().split(":");
@@ -88,7 +96,7 @@ export function LiveRefresh({ tables }: { tables: string }) {
     };
 
     const unsubscribe = () => {
-      if (!channel) return;
+      if (!channel || !supabase) return;
       supabase.removeChannel(channel);
       channel = null;
     };
@@ -104,8 +112,13 @@ export function LiveRefresh({ tables }: { tables: string }) {
       }
     };
 
-    if (document.visibilityState === "visible") subscribe();
-    document.addEventListener("visibilitychange", onVisibility);
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      // Unmounted while the chunk was in flight: subscribe to nothing.
+      if (disposed) return;
+      supabase = createClient();
+      if (document.visibilityState === "visible") subscribe();
+      document.addEventListener("visibilitychange", onVisibility);
+    });
 
     return () => {
       disposed = true;

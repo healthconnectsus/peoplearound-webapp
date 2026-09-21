@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 
 type Teaser = { id: string; name: string; neighbors: number; ideas: number };
 type Preview = { name: string };
@@ -19,11 +18,18 @@ function rememberFrontier(lat: number, lng: number) {
 
 /**
  * Logged-out location hook: on mount, asks the browser for the visitor's
- * location (this is what triggers the native permission popup), then matches
- * it to a neighborhood via the anon-safe locate_teaser RPC and shows a warm
- * local teaser under the sign-up card. The matched neighborhood id is kept
- * in a cookie so the account gets it automatically after sign-up.
+ * location (this is what triggers the native permission popup), sends it to
+ * /api/register-location in preview mode — which matches it to a
+ * neighborhood, or names the place if there is none — and shows a warm local
+ * teaser under the sign-up card. The matched neighborhood id is kept in a
+ * cookie so the account gets it automatically after sign-up.
  * Denied / unsupported / no match with nothing nearby → renders nothing.
+ *
+ * It used to call the locate_teaser RPC itself through the Supabase client,
+ * and fall back to this route only for unknown places. That one import put
+ * the entire client library — auth, realtime, PostgREST — into the front
+ * door's JavaScript: 64 KB compressed, on the page every stranger lands on,
+ * to make one request the server was already able to make for it.
  */
 export function AutoLocate() {
   const [teaser, setTeaser] = useState<Teaser | null>(null);
@@ -35,19 +41,9 @@ export function AutoLocate() {
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        const supabase = createClient();
-        const { data } = await supabase.rpc("locate_teaser", {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        });
-        const row = (data as Teaser[] | null)?.[0];
-        if (row) {
-          setTeaser(row);
-          rememberHood(row.id);
-          return;
-        }
-        // Somewhere new: preview the place's name only. Nothing is created
-        // until they sign up — that's the anti-spam wall.
+        // One request. A known place comes back with its counts; somewhere
+        // new comes back as a name only — nothing is created until they
+        // sign up, and that is the anti-spam wall.
         try {
           const res = await fetch("/api/register-location", {
             method: "POST",
@@ -66,8 +62,12 @@ export function AutoLocate() {
               setFrontier({ name: data.name });
               rememberFrontier(pos.coords.latitude, pos.coords.longitude);
             } else {
-              // The server matched after all (e.g. fresher data than the RPC).
-              setTeaser({ ...data, neighbors: 0, ideas: 0 });
+              setTeaser({
+                id: data.id,
+                name: data.name,
+                neighbors: data.neighbors ?? 0,
+                ideas: data.ideas ?? 0,
+              });
               rememberHood(data.id);
             }
             return;

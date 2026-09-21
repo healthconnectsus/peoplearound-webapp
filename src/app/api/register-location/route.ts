@@ -91,11 +91,18 @@ export async function POST(request: Request) {
 
   // Existing coverage? Cheap, and identical for both modes.
   const { data: match } = await supabase.rpc("locate_teaser", { lat, lng });
-  const existing = (match as { id: string; name: string }[] | null)?.[0];
+  const existing = (match as
+    | { id: string; name: string; neighbors?: number; ideas?: number }[]
+    | null)?.[0];
   if (existing) {
+    // The counts ride along so the landing page can say "3 neighbors are
+    // already here" without a second call — this route is now the only one
+    // it makes, which is what let the Supabase client leave its bundle.
     return NextResponse.json({
       id: existing.id,
       name: existing.name,
+      neighbors: existing.neighbors ?? 0,
+      ideas: existing.ideas ?? 0,
       created: false,
     });
   }

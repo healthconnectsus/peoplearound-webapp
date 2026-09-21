@@ -93,10 +93,7 @@ export default function StartClubPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero — same full-bleed collage treatment as the logged-out landing */}
-      <section
-        className="relative bg-cover bg-center"
-        style={{ backgroundImage: "url(/hero-collage.jpg)" }}
-      >
+      <section className="hero-collage relative bg-cover bg-center">
         <div
           aria-hidden
           className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/40"

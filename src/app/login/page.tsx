@@ -7,7 +7,8 @@ import {
   Lightbulb,
   UsersRound,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createAnonClient } from "@/lib/supabase/anon";
 import { categoryMeta, STATE_META, timeAgo } from "@/lib/projects";
 import { versionLabel, BUILD_TIME } from "@/lib/version";
 import { signIn, signUp, signInWithMagicLink } from "./actions";
@@ -59,6 +60,28 @@ const PHOTO_CROPS = [
   "8% 80%", "34% 86%", "62% 78%", "88% 84%",
 ];
 
+const loginTeaser = unstable_cache(
+  async () => {
+    const supabase = createAnonClient();
+    const [{ data: ideaRows, error: ideasError }, { data: pulseRow }] =
+      await Promise.all([
+        supabase.from("public_ideas").select("*").limit(9),
+        supabase.from("public_pulse").select("*").maybeSingle(),
+      ]);
+    return {
+      ideaRows: (ideaRows ?? []) as PublicIdea[],
+      ideasError: Boolean(ideasError),
+      pulse: pulseRow as {
+        projects: number;
+        communities: number;
+        neighbors: number;
+      } | null,
+    };
+  },
+  ["login-teaser"],
+  { revalidate: 300 },
+);
+
 export default async function LoginPage({
   searchParams,
 }: {
@@ -83,17 +106,13 @@ export default async function LoginPage({
   // idea is nobody's business until you're a neighbor. The pulse carries the
   // rest as numbers, so the page can be honest about scale without quoting
   // anyone.
-  const supabase = await createClient();
-  const [{ data: ideaRows, error: ideasError }, { data: pulseRow }] =
-    await Promise.all([
-      supabase.from("public_ideas").select("*").limit(9),
-      supabase.from("public_pulse").select("*").maybeSingle(),
-    ]);
-  const pulse = pulseRow as {
-    projects: number;
-    communities: number;
-    neighbors: number;
-  } | null;
+  //
+  // Read through the data cache, not per visit. This page stays dynamic —
+  // it renders the error from a failed sign-in and mints a nonce — but the
+  // tally and the teaser are the same for every visitor, and this is the
+  // page every stranger and every crawler lands on. Five minutes is well
+  // inside how fast those numbers move.
+  const { ideaRows, ideasError, pulse } = await loginTeaser();
   // Only projects whose author chose "open to anywhere" can appear here, so
   // this list is often empty — and when it is, the cards below are the
   // hand-written examples, not anybody's real project. The page has to say
@@ -115,10 +134,7 @@ export default async function LoginPage({
         />
       ) : null}
       {/* Full-bleed hero: the collage runs edge to edge and behind the nav */}
-      <section
-        className="relative bg-cover bg-center"
-        style={{ backgroundImage: "url(/hero-collage.jpg)" }}
-      >
+      <section className="hero-collage relative bg-cover bg-center">
         {/* Overlay: darkest behind the nav, easing off toward the bottom */}
         <div
           aria-hidden
@@ -275,9 +291,8 @@ export default async function LoginPage({
                 >
                   <div
                     aria-hidden
-                    className="h-36 bg-cover"
+                    className="hero-collage h-36 bg-cover"
                     style={{
-                      backgroundImage: "url(/hero-collage.jpg)",
                       backgroundSize: "500%",
                       backgroundPosition: PHOTO_CROPS[i % PHOTO_CROPS.length],
                     }}

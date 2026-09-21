@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* The front door's collage — behind the hero on /login and /start, and
+   cropped into the sample cards. It always sits under a 35–70% black
+   overlay, which is why quality-35 AVIF (130 KB) is indistinguishable from
+   the 510 KB JPEG it replaces. Three encodings of the one image; a browser
+   takes the first it can decode and older ones fall back to the plain
+   declaration above the image-set. */
+.hero-collage {
+  background-image: url("/hero-collage.jpg");
+  background-image: image-set(
+    url("/hero-collage.avif") type("image/avif"),
+    url("/hero-collage.webp") type("image/webp"),
+    url("/hero-collage.jpg") type("image/jpeg")
+  );
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

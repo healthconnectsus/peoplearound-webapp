@@ -7,6 +7,31 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-09-21 — Cost: the public city pages are prerendered and served from the CDN instead of rendered per visit; the front door caches its tally for five minutes, drops the Supabase client from its JavaScript, and loads a 130 KB hero instead of 510 KB; realtime and uploads load the client only when used; six unused assets (1 MB) removed
+
+- `public/file.svg`
+- `public/globe.svg`
+- `public/hero-collage.avif`
+- `public/hero-collage.jpg`
+- `public/hero-collage.webp`
+- `public/logo.png`
+- `public/next.svg`
+- `public/vercel.svg`
+- `public/window.svg`
+- `src/app/api/register-location/route.ts`
+- `src/app/city/[slug]/page.tsx`
+- `src/app/city/page.tsx`
+- `src/app/globals.css`
+- `src/app/login/AutoLocate.tsx`
+- `src/app/login/page.tsx`
+- `src/app/settings/PhotoUploads.tsx`
+- `src/app/sitemap.ts`
+- `src/app/start/page.tsx`
+- `src/components/LiveRefresh.tsx`
+- `src/components/PhotoPicker.tsx`
+- `src/lib/supabase/anon.ts`
+
+
 ### 2026-09-20 — A query budget that fails when a page regresses, and the read layer written down in ARCHITECTURE.md
 
 - `docs/ARCHITECTURE.md`

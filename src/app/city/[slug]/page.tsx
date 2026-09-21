@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { createAnonClient } from "@/lib/supabase/anon";
 import { CATEGORY_META, STATE_META } from "@/lib/projects";
 import { JsonLd, breadcrumbLd } from "@/components/JsonLd";
 
@@ -34,8 +34,32 @@ type CityIdea = {
   created_at: string;
 };
 
+// Prerendered at build for every city that exists, revalidated hourly, and
+// rendered on demand — then cached the same way — for a city that appears
+// afterwards. The page reads only anon-safe views and no cookies, which is
+// what lets it be static: before this, each visit was a function invocation
+// with three database reads, and the sitemap sends every crawler here.
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const { data } = await createAnonClient()
+      .from("public_cities")
+      .select("slug")
+      .limit(1000);
+    return ((data ?? []) as { slug: string | null }[])
+      .filter((r): r is { slug: string } => typeof r.slug === "string" && r.slug.length > 0)
+      .map((r) => ({ slug: r.slug }));
+  } catch {
+    // Unreachable database at build time is not worth failing the deploy;
+    // every city then renders on first request instead.
+    return [];
+  }
+}
+
 async function loadCity(slug: string) {
-  const supabase = await createClient();
+  const supabase = createAnonClient();
   const [{ data: city }, { data: categories }, { data: ideas }] =
     await Promise.all([
       supabase.from("public_cities").select("*").eq("slug", slug).maybeSingle(),
