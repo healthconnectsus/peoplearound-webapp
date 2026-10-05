@@ -238,8 +238,10 @@ async function EventsPage({
             <ul className="mt-6 flex flex-col gap-3">
               {visible.map((e) => (
                 <li key={e.id}>
+                  {/* The event's own page: who's coming, the details, and
+                      for whoever runs it, the poster and QR code. */}
                   <Link
-                    href={`/projects/${e.project_id}`}
+                    href={`/events/${e.id}`}
                     className="flex flex-col gap-1 overflow-hidden rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-600 dark:bg-zinc-900"
                   >
                     {e.photo_url ? (

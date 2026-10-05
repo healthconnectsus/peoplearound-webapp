@@ -908,7 +908,14 @@ async function ProjectDetail({
                           <span className="mr-1" aria-hidden>
                             📅
                           </span>
-                          {e.title}
+                          {/* The event's own page — details, who's coming,
+                              and the poster if you run it. */}
+                          <Link
+                            href={`/events/${e.id}`}
+                            className="underline-offset-2 hover:underline"
+                          >
+                            {e.title}
+                          </Link>
                         </p>
                         <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">
                           {formatEventTime(e.starts_at)}

@@ -85,9 +85,18 @@ const loginTeaser = unstable_cache(
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }) {
-  const { error, message } = await searchParams;
+  const { error, message, next } = await searchParams;
+
+  // Where to go once they are in. Set when someone arrives from a published
+  // event — they pressed "I'm in" on a poster's page — so they land back on
+  // that event instead of a generic home page, which is where a flyer stops
+  // working. Internal paths only; the actions check it again before using it.
+  const returnTo =
+    next && /^\/(?!\/)[\w\-.~!$&'()*+,;=:@%/?#]*$/.test(next)
+      ? next.slice(0, 300)
+      : "";
 
   // Cloudflare Turnstile (bot protection on sign-up/sign-in). Renders only
   // when the site key is configured; Supabase verifies the token server-side.
@@ -181,6 +190,9 @@ export default async function LoginPage({
                 ) : null}
 
                 <form className="mt-5 flex flex-col gap-3">
+                  {returnTo ? (
+                    <input type="hidden" name="next" value={returnTo} />
+                  ) : null}
                   <input
                     type="email"
                     name="email"
@@ -228,6 +240,9 @@ export default async function LoginPage({
                   action={signInWithMagicLink}
                   className="flex flex-col gap-3"
                 >
+                  {returnTo ? (
+                    <input type="hidden" name="next" value={returnTo} />
+                  ) : null}
                   <input
                     type="email"
                     name="email"

@@ -25,6 +25,10 @@ export default function robots(): MetadataRoute.Robots {
           "/privacy",
           "/city",
           "/city/",
+          // Published events. These exist to be found — by a neighbor
+          // searching the event's name after seeing a flyer, and by anyone
+          // the link is forwarded to.
+          "/e/",
         ],
         disallow: [
           "/api/",

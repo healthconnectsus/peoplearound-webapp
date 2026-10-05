@@ -110,6 +110,11 @@ export async function updateSession(request: NextRequest) {
     // with a phone camera: a code that answers with a login page is a dead
     // code. The route only ever redirects, and reads no session.
     path.startsWith("/qr/") ||
+    // A published event (migration 0074) — the page a flyer's QR points at,
+    // its share card, its calendar file and its QR image. A poster whose
+    // link asks for a password is a poster nobody acts on. The event's
+    // steward chose to publish it, and it shows counts, never names.
+    path.startsWith("/e/") ||
     // Local visual galleries; the pages themselves 404 in production.
     (process.env.NODE_ENV !== "production" && path.startsWith("/dev"));
 

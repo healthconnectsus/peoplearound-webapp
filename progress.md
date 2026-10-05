@@ -7,6 +7,31 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Events can be put on a lamppost: an event now has its own page (/events/<id>) with who is coming and, for whoever runs it, the controls to correct it and publish it; publishing gives /e/<code> that anyone can read without an account, a QR code drawn as vector for printing, a one-sheet poster, a calendar file and a share card for group chats — and pressing "I am in" from a poster carries the newcomer through sign-up back to that same event
+
+- `package-lock.json`
+- `package.json`
+- `src/app/e/[code]/ics/route.ts`
+- `src/app/e/[code]/join/route.ts`
+- `src/app/e/[code]/opengraph-image.tsx`
+- `src/app/e/[code]/page.tsx`
+- `src/app/e/[code]/qr/route.ts`
+- `src/app/events/[id]/page.tsx`
+- `src/app/events/[id]/poster/PrintButton.tsx`
+- `src/app/events/[id]/poster/page.tsx`
+- `src/app/events/actions.ts`
+- `src/app/events/page.tsx`
+- `src/app/login/actions.ts`
+- `src/app/login/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/app/robots.ts`
+- `src/components/CopyButton.tsx`
+- `src/lib/events.ts`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0074_event_sharing.sql`
+- `supabase/migrations/0075_event_page.sql`
+
+
 ### 2026-10-05 — QR codes: /qr/<code> resolves a printed code to wherever the admin console currently points it (migration 0073) — the paper never has to change. The first is /qr/1 for Elle, with no destination yet, so scans land on the front door until one is set; redirects are temporary and never cached, destinations are http(s) only, crawlers are kept out, and the outreach lead list is gitignored so ship cannot publish it
 
 - `.gitignore`
