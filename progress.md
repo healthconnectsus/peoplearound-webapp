@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Logo v10: give the PA mark the mug's gradient - teal #2DBEA6 through green and gold to orange #EC883C, sampled from the reference photo's hue walk (170 to 26 degrees) and normalised for the mug's shading; horizontal across the mark, wordmark unchanged; icon and PWA icons regenerated
+
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-10-05 — Events can repeat (migration 0079): copy one forward every week, fortnight or month, up to twelve times, carrying the time, place, words and jobs but nobody who took them. Each copy is an ordinary event that can move or be called off on its own, and starts unpublished — a share code belongs to the poster it was printed for
 
 - `src/app/events/[id]/page.tsx`
