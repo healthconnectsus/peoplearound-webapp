@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Fix: /api/push was never reachable — the proxy answered Vercel Cron with a redirect to the login page every ten minutes, so no web push has ever been delivered; it is now in the list of routes that carry their own bearer check. Plus: a reminder the day before an event to everyone coming or down for a job (migration 0077, daily cron, once per person per event), and a note an organizer can send to everyone coming — capped at one every ten minutes, reaching the people who signed up from a poster and are in no group chat
+
+- `src/app/api/event-reminders/route.ts`
+- `src/app/events/[id]/page.tsx`
+- `src/app/events/actions.ts`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0077_event_reminders_and_notes.sql`
+- `vercel.json`
+
+
 ### 2026-10-05 — Volunteers: an event can list the jobs it needs — a name, how many people, a line of detail — and any neighbor can take one (which also says they are coming). A job cannot be oversubscribed: the database refuses the signup that would overfill it, so two people tapping the last slot cannot both get it. Organizers get a run sheet to tick people off on the day, readable only by them and the person it is about, and the public page asks passers-by for exactly the help still missing
 
 - `src/app/e/[code]/page.tsx`

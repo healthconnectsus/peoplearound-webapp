@@ -99,6 +99,12 @@ export async function updateSession(request: NextRequest) {
     path === "/api/import-city-events" ||
     path === "/api/welcome-neighbors" ||
     path === "/api/crawl-city-events" ||
+    // These two were the bug this list exists to prevent. /api/push was
+    // missing, so every ten minutes Vercel Cron called it, was answered with
+    // a redirect to the login page, and no web push was ever delivered —
+    // silently, because a 307 is not an error anybody goes looking for.
+    path === "/api/push" ||
+    path === "/api/event-reminders" ||
     // The browser posts CSP violations here before any session exists, and
     // does so for logged-out pages too. It stores nothing and answers 204.
     path === "/api/csp-report" ||

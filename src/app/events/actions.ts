@@ -250,6 +250,48 @@ export async function toggleRoleSignup(formData: FormData) {
   redirect(`/events/${eventId}`);
 }
 
+/**
+ * A note to everyone coming: "bring boots, it's muddy".
+ *
+ * Reaches the people who said they're coming and the people who took a job —
+ * including the ones who found the event on a poster and are in no group
+ * chat. The database decides whether you may send it, and refuses more than
+ * one every ten minutes (migration 0077).
+ */
+export async function sendEventNote(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const body = String(formData.get("body") ?? "").trim().slice(0, 280);
+  if (!eventId) redirect("/events");
+  if (!body) redirect(`/events/${eventId}?error=Write+something+first`);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: told, error } = await supabase.rpc("message_event_people", {
+    p_event: eventId,
+    p_body: body,
+  });
+
+  if (error) {
+    const why = /ten minutes/.test(error.message)
+      ? "A note just went out — give it ten minutes"
+      : "That note could not be sent";
+    redirect(`/events/${eventId}?error=${encodeURIComponent(why)}`);
+  }
+
+  revalidatePath(`/events/${eventId}`);
+  redirect(
+    `/events/${eventId}?message=${encodeURIComponent(
+      told === 0
+        ? "Noted — nobody is coming yet, so nobody was pinged"
+        : `Sent to ${told} ${told === 1 ? "person" : "people"}`,
+    )}`,
+  );
+}
+
 /** The organizer ticking off who actually turned up. */
 export async function setAttendance(formData: FormData) {
   const eventId = String(formData.get("eventId") ?? "");

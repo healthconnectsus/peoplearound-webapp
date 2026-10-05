@@ -14,6 +14,7 @@ import {
   googleCalendarUrl,
   initials,
   isUpcomingEvent,
+  timeAgo,
 } from "@/lib/projects";
 import { eventWhen, qrSvg, shareUrl } from "@/lib/events";
 import { SITE_URL } from "@/lib/site";
@@ -24,6 +25,7 @@ import {
   setAttendance,
   setEventSharing,
   toggleEventRsvp,
+  sendEventNote,
   toggleRoleSignup,
   updateEventDetails,
 } from "../actions";
@@ -84,6 +86,13 @@ type EventDoc = {
   }[];
   /** Who turned up — the steward's own note, empty for everyone else. */
   attended: string[];
+  /** The organizer's last few notes to everyone coming (migration 0077). */
+  notes: {
+    id: string;
+    body: string;
+    created_at: string;
+    author: string | null;
+  }[];
 };
 
 /** One read for the page and its title (migration 0075). */
@@ -100,6 +109,74 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const doc = await loadEvent(id);
   return { title: doc?.event ? doc.event.title : "Event" };
+}
+
+/**
+ * What the organizer has told everyone — and, if that's you, the way to say
+ * the next thing. It reaches the people who signed up from a poster, who are
+ * in no group chat and would otherwise turn up in the wrong shoes.
+ */
+function Notes({
+  eventId,
+  notes,
+  isSteward,
+}: {
+  eventId: string;
+  notes: EventDoc["notes"];
+  isSteward: boolean;
+}) {
+  if (!isSteward && notes.length === 0) return null;
+
+  return (
+    <section className="mt-8">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+        From the organizer
+      </h2>
+
+      {notes.length > 0 ? (
+        <ul className="mt-2 flex flex-col gap-2">
+          {notes.map((n) => (
+            <li
+              key={n.id}
+              className="rounded-xl border border-slate-300 bg-white p-4 text-sm shadow-sm dark:border-slate-600 dark:bg-zinc-900"
+            >
+              <p className="whitespace-pre-line">{n.body}</p>
+              <p className="mt-1 text-xs text-black/45 dark:text-white/45">
+                {n.author ?? "The organizer"} · {timeAgo(n.created_at)}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {isSteward ? (
+        <form action={sendEventNote} className="mt-3 flex flex-col gap-2">
+          <input type="hidden" name="eventId" value={eventId} />
+          <textarea
+            name="body"
+            rows={2}
+            maxLength={280}
+            required
+            placeholder="Bring boots — the field is muddy after the rain."
+            className="w-full rounded-lg border border-slate-400 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400"
+          />
+          <div className="flex flex-wrap items-center gap-3">
+            <SubmitButton
+              pendingLabel="Sending…"
+              className="rounded-lg border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+            >
+              Tell everyone coming
+            </SubmitButton>
+            <span className="text-xs text-black/45 dark:text-white/45">
+              Goes to everyone coming and everyone down for a job — in their
+              bell, and on their phone if they allowed it. One every ten
+              minutes.
+            </span>
+          </div>
+        </form>
+      ) : null}
+    </section>
+  );
 }
 
 /**
@@ -561,6 +638,7 @@ async function EventPage({ params, searchParams }: Props) {
     can_steward: isSteward,
     roles,
     attended,
+    notes,
   } = doc;
 
   const upcoming = isUpcomingEvent(event.starts_at);
@@ -659,6 +737,12 @@ async function EventPage({ params, searchParams }: Props) {
           </div>
         ) : null}
       </article>
+
+      <Notes
+        eventId={event.id}
+        notes={notes ?? []}
+        isSteward={isSteward}
+      />
 
       <Jobs
         eventId={event.id}
