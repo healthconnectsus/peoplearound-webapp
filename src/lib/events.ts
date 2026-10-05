@@ -22,6 +22,8 @@ export type PublicEvent = {
   description: string | null;
   photo_url: string | null;
   going: number;
+  /** What needs doing, as counts — never who took it (migration 0076). */
+  jobs: { title: string; detail: string | null; needed: number; taken: number }[];
   project: { title: string; category: string };
   community: { name: string; city: string | null } | null;
 };

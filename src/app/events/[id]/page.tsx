@@ -19,8 +19,12 @@ import { eventWhen, qrSvg, shareUrl } from "@/lib/events";
 import { SITE_URL } from "@/lib/site";
 import { deleteEvent } from "@/app/projects/actions";
 import {
+  addEventRole,
+  removeEventRole,
+  setAttendance,
   setEventSharing,
   toggleEventRsvp,
+  toggleRoleSignup,
   updateEventDetails,
 } from "../actions";
 
@@ -65,6 +69,21 @@ type EventDoc = {
     avatar_url: string | null;
   }[];
   mine: boolean;
+  /** What needs doing (migration 0076), in the organizer's order. */
+  roles: {
+    id: string;
+    title: string;
+    detail: string | null;
+    needed: number;
+    takers: {
+      user_id: string;
+      display_name: string | null;
+      avatar_url: string | null;
+    }[];
+    mine: boolean;
+  }[];
+  /** Who turned up — the steward's own note, empty for everyone else. */
+  attended: string[];
 };
 
 /** One read for the page and its title (migration 0075). */
@@ -81,6 +100,265 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const doc = await loadEvent(id);
   return { title: doc?.event ? doc.event.title : "Event" };
+}
+
+/**
+ * What needs doing.
+ *
+ * An RSVP says someone is coming; this says who is bringing the tables. Open
+ * to any signed-in neighbor, deliberately — the person who saw the poster is
+ * exactly who an organizer is short of.
+ */
+function Jobs({
+  eventId,
+  roles,
+  isSteward,
+  upcoming,
+}: {
+  eventId: string;
+  roles: EventDoc["roles"];
+  isSteward: boolean;
+  upcoming: boolean;
+}) {
+  const INPUT =
+    "rounded-lg border border-slate-400 bg-transparent px-3 py-1.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400";
+
+  return (
+    <section className="mt-8">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+        What needs doing
+      </h2>
+
+      {roles.length === 0 ? (
+        <p className="mt-2 text-sm text-black/50 dark:text-white/50">
+          {isSteward
+            ? "Nothing listed yet. Naming the jobs is how helping stops being vague — “setup, 2 people” gets taken; “let me know if you can help” doesn’t."
+            : "The organizer hasn’t listed any jobs for this one."}
+        </p>
+      ) : (
+        <ul className="mt-2 flex flex-col gap-2">
+          {roles.map((r) => {
+            const left = Math.max(0, r.needed - r.takers.length);
+            const full = left === 0;
+            return (
+              <li
+                key={r.id}
+                className="rounded-xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium">{r.title}</p>
+                    {r.detail ? (
+                      <p className="mt-0.5 text-sm text-black/60 dark:text-white/60">
+                        {r.detail}
+                      </p>
+                    ) : null}
+                    <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+                      {r.takers.length} of {r.needed} taken
+                      {full ? " · covered" : ` · ${left} to go`}
+                    </p>
+                    {r.takers.length > 0 ? (
+                      <p className="mt-1 text-xs text-black/60 dark:text-white/60">
+                        {r.takers
+                          .map((t) => t.display_name ?? "A neighbor")
+                          .join(", ")}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-2">
+                    {upcoming && (!full || r.mine) ? (
+                      <form action={toggleRoleSignup}>
+                        <input type="hidden" name="eventId" value={eventId} />
+                        <input type="hidden" name="roleId" value={r.id} />
+                        <button
+                          type="submit"
+                          className={`rounded-lg border px-4 py-1.5 text-xs font-medium transition-colors ${
+                            r.mine
+                              ? "border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
+                              : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                          }`}
+                        >
+                          {r.mine ? "✓ You've got this" : "I'll do it"}
+                        </button>
+                      </form>
+                    ) : null}
+                    {isSteward ? (
+                      <form action={removeEventRole}>
+                        <input type="hidden" name="eventId" value={eventId} />
+                        <input type="hidden" name="roleId" value={r.id} />
+                        <ConfirmSubmit
+                          message={`Remove “${r.title}”? Anyone who took it is let go of it too.`}
+                          className="text-xs text-black/40 hover:underline dark:text-white/40"
+                        >
+                          Remove
+                        </ConfirmSubmit>
+                      </form>
+                    ) : null}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {isSteward ? (
+        <form
+          action={addEventRole}
+          className="mt-3 flex flex-wrap items-end gap-2"
+        >
+          <input type="hidden" name="eventId" value={eventId} />
+          <label className="flex min-w-44 flex-1 flex-col gap-1 text-xs text-black/60 dark:text-white/60">
+            A job
+            <input
+              required
+              name="title"
+              maxLength={100}
+              placeholder="Setup crew"
+              className={INPUT}
+            />
+          </label>
+          <label className="flex min-w-44 flex-1 flex-col gap-1 text-xs text-black/60 dark:text-white/60">
+            What it involves (optional)
+            <input
+              name="detail"
+              maxLength={300}
+              placeholder="Arrive at 9, carry tables out"
+              className={INPUT}
+            />
+          </label>
+          <label className="flex w-28 flex-col gap-1 text-xs text-black/60 dark:text-white/60">
+            How many
+            <input
+              type="number"
+              name="needed"
+              min={1}
+              max={200}
+              defaultValue={1}
+              className={INPUT}
+            />
+          </label>
+          <SubmitButton
+            pendingLabel="Adding…"
+            className="rounded-lg border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+          >
+            Add the job
+          </SubmitButton>
+        </form>
+      ) : null}
+    </section>
+  );
+}
+
+/**
+ * The run sheet: everyone expected, ticked off as they arrive.
+ *
+ * Deliberately only a count of who came — it is the organizer's own note,
+ * and it never credits anyone. Help is logged by the person who did it and
+ * confirmed by someone else; a tick box here would be a way around that.
+ */
+function RunSheet({
+  eventId,
+  going,
+  roles,
+  attended,
+}: {
+  eventId: string;
+  going: EventDoc["going"];
+  roles: EventDoc["roles"];
+  attended: string[];
+}) {
+  const jobOf = new Map<string, string[]>();
+  for (const role of roles) {
+    for (const t of role.takers) {
+      jobOf.set(t.user_id, [...(jobOf.get(t.user_id) ?? []), role.title]);
+    }
+  }
+  // Someone can have taken a job without an RSVP row only in odd cases, but
+  // the sheet should still have their name on it.
+  const people = [
+    ...going.map((p) => ({
+      user_id: p.user_id,
+      name: p.display_name ?? "A neighbor",
+    })),
+    ...[...jobOf.keys()]
+      .filter((id) => !going.some((p) => p.user_id === id))
+      .map((id) => ({
+        user_id: id,
+        name:
+          roles
+            .flatMap((r) => r.takers)
+            .find((t) => t.user_id === id)?.display_name ?? "A neighbor",
+      })),
+  ];
+  const here = people.filter((p) => attended.includes(p.user_id)).length;
+
+  return (
+    <details id="run-sheet" className="mt-4 rounded-xl border border-slate-300 p-4 dark:border-slate-600">
+      <summary className="cursor-pointer text-sm font-medium">
+        Run sheet — tick people off on the day
+        {people.length > 0 ? (
+          <span className="ml-2 text-xs font-normal text-black/50 dark:text-white/50">
+            {here} of {people.length} here
+          </span>
+        ) : null}
+      </summary>
+
+      {people.length === 0 ? (
+        <p className="mt-3 text-sm text-black/55 dark:text-white/55">
+          Nobody is coming yet, so there is nobody to tick off.
+        </p>
+      ) : (
+        <ul className="mt-3 flex flex-col gap-1.5">
+          {people.map((p) => {
+            const isHere = attended.includes(p.user_id);
+            const jobs = jobOf.get(p.user_id);
+            return (
+              <li
+                key={p.user_id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg px-2 py-1.5 odd:bg-black/[0.03] dark:odd:bg-white/[0.04]"
+              >
+                <span className="text-sm">
+                  {p.name}
+                  {jobs ? (
+                    <span className="text-black/50 dark:text-white/50">
+                      {" "}
+                      · {jobs.join(", ")}
+                    </span>
+                  ) : null}
+                </span>
+                <form action={setAttendance}>
+                  <input type="hidden" name="eventId" value={eventId} />
+                  <input type="hidden" name="userId" value={p.user_id} />
+                  <input
+                    type="hidden"
+                    name="present"
+                    value={isHere ? "0" : "1"}
+                  />
+                  <button
+                    type="submit"
+                    className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors ${
+                      isHere
+                        ? "border-emerald-600 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-300"
+                        : "border-slate-400 hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                    }`}
+                  >
+                    {isHere ? "✓ Came" : "Mark as here"}
+                  </button>
+                </form>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <p className="mt-3 text-xs text-black/45 dark:text-white/45">
+        Only you and the person themselves can see this. It records who came —
+        not who helped: that stays something people log themselves and a
+        neighbor confirms.
+      </p>
+    </details>
+  );
 }
 
 /** The form a steward uses to fix what changed. */
@@ -275,7 +553,15 @@ async function EventPage({ params, searchParams }: Props) {
 
   const doc = await loadEvent(id);
   if (!doc?.event || !doc.project) notFound();
-  const { event, project, going, mine, can_steward: isSteward } = doc;
+  const {
+    event,
+    project,
+    going,
+    mine,
+    can_steward: isSteward,
+    roles,
+    attended,
+  } = doc;
 
   const upcoming = isUpcomingEvent(event.starts_at);
   const meta = categoryMeta(project.category);
@@ -374,6 +660,13 @@ async function EventPage({ params, searchParams }: Props) {
         ) : null}
       </article>
 
+      <Jobs
+        eventId={event.id}
+        roles={roles ?? []}
+        isSteward={isSteward}
+        upcoming={upcoming}
+      />
+
       <section className="mt-8">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
           Coming · {going.length}
@@ -419,6 +712,12 @@ async function EventPage({ params, searchParams }: Props) {
             Yours to run
           </h2>
           <ShareCard event={event} title={event.title} />
+          <RunSheet
+            eventId={event.id}
+            going={going}
+            roles={roles ?? []}
+            attended={attended ?? []}
+          />
           <EditForm event={event} />
           <form action={deleteEvent} className="mt-3">
             <input type="hidden" name="projectId" value={project.id} />

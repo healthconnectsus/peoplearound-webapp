@@ -7,6 +7,15 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Volunteers: an event can list the jobs it needs — a name, how many people, a line of detail — and any neighbor can take one (which also says they are coming). A job cannot be oversubscribed: the database refuses the signup that would overfill it, so two people tapping the last slot cannot both get it. Organizers get a run sheet to tick people off on the day, readable only by them and the person it is about, and the public page asks passers-by for exactly the help still missing
+
+- `src/app/e/[code]/page.tsx`
+- `src/app/events/[id]/page.tsx`
+- `src/app/events/actions.ts`
+- `src/lib/events.ts`
+- `supabase/migrations/0076_event_volunteers.sql`
+
+
 ### 2026-10-05 — Events can be put on a lamppost: an event now has its own page (/events/<id>) with who is coming and, for whoever runs it, the controls to correct it and publish it; publishing gives /e/<code> that anyone can read without an account, a QR code drawn as vector for printing, a one-sheet poster, a calendar file and a share card for group chats — and pressing "I am in" from a poster carries the newcomer through sign-up back to that same event
 
 - `package-lock.json`

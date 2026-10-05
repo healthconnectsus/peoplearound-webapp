@@ -96,6 +96,33 @@ export default async function PublicEventPage({ params }: Props) {
             coming
           </p>
 
+          {/* Jobs still going begging. A flyer that says "setup, 2 people
+              needed" asks for something specific, which is the difference
+              between a passer-by reading it and a passer-by doing it. */}
+          {(event.jobs ?? []).some((j) => j.taken < j.needed) && upcoming ? (
+            <section className="mt-4 rounded-xl border border-slate-300 p-4 dark:border-slate-600">
+              <h2 className="text-sm font-semibold">Help wanted</h2>
+              <ul className="mt-2 flex flex-col gap-1.5">
+                {event.jobs
+                  .filter((j) => j.taken < j.needed)
+                  .map((j) => (
+                    <li key={j.title} className="text-sm">
+                      <span className="font-medium">{j.title}</span>
+                      <span className="text-black/55 dark:text-white/55">
+                        {" "}
+                        · {j.needed - j.taken} still needed
+                      </span>
+                      {j.detail ? (
+                        <span className="block text-xs text-black/55 dark:text-white/55">
+                          {j.detail}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          ) : null}
+
           {upcoming ? (
             <>
               {/* A form, not a link: links get prefetched, and an "I'm in"

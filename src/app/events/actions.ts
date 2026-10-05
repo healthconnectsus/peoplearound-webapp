@@ -136,6 +136,152 @@ export async function updateEventDetails(formData: FormData) {
   redirect(`/events/${eventId}?message=Saved`);
 }
 
+// ------------------------------------------------------------------
+// Jobs — what needs doing, and who said they'd do it (migration 0076).
+// ------------------------------------------------------------------
+
+export async function addEventRole(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const title = String(formData.get("title") ?? "").trim().slice(0, 100);
+  const detail =
+    String(formData.get("detail") ?? "").trim().slice(0, 300) || null;
+  const needed = Math.min(
+    200,
+    Math.max(1, Number.parseInt(String(formData.get("needed") ?? "1"), 10) || 1),
+  );
+  if (!eventId) redirect("/events");
+  if (!title) {
+    redirect(`/events/${eventId}?error=A+job+needs+a+name`);
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // Keeps new jobs in the order they were written.
+  const { count } = await supabase
+    .from("event_roles")
+    .select("id", { count: "exact", head: true })
+    .eq("event_id", eventId);
+
+  const { error } = await supabase.from("event_roles").insert({
+    event_id: eventId,
+    title,
+    detail,
+    needed,
+    position: count ?? 0,
+    created_by: user.id,
+  });
+  if (error) redirect(`/events/${eventId}?error=Could+not+add+that+job`);
+
+  revalidatePath(`/events/${eventId}`);
+  redirect(`/events/${eventId}`);
+}
+
+export async function removeEventRole(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const roleId = String(formData.get("roleId") ?? "");
+  if (!eventId || !roleId) redirect("/events");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // Row-level security decides; signups go with it (on delete cascade).
+  await supabase.from("event_roles").delete().eq("id", roleId);
+
+  revalidatePath(`/events/${eventId}`);
+  redirect(`/events/${eventId}`);
+}
+
+/** "I'll do it" / "actually, I can't" on one job. */
+export async function toggleRoleSignup(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const roleId = String(formData.get("roleId") ?? "");
+  if (!eventId || !roleId) redirect("/events");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: existing } = await supabase
+    .from("event_role_signups")
+    .select("user_id")
+    .eq("role_id", roleId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (existing) {
+    // Stepping back from a job, not from the event: the RSVP stays.
+    await supabase
+      .from("event_role_signups")
+      .delete()
+      .eq("role_id", roleId)
+      .eq("user_id", user.id);
+  } else {
+    const { error } = await supabase
+      .from("event_role_signups")
+      .insert({ role_id: roleId, user_id: user.id });
+    if (error) {
+      // The capacity trigger refuses the signup that would overfill a job —
+      // two people can tap the last slot at the same moment.
+      redirect(
+        `/events/${eventId}?error=${encodeURIComponent(
+          "Someone just took the last spot on that one",
+        )}`,
+      );
+    }
+    // Taking a job means you're coming; say so without a second tap.
+    await supabase
+      .from("rsvps")
+      .upsert(
+        { event_id: eventId, user_id: user.id },
+        { onConflict: "event_id,user_id", ignoreDuplicates: true },
+      );
+  }
+
+  revalidatePath(`/events/${eventId}`);
+  redirect(`/events/${eventId}`);
+}
+
+/** The organizer ticking off who actually turned up. */
+export async function setAttendance(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const userId = String(formData.get("userId") ?? "");
+  const present = String(formData.get("present") ?? "") === "1";
+  if (!eventId || !userId) redirect("/events");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  if (present) {
+    await supabase
+      .from("event_attendance")
+      .upsert(
+        { event_id: eventId, user_id: userId, marked_by: user.id },
+        { onConflict: "event_id,user_id", ignoreDuplicates: true },
+      );
+  } else {
+    await supabase
+      .from("event_attendance")
+      .delete()
+      .eq("event_id", eventId)
+      .eq("user_id", userId);
+  }
+
+  revalidatePath(`/events/${eventId}`);
+  redirect(`/events/${eventId}#run-sheet`);
+}
+
 /** "I'm in" / "changed my plans", from the event's own page. */
 export async function toggleEventRsvp(formData: FormData) {
   const eventId = String(formData.get("eventId") ?? "");
