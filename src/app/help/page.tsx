@@ -30,7 +30,19 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "What are events?",
-    a: "The physical side of a project — a planting day, a fix-up morning. RSVP so the team knows who's coming.",
+    a: "The physical side of a project — a planting day, a fix-up morning. RSVP so the team knows who's coming. Every event has its own page: the details, who's coming, and what still needs doing.",
+  },
+  {
+    q: "How do I get people to come?",
+    a: "Open your event and tap “Publish & get a QR code.” You get a page anyone can read without an account, a QR code and a one-page poster to print, and buttons to send it to WhatsApp, a text message or email. Pasted into a group chat, the link unfurls with the name, time and place. Someone who scans the poster and taps “I'm in” is brought back to your event once they've joined.",
+  },
+  {
+    q: "Can I ask for help running an event?",
+    a: "List the jobs: a name, how many people it takes, and a line about what it involves (“Setup crew · 2 · arrive at 9, carry tables out”). Any neighbor can take one, which also says they're coming, and a job can't be oversubscribed. Jobs still needing someone show on the events list and on your published page, so a passer-by can see exactly what's missing.",
+  },
+  {
+    q: "What happens on the day?",
+    a: "Everyone coming gets a reminder the day before. If something changes — it's muddy, bring boots — send a note from the event page and it reaches everyone coming, including the people who found you through a poster. Print the run sheet for the clipboard, or tick people off in the app. Who turned up is your own note; it credits nobody. Help is still logged by the person who did it and confirmed by a neighbor.",
   },
   {
     q: "Why do I have to pick a neighborhood?",

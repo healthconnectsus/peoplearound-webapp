@@ -280,6 +280,8 @@ to finish — which is exactly the time spent waiting on queued queries.
   | `project_detail` (0066) | 9 | a project page |
   | `profile_page` (0069) | 13, in two waves | profile |
   | `feed_material_for_communities` (0070) | 2, in a chain | People around |
+  | `event_page` (0075–0077) | the page that did not exist | an event |
+  | `public_event` (0074, 0076) | — | a published event, read by strangers |
 
   Measured from the database's own side, the sixteen signed-in pages went from
   273 statements per load to 160, and a second pass took them to 126: the
@@ -358,6 +360,43 @@ to finish — which is exactly the time spent waiting on queued queries.
   signed-in session can call directly — accepted any file type up to the
   project-wide 50 MB into public buckets served from our egress. Both buckets
   now hold the same limits as the UI, so nothing the UI allows is refused.
+
+## Events in public
+
+An event is the one thing in this app with a reason to leave it. A flyer on a
+lamppost is useless if the link on it asks for a password, so a steward can
+publish one event at a time: `/e/<code>` is then readable by anyone, with a QR
+code (drawn as vector on the server, so it prints sharp at any size), a
+one-page poster, a calendar file and a share card for group chats.
+
+What publishing exposes is deliberately thin, and it is the same rule as the
+city pages: **counts, never names**. `public_event()` returns what, when,
+where, whose project, how many are coming, and which jobs still need someone.
+It takes a share code rather than an id — eight characters from a crypto
+source, with no look-alike letters — so nothing can be enumerated, and an
+event nobody published has no code at all.
+
+Three details worth keeping:
+
+- **"I'm in" is a form, not a link.** Next prefetches links, so an anchor
+  would RSVP people for having scrolled past the button. The route answers
+  POST only; a GET gets 405.
+- **The newcomer is carried through.** Pressing it signed-out lands on
+  sign-up with `next` set to that event, which the confirm route already
+  honoured, so the person who scanned a poster ends up back on the event
+  rather than on a generic home page. `next` is validated as an internal path
+  in both the form and the action — a sign-in form that redirects anywhere is
+  a phisher's favourite shape.
+- **Unpublishing retires the code.** Anything already printed stops working,
+  and publishing again issues a different one. The button says so.
+
+Volunteering hangs off the same event (0076). Jobs carry how many people they
+take, and the capacity is enforced by a trigger rather than by the interface,
+so two people tapping the last slot cannot both get it. Attendance is the
+organizer's own note, readable only by them and the person it is about, and it
+never becomes a contribution: help stays something people log themselves and a
+neighbor confirms (see "No self-approval" above), and a tick box would have
+been a back door around that.
 
 ## Security & privacy posture
 

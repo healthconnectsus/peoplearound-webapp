@@ -429,11 +429,19 @@ function RunSheet({
           })}
         </ul>
       )}
-      <p className="mt-3 text-xs text-black/45 dark:text-white/45">
-        Only you and the person themselves can see this. It records who came —
-        not who helped: that stays something people log themselves and a
-        neighbor confirms.
-      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <Link
+          href={`/events/${eventId}/sheet`}
+          className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+        >
+          Print the run sheet
+        </Link>
+        <span className="text-xs text-black/45 dark:text-white/45">
+          Only you and the person themselves can see this. It records who came
+          — not who helped: that stays something people log themselves and a
+          neighbor confirms.
+        </span>
+      </div>
     </details>
   );
 }

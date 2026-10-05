@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — A run sheet for the clipboard (/events/<id>/sheet, stewards only): the jobs with the names against them and everyone expected with a box to tick, printed on one page. Help Center explains publishing, QR posters, jobs and the day itself; ARCHITECTURE records what publishing exposes and why "I am in" is a form rather than a link
+
+- `docs/ARCHITECTURE.md`
+- `src/app/events/[id]/page.tsx`
+- `src/app/events/[id]/sheet/page.tsx`
+- `src/app/help/page.tsx`
+
+
 ### 2026-10-05 — Smaller things around events: planning one now lands on its own page (where publishing and listing jobs live), the events list shows when a job still needs someone, the share card offers WhatsApp, a text message or email, and a place gets a directions link. sortEventsForTab is generic so embedded extras survive it
 
 - `src/app/events/[id]/page.tsx`
