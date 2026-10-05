@@ -7,6 +7,16 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Events can be called off rather than only deleted (migration 0078): the event keeps its page and says plainly that it is off and why, everyone coming or down for a job is told at once, the poster QR lands on the truth instead of nothing, no reminder goes out, it leaves the feed, and nobody can newly say they are coming — and it can be put back on
+
+- `src/app/e/[code]/page.tsx`
+- `src/app/events/[id]/page.tsx`
+- `src/app/events/actions.ts`
+- `src/app/events/page.tsx`
+- `src/lib/events.ts`
+- `supabase/migrations/0078_cancel_an_event.sql`
+
+
 ### 2026-10-05 — A run sheet for the clipboard (/events/<id>/sheet, stewards only): the jobs with the names against them and everyone expected with a box to tick, printed on one page. Help Center explains publishing, QR posters, jobs and the day itself; ARCHITECTURE records what publishing exposes and why "I am in" is a form rather than a link
 
 - `docs/ARCHITECTURE.md`

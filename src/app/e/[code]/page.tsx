@@ -42,7 +42,10 @@ export default async function PublicEventPage({ params }: Props) {
   const event = await publicEvent(code);
   if (!event) notFound();
 
-  const upcoming = isUpcomingEvent(event.starts_at);
+  const cancelled = Boolean(event.cancelled_at);
+  // A called-off event keeps its page on purpose: the poster is still on the
+  // lamppost, and whoever scans it deserves to learn that rather than nothing.
+  const upcoming = isUpcomingEvent(event.starts_at) && !cancelled;
   const meta = categoryMeta(event.project.category);
   const where = [event.place, event.community?.name, event.community?.city]
     .filter(Boolean)
@@ -75,6 +78,13 @@ export default async function PublicEventPage({ params }: Props) {
           <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight">
             {event.title}
           </h1>
+
+          {cancelled ? (
+            <p className="mt-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+              <strong>This has been called off.</strong>
+              {event.cancelled_reason ? ` ${event.cancelled_reason}` : ""}
+            </p>
+          ) : null}
 
           <p className="mt-3 text-lg font-semibold text-pa-brand dark:text-emerald-400">
             {eventWhen(event.starts_at, event.ends_at)}
@@ -162,6 +172,13 @@ export default async function PublicEventPage({ params }: Props) {
                 </a>
               </div>
             </>
+          ) : cancelled ? (
+            <p className="mt-5 text-center text-sm text-black/60 dark:text-white/60">
+              <Link href="/" className="underline">
+                See what else is happening nearby
+              </Link>
+              .
+            </p>
           ) : (
             <p className="mt-5 rounded-lg border border-dashed border-slate-400 px-4 py-3 text-center text-sm text-black/60 dark:border-slate-500 dark:text-white/60">
               This one has already happened.{" "}

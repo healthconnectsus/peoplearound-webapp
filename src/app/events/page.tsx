@@ -40,6 +40,8 @@ type HostedEvent = Omit<ProjectEvent, "project"> & {
   } | null;
   /** Jobs on this event: how many each takes, and how many took it. */
   roles?: { needed: number; takers: { count: number }[] }[];
+  /** Set when the organizer called it off (migration 0078). */
+  cancelled_at?: string | null;
 };
 
 /** How many volunteer spots are still going begging on an event. */
@@ -82,7 +84,7 @@ async function EventsPage({
       .select(
         // The jobs ride along as counts in the same request, so the list can
         // say "2 jobs open" without a second round trip.
-        "id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id),roles:event_roles(needed,takers:event_role_signups(count)),project:projects(title,neighborhood_id,category,state,lat,lng)",
+        "id,project_id,title,starts_at,place,photo_url,created_at,cancelled_at,rsvps(user_id),roles:event_roles(needed,takers:event_role_signups(count)),project:projects(title,neighborhood_id,category,state,lat,lng)",
       )
       .gte("starts_at", new Date().toISOString())
       .order("starts_at", { ascending: true })
@@ -276,7 +278,12 @@ async function EventsPage({
                         Part of “{e.project.title}”
                       </span>
                     ) : null}
-                    {openSpots(e) > 0 ? (
+                    {e.cancelled_at ? (
+                      <span className="mt-1 self-start rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                        Called off
+                      </span>
+                    ) : null}
+                    {openSpots(e) > 0 && !e.cancelled_at ? (
                       <span className="mt-1 self-start rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
                         🙋 {openSpots(e)}{" "}
                         {openSpots(e) === 1 ? "job" : "jobs"} still need someone

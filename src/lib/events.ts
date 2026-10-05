@@ -21,6 +21,9 @@ export type PublicEvent = {
   place: string;
   description: string | null;
   photo_url: string | null;
+  /** Set when the organizer called it off (migration 0078). */
+  cancelled_at: string | null;
+  cancelled_reason: string | null;
   going: number;
   /** What needs doing, as counts — never who took it (migration 0076). */
   jobs: { title: string; detail: string | null; needed: number; taken: number }[];

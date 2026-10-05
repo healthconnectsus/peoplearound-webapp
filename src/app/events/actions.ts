@@ -251,6 +251,64 @@ export async function toggleRoleSignup(formData: FormData) {
 }
 
 /**
+ * Call it off, and say so.
+ *
+ * Deleting an event is right for a mistake; this is for the thing rain
+ * stopped. The event keeps its page, the poster's QR still lands somewhere
+ * truthful, and everyone coming is told at once (migration 0078).
+ */
+export async function cancelEvent(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const reason = String(formData.get("reason") ?? "").trim().slice(0, 280);
+  if (!eventId) redirect("/events");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: told, error } = await supabase.rpc("cancel_event", {
+    p_event: eventId,
+    p_reason: reason,
+  });
+  if (error) redirect(`/events/${eventId}?error=Could+not+cancel+that`);
+
+  revalidatePath(`/events/${eventId}`);
+  revalidatePath("/events");
+  redirect(
+    `/events/${eventId}?message=${encodeURIComponent(
+      told && told > 0
+        ? `Called off — ${told} ${told === 1 ? "person was" : "people were"} told`
+        : "Called off",
+    )}`,
+  );
+}
+
+/** Back on after all. */
+export async function uncancelEvent(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  if (!eventId) redirect("/events");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error } = await supabase.rpc("uncancel_event", { p_event: eventId });
+  if (error) redirect(`/events/${eventId}?error=Could+not+do+that`);
+
+  revalidatePath(`/events/${eventId}`);
+  revalidatePath("/events");
+  redirect(
+    `/events/${eventId}?message=${encodeURIComponent(
+      "Back on — tell everyone, they were told it was off",
+    )}`,
+  );
+}
+
+/**
  * A note to everyone coming: "bring boots, it's muddy".
  *
  * Reaches the people who said they're coming and the people who took a job —

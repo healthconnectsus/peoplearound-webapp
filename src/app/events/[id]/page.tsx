@@ -21,12 +21,14 @@ import { SITE_URL } from "@/lib/site";
 import { deleteEvent } from "@/app/projects/actions";
 import {
   addEventRole,
+  cancelEvent,
   removeEventRole,
   setAttendance,
   setEventSharing,
   toggleEventRsvp,
   sendEventNote,
   toggleRoleSignup,
+  uncancelEvent,
   updateEventDetails,
 } from "../actions";
 
@@ -54,6 +56,8 @@ type EventDoc = {
     photo_url: string | null;
     share_code: string | null;
     project_id: string;
+    cancelled_at: string | null;
+    cancelled_reason: string | null;
   } | null;
   project: {
     id: string;
@@ -675,6 +679,7 @@ async function EventPage({ params, searchParams }: Props) {
   } = doc;
 
   const upcoming = isUpcomingEvent(event.starts_at);
+  const cancelled = Boolean(event.cancelled_at);
   const meta = categoryMeta(project.category);
   const where = [event.place, project.neighborhood?.name]
     .filter(Boolean)
@@ -714,7 +719,22 @@ async function EventPage({ params, searchParams }: Props) {
         ) : null}
 
         <h1 className="text-3xl font-extrabold tracking-tight">{event.title}</h1>
-        <p className="mt-2 text-lg font-semibold text-pa-brand dark:text-emerald-400">
+
+        {cancelled ? (
+          <p className="mt-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            <strong>This has been called off.</strong>
+            {event.cancelled_reason ? ` ${event.cancelled_reason}` : ""}{" "}
+            Everyone who was coming has been told.
+          </p>
+        ) : null}
+
+        <p
+          className={`mt-2 text-lg font-semibold ${
+            cancelled
+              ? "text-black/40 line-through dark:text-white/40"
+              : "text-pa-brand dark:text-emerald-400"
+          }`}
+        >
           {eventWhen(event.starts_at, event.ends_at)}
         </p>
         {where ? (
@@ -749,7 +769,7 @@ async function EventPage({ params, searchParams }: Props) {
           </p>
         ) : null}
 
-        {upcoming ? (
+        {upcoming && !cancelled ? (
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <form action={toggleEventRsvp}>
               <input type="hidden" name="eventId" value={event.id} />
@@ -796,7 +816,7 @@ async function EventPage({ params, searchParams }: Props) {
         eventId={event.id}
         roles={roles ?? []}
         isSteward={isSteward}
-        upcoming={upcoming}
+        upcoming={upcoming && !cancelled}
       />
 
       <section className="mt-8">
@@ -851,6 +871,43 @@ async function EventPage({ params, searchParams }: Props) {
             attended={attended ?? []}
           />
           <EditForm event={event} />
+
+          {/* Calling it off keeps the page and tells everyone; removing it
+              is for a mistake, and says nothing to anybody. */}
+          {cancelled ? (
+            <form action={uncancelEvent} className="mt-3">
+              <input type="hidden" name="eventId" value={event.id} />
+              <SubmitButton
+                pendingLabel="Putting it back…"
+                className="rounded-lg border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+              >
+                It&rsquo;s back on
+              </SubmitButton>
+            </form>
+          ) : (
+            <form
+              action={cancelEvent}
+              className="mt-3 flex flex-wrap items-end gap-2"
+            >
+              <input type="hidden" name="eventId" value={event.id} />
+              <label className="flex min-w-56 flex-1 flex-col gap-1 text-xs text-black/60 dark:text-white/60">
+                Calling it off? Say why — everyone coming is told
+                <input
+                  name="reason"
+                  maxLength={280}
+                  placeholder="Rained off — we'll try again next Saturday"
+                  className="rounded-lg border border-slate-400 bg-transparent px-3 py-1.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400"
+                />
+              </label>
+              <ConfirmSubmit
+                message="Call this off and tell everyone who said they're coming?"
+                className="rounded-lg border border-red-300 px-4 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/40"
+              >
+                Call it off
+              </ConfirmSubmit>
+            </form>
+          )}
+
           <form action={deleteEvent} className="mt-3">
             <input type="hidden" name="projectId" value={project.id} />
             <input type="hidden" name="eventId" value={event.id} />
