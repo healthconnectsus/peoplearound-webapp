@@ -13,6 +13,9 @@
 # dependencies
 # env files (can opt-in for committing if needed)
 # local Claude Code settings (machine-specific)
+# outreach working files: city plans, briefs and a lead list with real names,
+# emails and phone numbers in it. This repository is public, and `npm run ship`
+# stages everything — so this line is what keeps that list off GitHub.
 # misc
 # next.js
 # production
@@ -36,6 +39,7 @@
 /coverage
 /node_modules
 /out/
+/artifacts/
 /public/people*.webp
 next-env.d.ts
 npm-debug.log*

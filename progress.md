@@ -7,6 +7,18 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — QR codes: /qr/<code> resolves a printed code to wherever the admin console currently points it (migration 0073) — the paper never has to change. The first is /qr/1 for Elle, with no destination yet, so scans land on the front door until one is set; redirects are temporary and never cached, destinations are http(s) only, crawlers are kept out, and the outreach lead list is gitignored so ship cannot publish it
+
+- `.gitignore`
+- `src/app/admin/QrCodes.tsx`
+- `src/app/admin/page.tsx`
+- `src/app/admin/qrActions.ts`
+- `src/app/qr/[slug]/route.ts`
+- `src/app/robots.ts`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0073_qr_codes.sql`
+
+
 ### 2026-09-21 — Admin: real users per community on Explore, and a users section on Analytics — totals, new this year/month/week, active users, weekly real sign-ups, where people are arriving, how they arrived and how far they got; a real user is an account that has signed in at least once (migration 0072), because 217 of 222 accounts are demo fixtures or sign-ups that never signed in
 
 - `src/app/analytics/UserGrowth.tsx`

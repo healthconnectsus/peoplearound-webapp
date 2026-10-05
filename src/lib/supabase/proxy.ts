@@ -106,6 +106,10 @@ export async function updateSession(request: NextRequest) {
     // no session, and a fallback that redirects to /login is not a fallback:
     // the one moment it exists for is the moment the network is gone.
     path === "/offline" ||
+    // Printed QR codes (migration 0073). Whoever scans one is a stranger
+    // with a phone camera: a code that answers with a login page is a dead
+    // code. The route only ever redirects, and reads no session.
+    path.startsWith("/qr/") ||
     // Local visual galleries; the pages themselves 404 in production.
     (process.env.NODE_ENV !== "production" && path.startsWith("/dev"));
 

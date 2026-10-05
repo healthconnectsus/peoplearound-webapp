@@ -51,6 +51,10 @@ export default function robots(): MetadataRoute.Robots {
           "/auth/",
           "/dev/",
           "/offline",
+          // Printed codes are for the person holding the paper. A crawler
+          // following one counts as a scan and then wanders off to wherever
+          // that code points.
+          "/qr/",
         ],
       },
     ],

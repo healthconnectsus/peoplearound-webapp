@@ -11,6 +11,7 @@ import { timeAgo } from "@/lib/projects";
 import { EventImports } from "./EventImports";
 import { GrowthTools } from './GrowthTools';
 import { CalendarSources } from './CalendarSources';
+import { QrCodes } from './QrCodes';
 import {
   archiveProject,
   deleteCommunity,
@@ -140,6 +141,7 @@ async function AdminPage({
 
         <EventImports />
         <GrowthTools />
+        <QrCodes />
         <CalendarSources />
 
         {/* Health strip */}
