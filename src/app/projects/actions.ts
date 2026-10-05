@@ -491,17 +491,24 @@ export async function createEvent(formData: FormData) {
     redirect(`/projects/${projectId}`);
   }
 
-  await supabase.from("events").insert({
-    project_id: projectId,
-    title,
-    starts_at: startsAt,
-    place,
-    photo_url: photoUrl || null,
-  });
+  const { data: created } = await supabase
+    .from("events")
+    .insert({
+      project_id: projectId,
+      title,
+      starts_at: startsAt,
+      place,
+      photo_url: photoUrl || null,
+    })
+    .select("id")
+    .maybeSingle();
 
   revalidatePath(`/projects/${projectId}`);
+  revalidatePath("/events");
   revalidatePath("/");
-  redirect(`/projects/${projectId}`);
+  // Straight to the event's own page: the next things worth doing — saying
+  // what needs doing, and putting it on a poster — all live there.
+  redirect(created?.id ? `/events/${created.id}` : `/projects/${projectId}`);
 }
 
 export async function deleteEvent(formData: FormData) {

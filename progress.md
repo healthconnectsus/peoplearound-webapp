@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Smaller things around events: planning one now lands on its own page (where publishing and listing jobs live), the events list shows when a job still needs someone, the share card offers WhatsApp, a text message or email, and a place gets a directions link. sortEventsForTab is generic so embedded extras survive it
+
+- `src/app/events/[id]/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/projects/actions.ts`
+- `src/lib/eventSort.ts`
+
+
 ### 2026-10-05 — Fix: /api/push was never reachable — the proxy answered Vercel Cron with a redirect to the login page every ten minutes, so no web push has ever been delivered; it is now in the list of routes that carry their own bearer check. Plus: a reminder the day before an event to everyone coming or down for a job (migration 0077, daily cron, once per person per event), and a note an organizer can send to everyone coming — capped at one every ten minutes, reaching the people who signed up from a poster and are in no group chat
 
 - `src/app/api/event-reminders/route.ts`

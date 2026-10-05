@@ -588,9 +588,34 @@ function ShareCard({
               See what they see
             </a>
           </div>
+          {/* Where neighborhood things actually get shared. Plain links, so
+              they work from a phone without any script of ours. */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`${title} — ${url}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+            >
+              WhatsApp
+            </a>
+            <a
+              href={`sms:?&body=${encodeURIComponent(`${title} — ${url}`)}`}
+              className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+            >
+              Text message
+            </a>
+            <a
+              href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${title}\n\n${url}`)}`}
+              className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+            >
+              Email
+            </a>
+          </div>
+
           <p className="mt-3 text-xs text-black/50 dark:text-white/50">
-            Share it in a group chat and it unfurls with the name, the time and
-            the place. On paper, the QR goes to the same page.
+            Shared in a group chat it unfurls with the name, the time and the
+            place. On paper, the QR goes to the same page.
           </p>
         </div>
 
@@ -687,6 +712,21 @@ async function EventPage({ params, searchParams }: Props) {
         {where ? (
           <p className="mt-1 text-sm text-black/70 dark:text-white/70">
             📍 {where}
+            {/* The place is whatever the organizer typed — "the old oak" is
+                not an address, so this searches rather than pretending to
+                know a pin. */}
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                [event.place, project.neighborhood?.name, project.neighborhood?.city]
+                  .filter(Boolean)
+                  .join(", "),
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-2 text-xs underline underline-offset-2 text-black/45 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
+            >
+              directions
+            </a>
           </p>
         ) : null}
         {!upcoming ? (

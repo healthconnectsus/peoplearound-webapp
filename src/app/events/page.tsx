@@ -38,7 +38,17 @@ type HostedEvent = Omit<ProjectEvent, "project"> & {
     lat: number | null;
     lng: number | null;
   } | null;
+  /** Jobs on this event: how many each takes, and how many took it. */
+  roles?: { needed: number; takers: { count: number }[] }[];
 };
+
+/** How many volunteer spots are still going begging on an event. */
+function openSpots(e: HostedEvent): number {
+  return (e.roles ?? []).reduce(
+    (sum, r) => sum + Math.max(0, r.needed - (r.takers?.[0]?.count ?? 0)),
+    0,
+  );
+}
 
 async function EventsPage({
   searchParams,
@@ -70,7 +80,9 @@ async function EventsPage({
     supabase
       .from("events")
       .select(
-        "id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id),project:projects(title,neighborhood_id,category,state,lat,lng)",
+        // The jobs ride along as counts in the same request, so the list can
+        // say "2 jobs open" without a second round trip.
+        "id,project_id,title,starts_at,place,photo_url,created_at,rsvps(user_id),roles:event_roles(needed,takers:event_role_signups(count)),project:projects(title,neighborhood_id,category,state,lat,lng)",
       )
       .gte("starts_at", new Date().toISOString())
       .order("starts_at", { ascending: true })
@@ -262,6 +274,12 @@ async function EventsPage({
                     {e.project?.title ? (
                       <span className="text-xs text-black/45 dark:text-white/45">
                         Part of “{e.project.title}”
+                      </span>
+                    ) : null}
+                    {openSpots(e) > 0 ? (
+                      <span className="mt-1 self-start rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                        🙋 {openSpots(e)}{" "}
+                        {openSpots(e) === 1 ? "job" : "jobs"} still need someone
                       </span>
                     ) : null}
                   </Link>

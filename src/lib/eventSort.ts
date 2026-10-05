@@ -46,8 +46,12 @@ function distanceKm(
   return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
-export function sortEventsForTab(
-  events: ProjectEvent[],
+/**
+ * Generic in the event, so anything a caller selected alongside — the jobs
+ * and their counts, say — survives the sort instead of being typed away.
+ */
+export function sortEventsForTab<T extends ProjectEvent>(
+  events: T[],
   tab: string,
   ctx: {
     userId: string;
@@ -58,7 +62,7 @@ export function sortEventsForTab(
     /** Projects the viewer founds or co-organizes. */
     stewardedIds?: Set<string>;
   },
-): ProjectEvent[] {
+): T[] {
   const list = [...events];
   // Every tab falls back to the diary order, so two events that tie on the
   // tab's own question still read as a sensible list rather than a shuffle.
