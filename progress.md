@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Logo v11: flip the gradient to warm-left, cool-right and push both ends - watermelon/grapefruit #F26D5F through orange, gold and green to deep teal #0E9090; horizontal as before; icon and PWA icons regenerated
+
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-10-05 — Logo v10: give the PA mark the mug's gradient - teal #2DBEA6 through green and gold to orange #EC883C, sampled from the reference photo's hue walk (170 to 26 degrees) and normalised for the mug's shading; horizontal across the mark, wordmark unchanged; icon and PWA icons regenerated
 
 - `public/apple-icon.png`

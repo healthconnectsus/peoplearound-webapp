@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0.3 606.4 192.7" role="img" aria-label="Peoplearound">
 <defs><linearGradient id="pg" gradientUnits="userSpaceOnUse" x1="1" y1="94.80000000000001" x2="214.7" y2="94.80000000000001">
-<stop offset="0" stop-color="#2DBEA6"/><stop offset="0.28" stop-color="#3DC24F"/><stop offset="0.52" stop-color="#BCD039"/><stop offset="0.76" stop-color="#E6BC33"/><stop offset="1" stop-color="#EC883C"/>
+<stop offset="0" stop-color="#F26D5F"/><stop offset="0.26" stop-color="#EF9343"/><stop offset="0.5" stop-color="#E6C833"/><stop offset="0.74" stop-color="#39AC4C"/><stop offset="1" stop-color="#0E9090"/>
 </linearGradient></defs>
 <style>.ink{fill:#3c404a}@media(prefers-color-scheme:dark){.ink{fill:#e7e9ee}}</style>
 <g transform="translate(0.12 26.49) scale(0.8788)">
