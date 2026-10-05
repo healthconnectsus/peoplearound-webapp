@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Peoplearound">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Peoplearound">
 <defs><linearGradient id="ig" gradientUnits="userSpaceOnUse" x1="1" y1="94.80000000000001" x2="214.7" y2="94.80000000000001">
 <stop offset="0" stop-color="#0E9090"/><stop offset="0.26" stop-color="#39AC4C"/><stop offset="0.5" stop-color="#E6C833"/><stop offset="0.74" stop-color="#EF9343"/><stop offset="1" stop-color="#F26D5F"/>
 </linearGradient><clipPath id="c0lc3y"><rect width="512" height="512" rx="112"/></clipPath></defs>

@@ -7,6 +7,14 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Logo: declare intrinsic width/height on the SVGs alongside the viewBox - without them a browser can rasterise an SVG in an img tag at a default size and scale it, which reads as slight pixelation in the sidebar
+
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-10-05 — Logo v11.1: invert the gradient direction (deep teal #0E9090 on the left through green, gold and orange to watermelon #F26D5F on the right, matching the mug) and move the app icon to a white tile; PWA icons regenerated
 
 - `public/apple-icon.png`
