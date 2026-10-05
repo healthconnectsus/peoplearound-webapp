@@ -22,6 +22,7 @@ import { deleteEvent } from "@/app/projects/actions";
 import {
   addEventRole,
   cancelEvent,
+  repeatEvent,
   removeEventRole,
   setAttendance,
   setEventSharing,
@@ -871,6 +872,50 @@ async function EventPage({ params, searchParams }: Props) {
             attended={attended ?? []}
           />
           <EditForm event={event} />
+
+          {/* The second week is the one that does not get planned. */}
+          {!cancelled ? (
+            <form
+              action={repeatEvent}
+              className="mt-3 flex flex-wrap items-end gap-2 rounded-xl border border-slate-300 p-4 dark:border-slate-600"
+            >
+              <input type="hidden" name="eventId" value={event.id} />
+              <span className="text-sm font-medium">Happens again?</span>
+              <label className="flex flex-col gap-1 text-xs text-black/60 dark:text-white/60">
+                Every
+                <select
+                  name="every"
+                  defaultValue="week"
+                  className="rounded-lg border border-slate-400 bg-transparent px-3 py-1.5 text-sm dark:border-slate-400"
+                >
+                  <option value="week">week</option>
+                  <option value="fortnight">fortnight</option>
+                  <option value="month">month</option>
+                </select>
+              </label>
+              <label className="flex w-24 flex-col gap-1 text-xs text-black/60 dark:text-white/60">
+                How many
+                <input
+                  type="number"
+                  name="times"
+                  min={1}
+                  max={12}
+                  defaultValue={4}
+                  className="rounded-lg border border-slate-400 bg-transparent px-3 py-1.5 text-sm dark:border-slate-400"
+                />
+              </label>
+              <SubmitButton
+                pendingLabel="Adding…"
+                className="rounded-lg border border-slate-400 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+              >
+                Add them
+              </SubmitButton>
+              <span className="w-full text-xs text-black/45 dark:text-white/45">
+                Same time, same place, same jobs — nobody carried over, and
+                each one can move or be called off on its own.
+              </span>
+            </form>
+          ) : null}
 
           {/* Calling it off keeps the page and tells everyone; removing it
               is for a mistake, and says nothing to anybody. */}

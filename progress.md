@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-05 — Events can repeat (migration 0079): copy one forward every week, fortnight or month, up to twelve times, carrying the time, place, words and jobs but nobody who took them. Each copy is an ordinary event that can move or be called off on its own, and starts unpublished — a share code belongs to the poster it was printed for
+
+- `src/app/events/[id]/page.tsx`
+- `src/app/events/actions.ts`
+- `supabase/migrations/0079_repeat_an_event.sql`
+
+
 ### 2026-10-05 — Events can be called off rather than only deleted (migration 0078): the event keeps its page and says plainly that it is off and why, everyone coming or down for a job is told at once, the poster QR lands on the truth instead of nothing, no reminder goes out, it leaves the feed, and nobody can newly say they are coming — and it can be put back on
 
 - `src/app/e/[code]/page.tsx`

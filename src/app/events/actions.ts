@@ -251,6 +251,43 @@ export async function toggleRoleSignup(formData: FormData) {
 }
 
 /**
+ * "And again next Tuesday." Copies the event forward with its jobs, each
+ * copy an ordinary event from then on (migration 0079).
+ */
+export async function repeatEvent(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const every = String(formData.get("every") ?? "week");
+  const times = Math.min(
+    12,
+    Math.max(1, Number.parseInt(String(formData.get("times") ?? "1"), 10) || 1),
+  );
+  if (!eventId) redirect("/events");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: made, error } = await supabase.rpc("repeat_event", {
+    p_event: eventId,
+    p_every: every,
+    p_times: times,
+  });
+  if (error) {
+    redirect(`/events/${eventId}?error=Could+not+repeat+that+event`);
+  }
+
+  revalidatePath("/events");
+  revalidatePath(`/events/${eventId}`);
+  redirect(
+    `/events/${eventId}?message=${encodeURIComponent(
+      `${made} more added — each one its own evening, with the same jobs`,
+    )}`,
+  );
+}
+
+/**
  * Call it off, and say so.
  *
  * Deleting an event is right for a mistake; this is for the thing rain
