@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-06 — shape-idea accepts a bearer token: the mobile app has no cookie jar, so it sends its Supabase access token as Authorization: Bearer and the route reads the database as that person under the same RLS, charging the daily AI credit to the right account
+
+- `src/app/api/shape-idea/route.ts`
+
+
 ### 2026-10-05 — Logo: declare intrinsic width/height on the SVGs alongside the viewBox - without them a browser can rasterise an SVG in an img tag at a default size and scale it, which reads as slight pixelation in the sidebar
 
 - `public/logo-dark.svg`

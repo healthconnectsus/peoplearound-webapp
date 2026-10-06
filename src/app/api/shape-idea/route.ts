@@ -1,7 +1,20 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES } from "@/lib/projects";
+
+/** A client that acts as the holder of `token` — for the mobile app, which has no cookie jar. */
+function createBearerClient(token: string) {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    },
+  );
+}
 
 /**
  * POST /api/shape-idea — turn a free-form "brain dump" (typed or dictated)
@@ -55,10 +68,19 @@ Rules:
 
 export async function POST(request: Request) {
   // Only signed-in users may burn API tokens.
-  const supabase = await createClient();
+  //
+  // The browser arrives with its session in cookies. The mobile app has no
+  // cookies — it sends the same Supabase access token as a bearer header,
+  // and a client built around that token reads the database as that person,
+  // under the same row-level security, so the per-user credit below is
+  // charged to the right account either way.
+  const bearer = request.headers
+    .get("authorization")
+    ?.match(/^Bearer\s+(\S+)$/i)?.[1];
+  const supabase = bearer ? createBearerClient(bearer) : await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser(bearer);
   if (!user) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
