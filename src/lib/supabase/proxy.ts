@@ -105,6 +105,11 @@ export async function updateSession(request: NextRequest) {
     // silently, because a 307 is not an error anybody goes looking for.
     path === "/api/push" ||
     path === "/api/event-reminders" ||
+    // The mobile app calls this with its access token as a bearer header and
+    // no cookie; the route verifies the token itself and refuses anonymous
+    // calls with a 401. Left out of this list, the proxy answered the app
+    // with a redirect to the login page — a 200 with HTML in it.
+    path === "/api/shape-idea" ||
     // The browser posts CSP violations here before any session exists, and
     // does so for logged-out pages too. It stores nothing and answers 204.
     path === "/api/csp-report" ||

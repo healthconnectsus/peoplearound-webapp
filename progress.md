@@ -7,6 +7,11 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-06 — shape-idea joins the proxy's list of routes that check their own bearer token - without it the app's call was answered with a redirect to the login page, a 200 with HTML in it
+
+- `src/lib/supabase/proxy.ts`
+
+
 ### 2026-10-06 — shape-idea accepts a bearer token: the mobile app has no cookie jar, so it sends its Supabase access token as Authorization: Bearer and the route reads the database as that person under the same RLS, charging the daily AI credit to the right account
 
 - `src/app/api/shape-idea/route.ts`
