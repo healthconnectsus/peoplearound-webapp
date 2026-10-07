@@ -7,6 +7,33 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-07 — The chrome, simplified the way Nextdoor is: five places and one Post button in the rail (the P·E·O·P·L·E acrostic, two coloured buttons and six small links are gone), everything about you under your avatar, a top bar that is search plus notifications plus you, a bottom bar on phones with the post button where a thumb reaches, one PostChooser behind every post button, one sort control instead of a row of chips, a feed that is a feed (community management lives on Communities, small help on its own /asks page, cards lose their category-coloured edges), events opening on what is coming up rather than an empty Mine, and the map after the content on a phone. Seeded events now sit at daytime hours
+
+- `docs/ARCHITECTURE.md`
+- `scripts/budget.mjs`
+- `scripts/city-seed.sql`
+- `scripts/generate-city-seed.mjs`
+- `scripts/smoke.mjs`
+- `src/app/admin/page.tsx`
+- `src/app/asks/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/help/page.tsx`
+- `src/app/ideas/page.tsx`
+- `src/app/people/page.tsx`
+- `src/components/AppShell.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/components/InstallPrompt.tsx`
+- `src/components/MapShell.tsx`
+- `src/components/MobileNav.tsx`
+- `src/components/PostChooser.tsx`
+- `src/components/ProfileMenu.tsx`
+- `src/components/ProjectFeedCard.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/SiteHeader.tsx`
+- `src/components/TopBar.tsx`
+- `src/lib/eventSort.ts`
+
+
 ### 2026-10-07 — The site wears the v11.1 logo: every primary button is one teal (#008282, the marks
 
 - `scripts/city-seed.sql`

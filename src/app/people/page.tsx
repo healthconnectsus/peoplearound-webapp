@@ -2,19 +2,17 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { DemoResidents } from '@/components/DemoResidents';
 import { redirect } from "next/navigation";
-import { Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
-import { AsksSection } from "@/components/AsksSection";
 import { FeedComposer } from "@/components/FeedComposer";
 import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { CommunityFilter } from "@/components/CommunityFilter";
 import { TagFilter } from "@/components/TagFilter";
-import { FeedTabs, readTab } from "@/components/FeedTabs";
+import { FEED_TABS, readTab } from "@/components/FeedTabs";
+import { SortSelect } from "@/components/SortSelect";
 import { sortForTab } from "@/lib/feedSort";
-import { NewCommunityDialog } from "./NewCommunityDialog";
 import { ProjectCard } from "@/components/ProjectFeedCard";
 import { loadFeedCards } from "@/lib/feed";
 import { openAsks, formatMinutes } from "@/lib/asks";
@@ -25,13 +23,8 @@ import {
   CATEGORIES,
   CATEGORY_META,
 } from "@/lib/projects";
-import { communityLabel, kindMeta } from "@/lib/communities";
+import { communityLabel } from "@/lib/communities";
 import { LocateButton } from "@/app/neighborhood/LocateButton";
-import {
-  joinCommunity,
-  leaveCommunity,
-  setPrimaryCommunity,
-} from "@/app/neighborhood/communityActions";
 import { currentUser } from "@/lib/auth";
 import { shellState } from "@/lib/shell";
 import { communityDirectory } from "@/lib/directory";
@@ -47,8 +40,6 @@ export const metadata = { title: "People around" };
  * small asks they bring to each other.
  */
 
-const PILL_BTN =
-  "rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10";
 
 type PersonRow = {
   id: string;
@@ -99,16 +90,6 @@ function PersonCard({
   );
 }
 
-function KindBadge({ kind }: { kind: string | null | undefined }) {
-  const meta = kindMeta(kind);
-  return (
-    <span
-      className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.badge}`}
-    >
-      {meta.label}
-    </span>
-  );
-}
 
 async function PeoplePage({
   searchParams,
@@ -116,7 +97,6 @@ async function PeoplePage({
   searchParams: Promise<{
     error?: string;
     message?: string;
-    compose?: string;
     cat?: string;
     help?: string;
     community?: string;
@@ -126,7 +106,6 @@ async function PeoplePage({
   const {
     error,
     message,
-    compose,
     cat,
     help: helpFilter,
     community,
@@ -244,7 +223,6 @@ async function PeoplePage({
   );
 
   const mine = communities.filter((c) => myIds.has(c.id));
-  const discover = communities.filter((c) => !myIds.has(c.id));
 
   // Tags are multi-select now — "games AND food & drink" is a reasonable
   // thing to want, and the old single-value chips made it impossible.
@@ -296,7 +274,7 @@ async function PeoplePage({
           {/* Founding era: the first 10 neighbors of a place are its founding
               neighbors, permanently — real scarcity, no points. */}
           {isFoundingEra ? (
-            <div className="mb-6 rounded-2xl border border-emerald-600/25 bg-gradient-to-br from-emerald-50 to-amber-50/60 p-5 shadow-sm dark:border-emerald-500/25 dark:from-emerald-950/40 dark:to-amber-950/20">
+            <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-zinc-900">
               <p className="font-medium">
                 🌱 {hoodName} is just getting started
               </p>
@@ -368,22 +346,23 @@ async function PeoplePage({
           ) : null}
 
           <section id="feed" className="mt-6 scroll-mt-6">
-            <div className="mb-3">
-              <FeedTabs
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <SortSelect
+                tabs={FEED_TABS}
                 active={tab}
                 basePath="/people"
                 extraParams={{ community: picked || undefined }}
               />
-            </div>
-
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <CommunityFilter
-                communities={mine.map((c) => ({
-                  id: c.id,
-                  label: communityLabel(c),
-                }))}
-                selected={picked}
-              />
+              {/* One community needs no picker; the events board does the same. */}
+              {mine.length > 1 ? (
+                <CommunityFilter
+                  communities={mine.map((c) => ({
+                    id: c.id,
+                    label: communityLabel(c),
+                  }))}
+                  selected={picked}
+                />
+              ) : null}
 
               {cards.length > 0 ? (
                 <TagFilter
@@ -422,8 +401,8 @@ async function PeoplePage({
                   {asks.map((a) => (
                     <li key={a.id}>
                       <Link
-                        href="/people#asks"
-                        className="flex h-full flex-col gap-0.5 rounded-xl border border-amber-500/25 bg-amber-50/70 px-4 py-3 shadow-sm transition-colors hover:bg-amber-50 dark:border-amber-500/25 dark:bg-amber-950/20 dark:hover:bg-amber-950/40"
+                        href="/asks"
+                        className="flex h-full flex-col gap-0.5 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                       >
                         <span className="text-sm font-medium">🙋 {a.title}</span>
                         <span className="text-xs text-black/50 dark:text-white/50">
@@ -447,8 +426,8 @@ async function PeoplePage({
                   {events.slice(0, 4).map((e) => (
                     <li key={e.id}>
                       <Link
-                        href={`/projects/${e.project_id}`}
-                        className="flex h-full flex-col gap-0.5 rounded-xl border border-emerald-600/20 bg-emerald-50/70 px-4 py-3 shadow-sm transition-colors hover:bg-emerald-50 dark:border-emerald-500/25 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40"
+                        href={`/events/${e.id}`}
+                        className="flex h-full flex-col gap-0.5 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition-colors hover:bg-stone-50 dark:border-slate-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                       >
                         <span className="text-sm font-medium">📅 {e.title}</span>
                         <span className="text-xs text-black/50 dark:text-white/50">
@@ -489,99 +468,31 @@ async function PeoplePage({
 
           <section id="communities" className="mt-10 scroll-mt-6">
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-              🏘 My communities · {mine.length}
+              Your communities · {mine.length}
             </h2>
-            <p className="mb-3 text-sm text-black/50 dark:text-white/50">
-              Your neighborhood is just the start — join the cultural, hobby,
-              and interest communities you belong to. Your primary community
-              decides your home feed.
-            </p>
-            {mine.length > 0 ? (
-              <ul className="flex flex-col gap-2">
-                {mine.map((c) => (
-                  <li
-                    key={c.id}
-                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{communityLabel(c)}</span>
-                        <KindBadge kind={c.kind} />
-                        {c.id === primaryId ? (
-                          <span className="flex items-center gap-1 rounded-lg bg-pa-brand px-2 py-0.5 text-[11px] font-medium text-pa-brand-ink">
-                            <Star className="h-3 w-3" aria-hidden /> Primary
-                          </span>
-                        ) : null}
-                      </span>
-                      {c.description ? (
-                        <span className="mt-0.5 block text-xs text-black/50 dark:text-white/50">
-                          {c.description}
-                        </span>
-                      ) : null}
-                    </span>
-                    {c.id !== primaryId ? (
-                      <span className="flex gap-2">
-                        <form action={setPrimaryCommunity}>
-                          <input type="hidden" name="communityId" value={c.id} />
-                          <button type="submit" className={PILL_BTN}>
-                            Set primary
-                          </button>
-                        </form>
-                        <form action={leaveCommunity}>
-                          <input type="hidden" name="communityId" value={c.id} />
-                          <button type="submit" className={PILL_BTN}>
-                            Leave
-                          </button>
-                        </form>
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="rounded-2xl border border-dashed border-slate-400 bg-white p-6 text-center text-sm text-black/60 dark:border-slate-500 dark:bg-zinc-900 dark:text-white/60">
-                You haven&apos;t joined any communities yet — find yours below.
-              </p>
-            )}
-
-            {discover.length > 0 ? (
-              <div className="mt-6">
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-black/45 dark:text-white/45">
-                  Discover
-                </h3>
-                <ul className="flex flex-col gap-2">
-                  {discover.map((c) => (
-                    <li
-                      key={c.id}
-                      className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 shadow-sm dark:border-slate-600 dark:bg-zinc-900"
-                    >
-                      <span className="min-w-0 flex-1">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span className="font-medium">{communityLabel(c)}</span>
-                          <KindBadge kind={c.kind} />
-                        </span>
-                        {c.description ? (
-                          <span className="mt-0.5 block text-xs text-black/50 dark:text-white/50">
-                            {c.description}
-                          </span>
-                        ) : null}
-                      </span>
-                      <form action={joinCommunity}>
-                        <input type="hidden" name="communityId" value={c.id} />
-                        <button
-                          type="submit"
-                          className="rounded-lg bg-pa-brand px-4 py-1.5 text-xs font-medium text-pa-brand-ink transition-colors hover:bg-pa-brand-hover"
-                        >
-                          Join
-                        </button>
-                      </form>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            <NewCommunityDialog />
+            {/* Joining, leaving and choosing a home moved to Communities —
+                this is the one line that says where you are. */}
+            <ul className="flex flex-wrap gap-2">
+              {mine.map((c) => (
+                <li
+                  key={c.id}
+                  className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm shadow-sm dark:border-slate-700 dark:bg-zinc-900"
+                >
+                  {communityLabel(c)}
+                  {c.id === primaryId ? (
+                    <span className="text-black/45 dark:text-white/45"> · home</span>
+                  ) : null}
+                </li>
+              ))}
+              <li>
+                <Link
+                  href="/explore"
+                  className="inline-block rounded-full border border-dashed border-slate-400 px-3.5 py-1.5 text-sm text-black/60 transition-colors hover:text-black dark:border-slate-500 dark:text-white/60 dark:hover:text-white"
+                >
+                  {mine.length > 0 ? "Join another →" : "Find yours →"}
+                </Link>
+              </li>
+            </ul>
           </section>
 
           {primaryId ? (
@@ -614,7 +525,7 @@ async function PeoplePage({
           {remoteHelpers.length > 0 ? (
             <section className="mt-8">
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-                💻 Open to helping online
+                Open to helping online
               </h2>
               <ul className="grid gap-2 sm:grid-cols-2">
                 {remoteHelpers.map((p) => (
@@ -625,7 +536,6 @@ async function PeoplePage({
           ) : null}
 
 
-          <AsksSection userId={user.id} startOpen={compose === "1"} />
           {/* Last on the page and often empty — it should hold nothing up. */}
           <Suspense fallback={null}>
             <DemoResidents />

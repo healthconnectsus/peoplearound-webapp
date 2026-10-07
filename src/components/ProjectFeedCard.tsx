@@ -8,8 +8,6 @@ import {
   REACH_META,
   STATE_META,
   categoryMeta,
-  categoryShadow,
-  categoryTint,
   initials,
   timeAgo,
   type Project,
@@ -66,7 +64,7 @@ export function ProjectCard({
   return (
     <li>
       <div
-        className={`overflow-hidden rounded-2xl border border-slate-300 border-l-4 bg-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(p.category)} ${categoryShadow(p.category)}`}
+        className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-zinc-900"
       >
         <Link href={`/projects/${p.id}`} className="block">
           <ProjectHero

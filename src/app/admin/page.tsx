@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
+import { AdminCityPicker } from "@/components/AdminCityPicker";
 import { timeAgo } from "@/lib/projects";
 import { EventImports } from "./EventImports";
 import { GrowthTools } from './GrowthTools';
@@ -130,6 +131,11 @@ async function AdminPage({
           Ops console — only admins see this. Every decision here is a human
           one.
         </p>
+        {/* Moved here from the top bar: an admin wanting to view a city is
+            already on this page. */}
+        <div className="mt-3">
+          <AdminCityPicker />
+        </div>
 
         {error ? (
           <p className="mt-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">

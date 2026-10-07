@@ -25,11 +25,13 @@ import type { ProjectEvent } from "@/lib/projects";
  * says how many are on around you rather than claiming there are none.
  */
 export const EVENT_TABS: readonly TabDef[] = [
-  { key: "", label: "Mine", hint: "Yours, and the ones you're going to" },
-  { key: "soon", label: "Soon", hint: "Happening next" },
+  // "Soon" is the default: a newcomer's first look at events should show
+  // what is happening around them, not an empty list of their own.
+  { key: "", label: "Soon", hint: "Happening next" },
   { key: "added", label: "Just added", hint: "Most recently announced" },
   { key: "nearby", label: "Nearby", hint: "Closest to you first" },
   { key: "popular", label: "Popular", hint: "Most neighbors going" },
+  { key: "mine", label: "Mine", hint: "Yours, and the ones you're going to" },
 ] as const;
 
 /** Rough great-circle distance in km — precise enough to rank by. */
@@ -70,9 +72,18 @@ export function sortEventsForTab<T extends ProjectEvent>(
     a.starts_at.localeCompare(b.starts_at);
 
   switch (tab) {
-    case "soon":
-      // The order the query already returned: soonest first.
-      return list;
+    case "mine": {
+      // Two ways an event is yours: you run it, or you said you're coming.
+      // Both are commitments, so both belong here. The one tab that narrows.
+      const stewarded = ctx.stewardedIds ?? new Set<string>();
+      return list
+        .filter(
+          (e) =>
+            stewarded.has(e.project_id) ||
+            e.rsvps.some((r) => r.user_id === ctx.userId),
+        )
+        .sort(bySoonest);
+    }
 
     case "added":
       return list.sort(
@@ -98,18 +109,9 @@ export function sortEventsForTab<T extends ProjectEvent>(
         (a, b) => b.rsvps.length - a.rsvps.length || bySoonest(a, b),
       );
 
-    default: {
-      // "Mine" — the default tab, so it is the empty-key case.
-      // Two ways an event is yours: you run it, or you said you're coming.
-      // Both are commitments, so both belong here.
-      const stewarded = ctx.stewardedIds ?? new Set<string>();
-      return list
-        .filter(
-          (e) =>
-            stewarded.has(e.project_id) ||
-            e.rsvps.some((r) => r.user_id === ctx.userId),
-        )
-        .sort(bySoonest);
-    }
+    default:
+      // "Soon" — the default tab, so it is the empty-key case: the order the
+      // query already returned, soonest first.
+      return list;
   }
 }

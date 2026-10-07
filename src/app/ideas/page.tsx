@@ -11,7 +11,8 @@ import { projectPinsFrom } from "@/lib/mapPins";
 import { type Project } from "@/lib/projects";
 import { PlaybookList } from "@/components/PlaybookList";
 import { ProjectCard } from "@/components/ProjectFeedCard";
-import { FeedTabs, readTab } from "@/components/FeedTabs";
+import { FEED_TABS, readTab } from "@/components/FeedTabs";
+import { SortSelect } from "@/components/SortSelect";
 import { loadFeedCards } from "@/lib/feed";
 import { sortForTab } from "@/lib/feedSort";
 
@@ -85,7 +86,7 @@ async function IdeasPage({
           </p>
 
           <div className="mt-4">
-            <FeedTabs active={tab} basePath="/ideas" />
+            <SortSelect tabs={FEED_TABS} active={tab} basePath="/ideas" />
           </div>
 
           <section id="feed" className="mt-5 scroll-mt-6">

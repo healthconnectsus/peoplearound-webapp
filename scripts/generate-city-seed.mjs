@@ -406,9 +406,13 @@ for (const m of projects) {
   en += 1;
   const c = CITIES[m.ci];
   const upcoming = en % 3 !== 0;
+  // Event times are the wall clock a founder typed (no timezone), so these
+  // are anchored to midnight and land between 9:00 and 18:30 — never "2:42
+  // AM" because the seed happened to run at night. Minutes come from the
+  // counter, not the PRNG, so re-running never shifts the rows after.
   const when = upcoming
-    ? `now() + interval '${int(1, 13)} days ${int(9, 18)} hours'`
-    : `now() - interval '${Math.max(1, m.daysAgo - int(4, 12))} days'`;
+    ? `date_trunc('day', now()) + interval '${int(1, 13)} days ${int(9, 18)} hours ${en % 2 ? 30 : 0} minutes'`
+    : `date_trunc('day', now()) - interval '${Math.max(1, m.daysAgo - int(4, 12))} days' + interval '${9 + (en % 9)} hours'`;
   const place = pick([...c.parks, ...c.spots]);
   eventRows.push(`  ('${eid(en)}', '${pid(m.p)}', '${q(pick(EVENT_TITLES))}', ${when}, '${q(place)}', '${m.owner.id}', '${q(upcoming ? "Come as you are. Everything you need is provided; bring water and a friend." : "")}', now() - interval '${Math.max(1, m.daysAgo - int(2, 5))} days')`);
   const joiners = [...m.team, ...m.stargazers.slice(0, 4)];
@@ -424,9 +428,11 @@ for (const m of projects) {
     });
   }
 }
+// Re-running corrects the time of an event already seeded, so a fix to the
+// clock above reaches rows that exist; nothing else about them changes.
 L.push(`insert into public.events (id, project_id, title, starts_at, place, created_by, description, created_at) values
 ${eventRows.join(",\n")}
-on conflict (id) do nothing;
+on conflict (id) do update set starts_at = excluded.starts_at;
 
 insert into public.rsvps (event_id, user_id, created_at) values
 ${rsvpRows.join(",\n")}
@@ -455,6 +461,6 @@ L.push(`-- ------------------------------------------------------------------
 `);
 
 writeFileSync(OUT, L.join("\n"));
-const upcoming = eventRows.filter((r) => r.includes("now() + interval")).length;
+const upcoming = eventRows.filter((r) => r.includes("now()) + interval")).length;
 console.log(`wrote ${OUT}`);
 console.log(`${CITIES.length} cities · ${hoods.length} neighborhoods · ${users.length} residents · ${projects.length} projects · ${eventRows.length} events (${upcoming} upcoming) · ${roleRows.length} jobs · ${starRows.length} stars · ${memberRows.length} memberships · ${contribRows.length} contributions`);

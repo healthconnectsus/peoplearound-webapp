@@ -361,6 +361,36 @@ to finish — which is exactly the time spent waiting on queued queries.
   project-wide 50 MB into public buckets served from our egress. Both buckets
   now hold the same limits as the UI, so nothing the UI allows is refused.
 
+## Chrome and navigation
+
+The frame was redrawn on 2026-10-07 with one question: what does a person
+navigate *by*? Nextdoor is the model — not its features, its restraint.
+
+- **Five places, one action.** The rail is Home, Events, Offers, Projects,
+  Communities, and a single "Post" button. It used to be six destinations
+  (spelling P·E·O·P·L·E), two coloured buttons and six small links; most of
+  a screen before any content. The acrostic lost.
+- **Everything about you lives under your face.** Analytics, the year in
+  review, settings, help, inviting, privacy, your clan and Local Faves are in
+  the avatar menu, grouped. The top bar is search plus the two things that
+  are about you — notifications and that avatar. The admin city picker moved
+  to `/admin`, which is where an admin is when they want it.
+- **One post button, five doors.** `PostChooser` is the one full-screen
+  choice of what you are bringing (do something, a favor, an event, an
+  offer, a thought). The rail's button, the composer's prompt and the phone's
+  centre button all open the same one. Each door walks the logo's gradient.
+- **Phones get a bottom bar** (`MobileNav`): four places and the post button
+  where a thumb reaches. The header is the mark, the bell and the avatar.
+  The map comes *after* the content on a phone, not before it.
+- **One colour for every primary button** (see `src/lib/brand.ts`): the
+  mark's teal at AA. A site with six button colours has no primary action.
+- **Sorting is one control, not a row of chips.** `SortSelect` on every
+  list; a community picker only when you belong to more than one.
+- **The home feed is a feed.** Managing communities moved to Communities,
+  small help to its own page (`/asks`), and the cards lost their
+  category-coloured edges and shadows. Events open on what is coming up, not
+  on an empty list of your own.
+
 ## Events in public
 
 An event is the one thing in this app with a reason to leave it. A flyer on a

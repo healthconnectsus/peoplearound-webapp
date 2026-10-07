@@ -209,7 +209,9 @@ async function EventsPage({
             ) : null}
           </div>
 
-          <h2 className="mt-6 text-xl font-bold">With your project teams</h2>
+          <h2 className="mt-6 text-xl font-bold">
+            {tab === "mine" ? "With your project teams" : "Coming up"}
+          </h2>
           {visible.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-slate-400 bg-white p-10 text-center dark:border-slate-500 dark:bg-zinc-900">
               <p className="text-3xl" aria-hidden>

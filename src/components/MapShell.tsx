@@ -35,13 +35,13 @@ export async function MapShell({
     : [null, []];
 
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_40%] xl:grid-cols-[minmax(0,1fr)_42%]">
-      <aside className="p-4 pb-0 lg:order-2 lg:sticky lg:top-0 lg:h-screen lg:p-4">
+    <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_36%] xl:grid-cols-[minmax(0,1fr)_38%]">
+      <aside className="order-last p-4 lg:order-2 lg:sticky lg:top-0 lg:h-screen lg:p-4">
         <NeighborhoodMap
           pins={pins}
           center={center}
           focuses={focuses}
-          className="h-64 lg:h-full"
+          className="h-56 lg:h-full"
         />
       </aside>
       <div className="min-w-0 lg:order-1">{children}</div>

@@ -64,6 +64,7 @@ const BUDGET = {
   "/settings": 8,
   "/invite": 8,
   "/help": 4,
+  "/asks": 12,
   "/projects/[id]": 10,
 };
 

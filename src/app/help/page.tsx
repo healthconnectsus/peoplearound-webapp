@@ -13,6 +13,10 @@ const FAQ: { q: string; a: string }[] = [
     a: "A hyperlocal network where neighbors share ideas and build them together. A project is a living page — like a repository for real life — with a team, a history, and credit for everyone who helps.",
   },
   {
+    q: "How do I post something?",
+    a: "Tap Post — the teal button in the left rail on a computer, or the round button at the bottom of the screen on a phone — and choose what you're bringing: something to do together, a favor you need, an event, an offer, or a thought for your community. Everything about you (your profile, settings, analytics, inviting neighbors) is under your picture at the top right.",
+  },
+  {
     q: "What does starring do?",
     a: "A star means “I'd be glad this existed.” It costs nothing, but it tells the founder the desire is real — and it ranks the neighborhood's Local Faves.",
   },

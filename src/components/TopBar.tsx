@@ -1,6 +1,4 @@
 import { Search } from "lucide-react";
-import Link from "next/link";
-import { AdminCityPicker } from "./AdminCityPicker";
 import { createClient } from "@/lib/supabase/server";
 import { timeAgo } from "@/lib/projects";
 import { ProfileMenu } from "./ProfileMenu";
@@ -10,30 +8,26 @@ import { currentProfile } from "@/lib/profile";
 import { shellState } from "@/lib/shell";
 
 /**
- * Desktop-only top bar (Nextdoor-style): centered search, notification and
- * message icons, and the profile menu. Mobile uses SiteHeader instead.
+ * Desktop-only top bar: search on the left, and on the right the two things
+ * that are about you — your notifications and your face. Nothing else. The
+ * admin city picker that used to sit here lives on /admin, which is where an
+ * admin is when they want it; the "My clan" link lives under the avatar.
  *
  * Split in two so the frame can be on screen before anyone knows who you
- * are. `TopBarFrame` is the bar itself — search, the fixed links — and takes
- * the personal cluster on the right as a slot. `TopBar` fills that slot from
- * your profile and inbox; `TopBarFallback` fills it with the same shapes and
- * nothing in them, and is what the app shell shows while the reads are out.
- * Same heights, same positions, so nothing moves when the real one lands.
+ * are: `TopBarFrame` is the bar itself, `TopBar` fills the personal slot,
+ * and `TopBarFallback` fills it with the same shapes and nothing in them.
  */
-export async function TopBar() {
-  const profile = await currentProfile();
-  if (!profile) return <TopBarFallback />;
 
+/** Who you are and what is new — one read, shared by both bars. */
+export async function personalState() {
+  const profile = await currentProfile();
+  if (!profile) return null;
   const user = await currentUser();
   const name =
     profile.display_name ?? user?.email?.split("@")[0] ?? "Neighbor";
 
-  // The persistent inbox (migration 0025): triggers fan out join
-  // requests, stars, contributions, confirmations, and events into
-  // `notifications`; the bell just reads it.
-  //
-  // It arrives with the rest of the frame (lib/shell.ts). The two queries
-  // below are only the fallback for when that read fails.
+  // The inbox arrives with the rest of the frame (lib/shell.ts); the direct
+  // queries are only the fallback for when that read fails.
   const shell = await shellState();
   const { notifRows, unread } = shell
     ? { notifRows: shell.notifications, unread: shell.unread }
@@ -55,18 +49,46 @@ export async function TopBar() {
     unread: r.read_at == null,
   }));
 
+  return { profile, name, notifications, unread: unread ?? 0 };
+}
+
+/** Notifications and your avatar — the same cluster on both bars. */
+export function Personal({
+  state,
+}: {
+  state: NonNullable<Awaited<ReturnType<typeof personalState>>>;
+}) {
+  return (
+    <>
+      <TopBarIcons notifications={state.notifications} badge={state.unread} />
+      <ProfileMenu
+        name={state.name}
+        neighborhood={state.profile.neighborhood?.name ?? null}
+        avatarUrl={state.profile.avatar_url}
+      />
+    </>
+  );
+}
+
+/** The cluster with nobody in it yet: same icons, a blank face. */
+export function PersonalFallback() {
+  return (
+    <>
+      <TopBarIcons notifications={[]} badge={0} />
+      <span
+        aria-hidden
+        className="h-9 w-9 rounded-full bg-black/10 dark:bg-white/10"
+      />
+    </>
+  );
+}
+
+export async function TopBar() {
+  const state = await personalState();
+  if (!state) return <TopBarFallback />;
   return (
     <TopBarFrame>
-      {profile.is_admin && <AdminCityPicker />}
-      <Link href="/clans" className="text-xs underline">
-        My clan
-      </Link>
-      <TopBarIcons notifications={notifications} badge={unread ?? 0} />
-      <ProfileMenu
-        name={name}
-        neighborhood={profile.neighborhood?.name ?? null}
-        avatarUrl={profile.avatar_url}
-      />
+      <Personal state={state} />
     </TopBarFrame>
   );
 }
@@ -89,18 +111,10 @@ async function inboxDirect(userId: string) {
   return { notifRows, unread };
 }
 
-/** The bar with nobody in it yet: same icons, a blank face where yours will be. */
 export function TopBarFallback() {
   return (
     <TopBarFrame>
-      <Link href="/clans" className="text-xs underline">
-        My clan
-      </Link>
-      <TopBarIcons notifications={[]} badge={0} />
-      <span
-        aria-hidden
-        className="h-9 w-9 rounded-full bg-black/10 dark:bg-white/10"
-      />
+      <PersonalFallback />
     </TopBarFrame>
   );
 }
@@ -109,13 +123,9 @@ function TopBarFrame({ children }: { children: React.ReactNode }) {
   // Columns mirror MapShell's split so the search bar sits over the content
   // column, not under the map.
   return (
-    <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_40%] xl:grid-cols-[minmax(0,1fr)_42%]">
-      {/* The search column mirrors the home feed column (both left-aligned)
-          so the input's left edge lines up with the content beneath it. */}
+    <div className="hidden items-center pt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_36%] xl:grid-cols-[minmax(0,1fr)_38%]">
       <div className="w-full max-w-3xl px-4 lg:pl-36 lg:pr-8">
-        {/* Explore is the only page that reads ?q= — since the root route
-            became a redirect (peoplearound.com now opens on People around),
-            submitting to "/" would drop the query on the way through. */}
+        {/* Explore is the only page that reads ?q=. */}
         <form action="/explore">
           <label className="relative block max-w-xl">
             <Search
@@ -126,13 +136,13 @@ function TopBarFrame({ children }: { children: React.ReactNode }) {
             <input
               type="search"
               name="q"
-              placeholder="Search people, events, offers, projects around you"
-              className="w-full rounded-lg border border-slate-400 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-emerald-600 dark:border-slate-500 dark:bg-zinc-900 dark:placeholder:text-white/40"
+              placeholder="Search Peoplearound"
+              className="w-full rounded-full border border-slate-300 bg-white py-2 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-black/40 focus:border-pa-brand dark:border-slate-600 dark:bg-zinc-900 dark:placeholder:text-white/40"
             />
           </label>
         </form>
       </div>
-      <div className="flex items-center justify-end gap-2 px-6">{children}</div>
+      <div className="flex items-center justify-end gap-1 px-6">{children}</div>
     </div>
   );
 }

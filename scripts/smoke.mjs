@@ -56,6 +56,7 @@ const PAGES = [
   ["/offers", ">Offers<"],
   ["/ideas", ">Projects<"],
   ["/faves", "Local Faves"],
+  ["/asks", "Small help"],
   ["/chats", ">Chats<"],
   ["/profile", NAME],
   ["/connections", "My connections"],
