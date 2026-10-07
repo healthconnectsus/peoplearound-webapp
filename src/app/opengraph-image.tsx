@@ -18,8 +18,8 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 // The teal lobe of the mark (see globals.css --color-pa-brand).
-const BRAND = "#008468";
-const DEEPER = "#005f48";
+const BRAND = "#008282";
+const DEEPER = "#006969";
 
 export default function OpengraphImage() {
   return new ImageResponse(

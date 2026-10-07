@@ -39,28 +39,28 @@ const DOORS: {
     icon: HandHelping,
     title: "I need a favor",
     desc: "Twenty minutes, a second pair of hands, someone with a dolly.",
-    tint: "bg-pa-brand",
+    tint: "bg-pa-green-deep",
   },
   {
     href: "/projects/new?intent=meet",
     icon: CalendarDays,
     title: "I have an event",
     desc: "A walk, a game night, a potluck — invite people to come.",
-    tint: "bg-sky-600",
+    tint: "bg-pa-orange-deep",
   },
   {
     href: "/offers",
     icon: Gift,
     title: "I have an offer",
     desc: "Give it, lend it, or offer a skill. No money — just neighbors.",
-    tint: "bg-violet-600",
+    tint: "bg-pa-accent",
   },
   {
     href: "/projects/new?intent=community",
     icon: MessageCircleHeart,
     title: "I just want to share something with my community",
     desc: "An idea, a spot, a thought worth putting in front of neighbors.",
-    tint: "bg-rose-600",
+    tint: "bg-pa-brand-deeper",
   },
 ];
 

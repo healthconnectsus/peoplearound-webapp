@@ -7,6 +7,21 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-07 — The site wears the v11.1 logo: every primary button is one teal (#008282, the marks
+
+- `scripts/city-seed.sql`
+- `scripts/generate-city-seed.mjs`
+- `src/app/api/digest/route.ts`
+- `src/app/e/[code]/opengraph-image.tsx`
+- `src/app/globals.css`
+- `src/app/layout.tsx`
+- `src/app/manifest.ts`
+- `src/app/opengraph-image.tsx`
+- `src/app/projects/new/IdeaForm.tsx`
+- `src/components/FeedComposer.tsx`
+- `src/lib/brand.ts`
+
+
 ### 2026-10-06 — shape-idea joins the proxy's list of routes that check their own bearer token - without it the app's call was answered with a redirect to the login page, a 200 with HTML in it
 
 - `src/lib/supabase/proxy.ts`

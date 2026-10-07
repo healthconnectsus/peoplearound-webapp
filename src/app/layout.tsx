@@ -41,7 +41,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#059669",
+  // The primary fill (globals.css --color-pa-brand): the browser chrome
+  // around an installed app wears the same teal as its buttons.
+  themeColor: "#008282",
   // Installed as an app, the safe areas matter — let content reach the edges.
   viewportFit: "cover",
 };

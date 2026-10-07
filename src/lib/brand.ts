@@ -1,62 +1,59 @@
 /**
- * The brand palette, derived from the two-tone mark.
+ * The brand palette, derived from the mark's gradient.
  *
- * The logo used to spell the product in six coloured letters, and this file
- * mapped each letter to a rail. That wordmark is gone: v9 is a two-tone
- * heart — a teal lobe and a violet one overlapping — beside a single
- * neutral wordmark. So the six-hue premise no longer had anything behind it.
+ * The logo (public/logo.svg, v11.1) is a heart that runs from deep teal on
+ * the left through green, gold and orange to watermelon on the right, beside
+ * a neutral wordmark. Everything here is read off that gradient rather than
+ * chosen and then justified:
  *
- * What replaces it: the rails are six stops on the ramp *between* the mark's
- * two colours, interpolated in OKLCH so the middle stays vivid instead of
- * going muddy the way straight RGB does. The first rail is the teal lobe
- * exactly, the last is the violet lobe exactly, and everything between is
- * provably a blend of the two — the identity, spread across the navigation,
- * rather than six colours chosen and then justified.
- *
- * MARK is the exact stop, for icons and small marks that carry no text.
- *
- * BUTTON is that stop darkened only as far as white text needs (>= 4.5:1,
- * WCAG AA), with a hover a step darker again so pointing at a button opens
- * its contrast rather than closing it. Two stops are already dark enough and
- * are used unchanged.
+ *   MARK   — the six rail icons, sampled at six even points along the
+ *            gradient (interpolated in OKLab so the middle stays vivid), then
+ *            each darkened only as far as a 3:1 icon stroke on white needs.
+ *            Top to bottom, the rail is the logo read left to right.
+ *   BUTTON — one fill for every primary button. A site with six button
+ *            colours has no primary action; this one has the teal, darkened
+ *            to 4.65:1 with white text (WCAG AA). The tokens live in
+ *            globals.css so the CSS and this file cannot disagree.
  *
  * All literal strings: Tailwind's scanner reads source text, so a class
  * assembled at runtime never reaches the stylesheet.
  */
 
-/** The mark itself. The overlap is the violet lobe at 0.88 over the teal. */
+/** The gradient's stops, in order, plus the wordmark's neutral. */
 export const BRAND = {
-  teal: "#04b495",
-  violet: "#af00f8",
-  overlap: "#9a16ec",
+  teal: "#0E9090",
+  green: "#39AC4C",
+  gold: "#E6C833",
+  orange: "#EF9343",
+  coral: "#F26D5F",
   /** The wordmark's neutral — light mode, then dark. */
   ink: "#3c404a",
   inkDark: "#e7e9ee",
 } as const;
 
+/** One stop per rail, the logo read top to bottom. ≥ 3:1 on white as strokes. */
 export const BRAND_MARK = {
-  people: "#04b495",
-  events: "#00afbe",
-  offers: "#009fea",
-  projects: "#0081ff",
-  faves: "#7656ff",
-  community: "#af00f8",
+  people: "#0e9090",
+  events: "#30a660",
+  offers: "#889c0f",
+  projects: "#c08900",
+  faves: "#dc7938",
+  community: "#ee6a5c",
 } as const;
+
+/** The primary fill, for every key — the same button everywhere. */
+const PRIMARY = "bg-pa-brand text-pa-brand-ink hover:bg-pa-brand-hover";
 
 export const BRAND_BUTTON = {
-  people: "bg-[#008468] text-white hover:bg-[#007156]",
-  events: "bg-[#008190] text-white hover:bg-[#006d7c]",
-  offers: "bg-[#0079c2] text-white hover:bg-[#0064ac]",
-  projects: "bg-[#0070ed] text-white hover:bg-[#005bd7]",
-  faves: "bg-[#7656ff] text-white hover:bg-[#6640ea]",
-  community: "bg-[#af00f8] text-white hover:bg-[#9b00e1]",
+  people: PRIMARY,
+  events: PRIMARY,
+  offers: PRIMARY,
+  projects: PRIMARY,
+  faves: PRIMARY,
+  community: PRIMARY,
 } as const;
 
-/**
- * Asking for a hand is a primary action like any other, so it takes the
- * brand's primary fill (the teal lobe) via the tokens in globals.css.
- */
-export const HELP_BUTTON =
-  "bg-pa-brand text-pa-brand-ink hover:bg-pa-brand-hover";
+/** Asking for a hand is a primary action like any other. */
+export const HELP_BUTTON = PRIMARY;
 
 export type BrandKey = keyof typeof BRAND_MARK;

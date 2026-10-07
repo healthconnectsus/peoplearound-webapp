@@ -28,16 +28,52 @@
      download was being paid on every first visit regardless. */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* The brand's primary fill: the teal lobe of the mark, darkened only as
-     far as white text needs (4.67:1). It was a green taken from the old
-     wordmark's "o" — v9 has no green in it at all, so the name and the
-     value both moved. Defined once; every primary button follows. */
-  --color-pa-brand: #008468;
-  --color-pa-brand-hover: #007156;
+  /* The palette is the mark's gradient (public/logo.svg, v11.1): deep teal
+     on the left, through green, gold and orange, to watermelon on the right.
+     The five stops, under their own names, for the few places that paint
+     with them — hero surfaces, the share card, the rail icons. Nothing sets
+     text in these directly: most are too light for it. */
+  --color-pa-teal: #0e9090;
+  --color-pa-green: #39ac4c;
+  --color-pa-gold: #e6c833;
+  --color-pa-orange: #ef9343;
+  --color-pa-coral: #f26d5f;
+
+  /* The primary fill — every button that does the main thing, and there is
+     one colour for all of them. The mark's teal, darkened only as far as
+     white text needs: 4.65:1 (WCAG AA), where the teal itself is 3.88:1 and
+     fails. Hover a step darker again, so pointing at a button opens its
+     contrast rather than closing it. Computed, not eyeballed. */
+  --color-pa-brand: #008282;
+  --color-pa-brand-hover: #007878;
   --color-pa-brand-ink: #ffffff;
 
   /* The darkest step, for flip-card backs and gradient ends. */
-  --color-pa-brand-deeper: #005f48;
+  --color-pa-brand-deeper: #006969;
+
+  /* The gradient's other hues, darkened the same way for white text, for the
+     handful of places that want more than one colour: the five doors of the
+     composer, the warm "new" accent. */
+  --color-pa-green-deep: #008827;
+  --color-pa-orange-deep: #b45d00;
+  --color-pa-accent: #ca493e;
+  --color-pa-accent-ink: #ffffff;
+}
+
+/* The mark's own gradient, as a surface. For the few hero moments — the
+   share card's band, a celebration — never for text to sit on. */
+:root {
+  --pa-gradient: linear-gradient(
+    90deg,
+    #0e9090 0%,
+    #39ac4c 26%,
+    #e6c833 50%,
+    #ef9343 74%,
+    #f26d5f 100%
+  );
+}
+.pa-gradient {
+  background-image: var(--pa-gradient);
 }
 
 @media (prefers-color-scheme: dark) {

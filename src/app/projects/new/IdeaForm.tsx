@@ -236,7 +236,7 @@ const INTENTS: {
     categories: ["community", "outdoors", "arts", "learning", "giving", "events", "other"],
     placeholder: "e.g. “the empty lot near the bakery could be a garden…”",
     tint: {
-      front: "bg-gradient-to-br from-[#008468] to-[#005f48]",
+      front: "bg-gradient-to-br from-pa-brand to-pa-brand-deeper",
       iconBox: "bg-white/20",
       icon: "text-white",
       back: "bg-pa-brand-deeper",

@@ -31,13 +31,13 @@ function digestHtml(args: {
     items
       .map(
         (i) =>
-          `<li style="margin:0 0 6px;"><a href="${i.href}" style="color:#059669;text-decoration:none;">${i.title}</a></li>`,
+          `<li style="margin:0 0 6px;"><a href="${i.href}" style="color:#008282;text-decoration:none;">${i.title}</a></li>`,
       )
       .join("");
   return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;"><tr><td align="center">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);">
-    <tr><td style="background:linear-gradient(135deg,#059669,#0d9488);background-color:#059669;padding:24px 32px;">
+    <tr><td style="background:linear-gradient(135deg,#008282,#006969);background-color:#008282;padding:24px 32px;">
       <span style="font-size:20px;font-weight:700;color:#fff;letter-spacing:-.5px;">people<span style="opacity:.85;">around</span></span>
     </td></tr>
     <tr><td style="padding:28px 32px;">
@@ -45,13 +45,13 @@ function digestHtml(args: {
       <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#52525b;">Hi ${args.name} — here's what moved around you.</p>
       ${args.ideas.length ? `<p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#3f3f46;">💡 New ideas</p><ul style="margin:0 0 18px;padding-left:18px;font-size:14px;">${list(args.ideas)}</ul>` : ""}
       ${args.events.length ? `<p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#3f3f46;">📅 Coming up</p><ul style="margin:0 0 18px;padding-left:18px;font-size:14px;">${list(args.events)}</ul>` : ""}
-      ${args.unread ? `<p style="margin:0 0 18px;font-size:14px;color:#52525b;">🔔 You have <a href="https://peoplearound.com" style="color:#059669;">${args.unread} unread notification${args.unread === 1 ? "" : "s"}</a>.</p>` : ""}
-      <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border-radius:999px;background:#059669;">
+      ${args.unread ? `<p style="margin:0 0 18px;font-size:14px;color:#52525b;">🔔 You have <a href="https://peoplearound.com" style="color:#008282;">${args.unread} unread notification${args.unread === 1 ? "" : "s"}</a>.</p>` : ""}
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border-radius:999px;background:#008282;">
         <a href="https://peoplearound.com" style="display:inline-block;padding:11px 26px;font-size:14px;font-weight:600;color:#fff;text-decoration:none;border-radius:999px;">See what's happening</a>
       </td></tr></table>
     </td></tr>
     <tr><td style="padding:18px 32px;border-top:1px solid #f4f4f5;">
-      <p style="margin:0;font-size:12px;line-height:1.6;color:#a1a1aa;">One email a week, only when something happened.<br/>Turn it off anytime in <a href="https://peoplearound.com/settings" style="color:#059669;text-decoration:none;">Settings</a>.</p>
+      <p style="margin:0;font-size:12px;line-height:1.6;color:#a1a1aa;">One email a week, only when something happened.<br/>Turn it off anytime in <a href="https://peoplearound.com/settings" style="color:#008282;text-decoration:none;">Settings</a>.</p>
     </td></tr>
   </table></td></tr></table></body></html>`;
 }

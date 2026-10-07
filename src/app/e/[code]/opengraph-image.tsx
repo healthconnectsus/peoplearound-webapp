@@ -14,8 +14,8 @@ export const alt = "An event near you on Peoplearound";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const BRAND = "#008468";
-const DEEPER = "#005f48";
+const BRAND = "#008282";
+const DEEPER = "#006969";
 
 export default async function EventOgImage({
   params,
