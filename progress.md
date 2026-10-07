@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-07 — Choosing your home community lives on Communities now (Make it home beside Leave, a Home tag on the current one) — it had only existed in the feed block that moved; query budgets tightened to the new counts (/people 20, /asks 10)
+
+- `scripts/budget.mjs`
+- `src/app/explore/page.tsx`
+
+
 ### 2026-10-07 — The chrome, simplified the way Nextdoor is: five places and one Post button in the rail (the P·E·O·P·L·E acrostic, two coloured buttons and six small links are gone), everything about you under your avatar, a top bar that is search plus notifications plus you, a bottom bar on phones with the post button where a thumb reaches, one PostChooser behind every post button, one sort control instead of a row of chips, a feed that is a feed (community management lives on Communities, small help on its own /asks page, cards lose their category-coloured edges), events opening on what is coming up rather than an empty Mine, and the map after the content on a phone. Seeded events now sit at daytime hours
 
 - `docs/ARCHITECTURE.md`

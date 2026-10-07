@@ -24,6 +24,7 @@ import { adminCommunityPeople, type CommunityPeople } from "@/lib/adminStats";
 import {
   joinCommunity,
   leaveCommunity,
+  setPrimaryCommunity,
 } from "@/app/neighborhood/communityActions";
 import {
   STATE_META,
@@ -618,7 +619,11 @@ async function ExplorePage({
                           >
                             {kindMeta(c.kind).label}
                           </span>
-                          {c.joined ? (
+                          {c.id === myHood ? (
+                            <span className="rounded-full bg-pa-brand px-2 py-0.5 text-[11px] font-medium text-pa-brand-ink">
+                              Home
+                            </span>
+                          ) : c.joined ? (
                             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
                               You&rsquo;re in
                             </span>
@@ -635,16 +640,32 @@ async function ExplorePage({
                       </div>
 
                       {c.joined ? (
-                        <form action={leaveCommunity} className="shrink-0">
-                          <input type="hidden" name="communityId" value={c.id} />
-                          <input type="hidden" name="returnTo" value="/explore" />
-                          <button
-                            type="submit"
-                            className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
-                          >
-                            Leave
-                          </button>
-                        </form>
+                        <div className="flex shrink-0 items-center gap-2">
+                          {/* Your home community decides your feed. This used
+                              to be set from the home page's community list,
+                              which is gone — so it lives here, beside Leave. */}
+                          {c.id !== myHood ? (
+                            <form action={setPrimaryCommunity}>
+                              <input type="hidden" name="communityId" value={c.id} />
+                              <button
+                                type="submit"
+                                className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                              >
+                                Make it home
+                              </button>
+                            </form>
+                          ) : null}
+                          <form action={leaveCommunity}>
+                            <input type="hidden" name="communityId" value={c.id} />
+                            <input type="hidden" name="returnTo" value="/explore" />
+                            <button
+                              type="submit"
+                              className="rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+                            >
+                              Leave
+                            </button>
+                          </form>
+                        </div>
                       ) : (
                         <form action={joinCommunity} className="shrink-0">
                           <input type="hidden" name="communityId" value={c.id} />

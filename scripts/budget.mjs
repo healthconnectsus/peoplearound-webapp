@@ -47,7 +47,7 @@ const RUNS = 6;
 
 /** Statements per load, at which each page is considered to have regressed. */
 const BUDGET = {
-  "/people": 24,
+  "/people": 20,
   // 16 for the fresh account this script signs in as; 12 once an account is
   // past the thirty days in which the onboarding nudge can show.
   "/explore": 20,
@@ -64,7 +64,7 @@ const BUDGET = {
   "/settings": 8,
   "/invite": 8,
   "/help": 4,
-  "/asks": 12,
+  "/asks": 10,
   "/projects/[id]": 10,
 };
 
