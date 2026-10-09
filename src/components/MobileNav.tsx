@@ -6,7 +6,7 @@ import {
   CalendarDays,
   Compass,
   Gift,
-  Home,
+  HeartHandshake,
   Plus,
   type LucideIcon,
 } from "lucide-react";
@@ -23,7 +23,7 @@ import { PostButton } from "./PostChooser";
  * in the middle.
  */
 const ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/people", label: "Home", icon: Home },
+  { href: "/people", label: "People", icon: HeartHandshake },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/offers", label: "Offers", icon: Gift },
   { href: "/explore", label: "Explore", icon: Compass },

@@ -11,6 +11,8 @@ import { currentProfile } from "@/lib/profile";
 import { adminUserGrowth } from "@/lib/adminStats";
 import { FunnelBar, Stat } from "./parts";
 import { UserGrowth } from "./UserGrowth";
+import { NextSteps } from "@/components/NextSteps";
+import { milestones, nextSteps, weekLine, type CoachDoc } from "@/lib/coach";
 
 export const metadata = { title: "Your analytics" };
 
@@ -52,6 +54,7 @@ async function AnalyticsPage() {
     { count: messagesSent },
     { count: brought },
     growth,
+    { data: coachData },
   ] = await Promise.all([
     supabase
       .from("projects")
@@ -75,7 +78,11 @@ async function AnalyticsPage() {
     currentProfile().then((p) =>
       p?.is_admin ? adminUserGrowth(supabase) : null,
     ),
+    // The coach (migration 0080): what the numbers mean, and what to do.
+    supabase.rpc("my_coach"),
   ]);
+  const coach = (coachData ?? null) as CoachDoc | null;
+  const steps = nextSteps(coach);
   const own = (ownRows ?? []) as {
     id: string;
     title: string;
@@ -162,6 +169,45 @@ async function AnalyticsPage() {
           How your ideas are doing — private to you, never shown to neighbors
           and never compared with anyone else.
         </p>
+
+        {/* Knowledge you can act on, first: what to do, then how each
+            project's week went. The raw numbers follow below. */}
+        <div id="next" className="mt-6 scroll-mt-6">
+          <NextSteps steps={steps} title="What to do next" />
+        </div>
+
+        {coach && coach.projects.length > 0 ? (
+          <section className="mb-2">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
+              This week
+            </h2>
+            <ul className="flex flex-col divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white shadow-sm dark:divide-slate-800 dark:border-slate-700 dark:bg-zinc-900">
+              {coach.projects.map((p) => {
+                const marks = milestones(p);
+                const done = marks.filter((m) => m.done).length;
+                return (
+                  <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3">
+                    <Link
+                      href={`/projects/${p.id}`}
+                      className="min-w-0 flex-1 truncate font-medium hover:underline"
+                    >
+                      {p.title}
+                    </Link>
+                    <span className="text-sm text-black/60 dark:text-white/60">
+                      {weekLine(p)}
+                    </span>
+                    <span
+                      className="text-xs text-black/45 dark:text-white/45"
+                      title={marks.map((m) => `${m.done ? "✓" : "○"} ${m.label}`).join("\n")}
+                    >
+                      {done}/{marks.length} milestones
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ) : null}
 
         {growth ? (
           <>

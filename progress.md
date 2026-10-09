@@ -7,6 +7,27 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-09 — The rail spells P·E·O·P·L·E again (People around, Events, Offers, Projects, Local Faves, Explore — kept by request; Local Faves leaves the avatar menu), and a coach that says what to do next: a Your next steps card on home, How it's going with milestones and the week's numbers on a steward's project page, What to do next plus a this-week line per project on Analytics, and a Monday insight notification for real accounts that run something — all from one ranked rule set (src/lib/coach.ts) over one scoped read (migration 0080: my_coach, project_coach, insight_recipients, project_detail.coach; counts, never names)
+
+- `docs/ARCHITECTURE.md`
+- `src/app/analytics/page.tsx`
+- `src/app/api/weekly-insights/route.ts`
+- `src/app/events/[id]/page.tsx`
+- `src/app/people/page.tsx`
+- `src/app/projects/[id]/CoachPanel.tsx`
+- `src/app/projects/[id]/OwnerTools.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/components/MobileNav.tsx`
+- `src/components/NextSteps.tsx`
+- `src/components/ProfileMenu.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/TopBarIcons.tsx`
+- `src/lib/coach.ts`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0080_coach.sql`
+- `vercel.json`
+
+
 ### 2026-10-07 — Choosing your home community lives on Communities now (Make it home beside Leave, a Home tag on the current one) — it had only existed in the feed block that moved; query budgets tightened to the new counts (/people 20, /asks 10)
 
 - `scripts/budget.mjs`

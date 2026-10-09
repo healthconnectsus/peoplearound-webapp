@@ -7,6 +7,8 @@ import { AppShell } from "@/components/AppShell";
 import { ContentSkeleton } from "@/components/ContentSkeleton";
 import { MapShell } from "@/components/MapShell";
 import { FeedComposer } from "@/components/FeedComposer";
+import { NextSteps } from "@/components/NextSteps";
+import { nextSteps, type CoachDoc } from "@/lib/coach";
 import { CopyLinkButton } from "@/app/invite/CopyLinkButton";
 import { CommunityFilter } from "@/components/CommunityFilter";
 import { TagFilter } from "@/components/TagFilter";
@@ -152,6 +154,13 @@ async function PeoplePage({
   // unhandled while the page is still waiting on the frame's read.
   independent.catch(() => {});
 
+  // The coach (migration 0080): what to do next, worked out in one read and
+  // started now so it runs beside everything else. Supabase's builders run
+  // on first `then`, which Promise.resolve calls straight away.
+  const coachP = Promise.resolve(supabase.rpc("my_coach"))
+    .then((r) => (r.error ? null : (r.data as CoachDoc | null)))
+    .catch(() => null);
+
   // The frame is reading this for its own use right now; the memoised copy
   // means the page pays nothing for the profile, the map centre, or the
   // list of communities it belongs to.
@@ -181,6 +190,7 @@ async function PeoplePage({
     ],
     snapshotResult,
     { cards, events },
+    coach,
   ] = await Promise.all([
     independent,
     // The neighborhood block under the feed: who founded this place, how
@@ -193,6 +203,7 @@ async function PeoplePage({
     // requests in a row — the ids of your communities' projects, then the
     // feed for those ids — and is one now (migration 0070).
     loadFeedCards(supabase, communityIds, user.id),
+    coachP,
   ]);
 
   const snapshot = (snapshotResult.data ?? {}) as {
@@ -270,6 +281,11 @@ async function PeoplePage({
       <MapShell pins={pins}>
         <main className="w-full max-w-3xl flex-1 p-4 lg:py-6 lg:pl-36 lg:pr-8">
           <FeedComposer />
+          <NextSteps
+            steps={nextSteps(coach)}
+            limit={3}
+            more={{ href: "/analytics#next", label: "See all" }}
+          />
 
           {/* Founding era: the first 10 neighbors of a place are its founding
               neighbors, permanently — real scarcity, no points. */}

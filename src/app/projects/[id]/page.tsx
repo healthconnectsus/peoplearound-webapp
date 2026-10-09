@@ -14,6 +14,8 @@ import { computeBadges } from "@/lib/badges";
 import { FlagButton } from "./FlagButton";
 import { UpdateComposer, ProjectEditor } from "./UpdateComposer";
 import { EditProjectTool, StewardSection } from "./OwnerTools";
+import { CoachPanel } from "./CoachPanel";
+import type { CoachProject } from "@/lib/coach";
 import { StateTag } from "./StateTag";
 import { ProjectHero } from "@/components/ProjectHero";
 import { deleteUpdate, dismissNudge } from "../updateActions";
@@ -27,8 +29,6 @@ import {
   STATE_META,
   TRANSITIONS,
   categoryMeta,
-  categoryShadow,
-  categoryTint,
   formatEventTime,
   initials,
   isUpcomingEvent,
@@ -92,12 +92,12 @@ async function ProjectDetail({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ plan?: string }>;
+  searchParams: Promise<{ plan?: string; edit?: string; update?: string }>;
 }) {
   const { id } = await params;
   // "Plan an event" on /events links here with the form already open, so the
   // button lands you on the thing you pressed it for.
-  const { plan } = await searchParams;
+  const { plan, edit, update } = await searchParams;
 
   const supabase = await createClient();
   const user = await currentUser();
@@ -126,6 +126,8 @@ async function ProjectDetail({
       author?: { display_name: string | null } | null;
     }[];
     nudge?: { kind: string; body: string; dismissed_at: string | null } | null;
+    /** How it is going — stewards only; null for everyone else (0080). */
+    coach?: CoachProject | null;
     flagged?: boolean;
     contributions?: Contribution[];
     events?: ProjectEvent[];
@@ -411,7 +413,7 @@ async function ProjectDetail({
         {/* The same header the feed card uses — title, starter and
             "Aurora · 9 days ago" all riding on the photo. */}
         <div
-          className={`mt-4 overflow-hidden rounded-2xl border border-slate-300 border-l-4 bg-white shadow-md dark:border-slate-600 dark:bg-zinc-900 ${categoryTint(project.category)} ${categoryShadow(project.category)}`}
+          className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-zinc-900"
         >
           <ProjectHero
             title={project.title}
@@ -463,7 +465,7 @@ async function ProjectDetail({
 
         {/* Founder only — nobody else sees an edit affordance. */}
         {isOwner ? (
-          <EditProjectTool>
+          <EditProjectTool startOpen={edit === "1"}>
             <ProjectEditor
               projectId={project.id}
               userId={user.id}
@@ -621,9 +623,12 @@ async function ProjectDetail({
           </div>
         ) : null}
 
+        {/* The coach: where it stands, this week, and what to do next. */}
+        {isSteward && page.coach ? <CoachPanel coach={page.coach} /> : null}
+
         {/* Owner: pending join requests */}
         {isSteward && pending.length > 0 ? (
-          <div className="mt-7">
+          <div id="requests" className="mt-7 scroll-mt-6">
             <h2 className="mb-2 text-sm font-semibold">
               Wants to join ({pending.length})
             </h2>
@@ -672,7 +677,7 @@ async function ProjectDetail({
         ) : null}
 
         {/* The team */}
-        <div className="mt-7">
+        <div id="team" className="mt-7 scroll-mt-6">
           <h2 className="mb-2 text-sm font-semibold">The team</h2>
           <ul className="flex flex-col">
             <li className="flex items-center gap-2 py-1.5">
@@ -756,7 +761,7 @@ async function ProjectDetail({
         {/* The gardener's private nudge — founder only, dismissible, and
             deliberately quiet: scaffolding that fades (UX_SPEC §4.16). */}
         {nudge && isOwner ? (
-          <div className="mt-7 rounded-2xl border border-amber-300/50 bg-amber-50/60 p-4 dark:border-amber-700/40 dark:bg-amber-950/20">
+          <div id="nudge" className="mt-7 scroll-mt-6 rounded-2xl border border-amber-300/50 bg-amber-50/60 p-4 dark:border-amber-700/40 dark:bg-amber-950/20">
             <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
               🌱 A thought, just for you
             </p>
@@ -777,8 +782,10 @@ async function ProjectDetail({
 
         {/* Updates — the build log (founder + teammates) */}
         <StewardSection
+          id="updates"
           title="Updates"
           tool={isOwner || isTeammate ? "update" : null}
+          startOpen={update === "1" && (isOwner || isTeammate)}
           form={<UpdateComposer projectId={project.id} userId={user.id} />}
         >
 
@@ -860,6 +867,7 @@ async function ProjectDetail({
 
         {/* Events — where it becomes physical */}
         <StewardSection
+          id="events"
           title="Events"
           tool={isSteward ? "event" : null}
           form={eventForm}
@@ -1003,7 +1011,7 @@ async function ProjectDetail({
         </StewardSection>
 
         {/* Contributions — the trust layer */}
-        <div className="mt-7">
+        <div id="contributions" className="mt-7 scroll-mt-6">
           <h2 className="mb-2 text-sm font-semibold">Contributions</h2>
 
           {contributions.length === 0 ? (

@@ -366,13 +366,14 @@ to finish — which is exactly the time spent waiting on queued queries.
 The frame was redrawn on 2026-10-07 with one question: what does a person
 navigate *by*? Nextdoor is the model — not its features, its restraint.
 
-- **Five places, one action.** The rail is Home, Events, Offers, Projects,
-  Communities, and a single "Post" button. It used to be six destinations
-  (spelling P·E·O·P·L·E), two coloured buttons and six small links; most of
-  a screen before any content. The acrostic lost.
+- **Six places, one action.** The rail is People around, Events, Offers,
+  Projects, Local Faves, Explore — the initials spell P·E·O·P·L·E, the
+  product's name made visible, and it stays — and a single "Post" button.
+  The two coloured buttons and six small links that used to fill most of a
+  screen before any content are gone.
 - **Everything about you lives under your face.** Analytics, the year in
-  review, settings, help, inviting, privacy, your clan and Local Faves are in
-  the avatar menu, grouped. The top bar is search plus the two things that
+  review, settings, help, inviting, privacy and your clan are in the avatar
+  menu, grouped. The top bar is search plus the two things that
   are about you — notifications and that avatar. The admin city picker moved
   to `/admin`, which is where an admin is when they want it.
 - **One post button, five doors.** `PostChooser` is the one full-screen
@@ -390,6 +391,50 @@ navigate *by*? Nextdoor is the model — not its features, its restraint.
   small help to its own page (`/asks`), and the cards lost their
   category-coloured edges and shadows. Events open on what is coming up, not
   on an empty list of your own.
+
+## The coach
+
+Someone who starts something here should never have to work out what to do
+next; the product should say, from what it already knows. Migration 0080 and
+`src/lib/coach.ts`.
+
+- **The database gathers numbers; the code decides what they mean.**
+  `coach_project_row(p_id)` (SECURITY DEFINER, callable by nobody directly)
+  collects one project's facts — join requests waiting, help waiting to be
+  confirmed, stars and views this week against last, team size, the next
+  event with its jobs and open spots, the last event and whether it has had
+  an update since, days since anything happened. `my_coach()` returns those
+  rows for the caller's own projects plus the events they are going to in the
+  next three days and the open job spots near them; `project_coach(p_id)`
+  returns one row only if `can_steward`, and `project_detail` carries it as
+  `coach`. It is a count, never a name: a founder sees "2 neighbors want to
+  join", not who, until they open the request.
+- **Rules, ranked.** `projectSteps()` turns a row into steps with a weight: a
+  waiting join request (100) and help waiting to be confirmed (95) beat an
+  event within three days with open spots (85), which beats publishing an
+  unpublished event (72 — open spots are not raised for an event nobody can
+  see yet), giving a starred or staffed project a date (65), writing the
+  update after an event (62), naming jobs for a date (58), sharing a project
+  nobody saw this week (48), a photo or a fuller description for one people
+  look at but don't star (44, 42), a project quiet for ten days (40) and the
+  gardener's nudge (36). `nextSteps()` keeps at most two per project so one
+  busy project cannot crowd out another, then adds the events the person is
+  going to and, for someone running nothing, the open spots near them and the
+  playbooks.
+- **Four surfaces, one set of rules.** The home feed shows the top three
+  ("Your next steps"); a steward's project page shows "How it's going"
+  (milestones as a bar in the brand gradient, the week's line, the next three
+  steps); `/analytics` shows them all with a this-week line per project; and
+  on Mondays `/api/weekly-insights` writes one `insight` notification per
+  real account that runs something (`insight_recipients()`: never demo or
+  test accounts, never twice in six days) using `weekSummary()` — "Your week
+  on “Repair café”: 14 views (+6 on last week) · 2 new stars. Next: 2
+  neighbors want to join it." The notification comes from the same function
+  as the pages, so it cannot disagree with what the person sees on tapping it.
+- **Every step lands somewhere specific.** Steps link to anchors on the
+  project page (`#requests`, `#contributions`, `#updates`, `#events`,
+  `#nudge`) or the event page (`#notes`, `#jobs`), and `?plan=1`, `?edit=1`
+  and `?update=1` open the matching tool, so the next action is one tap away.
 
 ## Events in public
 

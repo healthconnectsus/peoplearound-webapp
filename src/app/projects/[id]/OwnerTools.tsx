@@ -54,12 +54,15 @@ function ToolButton({
 
 /** A page section whose steward form opens from a button beside its heading. */
 export function StewardSection({
+  id,
   title,
   tool,
   form,
   startOpen = false,
   children,
 }: {
+  /** An anchor, so the coach can send people straight here. */
+  id?: string;
   title: string;
   /** null for anyone without permission — then it's a plain section. */
   tool: Tool | null;
@@ -71,7 +74,7 @@ export function StewardSection({
   const [open, setOpen] = useState(startOpen);
 
   return (
-    <div className="mt-7">
+    <div id={id} className="mt-7 scroll-mt-6">
       <div className="mb-2 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold">{title}</h2>
         {tool && form ? (
@@ -89,8 +92,15 @@ export function StewardSection({
 }
 
 /** The project editor, folded under the hero. Founder only. */
-export function EditProjectTool({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
+export function EditProjectTool({
+  children,
+  startOpen = false,
+}: {
+  children: React.ReactNode;
+  /** Arrive with the editor open — the coach's "Add a photo". */
+  startOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(startOpen);
 
   return (
     <div className="mt-3">

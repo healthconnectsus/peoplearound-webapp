@@ -10,7 +10,6 @@ import {
   LogOut,
   MapPin,
   Settings,
-  Star,
   TrendingUp,
   UserPlus,
   Users,
@@ -38,7 +37,6 @@ const GROUPS: { href: string; label: string; icon: LucideIcon }[][] = [
   [
     { href: "/ideas?tab=mine", label: "My ideas", icon: Lightbulb },
     { href: "/connections", label: "My connections", icon: UsersRound },
-    { href: "/faves", label: "Local Faves", icon: Star },
     { href: "/clans", label: "My clan", icon: Users },
   ],
   [

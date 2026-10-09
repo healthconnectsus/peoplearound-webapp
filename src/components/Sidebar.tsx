@@ -8,9 +8,10 @@ import {
   CalendarDays,
   Compass,
   Gift,
-  Home,
+  HeartHandshake,
   Lightbulb,
   Plus,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import type { NavCounts } from "@/lib/navCounts";
@@ -19,27 +20,29 @@ import { PostButton } from "./PostChooser";
 type CountKey = keyof NavCounts;
 
 /**
- * Five places and one action. The rail used to carry six destinations, two
- * coloured buttons and six small links; most of a screen before any content.
- * What is left is what a person navigates by. Everything about *you* — your
- * analytics, your year, settings, help, inviting — moved under your face in
- * the top bar, which is where people look for it.
+ * Six places and one action — and the first letters spell the product:
+ * P·E·O·P·L·E. That is the brand, so it stays; what went is everything
+ * around it. The labels are as short as the acrostic allows, there is one
+ * button rather than two coloured ones, and everything about *you* —
+ * analytics, settings, help, inviting — lives under your face in the top
+ * bar, which is where people look for it.
  */
 const NAV_ITEMS: {
   href: string;
   label: string;
   icon: LucideIcon;
-  /** Which of your numbers belongs on this rail. Communities has none. */
+  /** Which of your numbers belongs on this rail. Explore has none. */
   count?: CountKey;
   title?: string;
   /** This rail's hue (lib/brand.ts): the ICON wears it, on hover and when
-      current. The label stays plain text. */
+      current. Six rails, six samples along the logo's gradient, so the
+      rail is the logo read top to bottom. The label stays plain text. */
   iconHex: string;
 }[] = [
   {
     href: "/people",
-    label: "Home",
-    icon: Home,
+    label: "People around",
+    icon: HeartHandshake,
     count: "people",
     title: "Neighbors in your community",
     iconHex: BRAND_MARK.people,
@@ -69,8 +72,16 @@ const NAV_ITEMS: {
     iconHex: BRAND_MARK.projects,
   },
   {
+    href: "/faves",
+    label: "Local Faves",
+    icon: Star,
+    count: "faves",
+    title: "Ideas your neighbors have starred",
+    iconHex: BRAND_MARK.faves,
+  },
+  {
     href: "/explore",
-    label: "Communities",
+    label: "Explore",
     icon: Compass,
     iconHex: BRAND_MARK.community,
   },

@@ -133,7 +133,7 @@ function Notes({
   if (!isSteward && notes.length === 0) return null;
 
   return (
-    <section className="mt-8">
+    <section id="notes" className="mt-8 scroll-mt-6">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
         From the organizer
       </h2>
@@ -206,7 +206,7 @@ function Jobs({
     "rounded-lg border border-slate-400 bg-transparent px-3 py-1.5 text-sm outline-none transition-colors focus:border-emerald-600 dark:border-slate-400";
 
   return (
-    <section className="mt-8">
+    <section id="jobs" className="mt-8 scroll-mt-6">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
         What needs doing
       </h2>

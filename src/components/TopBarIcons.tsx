@@ -9,6 +9,7 @@ import {
   MessageCircle,
   PartyPopper,
   Star,
+  TrendingUp,
   UserPlus,
   type LucideIcon,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const KIND_ICON: Record<string, LucideIcon> = {
   contribution: HandHeart,
   confirmed: PartyPopper,
   event: CalendarDays,
+  insight: TrendingUp,
   // legacy computed kinds
   join: UserPlus,
   stars: Star,
