@@ -436,6 +436,26 @@ next; the product should say, from what it already knows. Migration 0080 and
   `#nudge`) or the event page (`#notes`, `#jobs`), and `?plan=1`, `?edit=1`
   and `?update=1` open the matching tool, so the next action is one tap away.
 
+## Printed codes
+
+A QR code on paper cannot be edited; the link inside it can, if it points at
+us first. `peoplearound.com/qr/<code>` is looked up in `qr_codes`
+(migration 0073) on every scan and the visitor goes wherever the row says
+today — aimed from the admin console, no reprint, no deploy. Temporary
+redirects only, never cached, http(s) only, and a code nobody made goes to
+the front door: the person holding the paper did nothing wrong.
+
+Some codes are a destination in themselves (migration 0081,
+`src/app/qr/_hosted`): a page built into the site, dressed in its owner's
+colour, with their mark, their ask and their Venmo code — and a button
+carrying the link inside that code, because a phone cannot scan its own
+screen. Elle's `/qr/1` is the first. The row keeps the last word: a
+destination set in the console wins over the page, switching the code off
+hides it, and `qr_scan()` counts every scan either way (the smoke test
+announces itself by user agent and is left out). Each has its own share
+card. Nothing here is indexed — these pages are reached from the paper, not
+from a search.
+
 ## Events in public
 
 An event is the one thing in this app with a reason to leave it. A flyer on a

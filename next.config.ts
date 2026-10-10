@@ -73,6 +73,15 @@ const longLivedImages = [
 ];
 
 const nextConfig: NextConfig = {
+  /**
+   * The share card for a printed code's page (src/app/qr/[slug]/
+   * opengraph-image.tsx) reads the owner's mark from the source tree by a
+   * path it gets from a registry, which file tracing cannot follow on its
+   * own. Hand it the folder.
+   */
+  outputFileTracingIncludes: {
+    "/qr/**": ["./src/app/qr/_hosted/**/*.png"],
+  },
   env: {
     NEXT_PUBLIC_COMMIT_SHA: commitSha(),
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),

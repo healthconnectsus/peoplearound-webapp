@@ -3,6 +3,7 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { SITE_URL } from "@/lib/site";
 import { timeAgo } from "@/lib/projects";
 import { saveQrCode } from "./qrActions";
+import { hostedPage } from "@/app/qr/_hosted/pages";
 
 /**
  * Printed QR codes and where they point (migration 0073).
@@ -80,10 +81,14 @@ export async function QrCodes() {
                 </SubmitButton>
               </div>
               <p className="text-xs text-black/45 dark:text-white/45">
-                {c.enabled && c.url ? (
+                {!c.enabled ? (
+                  "Off — scans land on the front door."
+                ) : c.url ? (
                   <>
                     Scans go to <span className="break-all">{c.url}</span>
                   </>
+                ) : hostedPage(c.slug) ? (
+                  "Scans open its own page, built into the site. Set a destination to send them somewhere else instead."
                 ) : (
                   "Scans land on the front door — no destination set."
                 )}

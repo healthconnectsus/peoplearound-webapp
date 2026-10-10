@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { buildCsp, cspHeaderName } from "@/lib/csp";
 import { verifiedClaims } from "@/lib/supabase/claims";
+import { printedCode, whereToSend } from "@/lib/qr";
 
 /**
  * Refreshes the Supabase auth session on every request and enforces route
@@ -78,6 +79,26 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // A printed QR code (migrations 0073 and 0081): resolved here, before any
+  // page, because a redirect decided inside a page is a <meta> tag in a 200
+  // once the root loading boundary streams — and a printed code deserves a
+  // real 307, which nothing caches. A code with a page of its own falls
+  // through to it like any other public route. See src/lib/qr.ts.
+  const code = printedCode(path);
+  if (code) {
+    // The smoke test opens /qr/1 on every deploy; its visits are not interest.
+    const smoke = (request.headers.get("user-agent") ?? "").startsWith(
+      "peoplearound-smoke",
+    );
+    const to = await whereToSend(code, !smoke, new URL("/", request.nextUrl.origin).toString());
+    if (to) {
+      return NextResponse.redirect(to, {
+        status: 307,
+        headers: { "cache-control": "no-store" },
+      });
+    }
+  }
+
   const isPublicRoute =
     path.startsWith("/login") ||
     path.startsWith("/auth") ||
@@ -118,9 +139,10 @@ export async function updateSession(request: NextRequest) {
     // no session, and a fallback that redirects to /login is not a fallback:
     // the one moment it exists for is the moment the network is gone.
     path === "/offline" ||
-    // Printed QR codes (migration 0073). Whoever scans one is a stranger
-    // with a phone camera: a code that answers with a login page is a dead
-    // code. The route only ever redirects, and reads no session.
+    // Printed QR codes (migrations 0073 and 0081). Whoever scans one is a
+    // stranger with a phone camera: a code that answers with a login page is
+    // a dead code. Resolved above; what gets here is a code with a page of
+    // its own, which reads no session.
     path.startsWith("/qr/") ||
     // A published event (migration 0074) — the page a flyer's QR points at,
     // its share card, its calendar file and its QR image. A poster whose

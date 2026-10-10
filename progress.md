@@ -7,6 +7,27 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-10 — Elle's printed code is a page now: /qr/1 shows her mark, her ask and her Venmo code — with a button carrying the link inside that code, because a phone cannot scan its own screen — and any printed code can be a page of its own (src/app/qr/_hosted, migration 0081). Codes are resolved in the proxy so a redirect is a real 307 (inside a page it became a meta tag in a 200 once the root loading boundary streamed); the page itself is static; every scan is counted, the smoke test's no longer; each hosted page has its own share card; the install banner stays off these pages
+
+- `docs/ARCHITECTURE.md`
+- `next.config.ts`
+- `scripts/smoke.mjs`
+- `src/app/admin/QrCodes.tsx`
+- `src/app/qr/[slug]/opengraph-image.tsx`
+- `src/app/qr/[slug]/page.tsx`
+- `src/app/qr/[slug]/route.ts`
+- `src/app/qr/_hosted/Fundraiser.tsx`
+- `src/app/qr/_hosted/elle/logo-og.png`
+- `src/app/qr/_hosted/elle/logo.webp`
+- `src/app/qr/_hosted/elle/venmo.png`
+- `src/app/qr/_hosted/pages.ts`
+- `src/app/qr/_hosted/slugs.ts`
+- `src/components/InstallPrompt.tsx`
+- `src/lib/qr.ts`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0081_qr_scan.sql`
+
+
 ### 2026-10-09 — The rail spells P·E·O·P·L·E again (People around, Events, Offers, Projects, Local Faves, Explore — kept by request; Local Faves leaves the avatar menu), and a coach that says what to do next: a Your next steps card on home, How it's going with milestones and the week's numbers on a steward's project page, What to do next plus a this-week line per project on Analytics, and a Monday insight notification for real accounts that run something — all from one ranked rule set (src/lib/coach.ts) over one scoped read (migration 0080: my_coach, project_coach, insight_recipients, project_detail.coach; counts, never names)
 
 - `docs/ARCHITECTURE.md`

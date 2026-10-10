@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 
 type BeforeInstallPromptEvent = Event & {
@@ -16,6 +17,7 @@ const DISMISS_KEY = "pa-install-dismissed";
  * no interstitial: an app that nags to be installed hasn't earned it yet.
  */
 export function InstallPrompt() {
+  const pathname = usePathname();
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(
     null,
   );
@@ -35,7 +37,10 @@ export function InstallPrompt() {
     };
   }, []);
 
-  if (!deferred) return null;
+  // Never over a printed code's own page (src/app/qr/_hosted): that is
+  // somebody else's page in their colours, and an invitation to install
+  // ours would be a stranger walking into it.
+  if (!deferred || pathname.startsWith("/qr/")) return null;
 
   const dismiss = () => {
     localStorage.setItem(DISMISS_KEY, "1");

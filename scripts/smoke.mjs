@@ -77,10 +77,13 @@ function check(ok, label, detail = "") {
   return ok;
 }
 
+// Named, so the pages that count visits (/qr/<code>) can leave this one out.
+const USER_AGENT = "peoplearound-smoke/1";
+
 async function load(path, cookie) {
   const t = performance.now();
   const res = await fetch(BASE + path, {
-    headers: cookie ? { cookie } : {},
+    headers: { "user-agent": USER_AGENT, ...(cookie ? { cookie } : {}) },
     redirect: "manual",
   });
   const html = res.status === 200 ? await res.text() : "";
@@ -154,7 +157,7 @@ try {
 
   // --- the doors a stranger uses
   console.log("");
-  for (const path of ["/login", "/start", "/privacy", "/city", "/robots.txt", "/sitemap.xml", "/manifest.webmanifest"]) {
+  for (const path of ["/login", "/start", "/privacy", "/city", "/qr/1", "/robots.txt", "/sitemap.xml", "/manifest.webmanifest"]) {
     const { res, ms } = await load(path, null);
     const ok = check(res.status === 200, `${path} (signed out)`, `HTTP ${res.status}`);
     console.log(`  ${ok ? "✓" : "✗"} ${(path + "  (signed out)").padEnd(48)} ${String(ms).padStart(5)}ms${ok ? "" : `   HTTP ${res.status}`}`);
@@ -165,6 +168,13 @@ try {
     const to = res.headers.get("location") ?? "";
     const ok = check(res.status >= 300 && res.status < 400 && to.includes("/login"), "/people (signed out)", `expected a redirect to /login, got HTTP ${res.status} ${to}`);
     console.log(`  ${ok ? "✓" : "✗"} ${"/people  (signed out → /login)".padEnd(48)}`);
+  }
+  // --- and that a printed code nobody made goes to the front door, not to a login page
+  {
+    const { res } = await load("/qr/nope", null);
+    const to = res.headers.get("location") ?? "";
+    const ok = check(res.status >= 300 && res.status < 400 && new URL(to, BASE).pathname === "/", "/qr/nope (unknown code)", `expected a redirect to /, got HTTP ${res.status} ${to}`);
+    console.log(`  ${ok ? "✓" : "✗"} ${"/qr/nope  (unknown code → /)".padEnd(48)}`);
   }
 } catch (e) {
   failures.push(`the test itself failed: ${e?.message ?? e}`);
