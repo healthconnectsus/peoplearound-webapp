@@ -42,14 +42,24 @@ export function Fundraiser({ page }: { page: HostedPage }) {
           className="h-auto w-[64%] max-w-[300px]"
         />
 
-        <h1
-          className={`${display.className} mt-9 text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.01em] sm:text-[2.6rem]`}
-          style={{ color: ink }}
-        >
-          {page.headline}
-          {/* Stuck to the last word, so it never sits on a line of its own. */}
-          &nbsp;<span aria-hidden>🌺</span>
-        </h1>
+        <div className="mt-9">
+          {page.kicker ? (
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-70"
+              style={{ color: ink }}
+            >
+              {page.kicker}
+            </p>
+          ) : null}
+          <h1
+            className={`${display.className} mt-2 text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.01em] sm:text-[2.6rem]`}
+            style={{ color: ink }}
+          >
+            {page.headline}
+            {/* Stuck to the last word, so it never sits on a line of its own. */}
+            &nbsp;<span aria-hidden>🌺</span>
+          </h1>
+        </div>
 
         {page.paragraphs.map((p) => (
           <p key={p} className="mt-4 max-w-sm text-[17px] leading-relaxed">

@@ -17,6 +17,8 @@ import { HOSTED_SLUGS } from "./slugs";
 export type HostedPage = {
   /** Whose page it is; the tab title and the share card say so. */
   name: string;
+  /** A line above the headline: what the money is for, in a few words. */
+  kicker?: string;
   /** The headline. */
   headline: string;
   /** The ask, a paragraph at a time. */
@@ -44,10 +46,11 @@ const HOSTED = new Map<string, HostedPage>([
     "1",
     {
       name: "Elle",
+      kicker: "Choir trip · March",
       headline: "Help me get to Hawaii",
       paragraphs: [
-        "I'm raising funds for a trip to Hawaii, and any donation is welcome — big, small, or just a kind word passed along.",
-        "Every bit brings the islands a little closer. Thank you for helping me get there.",
+        "My choir is traveling to Hawaii in March to sing, and I'm raising my share of the trip. Any donation is welcome, big or small — and so is a kind word passed along.",
+        "Every gift brings the islands a little closer. Thank you for helping me get there, and for cheering us on.",
       ],
       signoff: "Mahalo",
       logo: {

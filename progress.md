@@ -7,6 +7,13 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-11 — Elle's page says what the money is for: her choir's trip to Hawaii in March — a line above the headline, the ask rewritten around it, and the same line on the share card
+
+- `src/app/qr/[slug]/opengraph-image.tsx`
+- `src/app/qr/_hosted/Fundraiser.tsx`
+- `src/app/qr/_hosted/pages.ts`
+
+
 ### 2026-10-10 — Elle's printed code is a page now: /qr/1 shows her mark, her ask and her Venmo code — with a button carrying the link inside that code, because a phone cannot scan its own screen — and any printed code can be a page of its own (src/app/qr/_hosted, migration 0081). Codes are resolved in the proxy so a redirect is a real 307 (inside a page it became a meta tag in a 200 once the root loading boundary streamed); the page itself is static; every scan is counted, the smoke test's no longer; each hosted page has its own share card; the install banner stays off these pages
 
 - `docs/ARCHITECTURE.md`

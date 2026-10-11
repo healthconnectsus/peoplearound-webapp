@@ -62,9 +62,23 @@ export default async function QrOgImage({
         ) : (
           <div style={{ fontSize: 120, fontWeight: 700 }}>{page.name}</div>
         )}
+        {page.kicker ? (
+          <div
+            style={{
+              marginTop: 44,
+              fontSize: 24,
+              fontWeight: 600,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              opacity: 0.7,
+            }}
+          >
+            {page.kicker}
+          </div>
+        ) : null}
         <div
           style={{
-            marginTop: 44,
+            marginTop: page.kicker ? 14 : 44,
             fontSize: 58,
             fontWeight: 700,
             letterSpacing: "-0.02em",
