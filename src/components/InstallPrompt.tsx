@@ -48,7 +48,7 @@ export function InstallPrompt() {
   };
 
   return (
-    <div className="fixed inset-x-3 bottom-20 z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-slate-400 bg-white/95 p-3 shadow-lg backdrop-blur dark:border-slate-500 dark:bg-zinc-900/95 lg:hidden">
+    <div className="fixed inset-x-3 bottom-20 z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-slate-400 bg-white/95 p-3 shadow-lg backdrop-blur dark:border-slate-500 dark:bg-zinc-900/95 lg:hidden print:hidden">
       <span className="text-xl" aria-hidden>
         🏘️
       </span>

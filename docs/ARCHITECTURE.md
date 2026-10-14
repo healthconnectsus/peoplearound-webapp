@@ -493,6 +493,46 @@ never becomes a contribution: help stays something people log themselves and a
 neighbor confirms (see "No self-approval" above), and a tick box would have
 been a back door around that.
 
+## Project flyers
+
+The event chain above, done for the project itself (migration 0082). A
+steward opens `/projects/<id>/flyer` — the flyer studio — and three things
+happen in order: the project is published (a share code; `/p/<code>` is
+then a page anyone can open, with the project's own QR code and share
+card), the assistant writes the flyer's words, and the sheet prints.
+
+- **The assistant writes from facts, never about people.** `writeFlyerCopy()`
+  (src/lib/flyer.ts) is handed the project's title, description, category,
+  community, its next three events, its open jobs and two counts, plus a
+  note from the steward — and returns a headline, a subline, a few
+  sentences, three bullets and a call to action, each with a length limit
+  the database also enforces. The system prompt forbids inventing a date, a
+  place or a number. Same providers and the same daily credit as idea
+  shaping (src/lib/ai.ts). With no provider configured, the draft is the
+  project's own words, so the studio works everywhere.
+- **The words are the steward's.** They are stored once in `project_flyers`
+  and edited in place; a hand edit clears the model's name from the row
+  because it is theirs now. The public page uses the same headline and
+  subline, so the lamppost and the chat say the same thing.
+- **One sheet, one markup.** `Flyer` (src/components/Flyer.tsx) sizes
+  everything in container-query units, so the same component is the
+  thumbnail, the preview and the printed A4 page. The code is vector, in the
+  flyer's own ink, with error correction Q for the rain.
+- **Publishing is a steward's call, in the database.** `set_project_sharing()`
+  checks `can_steward()` itself, because the projects table's update policy
+  is founders-only and a co-organizer should still be able to put up a
+  flyer. Unpublishing retires the code, like events.
+- **"Count me in" is a hand-off, not a link to the login page.** The login
+  page shows its form to everyone, so `/p/<code>/join` sends a signed-in
+  visitor straight to the project and anyone else to sign-up with the
+  project as the place to come back to. It only redirects, so a GET is safe.
+- **Long copy shrinks, it is never cut.** A sheet does not scroll: the text
+  block measures itself and steps its type down, letting a photo give up
+  height first. The longest flyer the database allows still fits one page.
+- **The coach counts it.** "Promoted" now means a published event, a public
+  page or a flyer, and a project with a date, three stars or a teammate and
+  no flyer is told to make one.
+
 ## Security & privacy posture
 
 - Auth via Supabase Auth (email/magic-link today; phone + verified neighborhood later).

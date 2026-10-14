@@ -176,6 +176,12 @@ try {
     const ok = check(res.status >= 300 && res.status < 400 && new URL(to, BASE).pathname === "/", "/qr/nope (unknown code)", `expected a redirect to /, got HTTP ${res.status} ${to}`);
     console.log(`  ${ok ? "✓" : "✗"} ${"/qr/nope  (unknown code → /)".padEnd(48)}`);
   }
+  // --- and that a project page is public: an unknown code is a 404, not a login page
+  {
+    const { res } = await load("/p/NOPE0000/qr", null);
+    const ok = check(res.status === 404, "/p/<code>/qr (signed out)", `expected 404, got HTTP ${res.status} ${res.headers.get("location") ?? ""}`);
+    console.log(`  ${ok ? "✓" : "✗"} ${"/p/NOPE0000/qr  (signed out → 404)".padEnd(48)}`);
+  }
 } catch (e) {
   failures.push(`the test itself failed: ${e?.message ?? e}`);
 } finally {

@@ -7,6 +7,30 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-14 — AI flyers with a QR code for any project: a steward opens Flyer & QR code on their project, publishes it (a share code; /p/<code> becomes a page anyone can open, with its own QR image, share card and a Count me in hand-off), has the assistant draft the words from the project's own facts — never inventing dates, places or numbers — edits them, picks one of four looks and prints one A4 sheet whose code opens that page. The sheet fits itself: long copy steps its type down and a photo gives up height first, so nothing is cut. Migration 0082 (project share codes, project_flyers, public_project, flyer_page, set_project_sharing, coach facts); the coach now suggests a flyer and counts one as Promoted
+
+- `docs/ARCHITECTURE.md`
+- `scripts/smoke.mjs`
+- `src/app/p/[code]/join/route.ts`
+- `src/app/p/[code]/opengraph-image.tsx`
+- `src/app/p/[code]/page.tsx`
+- `src/app/p/[code]/qr/route.ts`
+- `src/app/projects/[id]/OwnerTools.tsx`
+- `src/app/projects/[id]/flyer/FlyerStudio.tsx`
+- `src/app/projects/[id]/flyer/flyerActions.ts`
+- `src/app/projects/[id]/flyer/page.tsx`
+- `src/app/projects/[id]/page.tsx`
+- `src/components/Flyer.tsx`
+- `src/components/InstallPrompt.tsx`
+- `src/lib/ai.ts`
+- `src/lib/coach.ts`
+- `src/lib/flyer-copy.ts`
+- `src/lib/flyer-styles.ts`
+- `src/lib/flyer.ts`
+- `src/lib/supabase/proxy.ts`
+- `supabase/migrations/0082_project_flyers.sql`
+
+
 ### 2026-10-11 — Elle's page says what the money is for: her choir's trip to Hawaii in March — a line above the headline, the ask rewritten around it, and the same line on the share card
 
 - `src/app/qr/[slug]/opengraph-image.tsx`

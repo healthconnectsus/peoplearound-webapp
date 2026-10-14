@@ -13,7 +13,7 @@ import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { computeBadges } from "@/lib/badges";
 import { FlagButton } from "./FlagButton";
 import { UpdateComposer, ProjectEditor } from "./UpdateComposer";
-import { EditProjectTool, StewardSection } from "./OwnerTools";
+import { EditProjectTool, FlyerLink, StewardSection } from "./OwnerTools";
 import { CoachPanel } from "./CoachPanel";
 import type { CoachProject } from "@/lib/coach";
 import { StateTag } from "./StateTag";
@@ -465,7 +465,10 @@ async function ProjectDetail({
 
         {/* Founder only — nobody else sees an edit affordance. */}
         {isOwner ? (
-          <EditProjectTool startOpen={edit === "1"}>
+          <EditProjectTool
+            startOpen={edit === "1"}
+            beside={<FlyerLink projectId={project.id} />}
+          >
             <ProjectEditor
               projectId={project.id}
               userId={user.id}
@@ -475,6 +478,10 @@ async function ProjectDetail({
               photoUrl={project.photo_url ?? null}
             />
           </EditProjectTool>
+        ) : isSteward ? (
+          <div className="mt-3">
+            <FlyerLink projectId={project.id} />
+          </div>
         ) : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-black/50 dark:text-white/50">

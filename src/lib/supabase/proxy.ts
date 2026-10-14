@@ -149,6 +149,9 @@ export async function updateSession(request: NextRequest) {
     // link asks for a password is a poster nobody acts on. The event's
     // steward chose to publish it, and it shows counts, never names.
     path.startsWith("/e/") ||
+    // A published project (migration 0082) — the page a flyer's QR points
+    // at, its share card and its QR image. Same rule: counts, never names.
+    path.startsWith("/p/") ||
     // Local visual galleries; the pages themselves 404 in production.
     (process.env.NODE_ENV !== "production" && path.startsWith("/dev"));
 

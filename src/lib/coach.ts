@@ -50,6 +50,10 @@ export type CoachProject = {
   last_activity_at: string;
   events_total: number;
   events_published: number;
+  /** The project has a public page (0082). */
+  published: boolean;
+  /** A flyer has been written for it (0082). */
+  has_flyer: boolean;
   next_event: CoachEvent | null;
   last_event: {
     id: string;
@@ -175,6 +179,22 @@ export function projectSteps(p: CoachProject): Step[] {
     });
   }
 
+  // Something to tape up. Once there is a reason to come (a date, a few
+  // stars, a teammate), paper reaches the neighbors who never open an app.
+  if (
+    p.state !== "completed" &&
+    !p.has_flyer &&
+    (p.events_total >= 1 || p.stars >= 3 || p.team >= 1)
+  ) {
+    add({
+      key: `flyer:${p.id}`,
+      weight: 52,
+      text: `Put ${t} on a flyer — a code on a lamppost reaches the neighbors who never open an app`,
+      cta: "Make a flyer",
+      href: `${base}/flyer`,
+    });
+  }
+
   if (p.state !== "completed" && p.views_7d === 0 && ageDays(p.created_at) >= 2) {
     add({
       key: `share:${p.id}`,
@@ -285,7 +305,7 @@ export function milestones(p: CoachProject): { label: string; done: boolean }[] 
     { label: "3 stars", done: p.stars >= 3 },
     { label: "A teammate", done: p.team >= 1 },
     { label: "A date set", done: p.events_total >= 1 },
-    { label: "Promoted", done: p.events_published >= 1 },
+    { label: "Promoted", done: p.events_published >= 1 || p.published || p.has_flyer },
     { label: "An update", done: p.updates >= 1 },
     { label: "Help confirmed", done: p.confirmed >= 1 },
     { label: "Finished", done: p.state === "completed" },

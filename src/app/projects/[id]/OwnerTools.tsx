@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarPlus, Megaphone, Pencil } from "lucide-react";
+import Link from "next/link";
+import { CalendarPlus, Megaphone, Pencil, Printer } from "lucide-react";
 
 /**
  * Stewards' tools, folded away beside the thing they act on.
@@ -95,17 +96,36 @@ export function StewardSection({
 export function EditProjectTool({
   children,
   startOpen = false,
+  beside,
 }: {
   children: React.ReactNode;
   /** Arrive with the editor open — the coach's "Add a photo". */
   startOpen?: boolean;
+  /** Other tools that sit in the same row, e.g. the flyer. */
+  beside?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(startOpen);
 
   return (
     <div className="mt-3">
-      <ToolButton tool="edit" open={open} onToggle={() => setOpen((v) => !v)} />
+      <div className="flex flex-wrap items-center gap-2">
+        <ToolButton tool="edit" open={open} onToggle={() => setOpen((v) => !v)} />
+        {beside}
+      </div>
       {open ? <div className="mt-3">{children}</div> : null}
     </div>
+  );
+}
+
+/** The flyer studio, one step away. Stewards only — the page itself checks. */
+export function FlyerLink({ projectId }: { projectId: string }) {
+  return (
+    <Link
+      href={`/projects/${projectId}/flyer`}
+      className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-400 px-4 py-1.5 text-xs font-medium transition-colors hover:bg-black/5 dark:border-slate-400 dark:hover:bg-white/10"
+    >
+      <Printer className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+      Flyer &amp; QR code
+    </Link>
   );
 }
