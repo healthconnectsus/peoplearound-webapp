@@ -7,6 +7,12 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-10-22 — docs: add GETTING_TO_THREE outreach reset plan
+
+- `docs/GETTING_TO_THREE.md`
+- `docs/MARKETING.md`
+
+
 ### 2026-10-14 — AI flyers with a QR code for any project: a steward opens Flyer & QR code on their project, publishes it (a share code; /p/<code> becomes a page anyone can open, with its own QR image, share card and a Count me in hand-off), has the assistant draft the words from the project's own facts — never inventing dates, places or numbers — edits them, picks one of four looks and prints one A4 sheet whose code opens that page. The sheet fits itself: long copy steps its type down and a photo gives up height first, so nothing is cut. Migration 0082 (project share codes, project_flyers, public_project, flyer_page, set_project_sharing, coach facts); the coach now suggests a flyer and counts one as Promoted
 
 - `docs/ARCHITECTURE.md`

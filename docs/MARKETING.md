@@ -154,8 +154,8 @@ follow-up, reply, page created.
   (pickleball court conversion, disc golf course, field cleanup) and document
   them start-to-finish. The finished court with an attributed team page is the
   best possible ad.
-- **World Cup afterglow (time-sensitive, Aug–Sep 2026)** — "start a pickup
-  soccer group" push while interest peaks.
+- ~~**World Cup afterglow (time-sensitive, Aug–Sep 2026)**~~ — window closed
+  unused. Keep the format in mind for the next major tournament.
 - **Run club starter kit** — `/start` landing page (shipped) + social
   clips: "Start your neighborhood's run club in 10 minutes."
 
@@ -190,6 +190,11 @@ follow-up, reply, page created.
 
 The concrete target list — named organizations, doors, contacts, tiers and a
 6-week sequence — lives in `OUTREACH_TARGETS.md`.
+
+**Status 2026-10-21:** the first cold-email round returned zero replies.
+`GETTING_TO_THREE.md` has the diagnosis and the replacement plan — in-person
+Aurora outreach, Meetup organizer arbitrage, prebuilt pages instead of asks,
+and paid design partners. Read that before sending anything else.
 
 - [ ] Pull the USA Pickleball ambassador directory for launch areas; first 10
       sends of template A.
