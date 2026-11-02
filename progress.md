@@ -7,6 +7,17 @@ added automatically by `npm run ship` (see `scripts/ship.mjs`).
 
 <!-- New entries go directly below this line. -->
 
+### 2026-11-02 — Logo v12: new gradient sampled from the dotted-mark reference - orange #FB9404 through gold and olive to cyan-teal #0DC5C5, left to right (reverses v11.1 and swaps the coral end for cyan); icon and PWA icons regenerated
+
+- `public/apple-icon.png`
+- `public/icon-192.png`
+- `public/icon-512.png`
+- `public/logo-dark.svg`
+- `public/logo-light.svg`
+- `public/logo.svg`
+- `src/app/icon.svg`
+
+
 ### 2026-10-22 — docs: add GETTING_TO_THREE outreach reset plan
 
 - `docs/GETTING_TO_THREE.md`
